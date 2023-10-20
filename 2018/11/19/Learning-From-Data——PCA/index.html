@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上节课除了介绍了K-Means，更重点介绍了另外一个算法，PCA（Principal Component Analysis）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——PCA">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上节课除了介绍了K-Means，更重点介绍了另外一个算法，PCA（Principal Component Analysis）。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA5.png">
+<meta property="article:published_time" content="2018-11-19T08:58:24.000Z">
+<meta property="article:modified_time" content="2018-12-07T07:37:16.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="unsupervised learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/","path":"2018/11/19/Learning-From-Data——PCA/","title":"Learning From Data——PCA"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——PCA | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PCA%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">PCA描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E5%AF%BCPCA"><span class="nav-number">2.</span> <span class="nav-text">推导PCA</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E9%A2%981"><span class="nav-number">2.0.1.</span> <span class="nav-text">命题1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E9%A2%982"><span class="nav-number">2.0.2.</span> <span class="nav-text">命题2</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCA%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">3.</span> <span class="nav-text">PCA的性质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCA%E6%8A%95%E5%BD%B1"><span class="nav-number">4.</span> <span class="nav-text">PCA投影</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCA%E5%9C%A8%E5%81%9A%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">PCA在做什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCA%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">6.</span> <span class="nav-text">PCA的限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#k-means%E4%B8%8EPCA%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">7.</span> <span class="nav-text">k-means与PCA的对比</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——PCA | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——PCA
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-19 16:58:24" itemprop="dateCreated datePublished" datetime="2018-11-19T16:58:24+08:00">2018-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-12-07 15:37:16" itemprop="dateModified" datetime="2018-12-07T15:37:16+08:00">2018-12-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上节课除了介绍了K-Means，更重点介绍了另外一个算法，PCA（Principal Component Analysis）。</p>
+<span id="more"></span>
+
+<p>PCA中文应该翻译为主要成分分析。这个翻译是直白的，我们也能很容易知道猜得到这个算法在做什么。</p>
+<p>首先举个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA1.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA2.png"></p>
+<p>从上面看出来，有时候很多特征包含了很多的冗余信息。如拥挤程度和人流密度，就有很大的相关性。</p>
+<p>我们需要消除这样的相关性，并且减少噪声。</p>
+<h2 id="PCA描述"><a href="#PCA描述" class="headerlink" title="PCA描述"></a>PCA描述</h2><p>PCA算法的描述如下：</p>
+<p>给定输入${X_1,X_2,…,X_m}，X_i \in \mathbb{R}$.找到输入的一个线性，正交转换W：$\mathbb{R}^n, \mathbb{R}^k$。W将最大方差方向与新空间的坐标轴对其。</p>
+<p>如下图：左侧图片中，$x_1$与$x_2$是高度相关的，右侧图为转换过后的z，它几乎和水平坐标轴平行。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA3.png"></p>
+<h2 id="推导PCA"><a href="#推导PCA" class="headerlink" title="推导PCA"></a>推导PCA</h2><p>为了方便PCA的推导，我们首先会对数据进行预处理，也就是对其进行normalize,使得Mean(X) &#x3D;0,Stdev(X) &#x3D; 1:<br>$$<br>X_i :&#x3D; X_i - Mean(X) \leftarrow recenter\<br>X_i :&#x3D; X_i &#x2F; Stdev(X) \leftarrow scale<br>$$</p>
+<p>Stdev(X)为标准偏差函数。</p>
+<p>我们希望在输入中找到让各个样本变化最大的方向的主轴u（找到变分单位向量的主轴），如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA7.png"></p>
+<p>PCA的目标：</p>
+<ol>
+<li>找到互相正交的主要成分$u_1,u_2,…,u_n$，它们之间互不相关。</li>
+<li>大多数X中的变化会被k个主要成分代表了，这里的$k &lt;&lt; n$.</li>
+</ol>
+<p>根据PCA的目标，我们可以分析PCA的主要步骤：</p>
+<ol>
+<li>找到X在某个向量上的投影，使得$u_1^TX$有最大的方差。</li>
+<li>对于j&#x3D;2,…n，继续上面的步骤，找到X在某个向量上的投影（与之前的向量正交），使得$u_j^TX$有最大的方差，再次强调：$u_j$与$u_1,…,u_{j-1}$正交。</li>
+</ol>
+<p>因为$\Vert u \Vert &#x3D; 1$,则$X_i$在$u$上的投影长度为：$X_i^Tu$.而这些投影的方差计算结果如下：<br>$$<br>\begin{aligned}<br>\frac 1 m \sum_{i&#x3D;1}^m (X_i^T u)^2 &amp;&#x3D; \frac 1 m \sum_{i&#x3D;1}^m u^TX_iX_i^T u \<br>&amp;&#x3D; u^T (\sum_{i&#x3D;1}^m X_i X_i^T)u\<br>&amp;&#x3D; u^T \Sigma u<br>\end{aligned}<br>$$<br>这里的$\Sigma$是$X$的协方差矩阵。</p>
+<p>找到单位向量$u_1$使得投影的方差最大，可以用数学语言描述如下：<br>$$<br>u_1 &#x3D;  argmax_{u:\Vert u \Vert &#x3D; 1} u^T\Sigma u<br>$$</p>
+<p>$u_i$是X的第i个主要成分。</p>
+<p>如何求解$u_i$呢？首先，既然$u_i$要与之前的正交，因此这个求解顺序是从1到n。现在我们来分析$u_1$。</p>
+<h4 id="命题1"><a href="#命题1" class="headerlink" title="命题1"></a>命题1</h4><p>$u_1$是协方差矩阵最大的特征向量(eigen vector)。</p>
+<p>证明如下：</p>
+<p>首先，根据数学描述构建Lagrange function：<br>$$<br>L(u) &#x3D; -u^T \Sigma u + \beta (u^Tu - 1)<br>$$</p>
+<p>to minimize $L(u)$:</p>
+<p>$$<br>\frac{\partial L(u)} {\partial u} &#x3D; -\Sigma u + \beta u &#x3D; 0<br>$$</p>
+<p>因此我们可以确定了u是一个$\Sigma$的特征向量。</p>
+<p>同时,投影方差等于$u^T \Sigma u &#x3D; u^T \beta u &#x3D; \beta $.</p>
+<p>为了让方差最大，也就是$\beta$最大。而最大的特征值对应这最大的特征向量。</p>
+<h4 id="命题2"><a href="#命题2" class="headerlink" title="命题2"></a>命题2</h4><p>第j个X的主要成分，也就是$u_j$为$\Sigma$的第j个最大的特征向量。</p>
+<p>为了简化问题，先写出第二个主要成分的数学描述：<br>$$<br>u &#x3D; argmax_{u:\Vert u\Vert &#x3D; 1;u_1^T u &#x3D; 0} u^T \Sigma u<br>$$</p>
+<p>同样地构建Lagrange Function：<br>$$<br>L(u) &#x3D; -u^T\Sigma u + \beta_1 (u^Tu-1 ) + \beta_2 (u_1^Tu)<br>$$</p>
+<p>$$<br>\frac{\partial L(u)} {\partial u} &#x3D; -\Sigma u + \beta_1 u + \beta_2 u_1 &#x3D; 0<br>$$</p>
+<p>上式中，我们知道两个互相正交的非零向量加起来不可能为0.所以得到：</p>
+<p>$\beta_2 &#x3D; 0, \Sigma u &#x3D; \beta_1 u $</p>
+<p>所以按照证明命题1同样的步骤，我们就证明了命题2中的第二个主要成分是成立的.</p>
+<p>同样的证明方法可以继续拓展，$j&#x3D;3,…,n$，都是成立的。</p>
+<h2 id="PCA的性质"><a href="#PCA的性质" class="headerlink" title="PCA的性质"></a>PCA的性质</h2><p>从上面的推导，我们可以得到的PCA的下面几个性质：</p>
+<ul>
+<li>主要成分投影的方差分别为：</li>
+</ul>
+<p>$Var(X^Tu_j) &#x3D; u_j^T \Sigma u_j &#x3D; \lambda_j,j&#x3D;1,2,…,n$</p>
+<ul>
+<li>不同方差的百分比$\frac {\lambda_j}{\sum_{i&#x3D;1} ^n \lambda _i}$也就是主要成分的所占比重，也说明了各个主要成分之间是不相关的。</li>
+</ul>
+<h2 id="PCA投影"><a href="#PCA投影" class="headerlink" title="PCA投影"></a>PCA投影</h2><p>确定主要成分后，我们通过将原数据对主要成分投影来得到数据的压缩等效果。也就是：</p>
+<p>$Z_i &#x3D; [X_{i}^T u_1,X_i^T u_2,…,X_i^T u_n]$</p>
+<p>使用矩阵形式：<br>$$<br>\begin{aligned}<br>Z &amp;&#x3D; \begin{bmatrix}<br>x_{1}^T&amp;<br>X_{2}^T&amp;<br>…&amp;<br>X_{m}^T<br>\end{bmatrix}\begin{bmatrix}<br> |&amp;|&amp;…&amp;|\<br>u_1 &amp; u_2&amp; … &amp; u_n\<br> |&amp;|&amp;…&amp;|<br>\end{bmatrix}<br>&amp;&#x3D;XU<br>\end{aligned}<br>$$</p>
+<p>或者$Z_i &#x3D; U^TX_i$。</p>
+<p>我们可以看出来，$Z_i$同样是n维度的。而截断转换$Z_k &#x3D; XU_k$只保留前k个主要成分，用来做维度的压缩，因为前k个主要成分往往占了内容的大部分。</p>
+<h2 id="PCA在做什么？"><a href="#PCA在做什么？" class="headerlink" title="PCA在做什么？"></a>PCA在做什么？</h2><p>PCA删除了输入X中的冗余数据：</p>
+<p>如果经过转换后为Z，则 $cov(Z) &#x3D; \frac 1 n Z^T Z &#x3D; \frac 1 n (XW)^T (XW) &#x3D; \frac 1 n W^T(X^TX)W  &#x3D; \frac 1 n W^T\Sigma W$.</p>
+<p>由于$\Sigma$是对称矩阵，因此它有实特征值。它的特征分解(eigen decomposition)为：<br>$$<br>\Sigma &#x3D; W Λ W^T，\<br>where~W &#x3D; \begin{bmatrix}<br> |&amp;|&amp;…&amp;|\<br>u_1 &amp; u_2&amp; … &amp; u_n\<br> |&amp;|&amp;…&amp;|<br>\end{bmatrix},Λ &#x3D; \begin{bmatrix}<br>\lambda _1 &amp;0&amp;\cdots&amp;0\<br>0&amp;\lambda_2&amp;\cdots&amp;0\<br>\vdots &amp; \vdots&amp; \ddots &amp;\vdots\<br>0&amp;0&amp;\cdots&amp;\lambda_n<br>\end{bmatrix}<br>$$</p>
+<p>因此： $cov(Z) &#x3D; W^TW Λ W^TW &#x3D; Λ $.主成分变换XW对角化了X的样本协方差矩阵.</p>
+<p>PCA的著名例子：Iris Dataset，EigenFaces。</p>
+<h2 id="PCA的限制"><a href="#PCA的限制" class="headerlink" title="PCA的限制"></a>PCA的限制</h2><p>PCA很有用，但是它也有一些明显的缺陷：</p>
+<ul>
+<li>只考虑线性关系</li>
+<li>假设数据是真实并且连续的</li>
+<li>假设输入空间近似正态分布（不过在非正态分布中也可能工作得很好）<br>下面是一个非正态分布的例子：</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA6.png"></p>
+<p>输入：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA4.png"></p>
+<p>PCA投影：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/PCA5.png"></p>
+<p>下次我们将主要说明一下第一个缺陷的解决办法：kernel PCA。</p>
+<h2 id="k-means与PCA的对比"><a href="#k-means与PCA的对比" class="headerlink" title="k-means与PCA的对比"></a>k-means与PCA的对比</h2><p>Unsupervised learning algorithm:</p>
+<table>
+<thead>
+<tr>
+<th>algorithm</th>
+<th align="center">low dimension</th>
+<th align="center">sparse</th>
+<th align="center">disentangle variations</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>k-means</td>
+<td align="center">no</td>
+<td align="center">yes</td>
+<td align="center">no</td>
+</tr>
+<tr>
+<td>PCA</td>
+<td align="center">yes</td>
+<td align="center">no</td>
+<td align="center">yes</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/unsupervised-learning/" rel="tag"># unsupervised learning</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94K-Means-Clustering/" rel="prev" title="Learning From Data——K-Means Clustering">
+                  <i class="fa fa-angle-left"></i> Learning From Data——K-Means Clustering
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/20/Learning-From-Data%E2%80%94%E2%80%94Kernel-PCA/" rel="next" title="Learning From Data——Kernel PCA">
+                  Learning From Data——Kernel PCA <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

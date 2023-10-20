@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="今天想起来之前一个oj题目，是求类似与斐波那契数列一个数列的第N位。那时候接触到一个算法叫快速矩阵幂。 在这里我就用斐波那契数列的列子来简单说明一下如何用快速矩阵幂来解决这个题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fibonacci数列——快速矩阵幂">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="今天想起来之前一个oj题目，是求类似与斐波那契数列一个数列的第N位。那时候接触到一个算法叫快速矩阵幂。 在这里我就用斐波那契数列的列子来简单说明一下如何用快速矩阵幂来解决这个题目。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-01T05:04:38.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:32:11.100Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="algorithm">
+<meta property="article:tag" content="Matrix">
+<meta property="article:tag" content="code">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/","path":"2018/08/01/Fibonacci数列——快速矩阵幂/","title":"Fibonacci数列——快速矩阵幂"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Fibonacci数列——快速矩阵幂 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%A4%A9%E7%9C%9F%E7%9A%84%E5%81%9A%E6%B3%95%E6%98%AF%E7%94%A8%E9%80%92%E5%BD%92%E6%9D%A5%E8%A7%A3%E5%86%B3%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">最天真的做法是用递归来解决：##</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%84%B6%E5%90%8E%E6%AD%A3%E5%B8%B8%E7%9A%84%E5%81%9A%E6%B3%95%E6%98%AF%E7%94%A8%E7%AE%80%E5%8D%95%E7%9A%84%E5%BE%AA%E7%8E%AF"><span class="nav-number">2.</span> <span class="nav-text">然后正常的做法是用简单的循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82"><span class="nav-number">3.</span> <span class="nav-text">快速矩阵幂</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Fibonacci数列——快速矩阵幂 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Fibonacci数列——快速矩阵幂
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-01 13:04:38" itemprop="dateCreated datePublished" datetime="2018-08-01T13:04:38+08:00">2018-08-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:32:11" itemprop="dateModified" datetime="2023-10-21T03:32:11+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天想起来之前一个oj题目，是求类似与斐波那契数列一个数列的第N位。那时候接触到一个算法叫快速矩阵幂。</p>
+<p>在这里我就用斐波那契数列的列子来简单说明一下如何用快速矩阵幂来解决这个题目。</p>
+<span id="more"></span>
+
+<p>Fibonacci数列定义：$F(0) &#x3D; 1, F(1) &#x3D; 1, F(2) &#x3D; 1, F(3) &#x3D; 2, …… F(n) &#x3D; F(n-1)+F(n-2)$</p>
+<p>首先说明一下，因为斐波那契数列增长速度非常迅速，得到的数字可能过大，因此我们将结果对10000007（$10^7+7$）取余来进行对比。</p>
+<h2 id="最天真的做法是用递归来解决："><a href="#最天真的做法是用递归来解决：" class="headerlink" title="最天真的做法是用递归来解决：##"></a>最天真的做法是用递归来解决：##</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">fibNaive</span><span class="params">(<span class="type">long</span> <span class="type">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(n == <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="built_in">return</span> (<span class="built_in">fibNaive</span>(n<span class="number">-1</span>)%d+<span class="built_in">fibNaive</span>(n<span class="number">-2</span>)%d)%d;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不用说了，算法第一步就会介绍这个反例，来说明递归效率不一定会高(他的算法的运行时间随n的增长类似与Fibonacci数列的增长)。实际上这个做法到n &#x3D; 40的时候就已经可以让人等的有点急了。</p>
+<h2 id="然后正常的做法是用简单的循环"><a href="#然后正常的做法是用简单的循环" class="headerlink" title="然后正常的做法是用简单的循环"></a>然后正常的做法是用简单的循环</h2><p>用两个数来代表之前的两个值，求出新值后继续依次更新前两个值，直到得到正确的结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">fibNormal</span><span class="params">(<span class="type">long</span> <span class="type">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(n == <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>; </span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> last1 = <span class="number">0</span>,last2 = <span class="number">1</span>;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> now;</span><br><span class="line">    n--;</span><br><span class="line">    <span class="keyword">while</span>(n--)</span><br><span class="line">    &#123;</span><br><span class="line">        now = (last1%d+last2%d)%d;</span><br><span class="line">        last1 = last2;</span><br><span class="line">        last2 = now;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> now;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个算法时间复杂度是$O(n)$。$O(n)$已经是一个很好的复杂度了，那还有没有办法继续加快这个过程？？</p>
+<h2 id="快速矩阵幂"><a href="#快速矩阵幂" class="headerlink" title="快速矩阵幂"></a>快速矩阵幂</h2><p>观察斐波那契数列的生成过程，我们可以发现它们可以被写成下面的样子：<br>$$<br>F(N) &#x3D; F(N-1) + F(N-2)<br>F(N-1) &#x3D; F(N-1)+0*F(N-2)<br>$$<br>上面的式子可以写成矩阵形式：<br>$$<br>\left [<br>\begin{matrix}<br>F(N)\<br>F(N-1)<br>\end{matrix}<br>\right ] &#x3D;<br>\begin{bmatrix}<br>1&amp;1\<br>1&amp;0<br>\end{bmatrix}<br>\begin{bmatrix}<br>F(N-1)\<br>F(N-2)<br>\end{bmatrix}<br>$$<br>不断重复上面过程，往后继续展开，我们可以得到：<br>$$<br>\left [<br>\begin{matrix}<br>F(N)\<br>F(N-1)<br>\end{matrix}<br>\right ] &#x3D;<br>{<br>\begin{bmatrix}<br>1&amp;1\<br>1&amp;0<br>\end{bmatrix}<br>}^{n-1}<br>\begin{bmatrix}<br>F(1)\<br>F(0)<br>\end{bmatrix}<br>$$<br>因此我们可以把重点放到怎么来求中间这个矩阵的幂。而快速矩阵幂的思想也很简单，就类似与对于数字的幂的求法一致。比如：$X^9 &#x3D; X^8 \cdot X$,而$X^8 &#x3D; (X^4)^2 &#x3D; ((X^2)^2)^2$，因此需要3+1次乘法就可以算出来8次幂，容易看出来快速矩阵幂的时间复杂度是$O(\log (n))$。<br>因此利用快速矩阵幂，可以将斐波那契数列的求法进一步加速。</p>
+<p>至于如何实现就是细节问题了，需要注意的时候是乘法取余数的时候，两方都小于10000007,乘积依然可能会超过int的范围（10000007*10000007），导致出错，因此我在这里选择long long类型，这样可以保证结果的正确性。</p>
+<p>实现分为几步1：定义矩阵乘法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> vector&lt;vector&lt;<span class="type">long</span> <span class="type">long</span>&gt;&gt; Matrix;</span><br><span class="line"><span class="type">long</span> <span class="type">long</span> d = <span class="number">10000007</span>;</span><br><span class="line"><span class="function">Matrix <span class="title">m_mul</span><span class="params">(<span class="type">const</span> Matrix &amp;m,<span class="type">const</span> Matrix &amp;n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//check(m,n);</span></span><br><span class="line">    Matrix result = vector&lt;vector&lt;<span class="type">long</span> <span class="type">long</span>&gt;&gt;(m.<span class="built_in">size</span>(),<span class="built_in">vector</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(n[<span class="number">0</span>].<span class="built_in">size</span>()));</span><br><span class="line">   </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">long</span> <span class="type">long</span> i = <span class="number">0</span>;i!=m.<span class="built_in">size</span>();++i)</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">long</span> <span class="type">long</span> j = <span class="number">0</span>;j!=n[<span class="number">0</span>].<span class="built_in">size</span>();++j)</span><br><span class="line">    &#123;</span><br><span class="line">         <span class="type">long</span> <span class="type">long</span> temp = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">long</span> <span class="type">long</span> k = <span class="number">0</span>;k!=n.<span class="built_in">size</span>();++k )</span><br><span class="line">         temp = ((m[i][k]*n[k][j])%d + temp%d)%d;</span><br><span class="line">         result[i][j] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>第二，定义help函数，专门对矩阵的幂为2的整数次幂来计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function">Matrix <span class="title">help</span><span class="params">(<span class="type">const</span> Matrix &amp; m,<span class="type">long</span> <span class="type">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Matrix result;</span><br><span class="line">    <span class="keyword">if</span>(n == <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(n == <span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">m_mul</span>(m,m);</span><br><span class="line">    result = <span class="built_in">help</span>(m,n/<span class="number">2</span>);</span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">m_mul</span>(result,result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第三步，实际的quickMartrixPower函数，它实际上会将n次幂拆散为2的整数次幂之和，实际实现将n用二进制表示，如9 &#x3D; (1001)$_b$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Matrix <span class="title">quickMatrixPower</span><span class="params">(<span class="type">const</span> Matrix &amp;m,<span class="type">long</span> <span class="type">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//check(m);</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> np = <span class="number">1</span>;</span><br><span class="line">    Matrix result = vector&lt;vector&lt;<span class="type">long</span> <span class="type">long</span>&gt;&gt; (m.<span class="built_in">size</span>(),<span class="built_in">vector</span>&lt;<span class="type">long</span> <span class="type">long</span>&gt;(m.<span class="built_in">size</span>()));</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">long</span> <span class="type">long</span> i = <span class="number">0</span>;i!=m.<span class="built_in">size</span>();++i)</span><br><span class="line">    result[i][i] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(n!=<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(n&amp;<span class="number">1</span>)</span><br><span class="line">        result = <span class="built_in">m_mul</span>(result,<span class="built_in">help</span>(m,np));</span><br><span class="line">        n = n &gt;&gt; <span class="number">1</span>;</span><br><span class="line">        np = np&lt;&lt;<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后用fib函数封装起来：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">fib</span><span class="params">(<span class="type">long</span> <span class="type">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(n == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span>(n == <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">       &#123;</span><br><span class="line">           Matrix start = &#123; &#123;<span class="number">1</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>&#125; &#125;;</span><br><span class="line">           Matrix m = <span class="built_in">quickMatrixPower</span>(start,n<span class="number">-1</span>);</span><br><span class="line">           <span class="keyword">return</span> m[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后用main函数利用clock函数进行时间测试</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> n,result;</span><br><span class="line">    <span class="type">double</span> start,end;</span><br><span class="line">    <span class="keyword">while</span>(cin&gt;&gt;n)</span><br><span class="line">    &#123;</span><br><span class="line">    start = <span class="built_in">clock</span>();</span><br><span class="line">    result = <span class="built_in">fib</span>(n);</span><br><span class="line">    end = <span class="built_in">clock</span>();</span><br><span class="line">    cout&lt;&lt;result&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;end-start&lt;&lt;endl;</span><br><span class="line">    start = <span class="built_in">clock</span>();</span><br><span class="line">    result = <span class="built_in">fibNormal</span>(n);</span><br><span class="line">    end = <span class="built_in">clock</span>();</span><br><span class="line">    cout&lt;&lt;result&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;end-start&lt;&lt;endl;</span><br><span class="line">    start = <span class="built_in">clock</span>();</span><br><span class="line">    <span class="keyword">if</span>(n&lt;<span class="number">45</span>)</span><br><span class="line">    &#123;</span><br><span class="line">    result = <span class="built_in">fibNaive</span>(n);</span><br><span class="line">    end = <span class="built_in">clock</span>();</span><br><span class="line">    cout&lt;&lt;result&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;end-start&lt;&lt;endl;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出第一个为结果，第二个是运行的clock差值，结果如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">输入：<span class="number">40</span></span><br><span class="line"><span class="number">2334085</span> <span class="number">0</span></span><br><span class="line"><span class="number">2334085</span> <span class="number">0</span></span><br><span class="line"><span class="number">2334085</span> <span class="number">6956</span></span><br><span class="line">输入：<span class="number">1000000</span><span class="comment">//此时naive的算法已经无法求出来</span></span><br><span class="line"><span class="number">9640841</span> <span class="number">0</span></span><br><span class="line"><span class="number">9640841</span> <span class="number">19</span></span><br><span class="line">输入：<span class="number">100000000</span></span><br><span class="line"><span class="number">129680</span> <span class="number">0</span></span><br><span class="line"><span class="number">129680</span> <span class="number">3295</span></span><br></pre></td></tr></table></figure>
+<p>可以看到快速矩阵幂算法在数据量很大的时候很牛逼。<br>不过，斐波那契数列还有个公式：<br>$$F(n) &#x3D; \frac{1}{\sqrt 5}{\left [ {\left ( \frac {1+\sqrt 5}{2} \right )}^n - {\left ( \frac {1-\sqrt 5}{2} \right )}^n  \right ]}<br>$$<br>所以学计算机不如学数学啊！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+              <a href="/tags/Matrix/" rel="tag"># Matrix</a>
+              <a href="/tags/code/" rel="tag"># code</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="prev" title="机器学习——PLA算法实现与可视化">
+                  <i class="fa fa-angle-left"></i> 机器学习——PLA算法实现与可视化
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/" rel="next" title="机器学习——Hoeffding不等式">
+                  机器学习——Hoeffding不等式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

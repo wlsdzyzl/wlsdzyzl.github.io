@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上篇博客说了overfitting的情况，有一些比较高级的处理overfitting的办法，其中有一个就是regularization，中文中叫做正则化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Regularization">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Regularization/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上篇博客说了overfitting的情况，有一些比较高级的处理overfitting的办法，其中有一个就是regularization，中文中叫做正则化。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/QWA_KMVHC_%7DZWJF3%607C%5DQYA.png">
+<meta property="article:published_time" content="2018-09-28T12:34:57.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="overfitting">
+<meta property="article:tag" content="regularization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/QWA_KMVHC_%7DZWJF3%607C%5DQYA.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Regularization/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Regularization/","path":"2018/09/28/机器学习——Regularization/","title":"机器学习——Regularization"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Regularization | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Regularization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Regularization | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Regularization
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-28 20:34:57" itemprop="dateCreated datePublished" datetime="2018-09-28T20:34:57+08:00">2018-09-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上篇博客说了overfitting的情况，有一些比较高级的处理overfitting的办法，其中有一个就是regularization，中文中叫做正则化。</p>
+<span id="more"></span>
+
+<p>从前面的nonlinear transform中也说明了，复杂的假说一般会包括了简单的假说。例如一个2次的假说，与10次的假说，他们的区别，就是10次的比二次的多了更多三次及以上的特征。也就是二次假说实际上是十次假说加上了一个限制：三次及以上的特征前面的权重（w）为0.这样就使得假说变得简单了不少.</p>
+<p>如果放宽这个限制，假如较为简单的模型特征量有r个，在复杂模型中，最多有r个特征的权重不为0，在一定程度上，也可以很好的减少这个复杂度。只不过让人遗憾的是，在这样的假说中选出最佳的$\mathbf w$（权重向量）被证明了是一个NP-hard问题，没有一个很好的解决办法.</p>
+<p>如果个数是整数，要挑出最好的，很容易有NP-hard问题，但是将这个拓宽到实数领域，我们往往可以通过数学工具得到最佳解。例如在这里，我们继续拓宽这个限制：让这些$w^2$和小于一个常数$C$，似乎也可以起到类似的效果。</p>
+<p>为了简化问题，举个很简单的例子如：对于只有一个特征量的样本集，$H_2 &#x3D; w_0+w_1x+w_2X^2$，而$H_{10} &#x3D; w_0+w_1x+w_2x^2+…+w_{10}x^{10}$.</p>
+<p>对于$H_2$来说，$H_{10}$中限制为$w_3 &#x3D; w_4 &#x3D; w_5 &#x3D; …&#x3D; w_{10} &#x3D; 0$.</p>
+<p>对于上面说的第二种假设，$H_{10}$限制为:$\sum _{n &#x3D; 0} ^{10} [[w_n \ne 0]] \leq 3$.</p>
+<p>对于第三种假设，$H_{10}$限制为:$\sum_{n &#x3D; 0}^{10} w_n^2 \leq C$ 即$W^TW \leq C$.</p>
+<p>那么，我们已经知道了最后一个才有可能求得最佳解。如何去做？</p>
+<p>高维度的figure我们无法想象，我也不知道怎么去称呼，但是如果是二维，这个限制是一个圆，如果是三维，这个限制是一个球。假设我们依然称这个限制为一个球，而没有限制的最低点不在这个球内。因此梯度下降的结果就是达到了球的边缘，但是依然想要走下坡路。无路可走的情况，是梯度与该法向量的方向平行了，而只要梯度与该法向量的方向不不平行，我们总是可以朝着某个方向走使得$E_{in}$继续减少。因此这个过程终止的时候，就是该点的法向量与$E_{in}$的梯度平行了，而值得注意的是边缘某点的法向量实际上就是$W$.如果我们称做这个结果$W$为$W_{REG}$，那么有个结果：$W_{REG} &#x3D; \lambda ▽E_{in}$.</p>
+<p>其中这个$lambda$是一个常熟.我们知道，线性回归中梯度为$▽E_{in} &#x3D; \frac 2 N (X^TX - Y^TXW)$，为了简化，我们将$\lambda$写为$ \frac {2\lambda} N$,最后得到：<br>$$<br>▽E_{in}+ \frac 2 N \lambda W_{REG} &#x3D; 0.<br>$$<br>如果$\lambda$提前知道，那么我们就可以求得$W_{REG}$的值.</p>
+<p>如果对上式左边求积分可以得到： </p>
+<p>$$<br>f(W) &#x3D; E_{in} + \frac \lambda N W_{REG}<br>$$</p>
+<p>所以可以很神奇地发现，对于原来的问题的求解可以很有效地转变成了求$f(W)$的最小值，它就是正则化后的$E_{in}$，因此新的$cost-function$变成了下面的样子：</p>
+<p>$$<br>min_{W \in R^{Q+1} } \frac 1 N \sum _{n &#x3D; 0} ^N (\mathbf{w}^T \theta(X_n) - y_n)^2 + \frac {\lambda} N \sum {q&#x3D;0} ^Q w_q^2<br>$$</p>
+<p>tips：对于多项式正则化，因为一般来说我们会将特征值的范围限定到$[-1,1]$(原因以后再探讨),这导致高次项的影响可能变得非常小，为了处理这种情况需要用到一个正交化处理，关键词“Legendre polynomial”。效果更好。需要了解更多的话可以去搜索.</p>
+<p>$\lambda$由$C$确定（这是不严谨的说话。但是实际中给定\lambda就可与将$W$限定到一个范围，因此给出C的人也更容易给出一个$\lambda$），实际应用时，给$\lambda$一个很小的值就可与很好地处理过拟合的情形，如果过大，可能会出现欠拟合的情况.</p>
+<p>接下来需要继续说明的是regularization，与vc理论之间的关系。实际上，即使加上了regularization，对于一个假说来说，在数学计算上它的vc dimention依然很大，依然会付出很大的代价。但是regularization的作用是什么？它将我们需要寻找的范围局限在了一定范围内，在这个范围内，可能都是比较好的$h$,因此有效的vc dimension减少了，也就更有可能得到比较好的$E_{out}$。</p>
+<p>如何选择regularizer？</p>
+<p>1.首先，如果我们知道目标函数的一些特点，就可以指引我们选择一些好的regularizer，比如：如果知道目标函数是偶函数，可以只对奇次项的特征进行正则化。</p>
+<p>2.选择平滑的，如$\sum _{q&#x3D;0} ^ Q |w_q|$.这个也叫L1 regularizer（L1正则化）.相对于L2来说它效果往往更好一点，因为更加平滑，但是不好解。</p>
+<p>3.选择好优化的，如L2，也就是上文提到的。</p>
+<p>除此之外，还有$\lambda$的选择。如图，不同的noise级别需要的$lambda$也不同：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/QWA_KMVHC_%7DZWJF3%607C%5DQYA.png"></p>
+<p>如何选择一个合适的$\lambda$也非常重要，这就需要用到下一节所讲的Validation。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/overfitting/" rel="tag"># overfitting</a>
+              <a href="/tags/regularization/" rel="tag"># regularization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/" rel="prev" title="机器学习——Overfitting">
+                  <i class="fa fa-angle-left"></i> 机器学习——Overfitting
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Validation/" rel="next" title="机器学习——Validation">
+                  机器学习——Validation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="SLAM建模的过程中，相机是很重要的一个部分。因此这一讲主要探讨相机的成像模型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——相机与图像">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/12/SLAM%E2%80%94%E2%80%94%E7%9B%B8%E6%9C%BA%E4%B8%8E%E5%9B%BE%E5%83%8F/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="SLAM建模的过程中，相机是很重要的一个部分。因此这一讲主要探讨相机的成像模型。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0516.JPG">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0519.PNG">
+<meta property="article:published_time" content="2018-11-12T08:03:20.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:42.759Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="opencv">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0516.JPG">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/12/SLAM%E2%80%94%E2%80%94%E7%9B%B8%E6%9C%BA%E4%B8%8E%E5%9B%BE%E5%83%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/12/SLAM%E2%80%94%E2%80%94%E7%9B%B8%E6%9C%BA%E4%B8%8E%E5%9B%BE%E5%83%8F/","path":"2018/11/12/SLAM——相机与图像/","title":"SLAM——相机与图像"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——相机与图像 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">相机模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AD%94%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">针孔相机模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%95%B8%E5%8F%98"><span class="nav-number">1.2.</span> <span class="nav-text">畸变</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E7%9B%AE%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">双目相机模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RGB-D%E7%9B%B8%E6%9C%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.4.</span> <span class="nav-text">RGB-D相机模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenCV"><span class="nav-number">2.</span> <span class="nav-text">OpenCV</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E7%82%B9%E4%BA%91%E6%8B%BC%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">总结：点云拼接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/12/SLAM%E2%80%94%E2%80%94%E7%9B%B8%E6%9C%BA%E4%B8%8E%E5%9B%BE%E5%83%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——相机与图像 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——相机与图像
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-12 16:03:20" itemprop="dateCreated datePublished" datetime="2018-11-12T16:03:20+08:00">2018-11-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:42" itemprop="dateModified" datetime="2023-10-21T04:27:42+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>SLAM建模的过程中，相机是很重要的一个部分。因此这一讲主要探讨相机的成像模型。</p>
+<span id="more"></span>
+<h2 id="相机模型"><a href="#相机模型" class="headerlink" title="相机模型"></a>相机模型</h2><p>相机将三维世界中的坐标映射到二维平面上。这个过程可以用一些几何模型来描述，最简单的称为针孔模型。我们初中物理应该也都学过这个东西。</p>
+<h3 id="针孔相机模型"><a href="#针孔相机模型" class="headerlink" title="针孔相机模型"></a>针孔相机模型</h3><p>假设相机前方为z轴，右侧为x轴，则根据右手坐标定则，y轴朝下。实际上，这个定义使得投影到相机平面后的平面坐标和像素坐标方向一致。这个坐标轴就是相机坐标。而平面坐标，也就是针孔后方的投影平面是一个二元坐标。针孔成像结果是倒立的，假如针孔模型的焦距为f，则：<br>$$<br>\frac Z f &#x3D; - \frac {X}{X’} &#x3D; -\frac {Y}{Y’}<br>$$</p>
+<p>负号表示前后左右颠倒。</p>
+<p>为了简化模型，我们可以将成像平面放到针孔前面，与三维空间点一侧，这时候得到的结果是正常的（实际上一般生活中我们都会将这个颠倒结果转换为正常结果，包括我们的脑子也是这么做的）。这时候：<br>$$<br>\frac Z f &#x3D;  \frac {X}{X’} &#x3D; \frac {Y}{Y’}<br>$$</p>
+<p>整理可以得到：<br>$$<br>X’ &#x3D; f\frac X Z\<br>Y’ &#x3D; f\frac Y Z<br>$$</p>
+<p>在相机中，我们最终得到的是一个个像素点。假如成像平面有这么一个像素坐标轴：$o-u-v$.像素坐标轴和平面坐标轴有平移和缩放的关系，假如像素坐标原点平移了$[c_x,c_y ]$,u轴缩放大小为$\alpha$,v轴缩放大小为$\beta$,则（缩放也就是一米有多少像素点，如果一米有10个像素点，则原来的1可能要变为10）：<br>$$<br>u &#x3D; X’\alpha + c_x\<br>v &#x3D; Y’\beta + c_y<br>$$</p>
+<p>将之前的式子带入，并且将$f{\alpha}，f(\beta)$分别记为$f_x,f_y$,因为f的单位为米，而$\alpha,\beta$的单位为像素&#x2F;米，因此$f_x,f_y$的单位为像素。</p>
+<p>因此上面的式子就可以写为：<br>$$<br>\left {<br>\begin{matrix}<br>u &#x3D; f_x\frac X Z+c_x\<br>v &#x3D; f_y\frac Y Z+c_y<br>\end{matrix}<br>\right .<br>$$</p>
+<p>如果写成矩阵形式就更明白一点：<br>$$<br>\begin{pmatrix}<br>u\<br>v\<br>1<br>\end{pmatrix} &#x3D; \frac 1 Z \begin{pmatrix}<br>f_x&amp;0&amp;c_x\<br>0&amp;f_y&amp;c_y\<br>0&amp;0&amp;1<br>\end{pmatrix}\begin{pmatrix}<br>X\<br>Y\<br>Z<br>\end{pmatrix}<br>\triangleq \frac 1 Z K P<br>$$</p>
+<p>一般来说习惯将Z移到右侧。上式中中间量为相机内参，一般来说在出厂之后就固定了。不知道的话也可以用算法进行标定。</p>
+<p>既然有内参，对应的也就有一个外参。我们上面的介绍都是以相机坐标为基础的，而相机坐标实际上是由世界坐标转换的。从世界坐标到相机坐标的转换，之前图形学中介绍，需要旋转R和平移t操作，而R和t就够成来相机的外参，也叫相机的位姿。假如某个点在世界坐标下为$P_w$,则：<br>$$<br>ZP_{uv} &#x3D; Z\begin{bmatrix}<br>u\<br>v\<br>1<br>\end{bmatrix} &#x3D; K(RP_w+t) &#x3D; KTP_w<br>$$</p>
+<p>上式中，T为欧式转换矩阵。所以这其中包含了齐次坐标与非齐次坐标的转换。</p>
+<p>从图形学的介绍中我们知道从世界到相机坐标的转换是先旋转后平移的，所以上市中的t是已经转换后的平移矩阵，而非相机的坐标。此外，我们还可以进行归一化处理，使得最后一维值为1，实际上只要将Z轴除进去就好.</p>
+<h3 id="畸变"><a href="#畸变" class="headerlink" title="畸变"></a>畸变</h3><p>畸变分为径向畸变和切向畸变。</p>
+<p>实际上，这些畸变我们在生活中都会经常遇到，由于现实中我们相机会有透镜，所以会引入径向畸变。如拍的照片发现一个直的电线杆变成弯的了，这就是径向畸变。径向畸变离光心越远越明显，有时候是桶形畸变，有时候是枕形畸变，原理类似，因为图像放大率随着与光轴之间的距离增加而变小或者增大。</p>
+<p>切向畸变是由于成像平面与透镜不严格平行导致的。为了纠正畸变，就要用数学把畸变描述出来。</p>
+<p>对于径向畸变，我们可以用一个多项式函数来描述畸变前后的坐标变化：<br>$$<br>x_{distorted} &#x3D; x(1+k_1r^2 + k_2r^4 +k_3r^6)\<br>y_{distorted} &#x3D; y(1+k_1r^2 + k_2r^4 +k_3r^6)<br>$$</p>
+<p>上式中，$[x,y ]^T$是归一化平面点的坐标，而$[x_{distorted},y_{distorted} ]$是畸变后的坐标。</p>
+<p>对于切向畸变：<br>$$<br>x_{distorted} &#x3D; x+2p_1xy+p_2(r^2+2x^2)\<br>y_{distorted} &#x3D; y+p_1(r^2+2y^2) + 2p_2xy<br>$$</p>
+<p>结合起来：<br>$$<br>\left{<br>\begin{matrix}<br>x_{distorted} &#x3D; x(1+k_1r^2 + k_2r^4 +k_3r^6)+2p_1xy+p_2(r^2+2x^2)\<br>y_{distorted} &#x3D; y(1+k_1r^2 + k_2r^4 +k_3r^6)+p_1(r^2+2y^2) + 2p_2xy<br>\end{matrix}<br>\right.<br>$$<br>因此，通过畸变系数，和相机坐标系中的一点，我们可以得到正确的坐标点。然后再通过内参矩阵得到正确的图像坐标。</p>
+<p>去畸变是一个中间过程，我们假设以后的处理图像已经处理过畸变。</p>
+<p>所以单目相机成像过程就是首先通过位姿估计得到相机外参（实际上这个不是成像过程的一部分，但是对于SLAM是非常重要的一步），然后将世界坐标点转换为相机坐标，经过归一化处理，通过内参计算出来像素位置哦。</p>
+<h3 id="双目相机模型"><a href="#双目相机模型" class="headerlink" title="双目相机模型"></a>双目相机模型</h3><p>通过单目相机的成像过程，我们无法知道像素对应的点在空间点的位置。这是因为只要在光心和像素点这条线上，他们都是可以投影到一个点，想要确定它的空间位置，需要知道深度，也就需要通过双目相机或者RGB-D相机。</p>
+<p>双目相机类似于我们的眼睛。我们可以通过眼睛来判断物体与我们之间的距离。一般双目相机都是左右分布的，但也有上下的。不过我们在这里介绍的是以左右分布的。这保证了两个相机的成像只在x坐标上有偏移。</p>
+<p>为了说明白双目相机的成像模型，我们需要将这个模型画出来，需要注意的是，我们像之前一样将成像平面放到光心前面：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0516.JPG"><br>双目相机两个光心的距离称为基线b，也就是$O_l,O_r$之间的距离。$u_r,u_l$分别为各自成像平面上的坐标，需要注意的是$u_l$为负数。</p>
+<p>考虑一个空间点P，它在左眼和右眼各成一个像，记做$P_l,P_r$.根据相似三角形：<br>$$<br>\frac{z-f}{z} &#x3D; \frac{b-u_l+u_r}{b}<br>$$<br>即：<br>$$<br>z &#x3D; \frac{fb}{u_l - u_r}<br>$$</p>
+<p>这样就计算出来了距离z。上式中：$u_l - u_r&#x3D;d$,我们称为视差。可以看到视差越大，则距离越远。实际中上视差最小为1,所以最远的距离就由fb限定了。所以双目相机可以测量的距离是有限的。</p>
+<p>原理简单，但是d不好计算。因为我们需要知道左眼图像的像素出现在右眼图像的哪个位置。因此计算量和精度都会造成问题。</p>
+<h3 id="RGB-D相机模型"><a href="#RGB-D相机模型" class="headerlink" title="RGB-D相机模型"></a>RGB-D相机模型</h3><p>RGB-D相机也就是深度相机，它能够主动测量深度。目前深度相机主要有两个原理：</p>
+<ol>
+<li>红外结构光，如kinect 1代</li>
+<li>飞行时间法，如kinect 2代</li>
+</ol>
+<p>它们原理都需要向目标发射光线。结构光根据返回的结构光图案来计算距离，而飞行时间法则根据光束飞行的时间来计算。RGB-D相机可以获得整个图像的像素深度，一般会输出一一对应的彩色图和深度图。</p>
+<p>当然，RGB-D相机能够实时测量深度，但是使用条件会受限，容易收到其他光线干扰。对于透射材质的物体，因为接受不到反射光，所以无法测量这些点的位置。此外，它在成本，功耗方面都有劣势。</p>
+<h2 id="OpenCV"><a href="#OpenCV" class="headerlink" title="OpenCV"></a>OpenCV</h2><p>接下来熟悉一下OpenCV，是一个开源视觉库。</p>
+<p>下面这段代码简单介绍了一些OpenCV的操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;chrono&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   cv:: Mat image =   cv::<span class="built_in">imread</span>(argv[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">if</span>(image.data == <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;Error:the image file may not exist&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//output some basic information</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;Width:&quot;</span>&lt;&lt;image.cols&lt;&lt;<span class="string">&quot; height:&quot;</span>&lt;&lt;image.rows&lt;&lt;<span class="string">&quot; channel number:&quot;</span>&lt;&lt;image.<span class="built_in">channels</span>()&lt;&lt;endl;</span><br><span class="line">      cv::<span class="built_in">imshow</span>(<span class="string">&quot;image&quot;</span>,image);</span><br><span class="line">      cv::<span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="comment">// judge the type of the image</span></span><br><span class="line">    <span class="keyword">if</span>(image.<span class="built_in">type</span>()!=CV_8UC1 &amp;&amp; image.<span class="built_in">type</span>()!=CV_8UC3)</span><br><span class="line">    &#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;the image must be rgb image or grey-scale map&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//iteration</span></span><br><span class="line">    <span class="comment">//use chrono to compute the time.</span></span><br><span class="line">    chrono::steady_clock::time_point t1 = chrono::steady_clock::<span class="built_in">now</span>();</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">size_t</span> y=<span class="number">0</span>;y&lt;image.cols;++y)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">size_t</span> x = <span class="number">0</span>;x&lt;image.rows;++x)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//left the ptr point at the y row.</span></span><br><span class="line">            <span class="type">unsigned</span> <span class="type">char</span>* row_ptr = image.<span class="built_in">ptr</span>&lt;<span class="type">unsigned</span> <span class="type">char</span>&gt;(y);</span><br><span class="line">            <span class="comment">//get position (x,y)&#x27;s ptr,because there are image.channels()*1 char.</span></span><br><span class="line">            <span class="type">unsigned</span> <span class="type">char</span> *data_ptr = &amp;row_ptr[x*image.<span class="built_in">channels</span>()];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> c = <span class="number">0</span>;c!=image.<span class="built_in">channels</span>();++c)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//Do someting ;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    chrono::steady_clock::time_point t2 = chrono::steady_clock::<span class="built_in">now</span>();</span><br><span class="line">    chrono::duration&lt;<span class="type">double</span>&gt; time_used = chrono::duration_cast&lt;chrono::duration&lt;<span class="type">double</span>&gt;&gt;(t2-t1);</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;We use &quot;</span>&lt;&lt;time_used.<span class="built_in">count</span>()&lt;&lt;<span class="string">&quot; seconds to scan the image&quot;</span>&lt;&lt;endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy or reference</span></span><br><span class="line">    <span class="comment">//this is a reference,or ptr, so if we change the image_another,the original image will be changed</span></span><br><span class="line">      cv::Mat image_another = image;</span><br><span class="line">    <span class="comment">//let the left top corner(100,100) block to be 0</span></span><br><span class="line">    <span class="built_in">image_another</span>(  cv::<span class="built_in">Rect</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">100</span>,<span class="number">100</span>)).<span class="built_in">setTo</span>(<span class="number">0</span>);</span><br><span class="line">      cv::<span class="built_in">imshow</span>(<span class="string">&quot;image&quot;</span>,image);</span><br><span class="line">      cv::<span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//copy ,clone</span></span><br><span class="line">      cv::Mat image_clone = image.<span class="built_in">clone</span>();</span><br><span class="line">      <span class="built_in">image_clone</span>(cv::<span class="built_in">Rect</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">100</span>,<span class="number">100</span>)).<span class="built_in">setTo</span>(<span class="number">255</span>);</span><br><span class="line">      cv::<span class="built_in">imshow</span>(<span class="string">&quot;image&quot;</span>,image);</span><br><span class="line">      cv::<span class="built_in">imshow</span>(<span class="string">&quot;imageclone&quot;</span>,image_clone);</span><br><span class="line">      cv::<span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line">      cv::<span class="built_in">destroyAllWindows</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>CMakeLists.txt:</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS <span class="string">&quot;-std=c++11&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(OpenCV REQUIRED)</span><br><span class="line"></span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;OpenCV_INCLUDE_DIRS&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(imageOP imageOP.cpp)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(imageOP <span class="variable">$&#123;OpenCV_LIBS&#125;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结：点云拼接"><a href="#总结：点云拼接" class="headerlink" title="总结：点云拼接"></a>总结：点云拼接</h2><p>现在使用之前介绍的知识，来完成一个点云拼接的任务。这个需要用到高博提供的一些图片数据。地址：<a target="_blank" rel="noopener" href="https://github.com/gaoxiang12/slambook/tree/master/ch5/joinMap">joinMap</a>.</p>
+<p>点云的操作需要用到点云库PCL。</p>
+<p>首先说明以下，知道像素坐标以及深度信息，如何恢复相机坐标？实际上反推非常容易：</p>
+<p>$$<br>X &#x3D; \frac{u - c_x}{f_x}Z\<br>Y &#x3D; \frac{v - c_y}{f_y}Z<br>$$</p>
+<p>而我们做的也正是用上面的过程来进行点云恢复。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;Eigen/Geometry&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;boost/format.hpp&gt;</span><span class="comment">//format strings</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;pcl/point_types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;pcl/io/pcd_io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;pcl/visualization/pcl_visualizer.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;cv::Mat&gt; colorImgs,depthImgs;</span><br><span class="line">    vector&lt;Eigen::Isometry3d,Eigen::aligned_allocator&lt;Eigen::Isometry3d&gt;&gt; poses;<span class="comment">//poses of camera</span></span><br><span class="line">    <span class="function">ifstream <span class="title">fin</span><span class="params">(argv[<span class="number">2</span>])</span></span>;</span><br><span class="line">    <span class="keyword">if</span>(!fin)</span><br><span class="line">    &#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;We need information about poses&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>;i!=<span class="number">5</span>;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">boost::format <span class="title">fmt</span><span class="params">(argv[<span class="number">1</span>]+string(<span class="string">&quot;/%s/%d.%s&quot;</span>))</span></span>;<span class="comment">//format of image files</span></span><br><span class="line">        colorImgs.<span class="built_in">push_back</span>(cv::<span class="built_in">imread</span>((fmt%<span class="string">&quot;color&quot;</span>%(i+<span class="number">1</span>)%<span class="string">&quot;png&quot;</span>).<span class="built_in">str</span>()));</span><br><span class="line">        depthImgs.<span class="built_in">push_back</span>(cv::<span class="built_in">imread</span>((fmt%<span class="string">&quot;depth&quot;</span>%(i+<span class="number">1</span>)%<span class="string">&quot;pgm&quot;</span>).<span class="built_in">str</span>(),<span class="number">-1</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">double</span> data[<span class="number">7</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        <span class="comment">//get poses to data</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;d:data)</span><br><span class="line">           fin&gt;&gt;d;</span><br><span class="line">        <span class="function">Eigen::Quaterniond <span class="title">q</span><span class="params">(data[<span class="number">6</span>],data[<span class="number">3</span>],data[<span class="number">4</span>],data[<span class="number">5</span>])</span></span>;</span><br><span class="line">        <span class="function">Eigen::Isometry3d <span class="title">T</span><span class="params">(q)</span></span>;</span><br><span class="line">        T.<span class="built_in">pretranslate</span>(Eigen::<span class="built_in">Vector3d</span>(data[<span class="number">0</span>],data[<span class="number">1</span>],data[<span class="number">2</span>]));</span><br><span class="line">        poses.<span class="built_in">push_back</span>(T);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="type">double</span> cx = <span class="number">325.5</span>;</span><br><span class="line"><span class="type">double</span> cy=<span class="number">253.5</span>;</span><br><span class="line"><span class="type">double</span> fx = <span class="number">518.0</span>;</span><br><span class="line"><span class="type">double</span> fy = <span class="number">519.0</span>;</span><br><span class="line"><span class="type">double</span> depthScale = <span class="number">1000.0</span>;</span><br><span class="line">cout&lt;&lt;<span class="string">&quot;try to get pointcloud...&quot;</span>&lt;&lt;endl;</span><br><span class="line"><span class="comment">//use XYZRGB format </span></span><br><span class="line"><span class="keyword">typedef</span> pcl::PointXYZRGB PointT;</span><br><span class="line"><span class="keyword">typedef</span> pcl:: PointCloud&lt;PointT&gt; PointCloud;</span><br><span class="line"></span><br><span class="line"><span class="function">PointCloud::Ptr <span class="title">pointCloud</span><span class="params">(<span class="keyword">new</span> PointCloud())</span></span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>;i&lt;<span class="number">5</span>;++i)</span><br><span class="line">&#123;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;transform the images...&quot;</span>&lt;&lt;i&lt;&lt;endl;</span><br><span class="line">    cv::Mat color = colorImgs[i];</span><br><span class="line">    cv::Mat depth = depthImgs[i];</span><br><span class="line">    Eigen::Isometry3d T = poses[i];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> v = <span class="number">0</span>;v&lt;color.rows;++v)</span><br><span class="line">     <span class="keyword">for</span> (<span class="type">int</span> u = <span class="number">0</span>;u&lt;color.cols;++u)</span><br><span class="line">     &#123;</span><br><span class="line">         <span class="type">unsigned</span> <span class="type">int</span> d = depth.<span class="built_in">ptr</span>&lt;<span class="type">unsigned</span> <span class="type">short</span>&gt;(v)[u];<span class="comment">//get depth of the pixel</span></span><br><span class="line">         <span class="type">unsigned</span> <span class="type">char</span>* cptr = color.<span class="built_in">ptr</span>&lt;<span class="type">unsigned</span> <span class="type">char</span>&gt;(v);</span><br><span class="line">         </span><br><span class="line">         <span class="keyword">if</span>(d == <span class="number">0</span>) <span class="keyword">continue</span>;</span><br><span class="line">         Eigen::Vector3d point;</span><br><span class="line">         point[<span class="number">2</span>] = <span class="built_in">double</span>(d) / depthScale;</span><br><span class="line">         point[<span class="number">0</span>] = (u - cx)*point[<span class="number">2</span>]/fx;</span><br><span class="line">         point[<span class="number">1</span>] = (v - cy)*point[<span class="number">2</span>]/fy;</span><br><span class="line">         Eigen::Vector3d pointWorld = T*point;</span><br><span class="line"></span><br><span class="line">         PointT p;</span><br><span class="line">         p.x = pointWorld[<span class="number">0</span>];</span><br><span class="line">         p.y = pointWorld[<span class="number">1</span>];</span><br><span class="line">         p.z = pointWorld[<span class="number">2</span>];</span><br><span class="line">         p.b = cptr[u*color.<span class="built_in">channels</span>()];</span><br><span class="line">         p.g = cptr[u*color.<span class="built_in">channels</span>()+<span class="number">1</span>];</span><br><span class="line">         p.r = cptr[u*color.<span class="built_in">channels</span>()+<span class="number">2</span>];</span><br><span class="line">         pointCloud-&gt;points.<span class="built_in">push_back</span>(p);</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br><span class="line">pointCloud-&gt;is_dense = <span class="literal">false</span>;</span><br><span class="line">cout&lt;&lt;<span class="string">&quot;points number:&quot;</span>&lt;&lt;pointCloud-&gt;<span class="built_in">size</span>()&lt;&lt;endl;</span><br><span class="line">pcl::io::<span class="built_in">savePCDFileBinary</span>(<span class="string">&quot;map.pcd&quot;</span>,*pointCloud);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>CMakeLists.txt:</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">find_package</span>(OpenCV REQUIRED)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;OpenCV_INCLUDE_DIRS&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">include_directories</span>(<span class="string">&quot;usr/include/eigen3/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(PCL REQUIRED COMPONENT common io)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;PCL_INCLUDE_DIRS&#125;</span>)</span><br><span class="line"><span class="keyword">add_definitions</span>(<span class="variable">$&#123;PCL_DEFINITIONS&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(joinMap joinMap.cpp)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(joinMap <span class="variable">$&#123;OpenCV_LIBS&#125;</span> <span class="variable">$&#123;PCL_LIBRARIES&#125;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0519.PNG"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/opencv/" rel="tag"># opencv</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/10/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94vnc+SSH%20tunnel%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%86%85%E7%BD%91%E6%9C%BA%E5%99%A8/" rel="prev" title="踩过的坑——vnc+SSH tunnel远程控制内网机器">
+                  <i class="fa fa-angle-left"></i> 踩过的坑——vnc+SSH tunnel远程控制内网机器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/14/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Viewing/" rel="next" title="图形学——Viewing">
+                  图形学——Viewing <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

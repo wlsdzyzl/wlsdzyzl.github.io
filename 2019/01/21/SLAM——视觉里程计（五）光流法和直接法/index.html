@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="特征点法是提取特征，根据稀疏特征点的对应点来计算相机的位姿变换。但是它是有比较明显的缺点的：1.特征点的提取比较耗时，限制了SLAM的运行速度，2. 特征点过于稀疏，可能会浪费很多有用信息 3. 我们在生活中总会遇到纹理特征缺失的情况，比如一面白墙，这时候我们找不到足够的特征点来得到相机的运动。所以我们来讨论另外的两种方法，叫做光流法和直接法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——视觉里程计（五）光流法和直接法">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/21/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%94%EF%BC%89%E5%85%89%E6%B5%81%E6%B3%95%E5%92%8C%E7%9B%B4%E6%8E%A5%E6%B3%95/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="特征点法是提取特征，根据稀疏特征点的对应点来计算相机的位姿变换。但是它是有比较明显的缺点的：1.特征点的提取比较耗时，限制了SLAM的运行速度，2. 特征点过于稀疏，可能会浪费很多有用信息 3. 我们在生活中总会遇到纹理特征缺失的情况，比如一面白墙，这时候我们找不到足够的特征点来得到相机的运动。所以我们来讨论另外的两种方法，叫做光流法和直接法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/hdbb.jpg">
+<meta property="article:published_time" content="2019-01-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:35.269Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/hdbb.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/21/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%94%EF%BC%89%E5%85%89%E6%B5%81%E6%B3%95%E5%92%8C%E7%9B%B4%E6%8E%A5%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/21/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%94%EF%BC%89%E5%85%89%E6%B5%81%E6%B3%95%E5%92%8C%E7%9B%B4%E6%8E%A5%E6%B3%95/","path":"2019/01/21/SLAM——视觉里程计（五）光流法和直接法/","title":"SLAM——视觉里程计（五）光流法和直接法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——视觉里程计（五）光流法和直接法 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E6%B5%81%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">光流法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">直接法</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/21/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%94%EF%BC%89%E5%85%89%E6%B5%81%E6%B3%95%E5%92%8C%E7%9B%B4%E6%8E%A5%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——视觉里程计（五）光流法和直接法 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——视觉里程计（五）光流法和直接法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-21 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-21T00:00:00+08:00">2019-01-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:35" itemprop="dateModified" datetime="2023-10-21T04:27:35+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>特征点法是提取特征，根据稀疏特征点的对应点来计算相机的位姿变换。但是它是有比较明显的缺点的：1.特征点的提取比较耗时，限制了SLAM的运行速度，2. 特征点过于稀疏，可能会浪费很多有用信息 3. 我们在生活中总会遇到纹理特征缺失的情况，比如一面白墙，这时候我们找不到足够的特征点来得到相机的运动。所以我们来讨论另外的两种方法，叫做光流法和直接法。  </p>
+<span id="more"></span>
+
+
+<h3 id="光流法"><a href="#光流法" class="headerlink" title="光流法"></a><a href="about:blank#%E5%85%89%E6%B5%81%E6%B3%95" title="光流法"></a>光流法</h3><p>光流是一种描述像素随时间在图像之间运动的方法，随着时间的流逝，同一个像素会在图像中运动，而我们希望追踪它的运动过程。如果只计算部分像素的运动我们称为稀疏光流，计算所有像素的运动我们称为稠密光流。其中，稀疏光流以Lucas-Kanade光流为代表，可以在SLAM中用于追踪特征点的位置，因此我们主要了解以下LK光流。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/hdbb.jpg"></p>
+<p>在LK光流中，我们认为来自相机的图像是随着时间变化的，而图像可以看成时间的函数：$I(t)$。那么在$t$时刻，位于$(x,y)$的像素它的灰度为：$I(x,y,t)$。现在考虑某个固定的空间点，它在t时刻的像素坐标为$(x,y)$。我们假设在相机运动中，同一个空间点的像素灰度是不变的，这个假设叫灰度不变假设。这个假设是一个强假设，因为实际中灰度一般都会变化。</p>
+<p>现在假设在$t+dt$的时刻它的位置运动到了$(x+dx,y+dy)$，则我们可以得到：</p>
+<p>I(x,y,t) &#x3D; I(x+dx, y+dy,t+dt)</p>
+<p>如果对上式中右侧进行一介泰勒展开：</p>
+<p>I(x+dx,y+dy,t+dt) \approx I(x,y,t)+\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt</p>
+<p>由此可以得到：</p>
+<p>\frac{\partial I}{\partial x}dx + \frac{\partial I}{\partial y}dy + \frac{\partial I}{\partial t}dt &#x3D; 0.</p>
+<p>对两侧同时除以$dt$，我们得到：</p>
+<p>\frac{\partial I}{\partial x}\frac{dx}{dt} + \frac{\partial I}{\partial y}\frac{dy}{dt} &#x3D; -\frac{\partial I}{\partial t}.</p>
+<p>其中$\frac{dx}{dt},\frac{dy}{dt}$为像素在$x,y$轴上的运动速度，把它们分别记为$u,v$。同时$\frac{\partial I }{\partial x},\frac{\partial I}{\partial y}$记为图像在$x,y$方向上的梯度，分布记为$I_x,I_y$。再把图像灰度对于时间的变化量记为$I_t$，则我们可以把上式写为：</p>
+<p>\begin{bmatrix} I_x&amp;I_y \end{bmatrix} \begin{bmatrix} u\\ v \end{bmatrix} &#x3D; - I_t</p>
+<p>我们想计算的是像素运动$u,v$，但上面的单个式子是无法计算出来的。因此需要额外的约束，在LK光流中，我们假设某个窗口内的像素具有相同的运动。现在考虑一个大小为$w\times w$的窗口，它还有$w^2$数量的像素。由于该窗口内像素具有同样的运动，因此方程个数为$w^2$个。记：</p>
+<p>A&#x3D;\begin{bmatrix} [I_x,I_y]_1\\ \vdots\\ [I_x,I_y]_k \end{bmatrix},b&#x3D;\begin{bmatrix} I_{t1}\\ \vdots\\ I_{tk} \end{bmatrix}</p>
+<p>我们得到：</p>
+<p>A\begin{bmatrix} u\\ v \end{bmatrix} &#x3D;- b</p>
+<p>对于这个超定方程，我们可以使用最小二乘解：</p>
+<p>\begin{bmatrix} u\\ v \end{bmatrix}^* &#x3D; -(A^TA)^{-1}A^Tb</p>
+<p>在稀疏光流法中我们依然需要计算特征点，不过可以只计算关键点。通过对特征点的追踪来得到构成方程$u,v$。由于像素梯度仅在局部有效，所以如果一次迭代结果不够，我们会多迭代几次这个方程。在SLAM中，LK光流经常被用来追踪角点的运动。</p>
+<p>在实践中，对于光流法对于角点的追踪效果最好，对于边缘与区块中的特征点效果较差，可能会追踪失败。</p>
+<h3 id="直接法"><a href="#直接法" class="headerlink" title="直接法"></a><a href="about:blank#%E7%9B%B4%E6%8E%A5%E6%B3%95" title="直接法"></a>直接法</h3><p>对于直接法，它和光流法有一样的前提假设，即灰度不变。假如$p_1,p_2$分别是空间中同一个坐标点在两个不同位姿的相机下的投影坐标，我们现在想求的是这两个坐标之间的相对位姿，从$P_1$到$P_2$，则：</p>
+<p>p_1 &#x3D; \begin{bmatrix} u_1\\ v_1\\ 1 \end{bmatrix} &#x3D; \frac 1 {Z_1}KP,\\ p_2 &#x3D; \begin{bmatrix} u_2\\ v_2\\ 1 \end{bmatrix} &#x3D; \frac 1 {Z_2}K(RP+t) &#x3D; \frac{1}{Z_2}K(\exp(\xi ^{\hat{} })P)</p>
+<p>上述坐标依然包含了齐次到非齐次的转换。通过上式，我们知道了$p_1,p_2$，不过直接法可以不用提取特征点，因此我们并不知道他们在图像上真正的对应关系，只得到了一个预测值。这时候，我们就需要使用灰度不变的假设了，将重投影误差转换成灰度之间的差异，叫做光度误差，也就是两个像素的亮度误差：</p>
+<p>e &#x3D; I_1(p_1) - I_2(p_2)</p>
+<p>当然我们对优化目标依然取二范数。</p>
+<p>\xi^* &#x3D; \arg\min_{\xi} J(\xi) &#x3D; \sum_{i&#x3D;1}^n\Vert e \Vert^2</p>
+<p>不过现在先关注$e$的导数。使用李代数上的扰动模型，则：</p>
+<p>\begin{aligned} e(\xi \oplus \delta \xi) &amp;&#x3D; I_1\left(\frac 1 {Z_1}KP\right) -I_2\left(\frac 1 {Z_2} K \exp(\delta \xi ^{\hat{} }) \exp(\xi ^{\hat{} })P\right) \\ &amp;\approx I_1\left(\frac 1 {Z_1} K P\right) - I_2\left(\frac{1}{Z_2}K(1+\delta\xi^{\hat{} })\exp(\xi^{\hat{} })P\right)\\ &amp;&#x3D;I_1\left(\frac 1 {Z_1}KP\right) - I_2\left(\frac 1 {Z_2} K \exp (\xi^{\hat{} })P + \frac 1 {Z_2}K\delta\xi^{\hat{} }\exp(\xi^{\hat{} })P\right) \end{aligned}</p>
+<p>记：</p>
+<p>q &#x3D; \delta \xi ^{\hat{} } \exp(\xi^{\hat{} })P, u &#x3D; \frac 1 {Z_2}Kq</p>
+<p>这里的$q$为扰动分量在第二个相机坐标系下的坐标，$u$为它的像素坐标。利用一阶泰勒展开，可以得到：</p>
+<p>\begin{aligned} e(\xi \oplus \delta \xi) &amp;&#x3D; I_1\left(\frac 1 {Z_1}KP\right) - I_2\left(\frac 1 {Z_2} K \exp(\xi^{\hat{} })P + u \right)\\ &amp;\approx I_1\left(\frac{1}{Z_1}KP\right) - I_2\left(\frac{1}{Z_2}K\exp(\xi^{\hat{} })P \right) - \frac{\partial I_2}{\partial u}\frac{\partial u}{\partial q} \frac{\partial q}{\partial \xi}\delta\xi\\ &amp;&#x3D; e(\xi) - \frac{\partial I_2}{\partial u}\frac{\partial u}{\partial q} \frac{\partial q}{\partial \xi}\delta\xi \end{aligned}</p>
+<p>可以看到一阶导数由于链式法则分成了3层。而这3层都是比较容易计算的：</p>
+<ol>
+<li>$\frac{\partial I_2}{\partial u}$为$u$处的像素梯度</li>
+<li>$\frac{\partial u}{\partial q}$为投影方程关于相机坐标系下的三维点的导数。即$q&#x3D;[X,Y,Z]^T$，根据上一次PnP下的推导可以得到： \frac{\partial u}{\partial q} &#x3D;\begin{bmatrix} \frac{\partial u}{\partial X}&amp;\frac{\partial u}{\partial Y}&amp;\frac{\partial u}{\partial Z}\\ \frac{\partial v}{\partial X}&amp;\frac{\partial v}{\partial Y}&amp;\frac{\partial v}{\partial Z} \end{bmatrix} &#x3D; \begin{bmatrix} \frac{f_x}{Z} &amp; 0 &amp; -\frac{f_xX}{Z^2}\\ 0&amp;\frac{f_y}{Z}&amp;-\frac{f_yY}{Z^2} \end{bmatrix}</li>
+<li>$\frac{\partial q}{\partial \xi} &#x3D; (q)^{\odot}$</li>
+</ol>
+<p>在实践中，由于后两项只和三维点$q$有关，与图像无关，因此常常将他们合并：</p>
+<p>\frac{\partial u}{\partial \xi} &#x3D; \begin{bmatrix} \frac{f_x}{Z’} &amp; 0 &amp; -\frac{f_xX’}{Z’^2} &amp; -\frac{f_xX’Y’}{Z’^2} &amp; f_x + \frac{f_xX^2}{Z’^2} &amp; -\frac{f_xY’}{Z’}\\ 0 &amp; \frac{f_y}{Z’} &amp; -\frac{f_yY’}{Z’^2} &amp;-f_y - \frac{f_yY’}{Z’^2} &amp; \frac{f_yX’Y’}{Z’^2} &amp; \frac{f_yX’}{Z’} \end{bmatrix}</p>
+<p>这个矩阵在之前的pnp中也出现过。因此：</p>
+<p>J &#x3D;\lim_{\delta\xi \rightarrow 0}\frac{e(\xi \oplus \delta \xi)-e(\xi) }{\delta \xi}&#x3D; -\frac{\partial I_2}{\partial u}\frac{\partial u}{\partial \xi}</p>
+<p>这就是直接法的雅科比矩阵。</p>
+<p>不过直接法有明显的优点，但也有明显的缺点。由于图像的非凸性，直接法往往找到的是极小值。单个像素没有区分度，因此我们计算的是像素块。最重要的是灰度不变是很强的假设，这意味着直接法只有在特定的条件下才能有比较好的效果。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/20/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E5%9B%9B%EF%BC%89ICP/" rel="prev" title="SLAM——视觉里程计（四）ICP">
+                  <i class="fa fa-angle-left"></i> SLAM——视觉里程计（四）ICP
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%BA%8C%EF%BC%89Bundle%20Adjustment/" rel="next" title="SLAM——后端（二）Bundle Adjustment">
+                  SLAM——后端（二）Bundle Adjustment <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

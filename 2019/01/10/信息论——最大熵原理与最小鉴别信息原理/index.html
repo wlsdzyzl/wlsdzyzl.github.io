@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这一节是信息论的最后一节（当然对于这门学科，这些东西只是冰山一角）。我们聊一聊信息论在压缩啊编码之外的一些作用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——最大熵原理与最小鉴别信息原理">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/10/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86%E4%B8%8E%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这一节是信息论的最后一节（当然对于这门学科，这些东西只是冰山一角）。我们聊一聊信息论在压缩啊编码之外的一些作用。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:40.385Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/10/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86%E4%B8%8E%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/10/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86%E4%B8%8E%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86/","path":"2019/01/10/信息论——最大熵原理与最小鉴别信息原理/","title":"信息论——最大熵原理与最小鉴别信息原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——最大熵原理与最小鉴别信息原理 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">最大熵原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F"><span class="nav-number">1.1.</span> <span class="nav-text">连续随机变量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">最小鉴别信息原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E8%80%85%E4%B9%8B%E9%97%B4%E8%81%94%E7%B3%BB"><span class="nav-number">3.</span> <span class="nav-text">二者之间联系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Example"><span class="nav-number">4.</span> <span class="nav-text">Example</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/10/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86%E4%B8%8E%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——最大熵原理与最小鉴别信息原理 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——最大熵原理与最小鉴别信息原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-10 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-10T00:00:00+08:00">2019-01-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:40" itemprop="dateModified" datetime="2023-10-21T04:24:40+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这一节是信息论的最后一节（当然对于这门学科，这些东西只是冰山一角）。我们聊一聊信息论在压缩啊编码之外的一些作用。  </p>
+<span id="more"></span>
+
+
+<p>假如我们现在面临的是一个传感器网络定位问题，我们希望能够得到传感器网络的节点的位置，但是由于没有一个定位系统，我们只能依靠传感器两两之间的测距信息来估计这个位置。假如有n个结点，而我们的测距信息可能远远达不到结点的个数，这个问题就成为了一个欠定问题。</p>
+<p>另外一个问题，比如GPS全球定位原理。对一个点的定位我们需要确定的是4个变量(x,y,z,t)，而天上的卫星个数可能对于4个，使得约束过多，而卫星测距存在噪声，因此可能这些约束并没有一个共同的解，因此这个问题是一个超定问题。对于超定问题实际上是优化问题，可以使用最小二乘法等等方法来解决。</p>
+<h3 id="最大熵原理"><a href="#最大熵原理" class="headerlink" title="最大熵原理"></a><a href="about:blank#%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86" title="最大熵原理"></a>最大熵原理</h3><p>面对欠定问题时，方程的可行解对于一个，使得问题变成了一个估计问题，究竟取哪个解才能是最佳的估计。而E.T.Jayne在1957提出的最大熵原理告诉我们，在所有满足约束的解中，能够使得随机变量的熵达到最大，是最佳解。其实本质上是统计方法。</p>
+<p>最大熵原理问题表述如下：</p>
+<p>设有某一离散随机变量$X$，其概率分布$p(x)$未知，已知其与若干函数的期望：</p>
+<p>\sum_{x \in \mathcal{X} } p(x)f_m(x) &#x3D; C_m,\text{where }m &#x3D; 1,…,M</p>
+<p>求最佳估计$\hat p(x)$</p>
+<p>按照最大熵原理求解该问题，可以表述为下面这样的约束优化问题：</p>
+<ul>
+<li>取概率分布的熵为目标函数$H(X) &#x3D; -\sum_{x \in \mathcal{X} } p(x)\log p(x)$.</li>
+<li>约束条件： \sum_{x}p(x)&#x3D;1\\ \sum_{x}p(x)f_m(x) &#x3D; C_m,m&#x3D;1,2,…,M</li>
+<li>求：$ \hat p(x) &#x3D; \arg\max _{p(x)} H(X)$</li>
+</ul>
+<p>运气很好的是，这个解也是有固定形式的。欠定约束下最大熵分布满足</p>
+<p>\hat p(x) &#x3D; \exp\left[-\lambda_0 - \sum_{m&#x3D;1}^M \lambda_m f_m(x) \right]</p>
+<p>的形式，式中$\lambda_0,…,\lambda_m$的取值使得$\hat p(x)$满足约束条件。</p>
+<p>这是一个典型的利用拉格朗日乘子方法求解约束极值的问题。</p>
+<h4 id="连续随机变量"><a href="#连续随机变量" class="headerlink" title="连续随机变量"></a><a href="about:blank#%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F" title="连续随机变量"></a>连续随机变量</h4><p>将离散随机变量推广到连续随机变量，这个问题并没有变得复杂。最大熵原理依然成立，只是将离散熵变成了微分熵。</p>
+<p>在连续随机变量的条件下:</p>
+<p>p(x)\ge 0\text{ and }p(x)&#x3D;0 \text{ when }x \in S\\ \int_s p(x)dx &#x3D; 1\\ \int_s p(x)f_m(x)dx &#x3D; C_m,m&#x3D;1,…,M</p>
+<p>最大熵原理告诉我们：满足约束条件且使微分熵达到最大值的分布为：</p>
+<p>\hat p(x) &#x3D; \exp\left[\lambda_0 + \sum_{m&#x3D;1}^M \lambda_mf_m(x)\right].</p>
+<h3 id="最小鉴别信息原理"><a href="#最小鉴别信息原理" class="headerlink" title="最小鉴别信息原理"></a><a href="about:blank#%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86" title="最小鉴别信息原理"></a>最小鉴别信息原理</h3><p>最大熵原理给出的是在没有任何先验信息前提下求解欠定问题的一种方法。如果存在一个先验的分布，如何求解最合理的分布？这时候我们需要用到最小鉴别信息原理。鉴别信息是度量两个分布之间差异的指标，而鉴别信息最小化指的是，在满足约束前提下，给出的分布距离先验分布最小，也就是鉴别信息最小。</p>
+<p>最小鉴别信息院里的问题描述如下：</p>
+<p>某随机变量$X$，概率分布$q(x)$未知，已知其先验概率密度$p(x)$以及若干函数的期望</p>
+<p>\int_s q(x)f_m(x)dx &#x3D; C_m,m&#x3D;1,2,…,M</p>
+<p>求在上述条件下对$q(x)$的最佳估计。</p>
+<p>按照最小鉴别信息原理，上述问题的求解可以表述为以下受限优化问题。</p>
+<ul>
+<li>取先验分布与目标分布之间的鉴别信息作为目标函数： D(q\Vert p) &#x3D; \int_s q(x)\log\frac{q(x)}{p(x)}dx</li>
+<li>约束条件： \int_s q(x)dx &#x3D; 1\\ \int_s q(x)f_m(x)dx &#x3D; C_m,m&#x3D;1,…,M则解为：$\hat q(x) &#x3D;\arg\min_{q(x)}D(q\Vert p)$。</li>
+</ul>
+<h3 id="二者之间联系"><a href="#二者之间联系" class="headerlink" title="二者之间联系"></a><a href="about:blank#%E4%BA%8C%E8%80%85%E4%B9%8B%E9%97%B4%E8%81%94%E7%B3%BB" title="二者之间联系"></a>二者之间联系</h3><p>实际上最大熵原理和最小鉴别信息原理之间联系非常密切。最大熵原理是最小鉴别信息原理的一个特例，而最小鉴别信息原理是最大熵原理的推广。在离散情形下，设先验概率等概：$p(x) &#x3D; \frac 1 K$，那么二者就是一致的。</p>
+<p>证明如下：</p>
+<p>\begin{aligned} D(q\Vert p) &amp;&#x3D; D(q\Vert \frac 1 K)\\ &amp;&#x3D; \sum_{x \in \mathcal{X} }q(x)\log Kq(x)\\ &amp;&#x3D; -H(X) + \log K \end{aligned}</p>
+<p>因此此时让$D(q \Vert p)$最小就是让$H(X)$最大。</p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a><a href="about:blank#Example" title="Example"></a>Example</h3><ul>
+<li>$S&#x3D;[0,\infty],EX &#x3D; \mu$ 最大熵分布为指数分布</li>
+<li>$S&#x3D;[-\infty,\infty],EX &#x3D; \mu$，最大熵分布为方差无穷大的高斯分布</li>
+<li>$S&#x3D;[-\infty,\infty],EX &#x3D; \mu, E(X-\mu)^2 &#x3D; \sigma^2$，最大熵分布为方差为$\sigma^2$的高斯分布</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" rel="prev" title="SLAM——视觉里程计（二）对极几何">
+                  <i class="fa fa-angle-left"></i> SLAM——视觉里程计（二）对极几何
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/17/RANSAC%E2%80%94%E2%80%94%E9%9A%8F%E6%9C%BA%E9%87%87%E6%A0%B7%E4%B8%80%E8%87%B4/" rel="next" title="RANSAC——随机采样一致">
+                  RANSAC——随机采样一致 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

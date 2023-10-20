@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次的作业是用神经网络来拟合sin曲线。通过实践更能感受到ReLU以及sigmoid，tanh激活函数的区别。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——拟合sin曲线">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/16/Learning-From-Data%E2%80%94%E2%80%94%E6%8B%9F%E5%90%88sin%E6%9B%B2%E7%BA%BF/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次的作业是用神经网络来拟合sin曲线。通过实践更能感受到ReLU以及sigmoid，tanh激活函数的区别。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/loss.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/loss_t.png">
+<meta property="article:published_time" content="2018-11-16T09:45:44.000Z">
+<meta property="article:modified_time" content="2018-11-25T06:17:16.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="code">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="neural network">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/16/Learning-From-Data%E2%80%94%E2%80%94%E6%8B%9F%E5%90%88sin%E6%9B%B2%E7%BA%BF/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/16/Learning-From-Data%E2%80%94%E2%80%94%E6%8B%9F%E5%90%88sin%E6%9B%B2%E7%BA%BF/","path":"2018/11/16/Learning-From-Data——拟合sin曲线/","title":"Learning From Data——拟合sin曲线"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——拟合sin曲线 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/16/Learning-From-Data%E2%80%94%E2%80%94%E6%8B%9F%E5%90%88sin%E6%9B%B2%E7%BA%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——拟合sin曲线 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——拟合sin曲线
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-16 17:45:44" itemprop="dateCreated datePublished" datetime="2018-11-16T17:45:44+08:00">2018-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-11-25 14:17:16" itemprop="dateModified" datetime="2018-11-25T14:17:16+08:00">2018-11-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次的作业是用神经网络来拟合sin曲线。通过实践更能感受到ReLU以及sigmoid，tanh激活函数的区别。</p>
+<span id="more"></span>
+
+<p>作业中已经将整体框架写好，好让我们能专注于算法部分。比较复杂的部分是向量化，因为自己的博客定义的这个矩阵的形式可能是多样的，但是最后的结果肯定是一致的，以及需要传入的参数如何分配。</p>
+<p>我选择传入的input为$a^{(l)}$以及$a^{(l-1)}$，传入的gran_out为$\sigma^{(l)}$中除去乘$g’(z)$的部分。因为导数部分需要上一层的激活函数来决定。</p>
+<p>在作业中定义W,a的方式和我定义$\Sigma,a$的方式正好相反，这是需要注意的地方。</p>
+<p>这个神经网络包含4层：输入层，全连接层（1×80），ReLU层（80×80），输出层（80×1）。</p>
+<p>最后得到的拟合结果和loss曲线如下：</p>
+<p>purelin:</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/1.png"></p>
+<p>loss history:</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/loss.png"></p>
+<p>tanh:</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2.png"></p>
+<p>loss history:</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/loss_t.png"></p>
+<p>代码会在作业截止后上传。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">plt.style.use(<span class="string">&#x27;ggplot&#x27;</span>) </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">x = np.linspace(-np.pi,np.pi,<span class="number">140</span>).reshape(<span class="number">140</span>,-<span class="number">1</span>)</span><br><span class="line">y = np.sin(x)</span><br><span class="line">lr = <span class="number">0.02</span>     <span class="comment">#set learning rate</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sigmoid</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>/(np.ones_like(x)+np.exp(-x))</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tanh</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> (np.exp(x) - np.exp(-x))/(np.exp(x) + np.exp(-x))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">mean_square_loss</span>(<span class="params">y_pre,y_true</span>):         <span class="comment">#define loss </span></span><br><span class="line">    loss = np.power(y_pre - y_true, <span class="number">2</span>).mean()*<span class="number">0.5</span></span><br><span class="line">    loss_grad = (y_pre-y_true)/y_pre.shape[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> loss , loss_grad           <span class="comment"># return loss and loss_grad</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ReLU</span>():                     <span class="comment"># ReLu layer</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,<span class="built_in">input</span></span>):</span><br><span class="line">        unit_num = <span class="built_in">input</span>.shape[<span class="number">1</span>]</span><br><span class="line">        <span class="comment"># check if the ReLU is initialized.</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">hasattr</span>(self, <span class="string">&#x27;W&#x27;</span>):</span><br><span class="line">            self.W = np.random.randn(unit_num,unit_num)*<span class="number">1e-2</span> </span><br><span class="line">            self.b = np.zeros((<span class="number">1</span>,unit_num))</span><br><span class="line">        temp = <span class="built_in">input</span>.dot(self.W) + self.b.repeat(<span class="built_in">input</span>.shape[<span class="number">0</span>]).reshape(self.W.shape[<span class="number">1</span>],<span class="built_in">input</span>.shape[<span class="number">0</span>]).T</span><br><span class="line">        <span class="keyword">return</span> np.where(temp&gt;<span class="number">0</span>,temp,<span class="number">0</span>)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self,<span class="built_in">input</span>,grad_out</span>):</span><br><span class="line">        a_lm1 = <span class="built_in">input</span>[<span class="number">0</span>]</span><br><span class="line">        a_l = <span class="built_in">input</span>[<span class="number">1</span>]</span><br><span class="line">        derivative = np.where(a_l&gt;<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>)</span><br><span class="line">        sample_num = a_lm1.shape[<span class="number">0</span>]</span><br><span class="line">        delt_W =  a_lm1.T.dot(grad_out*derivative)/sample_num</span><br><span class="line">        delt_b = np.ones((<span class="number">1</span>,sample_num)).dot(grad_out*derivative)/sample_num</span><br><span class="line">        to_back = (grad_out*derivative).dot(self.W.T)</span><br><span class="line">        self.W -= lr * delt_W</span><br><span class="line">        self.b -= lr * delt_b</span><br><span class="line">        <span class="keyword">return</span> to_back</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FC</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,input_dim,output_dim</span>):    <span class="comment"># initilize weights</span></span><br><span class="line">        self.W = np.random.randn(input_dim,output_dim)*<span class="number">1e-2</span> </span><br><span class="line">        self.b = np.zeros((<span class="number">1</span>,output_dim))</span><br><span class="line">                       </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,<span class="built_in">input</span></span>):          </span><br><span class="line"></span><br><span class="line">        <span class="comment">#purelin</span></span><br><span class="line">        <span class="comment">#return input.dot(self.W) + self.b.repeat(input.shape[0]).reshape(self.W.shape[1],input.shape[0]).T</span></span><br><span class="line">        <span class="comment">#tanh</span></span><br><span class="line">        <span class="keyword">return</span> tanh(<span class="built_in">input</span>.dot(self.W) + self.b.repeat(<span class="built_in">input</span>.shape[<span class="number">0</span>]).reshape(self.W.shape[<span class="number">1</span>],<span class="built_in">input</span>.shape[<span class="number">0</span>]).T)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="comment"># backpropagation,update weights in this step</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self,<span class="built_in">input</span>,grad_out</span>):</span><br><span class="line">        a_lm1 = <span class="built_in">input</span>[<span class="number">0</span>]</span><br><span class="line">        a_l = <span class="built_in">input</span>[<span class="number">1</span>]</span><br><span class="line">        sample_num = a_lm1.shape[<span class="number">0</span>]</span><br><span class="line">        <span class="comment">#purelin</span></span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;delt_W =  a_lm1.T.dot(grad_out)/sample_num</span></span><br><span class="line"><span class="string">        delt_b = np.ones((1,sample_num)).dot(grad_out)/sample_num</span></span><br><span class="line"><span class="string">        to_back = grad_out.dot(self.W.T)&#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="comment">#tanh</span></span><br><span class="line">        delt_W =  a_lm1.T.dot(grad_out*(<span class="number">1</span>-np.power(a_l,<span class="number">2</span>)))/sample_num</span><br><span class="line">        delt_b = np.ones((<span class="number">1</span>,sample_num)).dot(grad_out*(<span class="number">1</span>-np.power(a_l,<span class="number">2</span>)))/sample_num</span><br><span class="line">        to_back = (grad_out*(<span class="number">1</span>-np.power(a_l,<span class="number">2</span>))).dot(self.W.T)</span><br><span class="line">        self.W -= lr * delt_W</span><br><span class="line">        self.b -= lr * delt_b</span><br><span class="line">        <span class="keyword">return</span> to_back</span><br><span class="line"></span><br><span class="line"><span class="comment">#  bulid the network      </span></span><br><span class="line">layer1 = FC(<span class="number">1</span>,<span class="number">80</span>)</span><br><span class="line">ac1 = ReLU()</span><br><span class="line">out_layer = FC(<span class="number">80</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># count steps and save loss history</span></span><br><span class="line">loss = <span class="number">1</span></span><br><span class="line">step = <span class="number">0</span></span><br><span class="line">l= []</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> loss &gt;= <span class="number">1e-4</span> <span class="keyword">and</span> step &lt; <span class="number">15000</span>: <span class="comment"># training </span></span><br><span class="line">            </span><br><span class="line">    <span class="comment"># forward     input x , through the network and get y_pre and loss_grad   </span></span><br><span class="line">    <span class="comment"># To get a[l]</span></span><br><span class="line">    a = [x]</span><br><span class="line">    a.append(layer1.forward(a[<span class="number">0</span>]))</span><br><span class="line">    a.append(ac1.forward(a[<span class="number">1</span>]))</span><br><span class="line">    a.append(out_layer.forward(a[<span class="number">2</span>]))</span><br><span class="line">    <span class="comment">#backward   # backpropagation , update weights through loss_grad</span></span><br><span class="line">    <span class="comment">#sigma and a[l-1] is what the backpropagation needs. If you want get the derivative, the a[l] is also needed.  </span></span><br><span class="line">    sigma = out_layer.backward([a[<span class="number">2</span>],a[<span class="number">3</span>]],a[<span class="number">3</span>] - y)</span><br><span class="line">    sigma = ac1.backward([a[<span class="number">1</span>],a[<span class="number">2</span>]],sigma)</span><br><span class="line">    sigma = layer1.backward([a[<span class="number">0</span>],a[<span class="number">1</span>]],sigma)    </span><br><span class="line">    <span class="comment">#This step is for plotting the initial line.</span></span><br><span class="line">    <span class="keyword">if</span> step == <span class="number">0</span>:</span><br><span class="line">        y_start = a[<span class="number">3</span>]</span><br><span class="line">    step += <span class="number">1</span></span><br><span class="line">    loss = mean_square_loss(a[<span class="number">3</span>],y)[<span class="number">0</span>]</span><br><span class="line">    </span><br><span class="line">    l.append(loss)</span><br><span class="line">    <span class="comment">#print(&quot;step:&quot;,step,loss)</span></span><br><span class="line">y_pre = a[<span class="number">3</span>]</span><br><span class="line">    </span><br><span class="line"><span class="comment"># after training , plot the results</span></span><br><span class="line"></span><br><span class="line">plt.plot(x,y,c=<span class="string">&#x27;r&#x27;</span>,label=<span class="string">&#x27;true_value&#x27;</span>)</span><br><span class="line">plt.plot(x,y_pre,c=<span class="string">&#x27;b&#x27;</span>,label=<span class="string">&#x27;predict_value&#x27;</span>)</span><br><span class="line">plt.plot(x,y_start,c=<span class="string">&#x27;black&#x27;</span>,label=<span class="string">&#x27;begin_value&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.savefig(<span class="string">&#x27;1.png&#x27;</span>)</span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(np.arange(<span class="number">0</span>,<span class="built_in">len</span>(l)), l )</span><br><span class="line">plt.title(<span class="string">&#x27;loss history&#x27;</span>) </span><br><span class="line"><span class="comment"># save the loss history.</span></span><br><span class="line">plt.savefig(<span class="string">&#x27;loss_t.png&#x27;</span>)</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/code/" rel="tag"># code</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/neural-network/" rel="tag"># neural network</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/" rel="prev" title="Learning From Data——Activation Function">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Activation Function
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/17/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Huffman%E7%BC%96%E7%A0%81%E5%AE%9E%E7%8E%B0%E5%8F%8A%E5%85%B6%E6%9C%80%E4%BC%98%E6%80%A7/" rel="next" title="信息论——Huffman编码实现及其最优性">
+                  信息论——Huffman编码实现及其最优性 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这篇博客介绍第二节课的一些内容。虽然第二章题目是Sparse Signal Model，但是这篇博客还介绍了很多高维下的内容，因此内容是比较杂的。不过这个也就是上课内容的记录，而不是完全按照博客题目分的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="压缩感知与稀疏模型——Sparse Signal Model">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/07/07/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Sparse%20Signal%20Model/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这篇博客介绍第二节课的一些内容。虽然第二章题目是Sparse Signal Model，但是这篇博客还介绍了很多高维下的内容，因此内容是比较杂的。不过这个也就是上课内容的记录，而不是完全按照博客题目分的。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/l1_minimization.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal6.png">
+<meta property="article:published_time" content="2019-07-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:25:28.680Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="sparse model">
+<meta property="article:tag" content="convex optimization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/07/07/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Sparse%20Signal%20Model/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/07/07/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Sparse%20Signal%20Model/","path":"2019/07/07/压缩感知与稀疏模型——Sparse Signal Model/","title":"压缩感知与稀疏模型——Sparse Signal Model"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>压缩感知与稀疏模型——Sparse Signal Model | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#L1-norm%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%BE%97%E5%88%B0%E6%9B%B4%E7%A8%80%E7%96%8F%E7%9A%84%E7%82%B9%E7%9B%B8%E5%AF%B9%E4%BA%8EL2%E6%9D%A5%E8%AF%B4%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">L1-norm为什么能得到更稀疏的点相对于L2来说？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#l-0-l-1-%E2%80%A6l-infty-%E7%9A%84%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">$l^0,l^1,…l^\infty$的可视化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E7%BA%AC%E5%BA%A6%E4%B8%8B%E7%9A%84%E5%A5%87%E6%80%AA%E7%8E%B0%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">高纬度下的奇怪现象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#L0-norm%E7%9A%84sparse-solution"><span class="nav-number">4.</span> <span class="nav-text">L0 norm的sparse solution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Projected-Subgradient-Decent-for-l-1-minimization"><span class="nav-number">5.</span> <span class="nav-text">Projected Subgradient Decent for $l^1$ minimization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Constraints"><span class="nav-number">5.1.</span> <span class="nav-text">Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Nondifferentiability"><span class="nav-number">5.2.</span> <span class="nav-text">Nondifferentiability</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Exprimental-Result"><span class="nav-number">5.3.</span> <span class="nav-text">Exprimental Result</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/07/07/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Sparse%20Signal%20Model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="压缩感知与稀疏模型——Sparse Signal Model | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          压缩感知与稀疏模型——Sparse Signal Model
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-07-07 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-07T00:00:00+08:00">2019-07-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:25:28" itemprop="dateModified" datetime="2023-10-21T04:25:28+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">压缩感知与稀疏模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这篇博客介绍第二节课的一些内容。虽然第二章题目是Sparse Signal Model，但是这篇博客还介绍了很多高维下的内容，因此内容是比较杂的。不过这个也就是上课内容的记录，而不是完全按照博客题目分的。</p>
+<span id="more"></span>
+
+
+
+<p>从马毅老师的课上目前学到的最重要的收获，就是遇到一个要优化的问题时从几何的角度来思考，这样能够辅助理解很多东西。</p>
+<h3 id="L1-norm为什么能得到更稀疏的点相对于L2来说？"><a href="#L1-norm为什么能得到更稀疏的点相对于L2来说？" class="headerlink" title="L1-norm为什么能得到更稀疏的点相对于L2来说？"></a><a href="about:blank#L1-norm%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%BE%97%E5%88%B0%E6%9B%B4%E7%A8%80%E7%96%8F%E7%9A%84%E7%82%B9%E7%9B%B8%E5%AF%B9%E4%BA%8EL2%E6%9D%A5%E8%AF%B4%EF%BC%9F" title="L1-norm为什么能得到更稀疏的点相对于L2来说？"></a>L1-norm为什么能得到更稀疏的点相对于L2来说？</h3><p>之前的利用sparse representation来进行超分辨的文章中，有一个点是，我们希望得到最稀疏的解，但是L0范数的问题是NP-hard的，因此无法解决，所以将L0问题放宽到了L1问题。我们都知道L1范数能得到比L2范数更稀疏的解，为什么呢？</p>
+<p>假如有下面待解决的问题：</p>
+<p>\min \Vert x\Vert_0 \\s.t. y &#x3D; Ax</p>
+<p>对于0范数优化目标是最稀疏的解，是很容易理解的。因为0范数就是不为零的个数。通常解决方法是将上面的问题拓展到1范数：</p>
+<p>\min \Vert x\Vert_1 \\s.t. y &#x3D; Ax</p>
+<p>现在我们想想，1范数的定义是什么：$Vert x Vert_1 &#x3D; \Vert x_1 +…+x_n \Vert$。现在考虑三维的情况（更高的维度是类似的，但是我们画不出来），三维坐标下，L1范数的等高线是正8面体，而L2范数的等高线是球体的形状。而$y&#x3D;Ax$，映射到三维坐标下则是一个平面。</p>
+<p>我们在找满足$y&#x3D;Ax$的情况下最小的$\Vert x \Vert_1$值，实际上就是这个等高线不断扩充，最早正八面体与平面接触的那个点。</p>
+<p>而从概率的角度上，正八面体的6个顶点与平面接触的概率是最高的，而这几个顶点相对于其他的点来说是更为稀疏的（只有一个entry非零，如果是边的话则是有两个entry非零）。而球体（L2-norm）边界与平面接触概率是一样的，因此L1范数应该能比L2得到更稀疏的解。</p>
+<h3 id="l-0-l-1-…l-infty-的可视化"><a href="#l-0-l-1-…l-infty-的可视化" class="headerlink" title="$l^0,l^1,…l^\infty$的可视化"></a><a href="about:blank#l-0-l-1-%E2%80%A6l-infty-%E7%9A%84%E5%8F%AF%E8%A7%86%E5%8C%96" title="$l^0,l^1,…l^\infty$的可视化"></a>$l^0,l^1,…l^\infty$的可视化</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal1.png"></p>
+<h3 id="高纬度下的奇怪现象"><a href="#高纬度下的奇怪现象" class="headerlink" title="高纬度下的奇怪现象"></a><a href="about:blank#%E9%AB%98%E7%BA%AC%E5%BA%A6%E4%B8%8B%E7%9A%84%E5%A5%87%E6%80%AA%E7%8E%B0%E8%B1%A1" title="高纬度下的奇怪现象"></a>高纬度下的奇怪现象</h3><p>我们一直想当然的任务高纬度下的数据与低纬度下的是一样的规律，但是实际上维度变高的情况下会出现一些反直觉的现象。</p>
+<ol>
+<li><p>想想二维的圆和三维的球，对于更高的维度，也有一个类似这样的球。我们称围绕直径一圈的圆为赤道，赤道周围计算得到的体积，就占据了整个球的大多数（99%）。这个现象非常的反直觉，而且任意一个这样的赤道，都能得到相同的结论。</p>
+</li>
+<li><p>在维度变高情况下，$l^1$小于某个值相对于$l^\infty$占得体积越来越小，当维度比较高的时候接近于0。这个是比较好理解的。</p>
+</li>
+</ol>
+<p>还有一些想不起来了。总之在高维情况下，反直觉的现象会出现很多，因此很多的定理都是实践发现后才开始证明。这体现了编程验证能力的重要性。</p>
+<h3 id="L0-norm的sparse-solution"><a href="#L0-norm的sparse-solution" class="headerlink" title="L0 norm的sparse solution"></a><a href="about:blank#L0-norm%E7%9A%84sparse-solution" title="L0 norm的sparse solution"></a>L0 norm的sparse solution</h3><p>下面考虑这样一个问题。加入我们有观测量$y \in \mathbb{R}^m$，并且知道矩阵$A$，有$y &#x3D; Ax_0$，我们的目标是恢复$x_0$。如果我们知道$x_0$是稀疏的，那么选择最稀疏的解$y &#x3D; Ax$是合理的，也就是我们需要解决的问题为：</p>
+<p>\text{minimize } \Vert x\Vert_0\\ \text{subject to }Ax &#x3D; y</p>
+<p>这里定义一个符号：</p>
+<p>\text{supp}(x) &#x3D; \{i| x_i \ne 0\} \subset \{1,,,n\}</p>
+<p>一个向量的support是一个集合，包含了entry不为0的索引。那么上面的问题就是让我们找到一个有最小support的向量。最容易想到的方法就是尝试所有的可能性。support集合一定是集合$\{1,…,n\}$的子集，因此我们遍历集合$\{1,…,n\}$的所有子集，现在有support集合$I \subseteq \{1,…,n\}$，那么我们可以得到下面一组等式：</p>
+<p>A_Ix_I &#x3D; y</p>
+<p>这里$A_I \in \mathbb R^{m \times \vert I\vert}$是矩阵$A$的子矩阵，由entry索引为集合$I$中的向量组成。这样我们尝试解出$x_I \in \mathbb R^{\vert I\vert}$。如果解存在，将其他的entry设为0即可。算法描述如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal4.png"></p>
+<p>利用这个算法做了随机实验，首先随机生成$x_0,A$，其中$x_0$是稀疏的。然后根据$y&#x3D;Ax_0$得到观察量$y$，接着利用上面遍历的算法对$x_0$进行恢复。得到下面的图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal2.png"></p>
+<p>可以发现只要原先向量中非零个数$k$不要太大，也就是足够稀疏，基本上总是能成功找到解。上述实验的size是$5 \times 12$。出现这种现象的原因是什么，有没有数学上的解释？</p>
+<p>为了解释为什么L0范数最小化能成功得到解，首先思考一下什么情况下是无法得到解的。假如$x_0 \in null(A)$，也就是属于$A$矩阵的零空间，那么：</p>
+<p>Ax_0 &#x3D; 0 &#x3D; A0</p>
+<p>对于上面的情况，最小化L0范数得到的解永远是0向量，无法恢复得到$x_0$。因此我们可以推测，如果$null(A)$包含了稀疏向量，那么我们可能无法恢复原来的稀疏向量。实际上，反过来也是正确的，如果$null(A)$不包含稀疏向量，通过解决L0最小化总是能恢复足够稀疏的原向量。上面的陈述有点让人看不懂，用数学语言说明并证明一下：</p>
+<p>现在有原向量$\Vert x_0\Vert \leq k$，并且有：</p>
+<p>(*) \text{The only } \sigma \in null(A)\text{ with }\Vert \sigma\Vert_0 \leq 2k \text{ is }\sigma &#x3D; 0.</p>
+<p>那么如果$x_0$就一定可以被恢复。</p>
+<p>首先，假如我们估计量为$\hat x$，那么由于$\hat x$是根据最小化L0范数得到的，因此：</p>
+<p>\Vert\hat x\Vert_0 \leq \Vert x_0\Vert_0 \leq k</p>
+<p>定义估计误差为：</p>
+<p>\epsilon &#x3D; \hat x - x_0</p>
+<p>可以得到：</p>
+<p>\begin{aligned} \Vert \epsilon\Vert_0 &amp;&#x3D; \Vert \hat x - x_0\Vert_0 \\ &amp;\leq \Vert \hat x \Vert_0 + \Vert x_0\Vert_0\\ &amp;\leq 2k \end{aligned}</p>
+<p>而:</p>
+<p>A\epsilon &#x3D; A(\hat x - x_0) &#x3D; y - y &#x3D; 0</p>
+<p>那么根据$(*)$，我们可以得到：$\epsilon &#x3D; \sigma &#x3D; 0$。也就是最小化L0范数成功恢复了原来的稀疏向量。</p>
+<p>而$(*)$是矩阵$A$的一个性质，因此一个好的矩阵$A$应该是零空间没有稀疏向量的。实际上，要保持这个性质的充要条件是，任意矩阵A的$2k$列是线性独立的。</p>
+<p>对于上述现象在线性代数中有一个定理，引入矩阵新的概念Kruskal rank（$krank(A)$），指的是最大的$r$，$A$的任意$r$列都是线性独立的。</p>
+<p>上述理论描述为：</p>
+<p>假定$y &#x3D; Ax_0$，而且有$\Vert x_0\Vert_0 \leq \frac{1}{2} krank (A)$，那么$x_0$也是唯一下面最小化问题的唯一最优解：</p>
+<p>\text{minimize }\Vert x\Vert_0\\ \text{subject to } Ax &#x3D; y</p>
+<h3 id="Projected-Subgradient-Decent-for-l-1-minimization"><a href="#Projected-Subgradient-Decent-for-l-1-minimization" class="headerlink" title="Projected Subgradient Decent for $l^1$ minimization"></a><a href="about:blank#Projected-Subgradient-Decent-for-l-1-minimization" title="Projected Subgradient Decent for $l^1$ minimization"></a>Projected Subgradient Decent for $l^1$ minimization</h3><p>对于$l^1$的最小化的解决实际上与我们经常遇到的$l^2$范数是有较大区别的。现在有下面这样的最小化问题：</p>
+<p>\text{minimize } \Vert x\Vert _1\\ \text{subject to } Ax &#x3D; y</p>
+<p>上面的问题有两个需要解决的困难：</p>
+<ol>
+<li>nontrivial constraints(非平凡约束)：需要满足$Ax &#x3D; y$.</li>
+<li>nondifferentiable objective(不可导的目标函数)。$l^1$问题不是可导函数，局部会出现不可导的情况。下面对这两个问题一一进行分析解决。</li>
+</ol>
+<h4 id="Constraints"><a href="#Constraints" class="headerlink" title="Constraints"></a><a href="about:blank#Constraints" title="Constraints"></a>Constraints</h4><p>解决Constraints的最简单的方法是使用投影梯度。所有满足约束的向量，构成一个子空间(subspace)，我们计算出来的梯度可以投影到这个子空间上，利用投影之后的梯度来进行梯度下降，就是投影梯度下降的思想。一般来说，带有约束的优化问题可以写成下面的形式：</p>
+<p>\text{minimize } f(x)\\ \text{subject to } x \in C</p>
+<p>其中$C$是一个约束集合，一般的梯度下降算法迭代步骤为：</p>
+<p>x_{k+1} &#x3D; x_k - t_k\nabla f(x_k)</p>
+<p>而投影梯度算法就是将结果$x_{k+1}$投影到$C$上。一个点$z$在集合$C$上的投影也就是集合上距离$z$最近的点，定义为：</p>
+<p>\mathcal{P}_{C}[\boldsymbol{z}]&#x3D;\arg \min _{\boldsymbol{x} \in C} \frac{1}{2}\|\boldsymbol{z}-\boldsymbol{x}\|_{2}^{2} \equiv h(\boldsymbol{x})</p>
+<p>对于一般的$C$，投影可能不存在或者不唯一，但是对于凸集合来说，投影是很好的被定义了，而且有很多有用的性质。如果$A$是行满秩的，那么集合$C &#x3D; \{x|Ax &#x3D; y\}$上的投影有一个非常简单的形式：</p>
+<p>\mathcal{P}_{\{\boldsymbol{x} | \boldsymbol{A} \boldsymbol{x}&#x3D;\boldsymbol{y}\} }[\boldsymbol{z}]&#x3D;\boldsymbol{z}-\boldsymbol{A}^{T}\left(\boldsymbol{A} \boldsymbol{A}^{T}\right)^{-1}[\boldsymbol{A} \boldsymbol{z}-\boldsymbol{y}].</p>
+<p>有兴趣了可以尝试推导一下上式的计算过程。</p>
+<h4 id="Nondifferentiability"><a href="#Nondifferentiability" class="headerlink" title="Nondifferentiability"></a><a href="about:blank#Nondifferentiability" title="Nondifferentiability"></a>Nondifferentiability</h4><p>对于不可导问题，因为我们优化的问题虽然不可导，但是依然是凸函数，因此我们可以使用次梯度。这里简单说一下什么是次梯度，实际上一张图就可以看明白了：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal3.png"></p>
+<p>从几何的角度上来说，我们希望梯度提供一个迭代的方向，但是由于不可导，梯度并不存在，但是实际上很多方向都可以作为迭代方向的估计，如上图中，红线的斜率就是次梯度。</p>
+<p>对于凸函数，次梯度$c$需要满足：</p>
+<p>f(x) - f(x_0) \geq c(x - x_0)</p>
+<p>可以看到次梯度一般不是唯一的而是一个区间，实际上我们对不可导的点左右求极限：</p>
+<p>\begin{aligned} a &amp;&#x3D;\lim _{x \rightarrow x_{0}^{-} } \frac{f(x)-f\left(x_{0}\right)}{x-x_{0} } \\ b &amp;&#x3D;\lim _{x \rightarrow x_{0}^{+} } \frac{f(x)-f\left(x_{0}\right)}{x-x_{0} } \end{aligned}\\ a \leq b</p>
+<p>那么处于$[a,b]$之间的都可以称为次梯度。</p>
+<p>对于次梯度更严格的定义如下：<br>$f: \mathbb R ^n \rightarrow \mathbb R$是一个凸函数。那么$f$在$x_0$点的次梯度为满足下式的任意$u$：</p>
+<p>f(\boldsymbol{x}) \geq f\left(\boldsymbol{x}_{0}\right)+\left\langle\boldsymbol{u}, \boldsymbol{x}-\boldsymbol{x}_{0}\right\rangle, \quad \forall \boldsymbol{x}.</p>
+<p>而次导数是在该点所有次梯度的集合：</p>
+<p>\partial f\left(\boldsymbol{x}_{0}\right)&#x3D;\left\{\boldsymbol{u} | \forall \boldsymbol{x} \in \mathbb{R}^{n}, f(\boldsymbol{x}) \geq f\left(\boldsymbol{x}_{0}\right)+\left\langle\boldsymbol{u}, \boldsymbol{x}-\boldsymbol{x}_{0}\right\rangle\right\}.</p>
+<p>因此对于次梯度下降，迭代步骤为：</p>
+<p>\boldsymbol{x}_{k+1}&#x3D;\boldsymbol{x}_{k}-t_{k} \boldsymbol{g}_{k}, \boldsymbol{g}_{k} \in \partial f\left(\boldsymbol{x}_{k}\right).</p>
+<p>截止到这里，我们就可以推导出次梯度下降算法了：</p>
+<p>\boldsymbol{x}_{k+1}&#x3D;\mathcal{P}_{\mathcal{C} }\left[\boldsymbol{x}_{k}-t_{k} \boldsymbol{g}_{k}\right], \quad \boldsymbol{g}_{k} \in \partial f\left(\boldsymbol{x}_{k}\right)</p>
+<p>由于次梯度是无穷多个的，对于一维的变量，$\vert x\vert$在$x&#x3D;0$的次梯度为区间$[-1,1]$的任何一个数字都可以，也就是：\partial \vert \cdot \vert(x) ＝[-1,1].</p>
+<p>我们用$\partial \vert \cdot \vert(x) $来表示次导数。对于多维向量，有下面的引理：<br><strong>Lemma</strong>: 现在有$x\in \mathbb R^n$, $I &#x3D; \text{supp}(x)$，那么：</p>
+<p>\partial\|\cdot\|_{1}(\boldsymbol{x})&#x3D;\left\{\boldsymbol{v} \in \mathbb{R}^{n} | \boldsymbol{P}_{I} \boldsymbol{v}&#x3D;\operatorname{sign}(\boldsymbol{x}),\|\boldsymbol{v}\|_{\infty} \leq 1\right\}</p>
+<p>这里，$\boldsymbol{P}_{I} \in \mathbb{R}^{n \times n}$是坐标$I$的正交投影：</p>
+<p>\left[\boldsymbol{P}_{I} \boldsymbol{v}\right](j)&#x3D;\left\{\begin{array}{ll}{\boldsymbol{v}_{j} } &amp; {j \in I} \\ {0} &amp; {j \notin I}\end{array}\right.</p>
+<p>证明这里就不赘述了。</p>
+<p>到了这里我们可以总结出次梯度下降算法，用来解决$l^1$的minimization(注：下图中$A^* &#x3D; A^T$，表示转置):<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal5.png"></p>
+<h4 id="Exprimental-Result"><a href="#Exprimental-Result" class="headerlink" title="Exprimental Result"></a><a href="about:blank#Exprimental-Result" title="Exprimental Result"></a>Exprimental Result</h4><p>都说用$l^1$来解决稀疏解是相对有效的方法，因此在这里类似于$l^0$，做了一个实验，看$l^1$对恢复稀疏向量上表现如何。我们知道在$l^0$的情况下，只要满足一定条件它一定能恢复原来的稀疏向量。使用同样的方法设计实验，维度是$200\times 500$，非零entry个数$k$从0到500，算法使用上述提到的投影次梯度下降。这其中，首先随机生成$A,x$，根据$y&#x3D;Ax$得到$y$，再试图用上述算法去恢复$x$。由于数值精度问题，计算机中完全等于0是比较困难一件事，因此设定一个阈值，只要小于该阈值就视为零。算法的代码如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># A implementation of Projected Subgradient Decent</span></span><br><span class="line"><span class="comment"># created by Guoqing Zhang 2019.7.14</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> numpy.linalg <span class="keyword">import</span> inv</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="comment"># Use T and tildeX to compute projection</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">computeProjection</span><span class="params">(A,y)</span>:</span></span><br><span class="line">    I = np.identity(A.shape[<span class="number">1</span>])</span><br><span class="line">    I = np.mat(I)</span><br><span class="line">    A = np.mat(A)</span><br><span class="line">    y = np.mat(y)</span><br><span class="line">    temp =  A.transpose() *inv(A * A.transpose())</span><br><span class="line">    T = I -temp*A</span><br><span class="line">    tildeX = temp*y</span><br><span class="line">    <span class="keyword">return</span> [T,tildeX]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">randomSequenceNoRepeat</span><span class="params">(k,n)</span>:</span></span><br><span class="line">    r = list(range(<span class="number">0</span>,n))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(k):</span><br><span class="line">        j = np.random.random_integers(<span class="number">0</span>,n<span class="number">-1</span>)</span><br><span class="line">        <span class="comment">#print(j)</span></span><br><span class="line">        r[i],r[j] = r[j],r[i]</span><br><span class="line">    <span class="keyword">return</span> r[:k]</span><br><span class="line"><span class="comment"># k means the sparsity, m, n is the dimension of matrix A</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">randomGeneratexAy</span><span class="params">(k,m,n)</span>:</span></span><br><span class="line">    A =  np.random.randn(m,n)</span><br><span class="line">    x = np.random.rand(n)</span><br><span class="line">    A = np.mat(A)</span><br><span class="line">    x = np.mat(x).transpose()</span><br><span class="line">    zero_indice = randomSequenceNoRepeat(n-k,n)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> zero_indice:</span><br><span class="line">        x[i] = <span class="number">0</span></span><br><span class="line">    y = A*x </span><br><span class="line">    <span class="keyword">return</span> x,A,y</span><br><span class="line"><span class="comment"># recoverX</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">recoverX</span><span class="params">(A,y)</span>:</span></span><br><span class="line">    T,tildeX = computeProjection(A,y)</span><br><span class="line">    x = np.zeros(A.shape[<span class="number">1</span>])</span><br><span class="line">    x = np.mat(x).transpose()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">10000</span>):</span><br><span class="line">        <span class="comment">#print(i,"iteration...")</span></span><br><span class="line">        x = tildeX + T*(x - <span class="number">1</span>/i * np.sign(x))</span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">drawResult</span><span class="params">(sf)</span>:</span></span><br><span class="line">    x = list(range(<span class="number">0</span>,len(sf)))</span><br><span class="line">    plt.plot(x,sf)</span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    m = <span class="number">200</span></span><br><span class="line">    n = <span class="number">500</span></span><br><span class="line">    frac = [<span class="number">0</span> <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">501</span>)]</span><br><span class="line">    last = <span class="number">500</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">50</span>):</span><br><span class="line">        frac[i] = <span class="number">1.0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> k <span class="keyword">in</span> range(<span class="number">50</span>,<span class="number">501</span>):</span><br><span class="line">        success = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">60</span>):</span><br><span class="line">            <span class="comment">#starttime = datetime.datetime.now()</span></span><br><span class="line">            x,A,y = randomGeneratexAy(k,m,n)</span><br><span class="line">            <span class="comment">#print(x)</span></span><br><span class="line">            hatX = recoverX(A,y)</span><br><span class="line">            hatX = hatX - x</span><br><span class="line">            hatX = np.fabs(hatX)</span><br><span class="line">            hatX[hatX&lt;<span class="number">0.001</span>] = <span class="number">0</span> </span><br><span class="line">            hatX[hatX!=<span class="number">0</span>] = <span class="number">1</span>   </span><br><span class="line">            <span class="comment">#endtime = datetime.datetime.now()</span></span><br><span class="line">            <span class="comment">#print((endtime - starttime).microseconds/1000.0)</span></span><br><span class="line">            <span class="keyword">if</span> np.sum(hatX) == <span class="number">0.0</span>:</span><br><span class="line">                success = success + <span class="number">1</span></span><br><span class="line">        frac[k] = success/<span class="number">60</span></span><br><span class="line">        print(k,success/<span class="number">60</span>)</span><br><span class="line">        <span class="keyword">if</span>(frac[k] == <span class="number">0.0</span>):</span><br><span class="line">            last = k</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(last,<span class="number">501</span>):</span><br><span class="line">        frac[k] = <span class="number">0.0</span></span><br><span class="line">    frac[<span class="number">0</span>] = <span class="number">0.0</span></span><br><span class="line">    drawResult(frac)</span><br></pre></td></tr></tbody></table>
+
+<p>最后结果如图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/l1_minimization.png"></p>
+<p>这个图不是非常的顺滑，不过有了大致的趋势，可能是迭代次数不够导致的,也不知道是不是实现的问题。一般来说这个曲线如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sparse_signal6.png"></p>
+<p>可以看到在稀疏性很大时候，$l^1$也几乎总是能恢复到原始的向量。这体现了$l^1$范数在解决稀疏问题的优越性。不过上述程序运行速度很慢，因为投影次梯度收敛速度很慢。之后会介绍更快速的优化算法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/sparse-model/" rel="tag"># sparse model</a>
+              <a href="/tags/convex-optimization/" rel="tag"># convex optimization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/04/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Introduction/" rel="prev" title="压缩感知与稀疏模型——Introduction">
+                  <i class="fa fa-angle-left"></i> 压缩感知与稀疏模型——Introduction
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/07/09/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Convex%20Methods%20for%20Sparse%20Signal%20Recovery/" rel="next" title="压缩感知与稀疏模型——Convex Methods for Sparse Signal Recovery">
+                  压缩感知与稀疏模型——Convex Methods for Sparse Signal Recovery <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

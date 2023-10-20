@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="开一个栏目来记录信息论的学习。希望今年这门课不要挂掉。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——Basic Conception">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="开一个栏目来记录信息论的学习。希望今年这门课不要挂掉。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-29T13:18:33.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.775Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/","path":"2018/10/29/信息论——Basic-Conception/","title":"信息论——Basic Conception"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——Basic Conception | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E7%86%B5-Entropy"><span class="nav-number">1.</span> <span class="nav-text">信息熵(Entropy)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%90%88%E7%86%B5"><span class="nav-number">1.1.</span> <span class="nav-text">联合熵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E7%86%B5"><span class="nav-number">1.2.</span> <span class="nav-text">条件熵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E7%86%B5%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">1.3.</span> <span class="nav-text">信息熵的性质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E4%BF%A1%E6%81%AF-Mutual-Information"><span class="nav-number">2.</span> <span class="nav-text">互信息(Mutual Information)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%8F%98%E9%87%8F%E7%9A%84%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">2.1.</span> <span class="nav-text">多变量的互信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">2.2.</span> <span class="nav-text">条件互信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF-K-L-divergence"><span class="nav-number">3.</span> <span class="nav-text">鉴别信息(K-L divergence)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%EF%BC%8C%E7%86%B5%EF%BC%8C%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">3.1.</span> <span class="nav-text">鉴别信息，熵，互信息</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——Basic Conception | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——Basic Conception
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-29 21:18:33" itemprop="dateCreated datePublished" datetime="2018-10-29T21:18:33+08:00">2018-10-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>开一个栏目来记录信息论的学习。希望今年这门课不要挂掉。<span id="more"></span></p>
+<h2 id="信息熵-Entropy"><a href="#信息熵-Entropy" class="headerlink" title="信息熵(Entropy)"></a>信息熵(Entropy)</h2><p>香农定义了信息熵，从而为通信时代奠定了数学基础。首先直观的说明一下什么是信息？香农说：信息是用来消除随机不确定性的东西。这个说法实在是太抽象了。</p>
+<p>考虑两个简单的例子：1,明天太阳从东方升起；2，明天太阳要爆炸。哪句话包含了更多的信息？</p>
+<p>直观上来讲，明显是第二句。因为第一句是句“废话”。所以我们可以这样理解，概率越小的事它的信息量越大。如果一件事发生概率为1，那它包含的信息为0.如果一件事发生概率为0，它的信息量为$\infty$.另外，如果两个事件是独立的，他们两个发生的信息量是二者之和。所以写成函数形式：<br>如果有两个独立事件a,b,假如f(x)表示x的信息量，则：<br>$$<br>If p(a)&gt;p(b), f(a)&lt; f(b);\<br>f(0) &#x3D; \infty, f(1) &#x3D; 0;<br>f(a,b) &#x3D; f(a)+f(b)<br>$$</p>
+<p>通过上面的性质，结合概率，其实我们还是比较容易想到的是log函数。 f(x) &#x3D; -log p(x),满足上面的所有条件。不过这是直观猜测，后面去证明一下log函数是唯一满足信息的定义的函数。</p>
+<p>现在说明一下信息熵的定义：$H(X) &#x3D;- \sum _{x \in \mathcal{X} } p(x) \log p(X)$.信息熵是用来衡量一个系统的信息量，如果基于之前对事件信息的定义的话，从直观来讲这个定义是合理的。现在证明它不光是合理的，而且是唯一的。</p>
+<p>香农给出信息熵函数满足的三个条件：</p>
+<ul>
+<li>连续性</li>
+<li>等概时的单调递增特性</li>
+<li>可加性</li>
+</ul>
+<p>用数学语言描述如下：</p>
+<ul>
+<li>$H(X) &#x3D; H(P_x)$ is continuous on $P_x$.</li>
+<li>$g(N) - f(\frac 1 N,\frac 1 N,…,\frac 1 N)$. If $M &gt; N, g(M)&gt;g(N).$</li>
+<li>$f(P_1,p_2,…,P_N) &#x3D; f(P_1+P_2+…+P_M,P_{M+1},…,P_N) + (P_1+…+P_M)f(P_1’+P_2’+…+P_M’),P_i’ &#x3D; \frac{P_i}{\sum_{j&#x3D;1} ^M P_j}$</li>
+</ul>
+<p>现在根据上面三个假设来证明我们之前猜测的信息度量函数不光是正确的而且是唯一的。</p>
+<p>首先考虑均匀分布的情况：</p>
+<p>$X~Unif:$<br>$$<br>\begin{align}<br>g(MN) &amp;&#x3D; f(\frac 1 {MN},…,\frac{1}{MN})\<br>&amp;&#x3D;f(\frac 1 M,\frac 1 {MN},…,\frac 1 {MN}) + \frac 1 M (\frac 1 N,…,\frac 1 N)\<br> &amp;&#x3D; f(\frac 1 M,…,\frac 1 M) +\sum_{i&#x3D;1}^M \frac 1 M ( \frac 1 N ,…,\frac 1 N)\<br> &amp;&#x3D; g(M) + g(N)<br>\end{align}<br>$$<br>由以上的推论：<br>$$<br>g(S^m) &#x3D; g(S) \cdot g(S^{m-1}) &#x3D; mg(s) ———————(1)<br>$$</p>
+<p>取四个正整数$s,m,t,n \in N$,使得$s^m \leq t^n &lt; s^{m+1}$,由于单调增可以得到：<br>$$<br>g(s^m) \leq g(t^n) &lt; g(s^{m+1}) \<br>mg(s) \leq ng(t) &lt; (m+1)g(s) \<br>\frac m n \leq \frac {g(t)}{g(s)} &lt; \frac {m+1}{n}<br>$$<br>可以得到：<br>$$<br>\left\vert \frac m n - \frac {g(t)}{g(s)} \right\vert \leq \frac 1 n ———(2)<br>$$</p>
+<p>如果讲上面的4个整数应用到log函数上，可以得到:<br>$$<br>m\log s\leq n\log t &lt; (m+1) logs\<br>\left\vert \frac m n - \frac {\log t }{\log s} \right\vert \leq \frac 1 n ——-(3)<br>$$</p>
+<p>利用$|a ± b| \leq |a|+ |b|$,结合不等式(2),(3)：</p>
+<p>$$<br>\left \vert \frac {g(t)}{g(s)} - \frac {\log t}{\log s} \right \vert \leq \frac 2 n<br>$$</p>
+<p>当N取足够大时，$\frac {g(t)}{g(s)} -&gt; \frac {\log t}{\log s}$</p>
+<p>因此我们可以得到：$g(t) &#x3D; C \log t &#x3D; -\sum _{i&#x3D;1}^T \frac 1 t \log \frac 1 t$.</p>
+<p>下来我们要考虑非均匀分布的情况。</p>
+<p>假设$X~P_x(x)$,令$P(n) &#x3D; \frac{m_n}{\sum_{i&#x3D;1}^N m_i} &#x3D; \frac{m_n}{M}$.</p>
+<p>实际上上面各个字母意思可以用摸球来考虑：$m_1$个红球，$m_2$个绿球，…,共M个球,N种颜色，而$P(1)$也就是摸到红球的概率。考虑：<br>$$<br>\begin{align}<br>g(M) &amp;&#x3D; f(\frac 1 M,…,\frac 1 M)\<br>&amp;&#x3D;f(\frac {m_1} {M},\frac {m_2}{M},…,\frac{m_N}{M}) +\sum <em>{i&#x3D;1}^N \frac {m_i} {M}f(\frac {1}{m_i},…,\frac {1}{m_i})\<br>&amp;&#x3D; f(P_1,P_2,…,P_N) + \sum</em>{i&#x3D;1}^N P_ig(m_i)<br>\end{align}<br>$$          </p>
+<p>对上面等式稍加变形：<br>$$<br>\begin{align}<br>f(P_1,P_2,…,P_N) &amp;&#x3D; g(M) - \sum_{i&#x3D;1}^N P_ig(m_i)\<br>&amp;&#x3D; C \log M (\sum_{i&#x3D;1}^N P_i)- \sum_{i&#x3D;1}^N P_ig(m_i)\<br>&amp;&#x3D; C\sum <em>{i&#x3D;1}^N P_i(\log M - \log m_i )\<br>&amp;&#x3D; -C\sum</em>{i&#x3D;1}^N P_i \log P_i<br>\end{align}<br>$$</p>
+<p>这就得到了我们对熵的度量函数的形式。在不同的信息度量中常数C以及log的底数是不同的，而最常用的log底数为2，也就产生了bit。</p>
+<p>现在X的分布是有理数，但是即使是无理数也是成立的。具体的证明就不展开了。</p>
+<p>对于信息度量的假设条件，实际上香农的定义不是唯一的。数学家A.I.Khinchin曾经给出这样的假设：</p>
+<ul>
+<li>连续性</li>
+<li>可加性</li>
+<li>极值条件<br>$$max f(p_1,p_2,…,p_N) &#x3D; f(\frac 1 N,…,\frac 1 N)$$</li>
+<li>零概率事件不影响不确定性<br>$$f(p_1,p_2,…,p_N) &#x3D; f(p_1,p_2,…,p_N,0)$$</li>
+</ul>
+<p>实际上这个条件中的3,4条件等价于香农的第二个条件。证明如下：<br>$$<br> f(\frac 1 N,…,\frac 1 N)  &#x3D;  f(\frac 1 N,…,\frac 1 N,0)&lt; f(\frac 1 {N+1},\frac 1 {N+1},…,\frac 1 {N+1})<br>$$<br>而上式实际上就是等概时候的单调性。</p>
+<h3 id="联合熵"><a href="#联合熵" class="headerlink" title="联合熵"></a>联合熵</h3><p>Definition:<br>$H(X,Y) &#x3D; -\sum <em>{x \in \mathcal{X} }\sum</em>{y \in \mathcal{Y} } P(x,y) \log P(x,y)$</p>
+<p>$H(X,Y)$实际上是X与Y系统的联合包含的信息量。需要考虑的问题：$H(X,Y) ? H(X)+H(Y)$。</p>
+<h3 id="条件熵"><a href="#条件熵" class="headerlink" title="条件熵"></a>条件熵</h3><p>Definition:<br>$$<br>\begin{align}<br>H(Y|X) &amp;&#x3D; \sum_{x \in \mathcal{X} } p(x)H(Y|X&#x3D;x)\<br> &amp;&#x3D; - \sum_{x \in \mathcal{X} }p(x) \sum_{y \in \mathcal{Y} } p(y|x)\log p(y|x)\<br> &amp;&#x3D; - \sum_{x \in \mathcal{X} }\sum_{y \in \mathcal{Y} } p(x,y) \log p(y|x)<br>\end{align}<br>$$</p>
+<p>请不要以为$H(Y|X) &#x3D; -\sum_{x \in \mathcal{X} }\sum_{y \in \mathcal{Y} } p(y|x) \log p(y|x)$.</p>
+<p>条件熵的实际上是知道X的信息之后，Y的剩余信息量。</p>
+<p>值得注意的是H(Y|X&#x3D;x)不是一个条件熵，条件熵是根据两个系统而言的，而在这个中，实际上只有一个加了条件的系统：$Y|X&#x3D;x$.</p>
+<p>当X,Y独立时，$H(Y|X) &#x3D; H(Y),H(X|Y) &#x3D; H(X)$.在直觉上这个也是非常正确的。同时我们用物理思维理解这件事，应该可以得到：$H(X,Y) &#x3D; H(X) + H(Y|X)$.</p>
+<p>现在用严格的数学证明来证明上面的式子是成立的：</p>
+<p>首先我们希望简化一下熵的写法：$H(X) &#x3D; \mathbb{E}_x \log \frac 1 {p(X)}$($\mathbb{E}$表示数学期望).</p>
+<p>有了这个写法，证明变得就很简单：<br>$$<br>P(X,Y) &#x3D; P(X)P(Y|X)\<br>\log P(X,Y) &#x3D; \log P(X)+ \log P(Y|X)\<br>\mathbb{E}<em>{X,Y}P(X,Y) &#x3D; \mathbb{E}</em>{X,Y} \log P(X) + \mathbb{E}_{X,Y} \log P(Y|X)\<br>H(X,Y) &#x3D; H(X) + H(Y|X)<br>$$<br>上述证明没有写清负号，但是完全不影响结果。</p>
+<p>根据上面可以推断出别的结论(如果利用画图就更好理解)：</p>
+<ul>
+<li>$H(X,Y|Z) &#x3D; H(X|Z) + H(Y|X,Z)$</li>
+</ul>
+<p> 推论：$H(X_1,X_2,…,H_n) &#x3D;  \sum <em>{i&#x3D;1} ^N H(X_i|X</em>{i-1},…,X_1)$</p>
+<h3 id="信息熵的性质"><a href="#信息熵的性质" class="headerlink" title="信息熵的性质"></a>信息熵的性质</h3><ul>
+<li><p>对称性：<br>$H(P_1,P_2,…,P_N) &#x3D; H(P_{k(1)},P_{k(2)},…,P_{k(N)})$</p>
+</li>
+<li><p>非负性： $H(P) \geq 0$</p>
+</li>
+<li><p>可加性： $H(X,Y) &#x3D; H(X) + H(Y|X)$</p>
+</li>
+<li><p>条件减少熵： $H(X|Y) \leq H(X)$<br>(条件熵，而非针对Y的某一特定取值，也就是不意味着$H(X|Y&#x3D;y) \leq H(X)$)</p>
+</li>
+<li><p>最大离散熵定理：$H(p_1,p_2,…,p_n) \leq H(\frac 1 N ,…,\frac 1 N) &#x3D; \log N &#x3D; \log |X|$.</p>
+</li>
+</ul>
+<h2 id="互信息-Mutual-Information"><a href="#互信息-Mutual-Information" class="headerlink" title="互信息(Mutual Information)"></a>互信息(Mutual Information)</h2><p>互信息描述了两个系统之间的关系。互信息的定义：$I(X;Y) &#x3D; H(X) - H(X|Y)$.</p>
+<p>也可以直接定义互信息为:$I(X;Y)&#x3D; \sum_{x \in \mathcal{X} } \sum_{y \in \mathcal{Y} }p(x,y) \log \frac{p(x,y)}{p(x)p(y)}$.</p>
+<p>互信息还有另一种写法：$I(X;Y) &#x3D; I(p;Q) &#x3D;  \sum_{x \in \mathcal{X} } \sum_{y \in \mathcal{Y} } p(x)q(y|x)\log \frac{q(y|x)}{\sum _{x \in \mathcal{X} }p(x)q(y|x)}$.式子中Q为知道x后y的条件概率矩阵。</p>
+<p>从另一方面来说：$I(X;Y) &#x3D; H(X)+H(Y) - H(X,Y)$.从直观上也是很容易理解的。</p>
+<p>很明显互信息$I(X;Y) &#x3D; I(Y;X)$,具有对称性。如果X与Y独立，$I(X;Y)&#x3D;0$；如果X与Y一一对应，则$I(X;Y) &#x3D; H(X) &#x3D; H(Y)$.</p>
+<p>互信息和信道容量有着千丝万缕的关系。信源这边为X，信道尾部为Y，那么I(X;Y)越大的话信道容量越大。</p>
+<h3 id="多变量的互信息"><a href="#多变量的互信息" class="headerlink" title="多变量的互信息"></a>多变量的互信息</h3><p>如果有随机变量X，Y，Z，则$I(X;Y,Z) &#x3D; H(X) - H(X|Y,Z) &#x3D; H(Y,Z) - H(Y,Z|X)$.</p>
+<p>或者从数学定义上：<br>$$<br>I(X;Y,Z)&#x3D; \sum_{x \in \mathcal{X} } \sum_{y \in \mathcal{Y} } \sum_{z \in \mathcal{Z} }p(x,y,z) \log \frac{p(x|y,z)}{p(x)} &#x3D; \sum_{x \in \mathcal{X} } \sum_{y \in \mathcal{Y} } \sum_{z \in \mathcal{Z} }p(x,y,z) \log \frac{p(x,y,z)}{p(x)p(y,z)}<br>$$</p>
+<h3 id="条件互信息"><a href="#条件互信息" class="headerlink" title="条件互信息"></a>条件互信息</h3><p>定义I(X;Y|Z)为知道Z的信息之后，X与Y之间的互信息。它的定义如下：</p>
+<p>$I(X;Y|Z) &#x3D; H(X|Z) - H(X|Y,Z)&#x3D; H(Y|Z) - H(Y|X,Z)$.</p>
+<p>也可以直接定义条件互信息为:<br>$$<br>I(X;Y|Z) &#x3D; \sum_{x \in \mathcal{X} } \sum_{y \in \mathcal{Y} } \sum_{z \in \mathcal{Z} } p(x,y,z) \log {p(x,y|z)}{p(x|z)p(y|z)}<br>$$</p>
+<p>$$<br>I(X;Y|Z) &#x3D; H(X|Z) - H(X,Y|Z) + H(Y|Z)<br>$$<br>$$<br>\begin{align}<br>I(X;Y|Z) &#x3D; &amp;H(X,Z) - H(Z) - H(X,Y,Z) + H(Z)+H(Y,Z) - H(Z)\<br>&amp;&#x3D;H(X,Z)+H(Y,Z)-H(X,Y,Z)-H(Z)<br>\end{align}<br>$$</p>
+<p>有条件减少熵，但是没有条件减少互信息。条件互信息非负。</p>
+<ul>
+<li><p>对称性 $I(X;Y)&#x3D;I(Y;X)$</p>
+</li>
+<li><p>非负性 $I(X;Y) \geq 0$</p>
+</li>
+<li><p>极值性 $I(X;Y) \leq min{H(X),H(Y)}$</p>
+</li>
+<li><p>可加性 $I(X_1,X_2,…,X_n;Y) &#x3D; \sum_{i&#x3D;1} ^n I(X_i;Y|X_{i-1},…,X_1)$</p>
+</li>
+</ul>
+<p>可加性用画图来表示的话也更清晰。</p>
+<p>下面介绍一个用互信息来解决的题目。如果有25个小球，其中只有一个重量和其他的不一致。有一个天平，可以检测轻重，或者一样重。那么最少用几次才能一定找出不一样重量的小球?也许你能找到3次的方法，但是如何证明2次是不可以？</p>
+<p>只有一个重量不一样，如果是均匀分布，则信息熵为$H(X) &#x3D; \log_2^{25}$.假设进行了N次实验，则互信息为$I(X^N;X)$.<br>$$<br>\begin{align}<br>I(X^N;X) &amp;\leq H(X^N) \leq H(X_1,X_2,…,X_N)\<br>       &amp;\leq H(X_1)+…+H(X_n)\<br>       &amp;&#x3D; N\log _2^3.\<br>\end{align}<br>$$<br>我们希望的是互信息和原来的熵一样大，这样才能反应它的情况。<br>$$<br>\begin{align}<br>H(X) &#x3D; I(X^N;X) \leq N \log_2^3\<br>      \log 2^{25} \leq N log_2^3\<br>      N \geq 3<br>\end{align}<br>$$</p>
+<p>所以可以得到N必须大于等于3.信息论很多时候给了我们一个上界。</p>
+<h2 id="鉴别信息-K-L-divergence"><a href="#鉴别信息-K-L-divergence" class="headerlink" title="鉴别信息(K-L divergence)"></a>鉴别信息(K-L divergence)</h2><p>鉴别信息表示两个分布之间的距离，定义如下：<br>$$<br>D(p\Vert q) &#x3D; \sum_{x \in \mathcal{X} }p(x)\log \frac{p(x)}{q(x)}<br>$$</p>
+<ul>
+<li>当p &#x3D; q的时候，$D(p\Vert q) &#x3D;0$. </li>
+<li>鉴别信息具有非负性。</li>
+</ul>
+<p>但是鉴别信息不能说是严格的信息度量。它不具有对称性，也不满足三角不等式（？？）。</p>
+<h3 id="鉴别信息，熵，互信息"><a href="#鉴别信息，熵，互信息" class="headerlink" title="鉴别信息，熵，互信息"></a>鉴别信息，熵，互信息</h3><ul>
+<li>$H(X) &#x3D; \log |X| - D(\mathbf{p}\Vert \mathbf{u})$</li>
+</ul>
+<p>上式中u表示平均分布。证明如下：</p>
+<p>$$<br>\begin{align}<br>H(X) &amp;&#x3D; -\sum <em>{x \in \mathcal{X} }p(x)\log p(x) \<br>&amp;&#x3D;\log N - \log N+ \sum</em>{x \in \mathcal{X} }p(x) \log p(x)\<br>&amp;&#x3D; \log |X| + \sum_{x \in mathcal{X} } p(x)\log \frac 1 N + \sum_{x \in \mathcal{X} }p(x) \log p(x)\<br>&amp;&#x3D; \log |X| -  D(\mathbf{p}\Vert \mathbf{u})<br>\end{align}<br>$$</p>
+<ul>
+<li>$I(X;Y) &#x3D; D(p(x,y)\Vert p(x)p(y)) $</li>
+</ul>
+<p>这个证明两边根据定义展开就可以直接得到。</p>
+<p>信息论真是抽象啊。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/" rel="prev" title="图形学——Homework1">
+                  <i class="fa fa-angle-left"></i> 图形学——Homework1
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/" rel="next" title="Learning From Data——Generative Learning Algorithm">
+                  Learning From Data——Generative Learning Algorithm <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

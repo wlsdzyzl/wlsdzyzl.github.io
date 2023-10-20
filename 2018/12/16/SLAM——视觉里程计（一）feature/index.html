@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="从现在开始下面两篇文章来介绍SLAM中的视觉里程计（Visual Odometry）。这个是我们正式进入SLAM工程的第一步，而之前介绍的更多的是一些基础理论。视觉里程计完成的事情是视觉里程计VO的目标是根据拍摄的图像估计相机的位姿。目前主要有两个方法，我们这一篇介绍的是特征点法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——视觉里程计（一）feature">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="从现在开始下面两篇文章来介绍SLAM中的视觉里程计（Visual Odometry）。这个是我们正式进入SLAM工程的第一步，而之前介绍的更多的是一些基础理论。视觉里程计完成的事情是视觉里程计VO的目标是根据拍摄的图像估计相机的位姿。目前主要有两个方法，我们这一篇介绍的是特征点法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%E7%9C%9F%E9%A6%99.gif">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb3.png">
+<meta property="article:published_time" content="2018-12-16T15:56:36.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:07:54.291Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="computer vision">
+<meta property="article:tag" content="feature">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%E7%9C%9F%E9%A6%99.gif">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/","path":"2018/12/16/SLAM——视觉里程计（一）feature/","title":"SLAM——视觉里程计（一）feature"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——视觉里程计（一）feature | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">特征点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast%E7%89%B9%E5%BE%81%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">Fast特征点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ORB%E7%89%B9%E5%BE%81%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">ORB特征点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E5%8C%B9%E9%85%8D"><span class="nav-number">1.3.</span> <span class="nav-text">特征匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5%EF%BC%9A%E7%89%B9%E5%BE%81%E6%8F%90%E5%8F%96%E5%92%8C%E7%89%B9%E5%BE%81%E5%8C%B9%E9%85%8D"><span class="nav-number">1.4.</span> <span class="nav-text">实践：特征提取和特征匹配</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——视觉里程计（一）feature | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——视觉里程计（一）feature
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-16 23:56:36" itemprop="dateCreated datePublished" datetime="2018-12-16T23:56:36+08:00">2018-12-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:07:54" itemprop="dateModified" datetime="2023-10-21T04:07:54+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>从现在开始下面两篇文章来介绍SLAM中的视觉里程计（Visual Odometry）。这个是我们正式进入SLAM工程的第一步，而之前介绍的更多的是一些基础理论。视觉里程计完成的事情是视觉里程计VO的目标是根据拍摄的图像估计相机的位姿。目前主要有两个方法，我们这一篇介绍的是特征点法。</p>
+<span id="more"></span>
+<p>首先，我们之前提到了路标。SLAM中是根据路标的位置变化来估计自身的运动的。路标是三维空间中固定不变的点，应该有这么几个特征：</p>
+<ul>
+<li>数量充足，以实现良好的定位</li>
+<li>具有较好的区分性，以实现数据关联<br>而图像的特征点可以比较好的满足上面的特点，可以通过特征点来作为SLAM中的路标。</li>
+</ul>
+<h2 id="特征点"><a href="#特征点" class="headerlink" title="特征点"></a>特征点</h2><p><strong>特征点</strong>是图像当中比较具有代表性的部分。<br>我们想象一下，我们识别一个物体的时候，即使旋转了，或者光照不同，尺度变化，我们还是能认出。这一点上，人眼真的是太强了。如图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%E7%9C%9F%E9%A6%99.gif"></p>
+<p>即使糊成这样，我们依然能喊出来，诶呀真香。</p>
+<p>而一种好的特征点，希望能做到上面几点，当然那是非常困难的。它应该有下面几个特征：</p>
+<ul>
+<li>可重复性，也就是，换个视角来看它应该还是原来的样子。</li>
+<li>可区分性，可区分意味着不同的特征点看起来不一样，这样我们才能辨别不同场景。</li>
+<li>高效，这个作为特征点并不是必要的，但是为了实时SLAM的运行，我们必须把它纳入，而且它是非常重要的。<br>特征点一般由两部分组成：<strong>关键点</strong>和<strong>描述子</strong>（descriptor）。其中关键点包含了这个点的位置，大小，方向评分等信息，但是只靠关键点不足以区分各个特征点，而描述子描述了特征点周围的像素的一些信息。</li>
+</ul>
+<p>一般来说特征点的选的部分都是角点或者边缘部分，因为它们有比较大的区分性，而区块点的区分性就比较差了，这个是符合我们的直觉的。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb5.png"></p>
+<p>有一些比较有名的特征点，FAST，ORB，SIFT，SURF等等。一般来说，我们在SLAM中要兼顾特征点在各个条件下的性能（比如光照不同，旋转等情况下依然能得到基本一样的特征点，主要是靠描述子来实现），以及提取速度，这使得在SLAM中我们用的最多的是ORB特征点，我们可以在OpenCV feature2d模块中找到。下面对各个特征点做一个简单的介绍，同时会相对详细地介绍一下ORB特征点。</p>
+<h3 id="Fast特征点"><a href="#Fast特征点" class="headerlink" title="Fast特征点"></a>Fast特征点</h3><p>首先介绍一下Fast特征点。Fast特征点是非常简单的一种特征点，它的提取速度也非常快。它的思路非常简单：若某像素与其周围邻域内足够多的像素点相差较大，则该像素可能是角点。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb4.png"></p>
+<p>如上图，以一个像素p为中心，fast检测周围半径为3的圆上的16个像素点，在它的周围，如果有连续12个像素点与中心像素点的差都超过阈值，则它判断它是一个角点，这个方法是Fast12，其他的还有fast9等等，都只是个数不同而已。</p>
+<p>为了提高效率，还有一个步骤，比如要超过12个像素点，那么首先检测p1,p5,p9,p13这几个像素点，如果有3个超过阈值，它才有可能是一个角点，当作候选点。相当于是一个预处理，这样可以大大提高提取的速度。</p>
+<p>当然，通过这样的方法得到的特征点可能会在某个局部区域非常密集，因此我们需要进行极大值抑制。具体做法为：计算特征点出的FAST得分值（即score值，也即s值，定义为（16个点与中心差值的绝对值总和），判断以特征点p为中心的一个邻域（如3x3或5x5）内，若有多个特征点，则判断每个特征点的s值，若p是邻域所有特征点中响应值最大的，则保留；否则，抑制。若邻域内只有一个特征点（角点），则保留。</p>
+<p>Fast特征点是非常直白的，它甚至没有描述子。而有意思的是它的提出（2006年）却没有SIFT等比较复杂的特征点那么早。</p>
+<h3 id="ORB特征点"><a href="#ORB特征点" class="headerlink" title="ORB特征点"></a>ORB特征点</h3><p>Fast特征点虽然快，但是它并没有描述子，这样距离我们的应用还是有差距，因为它是没有办法匹配(match)的，仅仅靠关键点我们无法互相区分各个特征点。</p>
+<p>ORB特征点是Fast特征点和BREIF特征描述子的改进，是Oriented Fast，它增加了描述子，具有局部旋转不变性。因为BREIF是二进制描述子，它的提取速度依然是非常迅速的。</p>
+<p>除此之外，Fast特征点的数量往往很大而且不确定，我们一般希望对图像提取固定数量的特征点。假如我们需要提取N个角点，则ORB中可以对各个角点进行Harris响应值，然后选前N个具有最大响应值的角点。</p>
+<p>下面稍微介绍一下ORB中对于Fast方向性和尺度方面的弱点的改进。</p>
+<p>对于尺度方面，Fast由于计算的只是像素亮度的差异，有时候远处像角点的地方，离近了就不是角点了。尺度不变性由构建图像金字塔，并在金字塔的每一层上检测角点来实现。金字塔是对图像进行不同层次的降采样，以获得不同的分辨率。</p>
+<p>对于方向性，是由灰度质心法实现的。我们知道一般来说，一个有质量的物体有个质心，那么图片呢？在图片中，我们把每个像素的灰度值当作“质量”来确定质心。</p>
+<p>灰度质心法操作如下：</p>
+<ol>
+<li>在小的图像块B中，图像块的矩为：<br>$$<br>m_{pq} &#x3D; \sum_{x,y \in B} x^py^qI(x,y)<br>$$<br>上式中，$x,y$分别为坐标值，而$I(x,y)$为$(x,y)$的灰度值。</li>
+<li>通过矩可以找到图像的质心：<br>$$<br>C &#x3D; (\frac{m_{10} }{m_{00} },\frac{m_{01} }{m_{00} })<br>$$</li>
+<li>连接图像0点$O$和质心$C$，得到一个方向向量$OC$，则特征点的方向可以定义为：<br>$$<br>\theta &#x3D; \arctan (\frac{m_{01} }{m_{10} })<br>$$</li>
+</ol>
+<p>通过这个方法，Fast角点就有了尺度和旋转的描述，从而提升了它描述不同图像时候的鲁棒性。这种改进成为Oriented FAST。</p>
+<p>此外,ORB特征点的另一个改进是对BREIF描述子的改进。</p>
+<p>BREIF描述子是一种二进制描述子，其描述向量由许多个0和1组成，这里0和1编码了关键点附近两个像素（$p,q$）的大小关系：如果$p&gt;q$则为1，否则为0。如果我们取了127对这样的点，就得到了128维的二进制向量。p,q的选取一般会按照某个概率分布随机选取，速度很快。</p>
+<p>原始的BREIF不具有旋转不变性。但是由于Oriented Fast有了方向，可以利用方向信息，计算旋转之后的“steer BRIEF”特征，使得ORB的描述子具有比较好的旋转不变性。</p>
+<h3 id="特征匹配"><a href="#特征匹配" class="headerlink" title="特征匹配"></a>特征匹配</h3><p>特征匹配可以说是SLAM中至关重要的一步，因为SLAM中的路标，在不同帧之间的位置，就是通过特征匹配完成的。如果特征匹配的好，可以大大减少后续姿态估计，优化等操作的负担。然而，由于图像中重复纹理等等原因，误匹配的情况一直得不到非常好的解决，仅仅利用局部特征解决误匹配是非常困难的。</p>
+<p>不过对于一般的图像，我们还是可以通过一些办法消除一些错误的匹配。到后面我们可以知道，其实我们只需要较少的几个特征点就能得到比较好的效果，因此尽管很多消除误匹配的算法会使得很多正确的匹配也被剔除了，但是依然是够用的。</p>
+<p>匹配的办法有多种，最简单的是暴力匹配，就是与另一幅图的特征点一个个对比，来得到相似度最高的那个特征点。一般这个相似度差了多少，我们用距离来衡量，距离越远相似度越低。距离的定义可以有多种，如果是浮点数，我们可以求欧式距离，对于ORB的二进制描述子，我们用Hamming距离来衡量，而汉明距离实际上就是二进制码中不同位数的个数。</p>
+<p>当特征点数量很大的时候，暴力匹配的速度变得很慢。这时候，可以使用FLANN（快速近似最近邻算法库）来实现匹配。这些算法已经非常成熟，可以去翻看相关论文来了解它具体的内容。</p>
+<h3 id="实践：特征提取和特征匹配"><a href="#实践：特征提取和特征匹配" class="headerlink" title="实践：特征提取和特征匹配"></a>实践：特征提取和特征匹配</h3><p>下面有一个利用OpenCV提取ORB特征值并且进行匹配的程序，来总结这么一段关于ORB的内容。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> ** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(argc!=<span class="number">3</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;Usage:feature_extraction img1 img2&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//Load Image</span></span><br><span class="line">    Mat img1 = <span class="built_in">imread</span>(argv[<span class="number">1</span>]);</span><br><span class="line">    Mat img2 = <span class="built_in">imread</span>(argv[<span class="number">2</span>]);</span><br><span class="line">    <span class="comment">//store keypoint</span></span><br><span class="line">    vector&lt;KeyPoint&gt; kp1,kp2;</span><br><span class="line">    <span class="comment">//store descriptors</span></span><br><span class="line">    Mat descriptors1, descriptors2;</span><br><span class="line">    Ptr&lt;ORB&gt; orb = ORB::<span class="built_in">create</span>(<span class="number">500</span>,<span class="number">1.2f</span>,<span class="number">8</span>,<span class="number">31</span>,<span class="number">0</span>,<span class="number">2</span>,ORB::HARRIS_SCORE,<span class="number">31</span>,<span class="number">20</span>);</span><br><span class="line">    <span class="comment">//get keypoints</span></span><br><span class="line">    orb-&gt;<span class="built_in">detect</span>(img1,kp1);</span><br><span class="line">    orb-&gt;<span class="built_in">detect</span>(img2,kp2);</span><br><span class="line">    <span class="comment">//compute the descriptors</span></span><br><span class="line">    orb-&gt;<span class="built_in">compute</span>(img1,kp1,descriptors1);</span><br><span class="line">    orb-&gt;<span class="built_in">compute</span>(img2,kp2,descriptors2);</span><br><span class="line">    Mat outimg1,outimg2;</span><br><span class="line">    <span class="comment">//highlight keypoint on the image </span></span><br><span class="line">    <span class="built_in">drawKeypoints</span>(img1,kp1,outimg1,Scalar::<span class="built_in">all</span>(<span class="number">-1</span>),DrawMatchesFlags::DEFAULT);</span><br><span class="line">    <span class="built_in">drawKeypoints</span>(img2,kp2,outimg2,Scalar::<span class="built_in">all</span>(<span class="number">-1</span>),DrawMatchesFlags::DEFAULT);</span><br><span class="line">    <span class="built_in">imshow</span>(<span class="string">&quot;img1&quot;</span>,outimg1);</span><br><span class="line">    <span class="built_in">imshow</span>(<span class="string">&quot;img2&quot;</span>,outimg2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//use Hamming distance to match </span></span><br><span class="line">    vector&lt;DMatch&gt; matches;</span><br><span class="line">    <span class="function">BFMatcher <span class="title">matcher</span><span class="params">(NORM_HAMMING)</span></span>;<span class="comment">//maybe the dist have been normalized</span></span><br><span class="line">    matcher.<span class="built_in">match</span>(descriptors1,descriptors2,matches);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//filter the wrong match(the distance is larger than double min distance)</span></span><br><span class="line">    <span class="comment">//An empirical handling</span></span><br><span class="line">    <span class="type">double</span> mindist = <span class="number">1000000</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>;i!=matches.<span class="built_in">size</span>();i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">double</span> dist = matches[i].distance;</span><br><span class="line">        <span class="keyword">if</span>(dist &lt; mindist) mindist = dist;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;min dist: &quot;</span>&lt;&lt;mindist&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">if</span>(mindist &lt; <span class="number">20</span>) mindist = <span class="number">20</span>;</span><br><span class="line">    vector&lt;DMatch&gt; good_matches;</span><br><span class="line">    <span class="keyword">for</span>( <span class="type">int</span> i = <span class="number">0</span>;i!=matches.<span class="built_in">size</span>();++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(matches[i].distance &lt;= <span class="number">2</span>*mindist)</span><br><span class="line">            good_matches.<span class="built_in">push_back</span>(matches[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//show the match</span></span><br><span class="line">    Mat img_match,img_good_match;</span><br><span class="line">    <span class="built_in">drawMatches</span>(img1,kp1,img2,kp2,matches,img_match);</span><br><span class="line">    <span class="built_in">drawMatches</span>(img1,kp1,img2,kp2,good_matches,img_good_match);</span><br><span class="line">    <span class="built_in">imshow</span>(<span class="string">&quot;All the matches&quot;</span>,img_match);</span><br><span class="line">    <span class="built_in">imshow</span>(<span class="string">&quot;Good matches&quot;</span>,img_good_match);</span><br><span class="line">    <span class="built_in">waitKey</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的CMakeLists.txt:</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.2</span>)</span><br><span class="line"><span class="keyword">project</span>(feature_extraction)</span><br><span class="line"><span class="keyword">find_package</span>(OpenCV REQUIRED)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;OpenCV_INCLUDE_DIRS&#125;</span> )</span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> feature_extraction.cpp)</span><br><span class="line"><span class="keyword">target_link_libraries</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> <span class="variable">$&#123;OpenCV_LIBS&#125;</span>)</span><br></pre></td></tr></table></figure>
+<p>这个代码中剔除错误匹配的用的剔除掉大于2倍最小距离的特征点，这更多是一个经验上的做法。此外还有RANSAC（随机采样一致）等算法，以及二者结合等等，可能得到更好的剔除效果。我曾经写过一个SIFT提取和匹配的算法，在剔除中用到了ransac算法，是一个VS工程：<a target="_blank" rel="noopener" href="https://github.com/wlsdzyzl/feature_match_sift">feature_match_sift</a>。有兴趣的可以看一下，其实我也忘得差不多了。</p>
+<p>最后的结果：</p>
+<ul>
+<li>特征提取<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb1.png"></li>
+<li>特征匹配<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb2.png"></li>
+<li>过滤后的特征匹配<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/orb3.png"></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/computer-vision/" rel="tag"># computer vision</a>
+              <a href="/tags/feature/" rel="tag"># feature</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/12/11/Learning-From-Data%E2%80%94%E2%80%94Hypothesis-Testing/" rel="prev" title="Learning From Data——Hypothesis Testing">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Hypothesis Testing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/" rel="next" title="Learning From Data——Mixture of Gaussians & EM">
+                  Learning From Data——Mixture of Gaussians & EM <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

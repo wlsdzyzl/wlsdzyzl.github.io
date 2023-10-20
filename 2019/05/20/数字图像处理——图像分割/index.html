@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="搞计算机视觉的都知道图像分割的重要性，是物体，语义识别的基础。segmentation也是一个很热门的方向，除了二维上的图像分割，还有三维的物体分割。今天来学习一些图像分割的基础。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——图像压缩">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="搞计算机视觉的都知道图像分割的重要性，是物体，语义识别的基础。segmentation也是一个很热门的方向，除了二维上的图像分割，还有三维的物体分割。今天来学习一些图像分割的基础。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation0.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation14.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation15.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation16.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation17.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation18.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation19.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation20.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation21.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation22.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation8.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation9.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation10.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation11.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation12.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation13.png">
+<meta property="article:published_time" content="2019-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:18.687Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="digital image processing">
+<meta property="article:tag" content="segmentation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation0.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/","path":"2019/05/20/数字图像处理——图像分割/","title":"数字图像处理——图像压缩"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——图像压缩 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Point-Detection"><span class="nav-number">1.</span> <span class="nav-text">Point Detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Line-Detection"><span class="nav-number">2.</span> <span class="nav-text">Line Detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Edge-Detection"><span class="nav-number">3.</span> <span class="nav-text">Edge Detection</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%EF%BC%88thresholding-based-segmentation%EF%BC%89"><span class="nav-number"></span> <span class="nav-text">补充（thresholding based segmentation）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-Global-Thresholding"><span class="nav-number">1.</span> <span class="nav-text">Basic Global Thresholding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Otsu%E2%80%99s-Optimum-Global-Thresholding"><span class="nav-number">2.</span> <span class="nav-text">Otsu’s Optimum Global Thresholding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Variable-Thresholding%E2%80%94%E2%80%94Moving-Average"><span class="nav-number">3.</span> <span class="nav-text">Variable Thresholding——Moving Average</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——图像压缩 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——图像压缩
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-05-20 00:00:00" itemprop="dateCreated datePublished" datetime="2019-05-20T00:00:00+08:00">2019-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:18" itemprop="dateModified" datetime="2023-10-21T04:23:18+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>搞计算机视觉的都知道图像分割的重要性，是物体，语义识别的基础。segmentation也是一个很热门的方向，除了二维上的图像分割，还有三维的物体分割。今天来学习一些图像分割的基础。</p>
+<span id="more"></span>
+
+
+<p>实际上图像分割与边提取算法很相关，因为我们要分割一副图，实际上就是利用边界来分割。因此边提取，锐化，滤波等等是图像处理的基础，而图像分割，目标检测等等，都会用到先前的知识来做基础或者预处理。</p>
+<p>下面的是图像分割的一个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation0.png"></p>
+<p>图像分割的难点在噪声情况下的robustness以及多种特征的组合。一般来说图像分割是几乎所有计算机视觉应用的第一步。</p>
+<p>图像分割就像是分类，它的标准有两条：1，同一个分割区域要尽量相似，2，不同的分割区域需要尽量的不连续，相差较远。对于灰度图的不连续性，我们倾向于去找图片中的点，直线，与边界。下面介绍如何在图中探测点，直线，以及边界。</p>
+<h3 id="Point-Detection"><a href="#Point-Detection" class="headerlink" title="Point Detection"></a><a href="about:blank#Point-Detection" title="Point Detection"></a>Point Detection</h3><p>实际上，说到这里，我们应该注意到某种程度上，图像分割的目标与边检测是有很大相似性的。而对于点的检测，我们直到点是没有方向的，因此可以想到使用没有方向的边界探测，就能很容易找到点，当然也很容易想到了Laplacian算子。对于点检测，可以使用下面的式子：</p>
+<p>g(x, y)&#x3D;\left\{\begin{array}{ll}{1} &amp; {\text { if }|R(x, y)|&gt;T} \\ {0} &amp; {\text { otherwise } }\end{array}\right.</p>
+<p>上式中$T$是一个阈值，而$R(x,y)$是经过拉普拉斯滤波后得到的值。</p>
+<h3 id="Line-Detection"><a href="#Line-Detection" class="headerlink" title="Line Detection"></a><a href="about:blank#Line-Detection" title="Line Detection"></a>Line Detection</h3><p>直线的探测与边探测不同的地方在于我们想要探测的是直线，而不是随意形状的边。直线的探测与点探测相比就会更加复杂，因为它是有方向的。下面是水平垂直以及45°方向的sobel滤波器：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation1.png"></p>
+<p>那么，对于任意方向的直线如何探测呢？有个想法是，对于直线探测比较复杂，但是点的探测是很简单的。有没有什么方法，将直线的探测转换成点的探测？对于直线，我们直到它的参数表达式为：</p>
+<p>y^{\prime}&#x3D;m x^{\prime}+c</p>
+<p>因此，任何一条直线，对应一对参数，也就是参数域的一个点。因此，对于直线的探测，可以转化成参数域上点的探测。这个想法延伸出来的算法叫做Hough Transform。使用Hough Transform的边探测算法如下：</p>
+<ol>
+<li>先建立一个二维的矩阵，横纵分布代表$(m,c)$，步长需要自己确定</li>
+<li>初始化这个矩阵为0</li>
+<li>对于图像中某个像素，对二维矩阵中每一对参数进行计算，看点是否在对应的直线上，如果在，矩阵这个位置的值+1。</li>
+<li>根据阈值判断矩阵中符合要求的参数点，来得到对应的直线</li>
+</ol>
+<p>当然，具体的实现细节有更多需要注意的地方，比如对于图像中像素，我们首先可能需要利用sobel算子进行Edge detect，等等，对于可能是直线的像素探测出来。否则对于一张空白的图片，每个像素也没必要计算。初次之外对于$m,c$等，我们可以使用极坐标下的$\rho,\theta$等等来替换，这里有一个Hough Transform的补充材料，有需要可以仔细阅读一下：<a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/hough_transform.pdf">Hough Transform</a>。</p>
+<h3 id="Edge-Detection"><a href="#Edge-Detection" class="headerlink" title="Edge Detection"></a><a href="about:blank#Edge-Detection" title="Edge Detection"></a>Edge Detection</h3><p>边探测，实际上之前已经提到了不少，因此这里就简单说明一下。边探测算法很多，有从一节梯度推到的sobel算子等，还有二阶的拉普拉斯算子，还有更常用的之前说的Canny边探测算法。而一般来说边探测算法都需要用到高斯滤波，平均滤波等低通滤波器来进行噪声平滑，因为梯度边探测以及拉普拉斯算子对于噪声都非常敏感，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation2.png"></p>
+<p>这个不难理解，因为噪声变化也总是比较突兀，而梯度以及拉普拉斯在频域都是高通滤波器，对这样的噪声是非常敏感的。因此需要使用高斯滤波来进行平滑：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation3.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation4.png"></p>
+<p>下面是几个边探测的效果图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation5.png"></p>
+<p>加上平均滤波（或者高斯滤波），使得我们想要的边更加明显：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation6.png"></p>
+<p>此外，通过上面的算法检测到的边，还是直线，总会出现断掉的情况，因为噪声等等原因，这些是无法避免的。如果想要让它们连接起来，需要进行别的处理，可选的有局部的以及全局的连接方法。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation7.png"></p>
+<h2 id="补充（thresholding-based-segmentation）"><a href="#补充（thresholding-based-segmentation）" class="headerlink" title="补充（thresholding based segmentation）"></a><a href="about:blank#%E8%A1%A5%E5%85%85%EF%BC%88thresholding-based-segmentation%EF%BC%89" title="补充（thresholding based segmentation）"></a>补充（thresholding based segmentation）</h2><p>上述说明的，是一些通过边，直线等探测算法，实现图像的分割，这里补充一点基于阈值的图像分割，将灰度图转换成二值图，从而根据简单的黑白来分割。根据阈值分割的，一般有3种做法。</p>
+<p>一般来说我们想要得到的分割结果如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation14.png"></p>
+<p>阈值选择不好就会出现下面的情况：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation15.png"></p>
+<h3 id="Basic-Global-Thresholding"><a href="#Basic-Global-Thresholding" class="headerlink" title="Basic Global Thresholding"></a><a href="about:blank#Basic-Global-Thresholding" title="Basic Global Thresholding"></a>Basic Global Thresholding</h3><p>最基本的全局阈值算法是最简单的阈值，使用的是全局阈值，也就是我们根据观察图片的直方图，如果需要被分割的两个部分在直方图上有明显的表现趋势，阈值的选择就会简单很多，如下图,第三种情况，我们无法直接看出最优的阈值应该在哪里：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation16.png"></p>
+<p>对于全局阈值的算法确定如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation17.png"></p>
+<p>首先确定一个阈值初始值，然后计算根据这个阈值得到的两个类各自的灰度均值$m_1,m_2$，在对这两个均值求平均得到下一个阈值，不断迭代直到当前阈值与上一个阈值的变化量小于一定量，我们认为收敛了。这个算法有点类似于k-means聚类。下面是一个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation18.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation19.png"></p>
+<h3 id="Otsu’s-Optimum-Global-Thresholding"><a href="#Otsu’s-Optimum-Global-Thresholding" class="headerlink" title="Otsu’s Optimum Global Thresholding"></a><a href="about:blank#Otsu%E2%80%99s-Optimum-Global-Thresholding" title="Otsu’s Optimum Global Thresholding"></a>Otsu’s Optimum Global Thresholding</h3><p>最基本的得到的往往不是最佳的。实际上上述说的算法很依赖于初始值，不一定会找到最优的点。而Otsu提出的最佳全局阈值算法通过最大化不同类的方差，来找到更好的全局阈值。首先，我们做下面的定义：</p>
+<ol>
+<li>对直方图进行归一化，使得： p_{i}&#x3D;\frac{n_{i} }{M N}, \sum_{i&#x3D;0}^{L-1} p_{i}&#x3D;1, p_{i} \geq 0</li>
+<li>阈值变量为$k$，那么$[0,k]$为第一类，而$[k+1,L-1]$为第二类，而$L-1$表示灰度最大值。</li>
+<li>定义类间方差如下： \sigma_{B}^{2}&#x3D;P_{1}(k)\left[m_{1}(k)-m_{G}\right]^{2}+P_{2}(k)\left[m_{2}(k)-m_{G}\right]^{2}式中$P_{1}(k)&#x3D;\sum_{i&#x3D;0}^{k} p_{i}$，为第一类出现的概率，$P_{2}(k)&#x3D;1-P_{1}(k)$为第二类出现的概率，而$m_1(k),m_2(k)$分别是第一类第二类的灰度均值，$m_G$是全局均值。最佳的阈值为： k^{*}&#x3D;\underset{0 \leq k \leq L-1}{\arg \max } \sigma_{B}^{2}(k).</li>
+</ol>
+<p>在matlab中，graythresh计算Otsu最佳阈值。下面是算法效果的展示，可以看到对比第一种方法，它能应对更多的情况：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation20.png"></p>
+<h3 id="Variable-Thresholding——Moving-Average"><a href="#Variable-Thresholding——Moving-Average" class="headerlink" title="Variable Thresholding——Moving Average"></a><a href="about:blank#Variable-Thresholding%E2%80%94%E2%80%94Moving-Average" title="Variable Thresholding——Moving Average"></a>Variable Thresholding——Moving Average</h3><p>有时候，直接用一个阈值来决定是不可行的。因为光照，阴影等原因，对局部应该选取不同的阈值，这里就使用变化均值，对不同局部区域来做不同的阈值。算法是这样的：</p>
+<ol>
+<li>加入我们有一个5*5的图片，如下，那么把它重新组织成一个数组的形式：</li>
+</ol>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation21.png"></p>
+<ol>
+<li>对数组中每个位置，进行局部平均，来求得局部阈值，这里选择每4个位置做一个平均：</li>
+</ol>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation22.png"></p>
+<ol>
+<li>将得到的数组，重新组织成matrix的形式，这样得到了“阈值图”$m(x,y)$，根据阈值图，对原图中每个位置的灰度值做下面的处理： g(x, y)&#x3D;\left\{\begin{array}{l}{1, \text { if } f(x, y)&gt;K \cdot m(x, y)} \\ {0, \text { otherwise } }\end{array}\right.得到二值图的分割结果。</li>
+</ol>
+<p>这个组织用什么样的顺序应该需要视情况而定，上述描述中是横着走$z$字形状，如果应对别的形状的光照阴影这样是行不通的。也有斜着组织的，能应对更多的case。总之，下面是使用移动平均值算法的效果：</p>
+<p>原图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation8.png"></p>
+<p>使用Otus最佳全局阈值的效果：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation9.png"></p>
+<p>使用移动平均阈值：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation10.png"></p>
+<p>原图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation11.png"></p>
+<p>使用Otus最佳全局阈值的效果：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation12.png"></p>
+<p>使用移动平均阈值：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/segmentation13.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+              <a href="/tags/segmentation/" rel="tag"># segmentation</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%8E%8B%E7%BC%A9/" rel="prev" title="数字图像处理——图像压缩">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——图像压缩
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/" rel="next" title="Paper——Single Image Haze Removal Using Dark Channel Prior">
+                  Paper——Single Image Haze Removal Using Dark Channel Prior <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

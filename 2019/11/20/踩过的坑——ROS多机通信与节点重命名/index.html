@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="项目需要拓展到多相机协同重建，需要借助C&#x2F;S模型通信。而使用ROS是非常好的选择。最近借助之前学得ros的知识，代码部分拓展得差不多了，再拓展到多个机器的过程中，出现了通信与节点名字冲突的问题，解决方法也不难，就在这里记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="踩过的坑——ROS多机通信与节点重命名">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/11/20/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%91%BD%E5%90%8D/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="项目需要拓展到多相机协同重建，需要借助C&#x2F;S模型通信。而使用ROS是非常好的选择。最近借助之前学得ros的知识，代码部分拓展得差不多了，再拓展到多个机器的过程中，出现了通信与节点名字冲突的问题，解决方法也不难，就在这里记录一下。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-11-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:21:35.581Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="ros">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/11/20/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%91%BD%E5%90%8D/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/11/20/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%91%BD%E5%90%8D/","path":"2019/11/20/踩过的坑——ROS多机通信与节点重命名/","title":"踩过的坑——ROS多机通信与节点重命名"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>踩过的坑——ROS多机通信与节点重命名 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1"><span class="nav-number">1.</span> <span class="nav-text">多机通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%82%E7%82%B9%E5%90%8D%E7%A7%B0%E5%86%B2%E7%AA%81"><span class="nav-number">2.</span> <span class="nav-text">节点名称冲突</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/11/20/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%91%BD%E5%90%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="踩过的坑——ROS多机通信与节点重命名 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          踩过的坑——ROS多机通信与节点重命名
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-11-20 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-20T00:00:00+08:00">2019-11-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:21:35" itemprop="dateModified" datetime="2023-10-21T04:21:35+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91/" itemprop="url" rel="index"><span itemprop="name">踩过的坑</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>项目需要拓展到多相机协同重建，需要借助C&#x2F;S模型通信。而使用ROS是非常好的选择。最近借助之前学得ros的知识，代码部分拓展得差不多了，再拓展到多个机器的过程中，出现了通信与节点名字冲突的问题，解决方法也不难，就在这里记录一下。</p>
+<span id="more"></span>
+
+
+<h3 id="多机通信"><a href="#多机通信" class="headerlink" title="多机通信"></a><a href="about:blank#%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1" title="多机通信"></a>多机通信</h3><p>分布式的架构是ROS的灵魂。实际上，ros把通信这里的东西封装得相当方便了。现在多机通信的情况是这样：一台主机运行Master，其他的结点运行在不同的机器上，这些结点一台是服务器，有的是客户端。但是他们有一个共同点，就是需要向Master注册。</p>
+<p>首先，各个机器要和Master所在的机器ping通，这个是必要的。理论上互相ping通，ros就可将它们连接运行起来。在我这里，Master和一个客户端A运行在ip为10.8.5.230的机器上，而另外一个客户端和服务器运行在192.168.0.110上。需要做的是：在192.168.0.110机器终端输入：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export ROS_MASTER_URI=http://10.8.5.230:11311</span><br></pre></td></tr></tbody></table>
+
+<p>这个意图很明显，就是指定MASTER的IP和运行端口。但是这时启动服务器会发现，在Master终端下出现：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Couldn't find an AF_INET address for [XXX]</span><br></pre></td></tr></tbody></table>
+
+<p>这导致虽然服务器可以连接到Master，但是在客户端A发的消息却送不到服务器上。因为没有找到一个AF_INET address。这个地址有什么用我也不清楚，因为目前的我只重视问题怎么解决，而不在乎背后的原理，因此就不多了解了。后来发现，多机通信还要在各个结点的机器上指定ROS_IP:  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostname -I</span><br></pre></td></tr></tbody></table>
+
+<p>得到IP后，再通过下面的指令分别指定本机的ROS_IP：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export ROS_IP=192.168.0.110</span><br><span class="line">export ROS_IP=10.8.5.230</span><br></pre></td></tr></tbody></table>
+
+<p>之后就可以成功连接并运行成功了。</p>
+<h3 id="节点名称冲突"><a href="#节点名称冲突" class="headerlink" title="节点名称冲突"></a><a href="about:blank#%E8%8A%82%E7%82%B9%E5%90%8D%E7%A7%B0%E5%86%B2%E7%AA%81" title="节点名称冲突"></a>节点名称冲突</h3><p>在运行过程中，由于客户端的程序是一样的，因此它们启动结点默认名称是一样的，而在一个命名空间下，不能有相同名称的结点。这就导致了我在运行第一个客户端时，打开了第二个客户端，然后第一个客户端就出现问题，节点名称被占用：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[ WARN] [....]: Shutdown request received.</span><br><span class="line">[ WARN] [....]: Reason given for shutdown: [new node registered with the same name]</span><br></pre></td></tr></tbody></table>
+
+<p>因此在启动结点时，需要重新设置结点名称。比如现在启动的命令如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosrun flashfusion client</span><br></pre></td></tr></tbody></table>
+
+<p>将结点名称指定为fuck：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosrun flashfusion client __name:=fuck</span><br></pre></td></tr></tbody></table>
+
+<p>这样就不会产生冲突了。</p>
+<p>也不难猜到，另外的方法，就是命名空间，并且使用roslaunch来发布更方便。不过既然问题解决了，现在就先不了解了，之后整理代码有需求再来详细研究。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ros/" rel="tag"># ros</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/21/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E5%BC%80%E6%9C%BA%E9%BB%91%E5%B1%8F/" rel="prev" title="踩过的坑——记录一次开机黑屏">
+                  <i class="fa fa-angle-left"></i> 踩过的坑——记录一次开机黑屏
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/12/10/Paper-DenseRGBD/" rel="next" title="Paper——Real-Time Visual Odometry from Dense RGB-D Images">
+                  Paper——Real-Time Visual Odometry from Dense RGB-D Images <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

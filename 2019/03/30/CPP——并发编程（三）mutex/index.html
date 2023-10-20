@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="并发编程中很重要的一点，是某些量是互斥的，他们不能同时允许。可以同时运行的比如多个读，而不能同时运行的，比如多个写。这篇文章介绍一下c++11中关于互斥（mutex）的内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP——并发编程（四）condition\_variable">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/30/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89mutex/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="并发编程中很重要的一点，是某些量是互斥的，他们不能同时允许。可以同时运行的比如多个读，而不能同时运行的，比如多个写。这篇文章介绍一下c++11中关于互斥（mutex）的内容。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:25:34.007Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="concurrent programmingm">
+<meta property="article:tag" content="Programming language">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/30/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89mutex/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/30/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89mutex/","path":"2019/03/30/CPP——并发编程（三）mutex/","title":"CPP——并发编程（四）condition\\_variable"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CPP——并发编程（四）condition\_variable | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#std-mutex"><span class="nav-number">1.</span> <span class="nav-text">std::mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#std-recursive-mutex"><span class="nav-number">2.</span> <span class="nav-text">std::recursive_mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#std-timed-mutex"><span class="nav-number">3.</span> <span class="nav-text">std::timed_mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#std-recursize-timed-mutex"><span class="nav-number">4.</span> <span class="nav-text">std::recursize_timed_mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#std-lock-guard"><span class="nav-number">5.</span> <span class="nav-text">std::lock_guard</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#std-unique-lock"><span class="nav-number">6.</span> <span class="nav-text">std::unique_lock</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/30/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89mutex/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CPP——并发编程（四）condition\_variable | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CPP——并发编程（四）condition\_variable
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-30 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-30T00:00:00+08:00">2019-03-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:25:34" itemprop="dateModified" datetime="2023-10-21T04:25:34+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">程序设计语言</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>并发编程中很重要的一点，是某些量是互斥的，他们不能同时允许。可以同时运行的比如多个读，而不能同时运行的，比如多个写。这篇文章介绍一下c++11中关于互斥（mutex）的内容。</p>
+<span id="more"></span>
+
+
+<p>关于互斥量的操作都需要包含头文件。</p>
+<p>它包含了4个互斥类：</p>
+<ul>
+<li>mutex，最基本的互斥类</li>
+<li>recursive_mutex，递归互斥类</li>
+<li>timed_mutex，定时互斥类</li>
+<li>recursive_timed_mutex，递归定时互斥类</li>
+</ul>
+<p>2个Lock类：</p>
+<ul>
+<li>lock_guard，它管理一个互斥对象，通过保持它被锁定的状态。</li>
+<li>unique_lock，它管理一个互斥对象，该对象在两种状态（锁定状态和非锁定状态）下都拥有唯一所有权。</li>
+</ul>
+<p>其他类型：</p>
+<ul>
+<li>once_flag</li>
+<li>adopt_lock_t</li>
+<li>defer_lock_t</li>
+<li>try_to_lock_t</li>
+</ul>
+<p>此外它还包含了几个函数：</p>
+<ul>
+<li>try_lock</li>
+<li>lock</li>
+<li>call_once</li>
+</ul>
+<p>下面对这些内容进行较为详细的介绍。</p>
+<h3 id="std-mutex"><a href="#std-mutex" class="headerlink" title="std::mutex"></a><a href="about:blank#std-mutex" title="std::mutex"></a>std::mutex</h3><p>mutex是最基本的互斥量，它不支持递归地被上锁。mutex只有一个默认构造函数，不支持拷贝构造和移动构造，默认构造得到的mutex是未锁定的状态。</p>
+<p>mutex的其他成员函数如下：</p>
+<ul>
+<li>lock，锁上互斥量，如果互斥量已经被锁，当前线程会被阻塞。注意的是，如果互斥量已经被当前的线程锁住，再次调用lock会导致死锁，因为它会被阻塞一直等待unlock。</li>
+<li>try_lock，如果互斥量状态是unlocked，那么锁上互斥量，如果互斥量已经被其他线程锁住，那么当前的线程也不会被阻塞，而是返回false。注意，和lock一样，如果互斥量已经被当前线程lock，那么调用这个会导致死锁。</li>
+<li>unlock，解锁互斥量</li>
+<li>native_handle，获取句柄</li>
+</ul>
+<p>上面的函数直接看不知道怎么用，下面是一个官方给的代码示例，我们通过分析它来明白mutex的作用。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mutex example</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;       // std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;         // std::thread</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;          // std::mutex</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex mtx;           <span class="comment">// mutex for critical section</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_block</span> <span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> c)</span> </span>{</span><br><span class="line">  <span class="comment">// critical section (exclusive access to std::cout signaled by locking mtx):</span></span><br><span class="line">  mtx.lock();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; ++i) { <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; c; }</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">  mtx.unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">th1</span> <span class="params">(print_block,<span class="number">50</span>,<span class="string">'*'</span>)</span></span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">th2</span> <span class="params">(print_block,<span class="number">50</span>,<span class="string">'$'</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">  th1.join();</span><br><span class="line">  th2.join();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>上面的代码中，prink_block使用了互斥量来控制循环部分不会被打断。首先，在循环前将mtx上锁，这时候调度到下一个线程的时候，因为mtx状态是locked，因此这个线程被阻塞，直到上个线程将mtx解锁。</p>
+<p>上述程序的输出如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">**************************************************</span><br><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br></pre></td></tr></tbody></table>
+
+<p>*和$的顺序可能会变，但是一定会整齐地输出50个。</p>
+<h3 id="std-recursive-mutex"><a href="#std-recursive-mutex" class="headerlink" title="std::recursive_mutex"></a><a href="about:blank#std-recursive-mutex" title="std::recursive_mutex"></a>std::recursive_mutex</h3><p>上面的内容中，如果同一个线程对互斥量多次上锁，就会导致死锁，因为它不是递归的。而递归锁可以让同一个线程对其多次上锁，并且多次解锁。不过lock多少次，就必须unlock多少次，才能真正地解锁。除了这些，它和mutex的作用一致。</p>
+<h3 id="std-timed-mutex"><a href="#std-timed-mutex" class="headerlink" title="std::timed_mutex"></a><a href="about:blank#std-timed-mutex" title="std::timed_mutex"></a>std::timed_mutex</h3><p>timed_mutex比mutex多了两个成员函数：try_lock_for和try_lock_until.  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Rep</span>, <span class="title">class</span> <span class="title">Period</span>&gt;</span></span><br><span class="line"><span class="class">  <span class="title">bool</span> <span class="title">try_lock_for</span> (<span class="title">const</span> <span class="title">chrono</span>:</span>:duration&lt;Rep,Period&gt;&amp; rel_time);</span><br></pre></td></tr></tbody></table>
+
+<p>try_lock_for接受一个时间段，在这段时间范围内如果互斥量解锁了，就将其锁上，否则返回false。也就是和try_lock相比，它会等待更多的时间。</p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Clock</span>, <span class="title">class</span> <span class="title">Duration</span>&gt;</span></span><br><span class="line"><span class="class">  <span class="title">bool</span> <span class="title">try_lock_until</span> (<span class="title">const</span> <span class="title">chrono</span>:</span>:time_point&lt;Clock,Duration&gt;&amp; abs_time);</span><br></pre></td></tr></tbody></table>
+
+<p>try_lock_until接受一个时间点，到时间点内互斥量依然被锁着，它就返回false，否则在时间点之前互斥量被解锁了，它就锁住互斥量。</p>
+<h3 id="std-recursize-timed-mutex"><a href="#std-recursize-timed-mutex" class="headerlink" title="std::recursize_timed_mutex"></a><a href="about:blank#std-recursize-timed-mutex" title="std::recursize_timed_mutex"></a>std::recursize_timed_mutex</h3><p>递归定时互斥量也就是recursive_mutex和timed_mutex的结合，它可以递归锁，也可以定解锁时长。这里就不多介绍了。</p>
+<p>在介绍锁之前，先介绍几个与锁类型相关的 Tag 类，分别如下:</p>
+<p>adopt_lock_t，一个空的标记类，定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">adopt_lock_t</span> {</span>};</span><br></pre></td></tr></tbody></table>
+
+<p>该类型的常量对象adopt_lock定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="keyword">adopt_lock_t</span> adopt_lock {};</span><br></pre></td></tr></tbody></table>
+
+<p>通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。</p>
+<p>defer_lock_t，一个空的标记类，定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">defer_lock_t</span> {</span>};</span><br></pre></td></tr></tbody></table>
+
+<p>该类型的常量对象 defer_lock定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="keyword">defer_lock_t</span> defer_lock {};</span><br></pre></td></tr></tbody></table>
+
+<p>通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。</p>
+<p>std::try_to_lock_t，一个空的标记类，定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">try_to_lock_t</span> {</span>};</span><br></pre></td></tr></tbody></table>
+
+<p>该类型的常量对象 try_to_lock定义如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="keyword">try_to_lock_t</span> try_to_lock {};</span><br></pre></td></tr></tbody></table>
+
+<p>通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。</p>
+<p>下面介绍lock相关的类。</p>
+<h3 id="std-lock-guard"><a href="#std-lock-guard" class="headerlink" title="std::lock_guard"></a><a href="about:blank#std-lock-guard" title="std::lock_guard"></a>std::lock_guard</h3><p>lock_guard是模板类：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Mutex</span>&gt; <span class="title">class</span> <span class="title">lock_guard</span>;</span></span><br></pre></td></tr></tbody></table>
+
+<p>它只有两个成员函数：构造和析构。构造函数，用法很简单，构造时候接受一个互斥量，然后互斥量就被锁定了。当析构函数调用，比如退出了作用域，那么互斥量就被解锁。但是它的构造函数是有两个选择，一个是默认，直接将互斥量锁定，另一个会接受一个参数，进行adopting initialization（传入参数adopt_lock），它可以绑定一个被当前线程锁定的互斥量。而默认的构造函数如果互斥量已经被当前线程锁定了，再次调用会进入死锁（一般的mutex类型）。</p>
+<p>下面是一个例子：</p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lock_guard example</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;       // std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;         // std::thread</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;          // std::mutex, std::lock_guard</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdexcept&gt;      // std::logic_error</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex mtx;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_even</span> <span class="params">(<span class="keyword">int</span> x)</span> </span>{</span><br><span class="line">  <span class="keyword">if</span> (x%<span class="number">2</span>==<span class="number">0</span>) <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; x &lt;&lt; <span class="string">" is even\n"</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">throw</span> (<span class="built_in">std</span>::logic_error(<span class="string">"not even"</span>));</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_thread_id</span> <span class="params">(<span class="keyword">int</span> id)</span> </span>{</span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="comment">// using a local lock_guard to lock mtx guarantees unlocking on destruction / exception:</span></span><br><span class="line">    <span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; lck (mtx);</span><br><span class="line">    print_even(id);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (<span class="built_in">std</span>::logic_error&amp;) {</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"[exception caught]\n"</span>;</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">  <span class="built_in">std</span>::thread threads[<span class="number">10</span>];</span><br><span class="line">  <span class="comment">// spawn 10 threads:</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; ++i)</span><br><span class="line">    threads[i] = <span class="built_in">std</span>::thread(print_thread_id,i+<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; th : threads) th.join();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>上面的代码通过建立lock_guard，将mtx互斥量锁住。当退出作用域的时候，mtx解锁。上面的代码我有个疑惑的地方在于catch之后的作用域，lck已经析构掉了，如果这段时间互斥量没有被锁住，那么别的线程获取了互斥量的控制权，会不会导致exception和其他的输出发生冲突？也许对于异常处理有更深的一套机制我了解得还不够。</p>
+<h3 id="std-unique-lock"><a href="#std-unique-lock" class="headerlink" title="std::unique_lock"></a><a href="about:blank#std-unique-lock" title="std::unique_lock"></a>std::unique_lock</h3><p>unique_lock相对于lock_gaurd会复杂很多。它其实本身更像是一个互斥量，是对互斥量的封装。</p>
+<p>对于unique_lock的构造函数都会有多种情况：</p>
+<p>(1) default constructor，默认构造不绑定任何对象。</p>
+<p>(2) locking initialization，绑定一个互斥量，并且锁住它，如果互斥量本身就是锁住的，则线程被阻塞，和lock_gaurd一样。</p>
+<p>(3) try-locking initialization(传入参数try_to_lock)，尝试绑定一个互斥量并且锁住，互斥量已经被锁，当前的unique_lock没有绑定任何对象。</p>
+<p>(4) deferred initialization(传入参数defer_lock)，绑定一个互斥量，设定互斥量状态为解锁，这个互斥量没有被别的线程锁住。</p>
+<p>(5) adopting initialization((传入参数adopt_lock))，绑定一个互斥量，即使该互斥量已经被当前线程锁定了，这是它和locking initialization的区别，即使被当前线程锁定了依然可以绑定，而不会继续调用lock导致死锁。如果没有锁定，就会将它锁定，</p>
+<p>(6) locking for duration，相当于调用try_lock_for，在一段时间内互斥量都被别的线程锁定，那么它不会绑定任何互斥量。</p>
+<p>(7) locking until time point，相当于调用try_lock_until，在一个时间点前互斥量都被别的线程锁定，那么它不会绑定任何互斥量。</p>
+<p>(8) copy construction [deleted]</p>
+<p>(9) move construction</p>
+<p>它有很多其他的成员函数：</p>
+<ul>
+<li>lock，对拥有的互斥量上锁</li>
+<li>unlock，解锁</li>
+<li>try_lock</li>
+<li>try_lock_for,try_lock_until<br>上述成员函数都与互斥量本身的成员函数类似（目前不清楚它能否对mutex对象调用try_lock_for和try_lock_unique）。除此之外，它还有赋值函数，只不过只有move操作，没用拷贝功能。它还有其他的成员函数：</li>
+<li>swap，交换互斥量以及它们的状态</li>
+<li>release，释放当前拥有的互斥量</li>
+<li>owns_lock，当前的锁拥有的互斥量被锁定了，返回true，否则的话，包括当前对象没有互斥量，或者互斥量状态为unlocked，都返回false</li>
+<li>operate bool，它本身可以用来进行bool值的判断，依据是它是否拥有一个互斥量</li>
+<li>mutex，得到当前绑定的互斥量的指针</li>
+</ul>
+<p>下面是一个unique_lock的例子：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// unique_lock example</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;       // std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;         // std::thread</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;          // std::mutex, std::unique_lock</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex mtx;           <span class="comment">// mutex for critical section</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_block</span> <span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> c)</span> </span>{</span><br><span class="line">  <span class="comment">// critical section (exclusive access to std::cout signaled by lifetime of lck):</span></span><br><span class="line">  <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; lck (mtx);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; ++i) { <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; c; }</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">th1</span> <span class="params">(print_block,<span class="number">50</span>,<span class="string">'*'</span>)</span></span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="function">thread <span class="title">th2</span> <span class="params">(print_block,<span class="number">50</span>,<span class="string">'$'</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">  th1.join();</span><br><span class="line">  th2.join();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>这里再列出来一个operate bool的例子，lck后面的参数决定了它会try_to_lock，也就是如果mtx已经被锁定了，则unique_lock不会绑定它。因此下面的函数会输出绑定成功的个数。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// unique_lock::operator= example</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;       // std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;         // std::vector</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;         // std::thread</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;          // std::mutex, std::unique_lock, std::try_to_lock</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex mtx;           <span class="comment">// mutex for critical section</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print_star</span> <span class="params">()</span> </span>{</span><br><span class="line">  <span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; lck(mtx,<span class="built_in">std</span>::try_to_lock);</span><br><span class="line">  <span class="comment">// print '*' if successfully locked, 'x' otherwise: </span></span><br><span class="line">  <span class="keyword">if</span> (lck)</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">'*'</span>;</span><br><span class="line">  <span class="keyword">else</span>                    </span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">'x'</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;<span class="number">500</span>; ++i)</span><br><span class="line">    threads.emplace_back(print_star);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; x: threads) x.join();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cpp/" rel="tag"># cpp</a>
+              <a href="/tags/concurrent-programmingm/" rel="tag"># concurrent programmingm</a>
+              <a href="/tags/Programming-language/" rel="tag"># Programming language</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/30/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%98%B4%E5%BD%B1/" rel="prev" title="图形学——计算机动画">
+                  <i class="fa fa-angle-left"></i> 图形学——计算机动画
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/31/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BA%94%EF%BC%89future/" rel="next" title="CPP——并发编程（五）future">
+                  CPP——并发编程（五）future <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

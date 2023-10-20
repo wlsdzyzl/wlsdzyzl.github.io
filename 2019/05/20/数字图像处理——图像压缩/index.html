@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="我们生活中用到很多图像，也见过很多图像格式，实际上大部分见到的都是压缩格式。说压缩技术改变了世界一点也不为过。这篇文章简单介绍一下图像压缩的一些基本内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——图像压缩">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%8E%8B%E7%BC%A9/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="我们生活中用到很多图像，也见过很多图像格式，实际上大部分见到的都是压缩格式。说压缩技术改变了世界一点也不为过。这篇文章简单介绍一下图像压缩的一些基本内容。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression0.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression7.png">
+<meta property="article:published_time" content="2019-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:24.314Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="digital image processing">
+<meta property="article:tag" content="compression">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression0.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%8E%8B%E7%BC%A9/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%8E%8B%E7%BC%A9/","path":"2019/05/20/数字图像处理——图像压缩/","title":"数字图像处理——图像压缩"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——图像压缩 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E5%86%97%E4%BD%99"><span class="nav-number">1.</span> <span class="nav-text">编码冗余</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%83%8F%E7%B4%A0%E9%97%B4%E7%9A%84%E5%86%97%E4%BD%99"><span class="nav-number">2.</span> <span class="nav-text">像素间的冗余</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E8%A7%89%E5%86%97%E4%BD%99"><span class="nav-number">3.</span> <span class="nav-text">视觉冗余</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E5%8E%8B%E7%BC%A9"><span class="nav-number"></span> <span class="nav-text">视频压缩</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%8E%8B%E7%BC%A9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——图像压缩 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——图像压缩
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-05-20 00:00:00" itemprop="dateCreated datePublished" datetime="2019-05-20T00:00:00+08:00">2019-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:24" itemprop="dateModified" datetime="2023-10-21T04:23:24+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>我们生活中用到很多图像，也见过很多图像格式，实际上大部分见到的都是压缩格式。说压缩技术改变了世界一点也不为过。这篇文章简单介绍一下图像压缩的一些基本内容。</p>
+<span id="more"></span>
+
+
+<p>对于一张$512\times 512$的图片，如果每个像素需要8bit，那么这张图有2Mb大，而如果一个RGB视频，每秒30帧，那么需要网络速率大小是180Mb&#x2F;s。而且这个图片的质量也并不高，只有$512\times 512$。因此我们可以看到压缩的重要性。压缩分为有损压缩与无损压缩。下面是几个常见的图片压缩格式：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression0.png"></p>
+<p>下面我们说明几个基本的定义：$n_1,n_2$分别代表两张图$x_1,x_2$的大小（更正式的说法，是包含信息的单位个数）。那么定义$x_1$相对于$x_2$的数据冗余为：</p>
+<p>R_D &#x3D; 1 - \frac{1}{C_R} &#x3D; \frac{n_1 - n_2}{n_1}</p>
+<p>这里的$C_R$指的压缩比例：$C_R &#x3D; \frac{n_1}{n_2}$，</p>
+<p>C_R \in [0,\infty),R_D \in (-\infty,1].</p>
+<p>这个比较的前提是信息量一致。如果$n_2$是压缩后的，因此会出现情况可能有下面几种：</p>
+<ol>
+<li>$n_2 &gt;&gt; n_1$，压缩很失败，$R_D &#x3D; -\infty,C_R &#x3D; 0$，说明冗余过多，实际上只要$n_2 &gt; n_1$，那么压缩就失败了,$R_D&lt;0,C_R &lt; 1$。</li>
+<li>$n_2 &#x3D; n_1$，相当于没有压缩，$R_D &#x3D; 0, C_R &#x3D; 1$。</li>
+<li>$n_2 &lt;&lt; n_1$，压缩成功，$R_D &#x3D; 1,C_R &#x3D; \infty$，实际上只要$n_2&lt; n_1$，压缩就有效果，这时候$R_D &gt; 0,C_R &gt; 1$。</li>
+</ol>
+<p>一般来说在数字图像中有下面3种基本的冗余：</p>
+<ol>
+<li>编码冗余，指的是编码上不需要这么多的字长。</li>
+<li>像素间的冗余，比如相邻像素可能是一样的或者近似，有某种规律，可以用更简单的方式表示，这就是像素之间的冗余。</li>
+<li>视觉冗余，人的视觉没有太高的敏感度，比如颜色太相近人眼无法区分，或者图片略缩图比较小，不需要太多的灰度值来表示，又或者人眼对对比度光照等等更敏感，可以适当加大颜色的压缩比例等等。</li>
+</ol>
+<p>对于编码冗余以及像素间的冗余，对应的是无损压缩的解决方案，而视觉冗余，则会损失图片质量，但是好的压缩方法会在压缩比例很大的情况下尽可能的保存更多的图片视觉信息。</p>
+<h3 id="编码冗余"><a href="#编码冗余" class="headerlink" title="编码冗余"></a><a href="about:blank#%E7%BC%96%E7%A0%81%E5%86%97%E4%BD%99" title="编码冗余"></a>编码冗余</h3><p>解决编码冗余的方法可以使用霍夫曼编码，这个之前在信息论中有提到：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/17/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Huffman%E7%BC%96%E7%A0%81%E5%AE%9E%E7%8E%B0%E5%8F%8A%E5%85%B6%E6%9C%80%E4%BC%98%E6%80%A7/">Huffman编码</a>。</p>
+<p>霍夫曼编码是无损压缩方法，除此以外还有很多别的编码方法，主要还是针对与像素出现的概率与熵。下面举个编码例子：</p>
+<p>用$L_{avg}$表示一张图片各个像素的平均码长，那么平均码长计算如下：</p>
+<p>L_{\mathrm{avg} }&#x3D;\sum_{k&#x3D;0}^{L-1} I\left(r_{k}\right) p_{r}\left(r_{k}\right)</p>
+<p>下面是一个只有8个灰度值的图片进行熵编码的示意(code 1普通编码，code 2熵编码)：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression1.png"></p>
+<p>第一种编码方案，对每个灰度值都进行3bit的编码。</p>
+<p>这时候计算得到平均码长为：</p>
+<p>L_{\mathrm{avg} }&#x3D;\sum_{k&#x3D;0}^{8-1} &#x2F;\left(r_{k}\right) p_{r}\left(r_{k}\right) &#x3D; 3 \text{bits}.</p>
+<p>第二种利用概率进行熵编码，对经常出现的灰度值给较短的编码，而对很少出现的灰度值给予较大的编码，这时候得到的平均码长为：</p>
+<p>L_{\mathrm{avg} }&#x3D;\sum_{k&#x3D;0}^{8-1} l_{2}\left(r_{k}\right) p_{r}\left(r_{k}\right) &#x3D; 2.7 \text{bits}.</p>
+<p>可以看到这个图片可以被压缩，压缩比例以及相对冗余如下：</p>
+<p>C_{R}&#x3D;\frac{n_{1} }{n_{2} }&#x3D;\frac{3}{2.7}&#x3D;1.11\\ R_{D}&#x3D;1-\frac{1}{C_{R} }&#x3D;1-\frac{1}{1.11}&#x3D;0.099</p>
+<h3 id="像素间的冗余"><a href="#像素间的冗余" class="headerlink" title="像素间的冗余"></a><a href="about:blank#%E5%83%8F%E7%B4%A0%E9%97%B4%E7%9A%84%E5%86%97%E4%BD%99" title="像素间的冗余"></a>像素间的冗余</h3><p>对于像素间的冗余，举个例子如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression2.png"></p>
+<p>这两张图片有着相同的直方图，但是很明显右侧的图片更有规律。我们可以利用空间位置的规律来对其进行压缩。最后两幅图是关于像素间相关系数的定义。这里定义一个相关系数如下：</p>
+<p>\gamma(\Delta n)&#x3D;\frac{A(\Delta n)}{A(\Delta n&#x3D;0)}</p>
+<p>上式中：</p>
+<p>A(\Delta n)&#x3D;\frac{1}{N-\Delta n} \sum_{y&#x3D;0}^{N-1-\Delta n} f(x, y) f(x, y+\Delta n)</p>
+<p>$\Delta n$是像素间的距离，可以理解为步长。我们对$\Delta n$内的像素进行另一种形式的压缩。</p>
+<p>可以看到，在$\Delta n &#x3D; 1$时，$\gamma_1 &#x3D; 0.9922,\gamma_2 &#x3D; 0.9928$，意味着当像素距离为$1$时，两张图片的相关系数都很高，而当$\Delta n &#x3D; 45, 90$时候，图二的相关系数依然很高。有着很高的相关系数，意味着可以更好的压缩。但是需要注意一点，当$\Delta n &#x3D; 1$时，几乎所有图片都有比较高的相关系数，但是$\Delta n$间隔太小，意味着最后压缩比例不会很大。因此想要很好的压缩需要在$\Delta n$比较大的情况下有比较高的相关系数，我们肉眼也可以看到，上述两张图中第二张图更规律，可以更好地被压缩。具体的压缩过程需要一个过程，叫做可逆映射（reversible mapping）。</p>
+<p>这个压缩过程也很简单，就是依据一个路线扫描图像：</p>
+<p>f(x, 0), f(x, 1), \ldots, f(x, N-1)</p>
+<p>将结果存为类似下面的序列：</p>
+<p>\left(g_{1}, w_{1}\right),\left(g_{2}, w_{2}\right), \dots</p>
+<p>$g_{n}$表示像素值，而$w_{n}$表示像素值连续出现的长度。这个方法有点像字典压缩算法。下面是一个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression3.png"></p>
+<p>对于第100行，每个灰度值需要1bits，而长度需要10bits来存储，那么序列对：</p>
+<p>(1,63)(0,87)(1,37)(0,5)(1,4)(0,556)(1,62)(0,210)</p>
+<p>只需要88bits，而原本的图像需要1024个bits。对于整个图片，只是用12166对类似的表示就可以存储，而原图大小为$1024\times 343$。这样的情况下，压缩比例与冗余指数分别为：</p>
+<p>\begin{aligned} C_{R} &amp;&#x3D;\frac{n_{1} }{n_{2} }&#x3D;\frac{(1024)(343)(1)}{(12166)(11)}&#x3D;2.63 \\ R_{D} &amp;&#x3D;1-\frac{1}{C_{R} }&#x3D;1-\frac{1}{2.63}&#x3D;0.62 \end{aligned}</p>
+<h3 id="视觉冗余"><a href="#视觉冗余" class="headerlink" title="视觉冗余"></a><a href="about:blank#%E8%A7%86%E8%A7%89%E5%86%97%E4%BD%99" title="视觉冗余"></a>视觉冗余</h3><p>视觉冗余对应有损编码，但是有时候一些信息量的损失对于人眼来说几乎是察觉不到的，如下图的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression4.png"></p>
+<p>后面两种方法使用了不同的quantization方法，最后压缩的图片大小一致，但是第二种明显优于第一种。对于有损编码，需要一个衡量压缩后图片好坏的标准。常用的损失函数有下面两种：</p>
+<ul>
+<li>root mean square error: e_{\mathrm{rms} }&#x3D;\left[\frac{1}{M N} \sum_{x&#x3D;0}^{M-1} \sum_{y&#x3D;0}^{N-1}[\hat{f}(x, y)-f(x, y)]^{2}\right]^{\frac{1}{2} }</li>
+<li>mean square signal-to-noise ratio: S N R_{\mathrm{MS} }&#x3D;\frac{\sum_{x&#x3D;0}^{M-1} \sum_{y&#x3D;0}^{N-1} \hat{f}(x, y)^{2} }{\sum_{x&#x3D;0}^{N-1} \sum_{y&#x3D;0}^{N-1}[\hat{f}(x, y)-f(x, y)]^{2} }</li>
+</ul>
+<p>另外就是人的主观评判了。</p>
+<p>关于有损压缩，这里也不会介绍过多的算法内容。有损压缩对应的有Predictive以及transform，也就是一个是靠预测，存储的是空间差异，类似于上面介绍的像素间冗余，而transform会转换到另外的一个domain，比如快速傅里叶变换（FFT）或者离散余弦变换（DCT）。在压缩中，使用更多的是DCT，DTF与DCT对比如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression5.png"></p>
+<p>可以看到在root mean square error上，DCT有更好的表现。具体的算法过程想要了解的可以去查询更详细的文章等。实际上，最著名的图片编码JPEG就是用到了transform，下面是压缩效果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression6.png"></p>
+<p>而对于JPEG 2000，是JPEG的改进，有更好的压缩效果。但是一般来说更好的压缩效果也意味着更长的压缩时间：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression7.png"></p>
+<p>对于有损压缩，这里介绍的是非常少的一部分内容。实际上实现压缩的方法还有很多，比如奇异值分解，我们知道奇异值分解会根据奇异值保存不同重要程度的组成成分，这也延伸到很重要的机器学习算法主要成分分析PCA，只要保存几个主要的成分就可以保留矩阵的大部分内容，从而对数据进行降维，大大减少占用内存等，可以看这个知乎的回答：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/22237507">奇异值分解的物理意义是什么？</a>。也可以使用奇异值分解，对图片进行压缩。关于奇异值介绍可以看之前的博客：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/">SVD与EVD</a>。</p>
+<h2 id="视频压缩"><a href="#视频压缩" class="headerlink" title="视频压缩"></a><a href="about:blank#%E8%A7%86%E9%A2%91%E5%8E%8B%E7%BC%A9" title="视频压缩"></a>视频压缩</h2><p>视频编码和压缩实际上与图像相关很大，但是视频可以有更高的压缩比例，因为视频是连续动态的，而临近帧之间可以做动作估计。关于视频的压缩编码以及动作估计这里放上补充材料，有兴趣的可以下载了解更多: <a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/video_coding.pdf">video coding</a>, <a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/motion_estimation.pdf">motion estimation</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+              <a href="/tags/compression/" rel="tag"># compression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/13/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%BD%A2%E6%80%81%E5%AD%A6%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="prev" title="数字图像处理——图像压缩">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——图像压缩
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/" rel="next" title="数字图像处理——图像压缩">
+                  数字图像处理——图像压缩 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

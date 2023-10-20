@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="机器学习基石的最后一次作业，总共20道题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——（基石）作业4">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="机器学习基石的最后一次作业，总共20道题目。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-03T08:18:16.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/","path":"2018/10/03/机器学习——（基石）作业4/","title":"机器学习——（基石）作业4"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——（基石）作业4 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——（基石）作业4 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——（基石）作业4
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-03 16:18:16" itemprop="dateCreated datePublished" datetime="2018-10-03T16:18:16+08:00">2018-10-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>机器学习基石的最后一次作业，总共20道题目。</p>
+<span id="more"></span>
+<p><strong>1. Deterministic noise depends on $\mathcal{H}$, as some models approximate $f$ better than others. Assume $\mathcal{H}’\subset \mathcal{H}$ and that $f$ is fixed. In general (but not necessarily in all cases), if we use $\mathcal{H}’$ instead of $\mathcal{H}$, how does deterministic noise behave?</strong></p>
+<p>a. In general, deterministic noise will decrease.</p>
+<p>b. In general, deterministic noise will increase.</p>
+<p>c. In general, deterministic noise will be the same.</p>
+<p>d. If $d_{\text{vc} }(\mathcal{H}’) \le \frac{1}{2} d_{\text{vc} }(\mathcal{H})$, deterministic noise will increase, else it will decrease.</p>
+<p>e. If $d_{\text{vc} }(\mathcal{H}’) \le \frac{1}{2} d_{\text{vc} }(\mathcal{H})$, deterministic noise will decrease, else it will increase.</p>
+<p>deterministic noise出现的原因，是$H$无法完美的模拟f.而$H’$是$H$的子集，也就是它的模型复杂度更低，一般来说更无法模拟目标函数，它的deterministic noise应该是上升的，选b。</p>
+<p><strong>2. Consider the following hypothesis set for $\mathbf{x} \in \mathbb{R}^dx$ defined by the constraint:</strong><br>$$<br>\mathcal{H}(d, d_0) &#x3D; { h <del>|</del> h(\mathbf{x}) &#x3D; \mathbf{w}^\mathrm{T}\mathbf{x}; w_i &#x3D; 0 \hspace{1 mm} \mbox{for} \hspace{1mm} i \geq d_0 },<br>$$<br><strong>which of the following statements is correct?</strong></p>
+<p>a. $H(10,3)⊂H(10,4)$</p>
+<p>b. $H(10,3)∪H(10,4)&#x3D;{}$</p>
+<p>c. $H(10,3)⊃H(10,4)$</p>
+<p>d. $H(10,3)∩H(10,4)&#x3D;{}$</p>
+<p>e. none of the other choices</p>
+<p>这个题目的约束不算难，也就是有一个额外的参数$d_0(d_0 \leq d)$,w下标比$d_0$大的固定为0.选项中$d_0$只有3与4两个选项，而$d_0 &#x3D; 3$的$H$是包含在$d_0&#x3D;4$的$H$中的，因为对于前者来说，$w_3$的值也确定了，自由度为3，后者自由度为4，$w_0$可以为0也可以为其他值.因此答案选a.</p>
+<p>For Questions 3-4, consider the augmented error $E_{\text{aug} }(\mathbf{w}) &#x3D; E_{\text{in} }(\mathbf{w}) + \frac{\lambda}{N} \mathbf{w}^T \mathbf{w}$ with some $\lambda &gt; 0$.</p>
+<p><strong>3. If we want to minimize the augmented error $E_{\text{aug} }(\mathbf{w})$ by gradient descent with $\eta$ as learning rate, which of the following is a correct update rule?</strong></p>
+<p>a. $w(t+1)⟵w(t)+ηλ\nabla E \in (w(t))$.</p>
+<p>b. $w(t+1)⟵w(t)-ηλ\nabla E \in (w(t))$.</p>
+<p>c. $w(t+1)⟵(1− \frac {2\eta \lambda} {N})w(t)−η\nabla E \in (w(t))$.</p>
+<p>d. $w(t+1)⟵(1+ \frac {2\eta \lambda} {N})w(t)−η\nabla E \in (w(t))$.</p>
+<p>e. none of the other choices</p>
+<p>这个题目也是比较简单的。梯度下降就是朝着梯度的反方向前进，因此只用求出来梯度就可以。$W^TW$的梯度很简单是$2W$，其他的与之前的一致，因此答案选c。</p>
+<p><strong>4. Let $\mathbf{w}<em>{\text{lin} }$ be the optimal solution for the plain-vanilla linear regression and $\mathbf{w}</em>{\text{reg} }(\lambda)$ be the optimal solution for minimizing $E_{\text{aug} }$ in Question 3, with $E_{\text{in} }$ being the squared error for linear regression. Which of the following is correct?</strong></p>
+<p>a. none of the other choices</p>
+<p>b. $||W_{reg}(\lambda)|| \leq ||W_{lin}||$ for any $\lambda &gt; 0$</p>
+<p>c. $||W_{reg}(\lambda)|| \geq ||W_{lin}||$ for any $\lambda &gt; 0$</p>
+<p>d. $||W_{reg}(\lambda)||$ is always a non-decreasing function of $\lambda$ for $\lambda \ge 0$</p>
+<p>e. $||W_{reg}(\lambda)||$ is always a constant function of $\lambda$ for $\lambda \ge 0$</p>
+<p>要明白这个题目，首先要知道什么是$||W||$，这个意思是$W$向量的范数，也就等于$W^TW$.对于之前题目添加的regularization来说，限制实际上是$W^W \leq C$.如何推导？<br>最低点$\nabla E_{aug} &#x3D; 0$，也就是$\nabla E_{in} &#x3D; - \frac {2\lambda} {N} W$,因此最低点$\nabla E_{in}$与$W$的长度比值是一定的，也就是$W$向量的长度被确定到了一个值。而因为一直在朝约束条件下最低点走，因次$\nabla E_{in}$也是接近平缓的也就是值比较小，所以这意味着$W$最后是比较小的。</p>
+<p>从另一个角度来看，范数一定是大于零的，为了找到最低点当然是让范数尽量小，也就是正则化相当于给各个参数增加了惩罚，想让他们变得更小。</p>
+<p>因此这个题目的答案选择b.如果没有约束情况下得到的最好的$W$也满足约束，也就是等于的情况，其他时候$||W_{lin}|| &gt; ||W_{reg}||$</p>
+<p><strong>5. You are given the data points: $(-1,0)$, $(\rho,1)$, $(1,0)$,$ \rho \ge 0$, and a choice between two models:</strong></p>
+<ul>
+<li>constant $h_0(x)&#x3D;b_0$ and</li>
+<li>linear $h_1(x)&#x3D;a_1x+b_1$</li>
+</ul>
+<p>For which value of $\rho$ would the two models be tied using leave-one-out cross-validation with the squared error measure?</p>
+<p>a. $\sqrt{\sqrt {3}+4}$</p>
+<p>b. $\sqrt{\sqrt{3} - 1}$</p>
+<p>c. $\sqrt{9+4 \sqrt{6} }$</p>
+<p>d. $\sqrt{9 - \sqrt{6} }$</p>
+<p>e. none of the other choice</p>
+<p>使用Leave-One-Out Cross验证来得到$E_{val}$。对于第一种情况，$h(x)&#x3D;b_0$是个常量。对于第二种情况是个直线。首先要计算出两种模型的$E_{val}$.</p>
+<p>第一种模型：</p>
+<ul>
+<li>第一个为验证集：则$E_{in} &#x3D; \frac 1 2 ((b_0-1)^2 + b_0^2)$,则$E_{in}$最小的时候$b_0 &#x3D; 0.5$，$err &#x3D; 0.5 \times 0.5 &#x3D; 0.25$.</li>
+<li>第二个为验证集：则$E_{in} &#x3D; b_0^2$,因此$b_0 &#x3D; 0$,err &#x3D; 1.</li>
+<li>第三个为验证集，情况与第一种情况一致，$err &#x3D;0.25$.</li>
+</ul>
+<p>因此这时候的$E_{val} &#x3D; (1+0.25+0.25)&#x2F;3 &#x3D; 0.5$.</p>
+<p>第二种模型：</p>
+<ul>
+<li>第一个为验证集：则计算出来得到$a_1 &#x3D; \frac 1 {p-1},b_1 &#x3D; \frac 1 {1-p}$,则预测值是$\frac 2 {1-p}$,$err &#x3D; \frac 4 {(1-p)^2}$.</li>
+<li>第二个为验证集，得到的是一个常熟：$h(x) &#x3D; 0$.这种情况下$err &#x3D; 1$.</li>
+<li>第三个为验证集，则计算出来得到$a_1 &#x3D; \frac 1 {p+1},b_1 &#x3D; \frac 1 {1+p}$,则预测值是$\frac 2 {1+p}$,$err &#x3D; \frac 4 {(1+p)^2}$.</li>
+</ul>
+<p>这时候的$E_{val} &#x3D;(1 + \frac 4 {(1-p)^2} + \frac 4 {(1+p)^2} )&#x2F;3$.</p>
+<p>题目中说了，两个模型都适用到该样本集。那么上面两个应该是相等的。可以解出来：$p^2 &#x3D; 9±4\sqrt {6}$,而$9-4 \sqrt 6 &lt; 0$，因此正确答案是 $9+ 4 \sqrt {6}$.答案选c。 </p>
+<p>For Questions 6-7, suppose that for 5 weeks in a row, a letter arrives in the mail that predicts the outcome of the upcoming Monday night baseball game.</p>
+<p><strong>6. Assume there are no tie. You keenly watch each Monday and to your surprise, the prediction is correct each time. On the day after the fifth game, a letter arrives, stating that if you wish to see next week’s prediction, a payment of NTD $1000$ is required. Which of the following statement is true?</strong></p>
+<p>a. There are 31 win-lose predictions for 5 games.</p>
+<p>b. If the sender wants to make sure that at least one person receives correct predictions on all 5 games from him, the sender should target to begin with at least 5 people.</p>
+<p>c. To make sure that at least one person receives correct predictions on all 5 games from the sender, after the first letter &#96;predicts’ the outcome of the first game, the sender should target at least 16 people with the second letter.</p>
+<p>d. To make sure that at least one person receives correct predictions on all 5 games from him, at least 64 letters should be sent before the fifth game.</p>
+<p>e. none of the other choice</p>
+<p>这个题目讲的是一个小把戏。5场比赛，每场比赛只有正负两个情况。因此一共可能出现的情况有$2^5&#x3D;32$种。a错误。32种情况，当然要32个人，因此b错误。至少发出去的信有（32+16+8+4+2&#x3D;62）封，d错误。而c，第一个结果出来后，会有一半的人收到错误的预测，因此第二封信只需要发给正确的那些人就好了，也就是16个人.</p>
+<p><strong>7. If the cost of printing and mailing out each letter is NTD 10. If the sender sends the minimum number of letters out, how much money can be made for the above &#96;fraud’ to succeed once? That is, one of the recipients does send him NTD 1000 to receive the prediction of the 6-th game?</strong></p>
+<p>a. NTD 340</p>
+<p>b. NTD 370</p>
+<p>c. NTD 400</p>
+<p>d. NTD 430</p>
+<p>e. NTD 460</p>
+<p>上面一道题目推断出来，至少要发送62封信才能保证有个人收到所有预测结果。而最后一个人收到的全部正确的预测后还要在加发一封，来骗钱。也就是63封，所以答案是NTD 370，选b.</p>
+<p>For Questions 8-10, please read the following story first. In our credit card example, the bank starts with some vague idea of what constitutes a good credit risk. So, as customers $\mathbf{x}_1, \mathbf{x}_2,…,\mathbf{x}_N$ arrive, the bank applies its vague idea to approve credit cards for some of these customers based on a formula $a(\mathbf{x})$. Then, only those who get credit cards are monitored to see if they default or not.</p>
+<p><strong>8. For simplicity, suppose that the first $N&#x3D;10000$ customers were given credit cards by the credit approval function $a(\mathbf{x})$. Now that the bank knows the behavior of these customers, it comes to you to improve their algorithm for approving credit. The bank gives you the data $(\mathbf{x}_1, y_1), … , (\mathbf{x}_N, y_N)$. Before you look at the data, you do mathematical derivations and come up with a credit approval function. You now test it on the data and, to your delight, obtain perfect prediction.</strong></p>
+<p>What is $M$, the size of your hypothesis set?</p>
+<p>a. $1$</p>
+<p>b. $N$</p>
+<p>c. $2^N$</p>
+<p>d. $N^2$</p>
+<p>e. We have no idea about it.</p>
+<p>利用数学推理想到了一个函数做出了很好的预测，因此这个vc dimension是无法计算的，但是因为没有经过数据的学习，这个H的大小应该是1，选择a.</p>
+<p><strong>9. With such an $M$, what does the Hoeffding bound say about the probability that the true average error rate of $g$ is worse than $1%$ for $N&#x3D;10,000$?</strong></p>
+<p>a. $\leq 0.171$</p>
+<p>b. $\leq 0.221$</p>
+<p>c. $\leq 0.271$</p>
+<p>d. $\leq 0.321$</p>
+<p>e. none of the other choices</p>
+<p>霍夫丁不等式的简单应用：$P[\nu  - \upsilon|&gt; \epsilon ] \leq 2 e^{-2\epsilon ^2N}$。上述中$\epsilon &#x3D; 0.01,N &#x3D; 10000$,得到答案为0.2706705664732，答案选c.</p>
+<p><strong>10. You assure the bank that you have a got a system $g$ for approving credit cards for new customers, which is nearly error-free. Your confidence is given by your answer to the previous question. The bank is thrilled and uses your $g$ to approve credit for new customers. To their dismay, more than half their credit cards are being defaulted on. Assume that the customers that were sent to the old credit approval function and the customers that were sent to your g are indeed i.i.d. from the same distribution, and the bank is lucky enough (so the “bad luck” that “the true error of gg is worse than $1%$’’ does not happen). Which of the following claim is true?</strong></p>
+<p>a. By applying $a(\mathbf{x}) \mbox{ NOR } g(\mathbf{x})$ to approve credit for new customers, the performance of the overall credit approval system can be improved with guarantee provided by the previous problem.</p>
+<p>b. By applying $a(\mathbf{x}) \mbox{ NAND } g(\mathbf{x})$ to approve credit for new customers, the performance of the overall credit approval system can be improved with guarantee provided by the previous problem.</p>
+<p>c. By applying $a(\mathbf{x}) \mbox{ OR } g(\mathbf{x})$ to approve credit for new customers, the performance of the overall credit approval system can be improved with guarantee provided by the previous problem.</p>
+<p>d. By applying $a(\mathbf{x}) \mbox{ AND } g(\mathbf{x})$ to approve credit for new customers, the performance of the overall credit approval system can be improved with guarantee provided by the previous problem.</p>
+<p>e. none of the other choices</p>
+<p>这个题目中说到，利用之前的推断出来的g，本应该有很好的表现，但是却得到了很差的表现。为什么？我们要注意一个事：Sample Bias。虽然题目中说了，新的顾客和之前系统的顾客是来自于同一分布的，但是我们得到的test数据的分布并不是原先的顾客分布。test数据中，顾客的信息并不是随机得到的，而是先经过了$a(x)$的筛选。上面的霍夫曼不等式的理论保证是在同一分布的前提下，因此首先要经过$a(x)$的筛选，然后再用$g(x)$来判断。因此答案选d.</p>
+<p>For Questions 11-12, consider linear regression with virtual examples. </p>
+<p><strong>11. That is, we add $K$ virtual examples $(\tilde{\mathbf{x} }_1, \tilde{y}_1),(\tilde{\mathbf{x} }_2, \tilde{y}_2),\dots, (\tilde{\mathbf{x} }_K, \tilde{y}_K)$ to the training data set, and solve$<br>\min \limits <em>{\mathbf{w} } \frac{1}{N+K} \left(\sum</em>{n&#x3D;1}^N (y_n - \mathbf{w}^T \mathbf{x}<em>n)^2 + \sum</em>{k&#x3D;1}^K (\tilde{y}_k - \mathbf{w}^T \tilde{\mathbf{x} }_k)^2\right)$.We will show that using some “special” virtual examples, which were claimed to be a possible way to combat overfitting in Lecture 9, is related to regularization, another possible way to combat overfitting discussed in Lecture 10. Let $\tilde{\mathbf{X} } &#x3D; [\tilde{\mathbf{x} }_1 \tilde{\mathbf{x} }_2 \ldots \tilde{\mathbf{x} }_K]^T$, and $\tilde{\mathbf{y} } &#x3D; [\tilde{y}_1, \tilde{y}_2, \ldots, \tilde{y}_K]^T$. What is the optimal $\mathbf{w}$ to the optimization problem above, assuming that all the inversions exist?</strong></p>
+<p>a. $(\mathbf{X}^T\mathbf{X})^{-1}(\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} })$</p>
+<p>b. $(\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{X}^T \mathbf{y}+\widetilde {\mathbf{X} }^T\widetilde{y})$</p>
+<p>c. $(\mathbf{X}^T\mathbf{X} + \widetilde{\mathbf{X} }^T\widetilde{\mathbf{X} })^{-1}(\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} })$</p>
+<p>d. $(\mathbf{X}^T\mathbf{X} + \widetilde{\mathbf{X} }^T\widetilde{\mathbf{X} })^{-1}(\mathbf{X}^T \mathbf{y} +\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} } )$</p>
+<p>e. none of the other choice</p>
+<p>这个题目说起来也容易。既然把虚拟数据也融合进去了，当然各部分都要计算，很容易排除其他答案,选择d。</p>
+<p><strong>12. For what $\tilde{\mathbf{X} } and $\tilde{\mathbf{y} }$ will the solution of the linear regression problem above equal to</strong><br>$$<br>\mathbf{w}<em>{\text{reg} } &#x3D; \mathrm{argmin}</em>{\mathbf{w} } \frac{\lambda}{N} |\mathbf{w}|^2 + \frac{1}{N} |\mathbf{X}\mathbf{w}-\mathbf{y}|^2?<br>$$</p>
+<p>a. $\tilde{\mathbf{X} } &#x3D; I, \tilde{\mathbf{y} } &#x3D; 0$</p>
+<p>b. $\tilde{\mathbf{X} } &#x3D; \sqrt {\lambda}I, \tilde{\mathbf{y} } &#x3D; 0$</p>
+<p>c. $\tilde{\mathbf{X} } &#x3D; \lambda I, \tilde{\mathbf{y} } &#x3D; \mathbf{1}$</p>
+<p>d. $\tilde{\mathbf{X} } &#x3D; \sqrt{\lambda} \mathbf{X}, \tilde{\mathbf{y} } &#x3D; \mathbf{y}$</p>
+<p>e. none of the other choice</p>
+<p>这个问题乍一看，摸不着头脑。一个是矩阵中求逆操作，另一个是最小化一个函数（argmin(f(x))的定义之前已经说过）。但是换个办法的话，其实很容易解决，我们可以想象一下11题中需要最小化的函数$E_{in}$，则可以得到：<br>$$<br>W_{vir} &#x3D; argmin_w \frac 1  {N+K} (||\tilde{\mathbf{X} }\mathbf{w} - \tilde{\mathbf{y} }||^2 +  ||\mathbf{X}\mathbf{w} - \mathbf{y}||^2).<br>$$<br>最小化的话无论前面有没有$\frac 1 N$或者其他常数都是无所谓的。<br>想要让二者最后结果相等，使得去掉常数之后相等即可，则，$\tilde{\mathbf{X} } &#x3D; \sqrt {\lambda}I, \tilde{\mathbf{y} } &#x3D; 0$.因此这道题目答案选b。</p>
+<p><strong>13. Consider regularized linear regression (also called ridge regression) for classification</strong><br>$$<br>\mathbf{w}<em>{\text{reg} } &#x3D; \mbox{argmin}</em>{\mathbf{w} } \left(\frac{\lambda}{N} |\mathbf{w}|^2 + \frac{1}{N} |\mathbf{X}\mathbf{w}-\mathbf{y}|^2\right) .<br>$$<br>Run the algorithm on the following data set as $\mathcal{D}$:<br><a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_train.dat">https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_train.dat</a></p>
+<p>and the following set for evaluating $E_{out}$:<br><a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_test.dat">https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_test.dat</a></p>
+<p>Because the data sets are for classification, please consider only the 0&#x2F;1 error for all Questions below.</p>
+<p>Let $\lambda &#x3D; 10$, which of the followings is the corresponding $E_{in}$and $E_{out}$?</p>
+<p>a. $E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.020$</p>
+<p>b. $E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.015$</p>
+<p>c. $E_{in} &#x3D; 0.035,E_{out} &#x3D; 0.020$</p>
+<p>d. $E_{in} &#x3D; 0.050,E_{out} &#x3D; 0.045$</p>
+<p>e. $E_{in} &#x3D; 0.020,E_{out} &#x3D; 0.010$</p>
+<p>这道题目是线性回归的一个改进。相对于之前的代码也只要做些许的改进就可以了。利用之前的第12题的结论，我们依然可以一步得到结果。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sign</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> +<span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">visualize</span>(<span class="params">data,W=[]</span>):</span><br><span class="line">    nx = []</span><br><span class="line">    ny = []</span><br><span class="line">    ox = []</span><br><span class="line">    oy = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        <span class="keyword">if</span> data[i][-<span class="number">1</span>] == -<span class="number">1</span>:</span><br><span class="line">            nx.append(data[i][<span class="number">0</span>])</span><br><span class="line">            ny.append(data[i][<span class="number">1</span>])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ox.append(data[i][<span class="number">0</span>])</span><br><span class="line">            oy.append(data[i][<span class="number">1</span>])</span><br><span class="line">    plt.scatter(nx,ny,marker=<span class="string">&quot;x&quot;</span>,c=<span class="string">&quot;r&quot;</span>)</span><br><span class="line">    plt.scatter(ox,oy,marker=<span class="string">&quot;o&quot;</span>,c=<span class="string">&quot;g&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(W)!=<span class="number">0</span> :</span><br><span class="line">        <span class="built_in">print</span>(W)</span><br><span class="line">        x = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">50</span>)</span><br><span class="line">        y = -W[<span class="number">1</span>] / W[<span class="number">2</span>] * x - W[<span class="number">0</span>] / W[<span class="number">2</span>]</span><br><span class="line">        plt.plot(x, y, color=<span class="string">&quot;black&quot;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ridge_regression_one_step</span>(<span class="params">data,_<span class="keyword">lambda</span></span>):</span><br><span class="line">    X_matrix = []</span><br><span class="line">    Y_matrix = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        temp = [<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data[i])-<span class="number">1</span>):</span><br><span class="line">            temp.append(data[i][j])</span><br><span class="line"></span><br><span class="line">        X_matrix.append(temp)</span><br><span class="line">        Y_matrix.append([data[i][-<span class="number">1</span>]])</span><br><span class="line">    X = np.mat(X_matrix)</span><br><span class="line">    hatX = math.sqrt(_<span class="keyword">lambda</span>)*np.eye(<span class="built_in">len</span>(data[<span class="number">0</span>]))</span><br><span class="line">    <span class="comment">#print(hatX)</span></span><br><span class="line">    hatY = np.mat([ <span class="number">0</span> <span class="keyword">for</span> i <span class="keyword">in</span> data[<span class="number">0</span>]]).T</span><br><span class="line">    Y = np.mat(Y_matrix)</span><br><span class="line">    W = (X.T*X + hatX.T*hatX).I*(X.T*Y+hatX.T*hatY)</span><br><span class="line">    <span class="keyword">return</span> W.T.tolist()[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Ein</span>(<span class="params">data,W</span>):</span><br><span class="line">    err_num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        res = W[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="built_in">len</span>(W)):</span><br><span class="line">            res += W[j]*data[i][j-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> sign(res) != data[i][-<span class="number">1</span>]:</span><br><span class="line">            err_num+=<span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> err_num</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">readDataFrom</span>(<span class="params">path</span>):</span><br><span class="line">    separator = re.<span class="built_in">compile</span>(<span class="string">&#x27;\t|\b| |\n&#x27;</span>)</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(path,<span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        s = f.readline()[:-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">while</span> s:</span><br><span class="line">            temp = separator.split(s)</span><br><span class="line">            result.append([<span class="built_in">float</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> temp])</span><br><span class="line">            s = f.readline()[:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line">    data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">    <span class="comment">#print(data)</span></span><br><span class="line">    data_test =  readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">    W = ridge_regression_one_step(data,<span class="number">10</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Ein&quot;</span>,Ein(data,W)/<span class="built_in">len</span>(data))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Eout&quot;</span>,Ein(data_test,W)/<span class="built_in">len</span>(data_test))</span><br><span class="line">    visualize(data,W)</span><br></pre></td></tr></table></figure>
+<p>可以得到最后的运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ein 0.05</span><br><span class="line">Eout 0.045</span><br></pre></td></tr></table></figure>
+<p>因此答案选择d.</p>
+<p><strong>14. Following the previous Question, among $\log_{10} \lambda&#x3D; \left{2, 1, 0, -1, \ldots, -8, -9, -10 \right}$. What is the $\lambda$ with the minimum $E_{in}$? Compute $\lambda$ and its corresponding $E_{in}$ and $E_{out}$ then select the closest answer. Break the tie by selecting the largest $\lambda$.</strong></p>
+<p>a. $log_{10}^{\lambda} &#x3D; -2,E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.040$</p>
+<p>b. $log_{10}^{\lambda} &#x3D; -4,E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.020$</p>
+<p>c. $log_{10}^{\lambda} &#x3D; -6,E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.040$</p>
+<p>d. $log_{10}^{\lambda} &#x3D; -8,E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.020$</p>
+<p>e. $log_{10}^{\lambda} &#x3D; -10,E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.040$</p>
+<p>这个题目只需要对上面题目的执行函数做一些改动即可：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    minEin = <span class="number">1</span></span><br><span class="line">    minEout = <span class="number">1</span></span><br><span class="line">    minEinI = -<span class="number">1</span></span><br><span class="line">    minEoutI = -<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(-<span class="number">10</span>,<span class="number">3</span>):</span><br><span class="line">        _<span class="keyword">lambda</span> = math.<span class="built_in">pow</span>(<span class="number">10</span>,i)</span><br><span class="line">        data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">        <span class="comment"># print(data)</span></span><br><span class="line">        data_test = readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">        W = ridge_regression_one_step(data, _<span class="keyword">lambda</span>)</span><br><span class="line">        ein = Ein(data, W) / <span class="built_in">len</span>(data)</span><br><span class="line">        eout = Ein(data_test, W) / <span class="built_in">len</span>(data_test)</span><br><span class="line">        <span class="built_in">print</span>(i,<span class="string">&quot;Ein:&quot;</span>, ein,<span class="string">&quot;Eout:&quot;</span>, eout)</span><br><span class="line">        <span class="keyword">if</span> ein&lt;=minEin:</span><br><span class="line">            minEin = ein</span><br><span class="line">            minEinI = i</span><br><span class="line">        <span class="keyword">if</span> eout &lt;= minEout:</span><br><span class="line">            minEout = eout</span><br><span class="line">            minEoutI = i</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;minEin:&quot;</span>,minEinI,<span class="string">&quot;minEout:&quot;</span>,minEoutI)</span><br></pre></td></tr></table></figure>
+<p>得到结果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-10</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-9</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-8</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-7</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.015</span></span><br><span class="line"><span class="number">-6</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-5</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-4</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-3</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-2</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-1</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">0</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">1</span> Ein: <span class="number">0.05</span> Eout: <span class="number">0.045</span></span><br><span class="line"><span class="number">2</span> Ein: <span class="number">0.24</span> Eout: <span class="number">0.261</span></span><br><span class="line">minEin: <span class="number">-8</span> minEout: <span class="number">-7</span></span><br></pre></td></tr></table></figure>
+<p>可以看到Ein最小的是$\lambda &#x3D; 10^{-8}$(相等取最大的),因此答案选d.</p>
+<p><strong>15. Following the previous Question, among $\log_{10} \lambda&#x3D; \left{2, 1, 0, -1, \ldots, -8, -9, -10 \right}$. What is the $\lambda$ with the minimum $E_{out}$? Compute $\lambda$ and its corresponding $E_{in}$ and $E_{out}$ then select the closest answer. Break the tie by selecting the largest $\lambda$.</strong></p>
+<p>a. $log_{10}^{\lambda} &#x3D; -1,E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.015$</p>
+<p>b. $log_{10}^{\lambda} &#x3D; -3,E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.015$</p>
+<p>c. $log_{10}^{\lambda} &#x3D; -5,E_{in} &#x3D; 0.015,E_{out} &#x3D; 0.030$</p>
+<p>d. $log_{10}^{\lambda} &#x3D; -7,E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.015$</p>
+<p>e. $log_{10}^{\lambda} &#x3D; -9,E_{in} &#x3D; 0.030,E_{out} &#x3D; 0.030$</p>
+<p>答案在上个题目中已经得到了。答案选d.</p>
+<p><strong>16. Now split the given training examples in $\mathcal{D}$ to the first 120 examples for $\mathcal{D}<em>{\text{train} }$ and 80 for $\mathcal{D}</em>{\text{val} }$. $\textit{Ideally, you should randomly do the 120&#x2F;80 split. Because the given examples are already randomly permuted, however, we would use a fixed split for the purpose of this problem.}$</strong></p>
+<p><strong>Run the algorithm on $\mathcal{D}<em>{\text{train} }$ to get $g^-<em>\lambda$, and validate $g^-<em>\lambda$ with $\mathcal{D}</em>{\text{val} }$. Among $\log</em>{10} \lambda&#x3D; \left{2, 1, 0, -1, \ldots, -8, -9, -10 \right}$. What is the $\lambda$ with the minimum $E</em>{train}(g^-<em>\lambda)$? Compute $\lambda$ and the corresponding $E</em>{train}(g^-<em>\lambda)$, $E</em>{val}(g^-<em>\lambda)$ and $E</em>{out}(g^-_\lambda)$ then select the closet answer. Break the tie by selecting the largest $\lambda$.</strong></p>
+<p>a. $log <em>10^{\lambda} &#x3D; 0,E</em>{train}(g_{\lambda}^-) &#x3D; 0.000,E_{val}(g_{\lambda}^-) &#x3D; 0.050,E_{out}(g_{\lambda}^-) &#x3D; 0.025$</p>
+<p>b. $log <em>10^{\lambda} &#x3D; -2,E</em>{train}(g_{\lambda}^-) &#x3D; 0.010,E_{val}(g_{\lambda}^-) &#x3D; 0.050,E_{out}(g_{\lambda}^-) &#x3D; 0.035$</p>
+<p>c. $log <em>10^{\lambda} &#x3D; -4,E</em>{train}(g_{\lambda}^-) &#x3D; 0.000,E_{val}(g_{\lambda}^-) &#x3D; 0.010,E_{out}(g_{\lambda}^-) &#x3D; 0.025$</p>
+<p>d. $log <em>10^{\lambda} &#x3D; -6,E</em>{train}(g_{\lambda}^-) &#x3D; 0.010,E_{val}(g_{\lambda}^-) &#x3D; 0.010,E_{out}(g_{\lambda}^-) &#x3D; 0.025$</p>
+<p>e. $log <em>10^{\lambda} &#x3D; -8,E</em>{train}(g_{\lambda}^-) &#x3D; 0.000,E_{val}(g_{\lambda}^-) &#x3D; 0.050,E_{out}(g_{\lambda}^-) &#x3D; 0.025$</p>
+<p>这道题目依然用之前的程序就可以完成，只需要修改主函数。这里使用到了验证集，需要添加的就是验证相关的代码。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    minEtrain = <span class="number">1</span></span><br><span class="line">    minEval = <span class="number">1</span></span><br><span class="line">    minEout = <span class="number">1</span></span><br><span class="line">    minEvalI = -<span class="number">1</span></span><br><span class="line">    minEtrainI = -<span class="number">1</span></span><br><span class="line">    minEoutI = -<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(-<span class="number">10</span>,<span class="number">3</span>):</span><br><span class="line">        _<span class="keyword">lambda</span> = math.<span class="built_in">pow</span>(<span class="number">10</span>,i)</span><br><span class="line">        data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">        data_train = data[<span class="number">0</span>:<span class="number">120</span>]</span><br><span class="line">        data_val = data[<span class="number">120</span>:<span class="number">200</span>]</span><br><span class="line">        <span class="comment"># print(data)</span></span><br><span class="line">        data_test = readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">        W = ridge_regression_one_step(data_train, _<span class="keyword">lambda</span>)</span><br><span class="line">        etrain = Ein(data_train, W) / <span class="built_in">len</span>(data_train)</span><br><span class="line">        <span class="built_in">eval</span> = Ein(data_val,W)/<span class="built_in">len</span>(data_val)</span><br><span class="line">        eout = Ein(data_test, W) / <span class="built_in">len</span>(data_test)</span><br><span class="line">        <span class="built_in">print</span>(i,<span class="string">&quot;Etrain:&quot;</span>, etrain,<span class="string">&quot;Eval:&quot;</span>,<span class="built_in">eval</span>,<span class="string">&quot;Eout:&quot;</span>, eout)</span><br><span class="line">        <span class="keyword">if</span> etrain&lt;=minEtrain:</span><br><span class="line">            minEtrain = etrain</span><br><span class="line">            minEtrainI = i</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">eval</span> &lt;= minEval:</span><br><span class="line">            minEval = <span class="built_in">eval</span></span><br><span class="line">            minEvalI = i</span><br><span class="line">        <span class="keyword">if</span> eout &lt;= minEout:</span><br><span class="line">            minEout = eout</span><br><span class="line">            minEoutI = i</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;minEtrain:&quot;</span>,minEtrainI,<span class="string">&quot;minEval:&quot;</span>,minEvalI,<span class="string">&quot;minEout&quot;</span>,minEoutI)</span><br></pre></td></tr></table></figure>
+<p>最后输出如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-10</span> Etrain: <span class="number">0.008333333333333333</span> Eval: <span class="number">0.125</span> Eout: <span class="number">0.04</span></span><br><span class="line"><span class="number">-9</span> Etrain: <span class="number">0.0</span> Eval: <span class="number">0.1</span> Eout: <span class="number">0.038</span></span><br><span class="line"><span class="number">-8</span> Etrain: <span class="number">0.0</span> Eval: <span class="number">0.05</span> Eout: <span class="number">0.025</span></span><br><span class="line"><span class="number">-7</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-6</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-5</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-4</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-3</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-2</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-1</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.022</span></span><br><span class="line"><span class="number">0</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.028</span></span><br><span class="line"><span class="number">1</span> Etrain: <span class="number">0.075</span> Eval: <span class="number">0.125</span> Eout: <span class="number">0.08</span></span><br><span class="line"><span class="number">2</span> Etrain: <span class="number">0.3416666666666667</span> Eval: <span class="number">0.4125</span> Eout: <span class="number">0.414</span></span><br><span class="line">minEtrain: <span class="number">-8</span> minEval: <span class="number">0</span> minEout <span class="number">-2</span></span><br></pre></td></tr></table></figure>
+<p>因此答案选择e.</p>
+<p><strong>17. Following the previous Question, among $\log_{10} \lambda&#x3D; \left{2, 1, 0, -1, \ldots, -8, -9, -10 \right}$.What is the $\lambda$ with the minimum $E_{val}(g^-<em>\lambda)$? Compute $\lambda$ and the corresponding $E</em>{train}(g^-<em>\lambda)$, $E</em>{val}(g^-<em>\lambda)$ and $E</em>{out}(g^-_\lambda)$ then select the closet answer. Break the tie by selecting the largest $\lambda$.</strong></p>
+<p>a. $log <em>10^{\lambda} &#x3D; 0,E</em>{train}(g_{\lambda}^-) &#x3D; 0.033,E_{val}(g_{\lambda}^-) &#x3D; 0.038,E_{out}(g_{\lambda}^-) &#x3D; 0.028$</p>
+<p>b. $log <em>10^{\lambda} &#x3D; -3,E</em>{train}(g_{\lambda}^-) &#x3D; 0.000,E_{val}(g_{\lambda}^-) &#x3D; 0.028,E_{out}(g_{\lambda}^-) &#x3D; 0.038$</p>
+<p>c. $log <em>10^{\lambda} &#x3D; -6,E</em>{train}(g_{\lambda}^-) &#x3D; 0.066,E_{val}(g_{\lambda}^-) &#x3D; 0.038,E_{out}(g_{\lambda}^-) &#x3D; 0.038$</p>
+<p>d. $log <em>10^{\lambda} &#x3D; -9,E</em>{train}(g_{\lambda}^-) &#x3D; 0.033,E_{val}(g_{\lambda}^-) &#x3D; 0.028,E_{out}(g_{\lambda}^-) &#x3D; 0.028$</p>
+<p>e. $log <em>10^{\lambda} &#x3D; -10,E</em>{train}(g_{\lambda}^-) &#x3D; 0.066,E_{val}(g_{\lambda}^-) &#x3D; 0.028,E_{out}(g_{\lambda}^-) &#x3D; 0.028$</p>
+<p>答案在上面已经给出。答案选择a.</p>
+<p><strong>18. Run the algorithm with the optimal $\lambda$ of the previous Question on the whole $\mathcal{D}$ to get $g_\lambda$. Compute $E_{in}(g_\lambda)$ and $E_{out}(g_\lambda)$ then select the closet answer.</strong></p>
+<p>a. $E_{in}(g_{\lambda}) &#x3D; 0.015,E_{out}(g_{\lambda}) &#x3D; 0.020$</p>
+<p>b. $E_{in}(g_{\lambda}) &#x3D; 0.025,E_{out}(g_{\lambda}) &#x3D; 0.030$</p>
+<p>c. $E_{in}(g_{\lambda}) &#x3D; 0.035,E_{out}(g_{\lambda}) &#x3D; 0.020$</p>
+<p>d. $E_{in}(g_{\lambda}) &#x3D; 0.045,E_{out}(g_{\lambda}) &#x3D; 0.030$</p>
+<p>e. $E_{in}(g_{\lambda}) &#x3D; 0.055,E_{out}(g_{\lambda}) &#x3D; 0.020$ </p>
+<p>根据17题选出来最佳的$\lambda &#x3D; 0$，因此在全数据集上再次进行学习，得到的结果在14题的分析中已经呈现，答案是c.</p>
+<p>可以看到的是利用验证，我们选出来了一个很贴近最佳$E_{out}$的答案了。</p>
+<p>For Questions 19-20, split the given training examples in $\mathcal{D}$ to five folds, the first $40$ being fold 1, the next $40$ being fold 2, and so on. Again, we take a fixed split because the given examples are already randomly permuted.</p>
+<p><strong>19.  What is the $λ$ with the minimum $E_{cv}$, where $E_{cv}$ comes from the five folds defined above? Compute $\lambda$ and the corresponding $E_{cv}$ then select the closet answer. Break the tie by selecting the largest $\lambda$.</strong></p>
+<p>a. $log_{10}^{\lambda} &#x3D; 0,E_{cv} &#x3D; 0.030$</p>
+<p>b. $log_{10}^{\lambda} &#x3D; -2,E_{cv} &#x3D; 0.020$</p>
+<p>c. $log_{10}^{\lambda} &#x3D; -4,E_{cv} &#x3D; 0.030$</p>
+<p>e. $log_{10}^{\lambda} &#x3D; -6,E_{cv} &#x3D; 0.020$</p>
+<p>d. $log_{10}^{\lambda} &#x3D; -8,E_{cv} &#x3D; 0.030$</p>
+<p>这个题目要做交叉验证。因此需要写一个新的交叉验证的函数cv。同时也要需要修改主函数。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#添加的函数cv</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cv</span>(<span class="params">data,fold_count,_<span class="keyword">lambda</span></span>):</span><br><span class="line">    <span class="comment"># disorder data</span></span><br><span class="line">    ecv = <span class="number">0</span></span><br><span class="line">    each_c = <span class="built_in">len</span>(data)/fold_count</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(fold_count):</span><br><span class="line">        val = data[<span class="built_in">int</span>(i*each_c):<span class="built_in">int</span>((i+<span class="number">1</span>)*each_c)]</span><br><span class="line">        train = data[<span class="number">0</span>:<span class="built_in">int</span>(i*each_c)]</span><br><span class="line">        train.extend(data[<span class="built_in">int</span>((i+<span class="number">1</span>)*each_c):-<span class="number">1</span>])</span><br><span class="line">        W = ridge_regression_one_step(train,_<span class="keyword">lambda</span>)</span><br><span class="line">        ecv +=Ein(val,W)/<span class="built_in">len</span>(val)</span><br><span class="line">    <span class="keyword">return</span> ecv/fold_count</span><br></pre></td></tr></table></figure>
+<p>最后得到结果如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-<span class="number">10</span> Ecv: <span class="number">0.05</span></span><br><span class="line">-<span class="number">9</span> Ecv: <span class="number">0.05</span></span><br><span class="line">-<span class="number">8</span> Ecv: <span class="number">0.03</span></span><br><span class="line">-<span class="number">7</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">6</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">5</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">4</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">3</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">2</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">1</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line"><span class="number">0</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line"><span class="number">1</span> Ecv: <span class="number">0.06</span></span><br><span class="line"><span class="number">2</span> Ecv: <span class="number">0.28500000000000003</span></span><br><span class="line">minEcv: -<span class="number">8</span></span><br></pre></td></tr></table></figure>
+<p>因此答案选择d.</p>
+<p><strong>20. Run the algorithm with the optimal $\lambda$ of the previous problem on the whole $\mathcal{D}$ to get $g_\lambda$. Compute $E_{in}(g_\lambda)$ and $E_{out}(g_\lambda)$ then select the closet answer.</strong></p>
+<p>a. $E_{in}(g_\lambda) &#x3D; 0.005,E_{out}(g_\lambda) &#x3D; 0.010$</p>
+<p>b. $E_{in}(g_\lambda) &#x3D; 0.015,E_{out}(g_\lambda) &#x3D; 0.020$</p>
+<p>c. $E_{in}(g_\lambda) &#x3D; 0.025,E_{out}(g_\lambda) &#x3D; 0.020$</p>
+<p>d. $E_{in}(g_\lambda) &#x3D; 0.035,E_{out}(g_\lambda) &#x3D; 0.030$</p>
+<p>e. $E_{in}(g_\lambda) &#x3D; 0.045,E_{out}(g_\lambda) &#x3D; 0.020$</p>
+<p>上面得到的最好的$\lambda &#x3D; 10^{-8}$，全部数据去学习的话，得到的$E_{in}$和$E_{out}$在14题目解析中也能看到,答案选b。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E6%80%BB%E7%BB%93/" rel="prev" title="机器学习——（基石）总结">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/" rel="next" title="数学——Lagrange Multiplier">
+                  数学——Lagrange Multiplier <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

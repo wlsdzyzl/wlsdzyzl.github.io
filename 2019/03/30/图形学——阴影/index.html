@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="阴影是图形学中显示真实感图像非常重要的一部分。我们在画画时候也知道，简单的话加上了一点阴影效果会大大增加，仿佛瞬间一幅画变得立体。这篇文章简单介绍一下图形学中的阴影部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——计算机动画">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/30/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%98%B4%E5%BD%B1/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="阴影是图形学中显示真实感图像非常重要的一部分。我们在画画时候也知道，简单的话加上了一点阴影效果会大大增加，仿佛瞬间一幅画变得立体。这篇文章简单介绍一下图形学中的阴影部分。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow4.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow5.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow6.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow7.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow8.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow10.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow9.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow11.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow12.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow13.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow14.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow15.jpg">
+<meta property="article:published_time" content="2019-03-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:12.906Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta property="article:tag" content="shadow">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow1.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/30/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%98%B4%E5%BD%B1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/30/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%98%B4%E5%BD%B1/","path":"2019/03/30/图形学——阴影/","title":"图形学——计算机动画"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——计算机动画 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B4%E5%BD%B1%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">阴影的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B3%E9%9D%A2%E9%98%B4%E5%BD%B1"><span class="nav-number">2.</span> <span class="nav-text">平面阴影</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B2%E9%9D%A2%E4%B8%8A%E7%9A%84%E9%98%B4%E5%BD%B1"><span class="nav-number">3.</span> <span class="nav-text">曲面上的阴影</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B4%E5%BD%B1%E5%9F%9F"><span class="nav-number">4.</span> <span class="nav-text">阴影域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B4%E5%BD%B1%E5%9B%BE"><span class="nav-number">5.</span> <span class="nav-text">阴影图</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/30/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%98%B4%E5%BD%B1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——计算机动画 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——计算机动画
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-30 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-30T00:00:00+08:00">2019-03-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:12" itemprop="dateModified" datetime="2023-10-21T04:24:12+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>阴影是图形学中显示真实感图像非常重要的一部分。我们在画画时候也知道，简单的话加上了一点阴影效果会大大增加，仿佛瞬间一幅画变得立体。这篇文章简单介绍一下图形学中的阴影部分。</p>
+<span id="more"></span>
+
+
+
+<p>阴影不光可以给模型增加真实感，而且也是模型位置的重要信息，如下图，除掉阴影部分小球在视觉投影上的位置是一样的，但是画出阴影后我们就可以明白小球具体的位置，不同的阴影对应着不同的位置。因此阴影给物体的位置提供了非常重要的视觉提示。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow1.jpg"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow2.jpg"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow3.jpg"></p>
+<h3 id="阴影的定义"><a href="#阴影的定义" class="headerlink" title="阴影的定义"></a><a href="about:blank#%E9%98%B4%E5%BD%B1%E7%9A%84%E5%AE%9A%E4%B9%89" title="阴影的定义"></a>阴影的定义</h3><p>考虑一个光源L照明的场景，场景中每个物体作为接受者都可能被光源照到，如果有一点P不能看到光源的任何一部分，它被称为<strong>本影</strong>，如果从P点可以看到光源的一部分，那么它被称为<strong>半影</strong>，如果P可以看到光源的全部，那么它不在阴影区内。本影和半影统称为阴影。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow4.jpg"></p>
+<p>如果光源是理想的点光源，那么就只有非阴影区域和全影，而不存在半影，但是在实际中并不存在理想的点光源。</p>
+<p>一般来说阴影有以下几个类型：</p>
+<ul>
+<li>附着阴影：接受者的法向背离光源的方向</li>
+<li>投射阴影：接受者的法向朝着光源方向，但是光源被遮挡物所遮挡</li>
+<li>自阴影：接受者和遮挡物是属于同一物体，比如一个狼牙棒上的阴影</li>
+</ul>
+<p>在图形学中，根据处理阴影的办法，又可以分两种：</p>
+<ul>
+<li>硬阴影。通常将阴影理解为一个二值状态，一个点要么在阴影区内，要么不在。也就是考虑光源都是点光源，只有全影和非阴影区域的区别（或者及时不是点光源，也不区分半影和全影）。在现实中，硬阴影是很难见到的，即使是太阳也会有很大的角展，产生的不是硬阴影。但是点光源在计算机上更容易模拟，对硬阴影的计算有很多实时的算法。</li>
+<li>软阴影，就是会考虑到半影和全影的区别，对某个点可以看到光源部分的多少来决定某个点的明暗程度。软阴影更真实，不过在有限展度的光源（通常是面光源）下，确定本影和半影区域通常比较困难，这意味着需要求解3D空间中的可见关系，这是个非常困难的问题。</li>
+</ul>
+<p>下图是硬阴影和软阴影的区别：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow5.jpg"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow6.jpg"></p>
+<p>很明显，软阴影有更好的真实感。</p>
+<h3 id="平面阴影"><a href="#平面阴影" class="headerlink" title="平面阴影"></a><a href="about:blank#%E5%B9%B3%E9%9D%A2%E9%98%B4%E5%BD%B1" title="平面阴影"></a>平面阴影</h3><p>计算阴影最基本的方法就是将遮挡物表面的点投影到出现有阴影的物体表面。如果物体表面是平面，则被称为平面阴影。平面阴影相对来说更容易计算。对于平面的阴影计算，只需要简单利用投影矩阵就可以。考虑下面的例子，我们需要计算的阴影位于$y&#x3D;0$平面上，光源坐标为$l&#x3D;(l_x,l_y,l_z)$，现在我们想求得$p$点$x,z$坐标，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow7.jpg"></p>
+<p>根据相似三角形可以得到：</p>
+<p>\frac{l_y}{l_y - v_y} &#x3D; \frac{l_x - p_x}{l_x - v_x}</p>
+<p>则：</p>
+<p>p_x &#x3D;\frac{l_yv_x - l_xv_y}{l_y - v_y}</p>
+<p>我们也可以根据同样的道理计算出来：</p>
+<p>p_z &#x3D; \frac{l_yv_z - l_z - v_y}{l_y - v_y}</p>
+<p>这两个方程可以用一个投影矩阵$M$来表示：</p>
+<p>M &#x3D; \begin{bmatrix} l_y &amp; -l_z &amp; 0 &amp; 0\\ 0&amp;0&amp;0&amp;0\\ 0&amp;-l_z&amp;l_y&amp;0\\ 0&amp;-1&amp;0&amp;l_y \end{bmatrix}</p>
+<p>通常来说，这个平面是任意的，一般的平面方程为：</p>
+<p>n\cdot p + d &#x3D; 0</p>
+<p>类似于$y&#x3D;0$的情况，可以计算出对应的投影矩阵：</p>
+<p>M &#x3D; \begin{bmatrix} n\cdot l + d - l_xn_x &amp; -lxn_y &amp; -l_xn_z &amp; -l_x d \\ -l_yn_x &amp; n \cdot l + d - l_yn_y &amp; -l_yn_z &amp; - l_yd\\ -l_zn_x &amp; -l_zn_y &amp; n \cdot l +d - l_zn_z &amp; -l_zd\\ -n_x &amp; -n_y &amp; -n_z &amp; n\cdot l \end{bmatrix}</p>
+<p>求阴影点位置时：$Mv &#x3D; p$，$v$是遮挡物上的点。</p>
+<p>绘制平面投影很简单，对投影处的点使用暗色并进行去光照绘制即可。投影算法的局限性在于只能做平面阴影。</p>
+<h3 id="曲面上的阴影"><a href="#曲面上的阴影" class="headerlink" title="曲面上的阴影"></a><a href="about:blank#%E6%9B%B2%E9%9D%A2%E4%B8%8A%E7%9A%84%E9%98%B4%E5%BD%B1" title="曲面上的阴影"></a>曲面上的阴影</h3><p>对于曲面上的阴影，简单的使用投影矩阵就不可行了。</p>
+<p>有一个非常聪明的做法是将阴影图像作为纹理贴到物体表面。这种方法被称为阴影纹理。我们可以将光源作为视点，绘制处这个视角下的图像，白色背景，但是遮挡物画成黑色。得到的图像作为纹理图，然后对遮挡物后的曲面进行纹理映射。纹理映射上一篇内容介绍了，以此实现绘制阴影的效果。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow8.jpg"></p>
+<p>这个方法的不足是依然不能绘制自阴影。</p>
+<p>下面介绍两个比较重要的阴影生成算法，它们分别是阴影域（shadow volume）算法和阴影图（shadow map）算法。</p>
+<h3 id="阴影域"><a href="#阴影域" class="headerlink" title="阴影域"></a><a href="about:blank#%E9%98%B4%E5%BD%B1%E5%9F%9F" title="阴影域"></a>阴影域</h3><p>阴影域算法（有时候也称体阴影）由Crow提出，可以将阴影投射到任何物体表面。它的思想是，首先，想想三维空间中一个点和一个三角形，连接点和三角形三个顶点并延长们可以得到一个衍生的无穷远三棱锥，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow10.jpg"></p>
+<p>三棱锥部分去掉顶端以外的区域就在阴影内，被称为阴影域。</p>
+<p>在绘制中，我们从视点向屏幕的某个像素投射了一条射线，该射线与场景中的某一物体交于一点，因此我们需要确定该点是否位于阴影中，也就是确定它是否位于阴影域中。Crow提出一个非常聪明的做法，假设视点位于阴影域外，维护一个计数器，初值是0。某个像素投出的射线每次进入到一个阴影域中，计数器+1，每次出一个阴影域，计数器-1，最后当射线达到交点的时候，我们只要确定计时器是否大于0。如果计数器大于0，则该点位于阴影内部。</p>
+<p>从几何上实现上面的算法（需要多次求交）并不容易，因此在实现上述算法时，Crow使用了模板缓存（Stencil Buffer），对每一个像素存储一个计数值。</p>
+<ol>
+<li>算法最开始，清空所有的模板缓存，然后将整个场景绘制到帧缓存中，只是用环境光分量和发光分量，并获取对应的颜色信息以及深度信息（z-buffer）。</li>
+<li>接着，绘制所有阴影域的正面（面向光源的面），如果一个像素的深度值（正面到视点平面的距离）小于之前算好的深度值（z-buffer），那么对该像素对应的模板缓存计数+1。</li>
+<li>绘制所有阴影域的反面，如果一个像素的深度值小于之前的深度信息（z-buffer），则对该像素对应的模板缓存计数-1。</li>
+<li>根据模板缓存对所有像素再次绘制，只对模板缓存是0的像素绘制漫反射和高光分量，以此实现阴影效果。</li>
+</ol>
+<p>下图是效果图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow9.jpg"></p>
+<p>阴影域算法有下面几个优点：</p>
+<ol>
+<li>它不是基于图像的，因此不会局限于图像的分辨率，采样，质量等问题。任何情况下都可以生成很清晰的阴影。</li>
+<li>上面的操作是可以高速并行的，因为各个像素是互相不影响的，可以使用通用的图形学硬件实现，仅仅需要一个模板缓存。</li>
+</ol>
+<p>不过即使如此，阴影域算法依然不够块。因为阴影域算法需要求阴影域，场景中如果有较多的遮挡物，就会有很多的阴影域。他们会影响到性能。</p>
+<h3 id="阴影图"><a href="#阴影图" class="headerlink" title="阴影图"></a><a href="about:blank#%E9%98%B4%E5%BD%B1%E5%9B%BE" title="阴影图"></a>阴影图</h3><p>阴影图算法是Williams提出的，也是基于深度信息z-buffer的。它的思想是将点光源作为视点，求得深度图，被称为阴影图。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow11.jpg"></p>
+<p>求对真正的视点穿过各个像素得到的射线与物体的交点，这个交点在光源求得的阴影图上有个对应的像素，比较该像素存储的深度值和交点的深度值的大小，如果交点深度值更大，则交点在阴影区内。说起来有点复杂，看图的话非常容易明白：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow12.jpg"></p>
+<p>阴影图算法思想简单，而且运行高效。但是因为它是基于图像的，因此可能收到图像质量的影响。而且比较的时候，由于数值处理，很难达到完全相等的情况，需要设定一个范围$\epsilon$，在范围内就认为是相等的。而$\epsilon$的设置也会影响到结果。下面是阴影图算法求得的结果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow13.jpg"></p>
+<p>当$\epsilon$设得过小，可能会产生类似于下图的莫尔干涉条纹：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow14.jpg"></p>
+<p>当$\epsilon$设得过大，又会使得阴影形状发生变形：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/shadow15.jpg"></p>
+<p>这两种阴影明显生成的都是硬阴影。在这两种阴影算法的基础上，还有很多变种，想了解更多的可以去查阅更多资料。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+              <a href="/tags/shadow/" rel="tag"># shadow</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/29/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89atomic/" rel="prev" title="CPP——并发编程（二）atomic">
+                  <i class="fa fa-angle-left"></i> CPP——并发编程（二）atomic
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/30/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89mutex/" rel="next" title="CPP——并发编程（四）condition\_variable">
+                  CPP——并发编程（四）condition\_variable <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

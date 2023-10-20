@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="学习数字图像处理的时候阅读了这一篇关于去雾的文章：Single Image Haze Removal Using Dark Channel Prior。这篇文章是大名鼎鼎的何凯明的第一篇文章，而且还获得了CVPR best paper award，非常令人佩服了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper——Single Image Haze Removal Using Dark Channel Prior">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="学习数字图像处理的时候阅读了这一篇关于去雾的文章：Single Image Haze Removal Using Dark Channel Prior。这篇文章是大名鼎鼎的何凯明的第一篇文章，而且还获得了CVPR best paper award，非常令人佩服了。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze0.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze3.png">
+<meta property="article:published_time" content="2019-05-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:26:56.281Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer vision">
+<meta property="article:tag" content="digital image processing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/","path":"2019/05/26/Paper——Single Image Haze Removal Using Dark Channel Prior/","title":"Paper——Single Image Haze Removal Using Dark Channel Prior"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Paper——Single Image Haze Removal Using Dark Channel Prior | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-Idea"><span class="nav-number">1.</span> <span class="nav-text">Basic Idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Soft-Matting"><span class="nav-number">2.</span> <span class="nav-text">Soft Matting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E5%8E%9F%E5%9B%BE"><span class="nav-number">3.</span> <span class="nav-text">恢复原图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#A%E7%9A%84%E4%BC%B0%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">A的估计</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Paper——Single Image Haze Removal Using Dark Channel Prior | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper——Single Image Haze Removal Using Dark Channel Prior
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-05-26 00:00:00" itemprop="dateCreated datePublished" datetime="2019-05-26T00:00:00+08:00">2019-05-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:26:56" itemprop="dateModified" datetime="2023-10-21T04:26:56+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>学习数字图像处理的时候阅读了这一篇关于去雾的文章：<a target="_blank" rel="noopener" href="http://kaiminghe.com/publications/cvpr09.pdf">Single Image Haze Removal Using Dark Channel Prior</a>。这篇文章是大名鼎鼎的何凯明的第一篇文章，而且还获得了CVPR best paper award，非常令人佩服了。</p>
+<span id="more"></span>
+
+
+<p>这篇文章有一个好的论文的所有优点：思路新颖，算法简单易于理解，而且效果显著。下面来分析一下何凯明大神是如何去雾的。</p>
+<h3 id="Basic-Idea"><a href="#Basic-Idea" class="headerlink" title="Basic Idea"></a><a href="about:blank#Basic-Idea" title="Basic Idea"></a>Basic Idea</h3><p>基于观察以及统计数据发现，对于一张室外的照片，除非是天空这种地方，一般来说在一个区域内至少会有一个像素点的某个颜色通道值非常低。这种情况出现的原因有3点，阴影，彩色物体或者表面，以及深色物体与表面。这里我们在数学上定义一下暗通道：</p>
+<p>J^{\operatorname{dark} }(\mathbf{x})&#x3D;\min _{c \in\{r, g, b\} }\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(J^{c}(\mathbf{y})\right)\right).</p>
+<p>$J^c$是一个室外图像$\mathbf J$的颜色通道（我们已经知道RGB图像有3个通道）, $\Omega (\mathbf{x})$是以$\mathbf x$为中心的一个图像区域。基于统计数据可以得到:</p>
+<p>J^{\mathrm{dark} } \rightarrow 0.</p>
+<p>也就是，暗通道的值一般趋于0。</p>
+<p>我们通过暗通道的计算可以得到一张图片的暗通道图。一般来说，无雾的室外场景图片的暗通道图都有大片的区域是黑色的，整个暗通道图偏黑色，作者在5000多张图片上进行了实验，发现基本满足这个规律。下面是一些统计结果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze1.png"></p>
+<p>从暗通道图的直方图以及累计分布可以看到，大部分像素的灰度值都是在50以下的。这个数据给了这个先验假设很强的支持。而相比之下，一副有雾的图片，它的暗通道图会更明亮。下面是一些无雾图与有雾图各自暗通道图的对比：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze0.png"></p>
+<p>有了这个先验知识，下面就是算法部分了。首先我们需要知道，下面这个成雾模型在计算机图形与计算机视觉领域被广泛应用：</p>
+<p>\mathbf{I}(\mathbf{x})&#x3D;\mathbf{J}(\mathbf{x}) t(\mathbf{x})+\mathbf{A}(1-t(\mathbf{x}))</p>
+<p>上式中，$\mathbf I$是已知信息，也就是我们观察到的带有雾气的图片，而$\mathbf J$是无雾状态下的场景图片。$\mathbf A$是大气光强，$\mathbf t$是大气啊等等这些媒介的透射率。整个成雾的模型非常简单：如果透射率是百分之百，那么就是一张没有雾气的图，而没有透射过来的光强决定了雾的产生，因为媒介产生了反射，反射的光是白色的。这个模型就是原场景图加上未透射过来而被反射的光强。我们已知的信息只有$\mathbf I$，但是实际上这里的$A$可以通过计算图片最亮的像素点得到。对上式进行最小滤波，由于$t(\mathbf x)$以及$\mathbf{A}$是不会影响最小化操作的，我们可以轻易得到：</p>
+<p>\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(I^{c}(\mathbf{y})\right)&#x3D;\tilde{t}(\mathbf{x}) \min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(J^{c}(\mathbf{y})\right)+(1-\tilde{t}(\mathbf{x})) A^{c}</p>
+<p>这里我们使用$\tilde {t}$，表示这里的透射率是待估计的量，而上标${}^{c}$表示颜色通道，对上式稍加变形就可以得到：</p>
+<p>\begin{array}{r}{\min _{c} \min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(\frac{I^{c}(\mathbf{y})}{A^{c} }\right) )&#x3D;\tilde{t}(\mathbf{x}) \min _{c}\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(\frac{J^{c}(\mathbf{y})}{A^{c} }\right)\right)} {+(1-\tilde{t}(\mathbf{x}))}\end{array}</p>
+<p>由于暗通道先验信息，我们知道无雾场景的暗通道$J^{\text{dark} }$是趋于0的:</p>
+<p>J^{d a r k}(\mathbf{x})&#x3D;\min _{c}\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(J^{c}(\mathbf{y})\right)\right)&#x3D;0</p>
+<p>将这个式子带入上式，可以很容易得到：</p>
+<p>\tilde{t}(\mathbf{x})&#x3D;1-\min _{c}\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(\frac{I^{c}(\mathbf{y})}{A^{c} }\right)\right).</p>
+<p>实际上，<br>$\min _{c}\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(\frac{I^{c}(\mathbf{y})}{A^{c} }\right)\right)$正是经过normalize的雾气图$\frac{I^{c}(\mathbf{y})}{A^{c} }$的暗通道图，因此我们可以直接得到对于透射率的估计。在这里我们可以加另外一个参数$\omega$，因为透射率是1的情况很少，会使得照片显得不自然而且损失一些信息，因此我们可以通过调整$\omega$来使得结果更加自然，最终得到的透射率估计为:</p>
+<p>\tilde{t}(\mathbf{x})&#x3D;1-\omega \min _{c}\left(\min _{\mathbf{y} \in \Omega(\mathbf{x})}\left(\frac{I^{c}(\mathbf{y})}{A^{c} }\right)\right)</p>
+<h3 id="Soft-Matting"><a href="#Soft-Matting" class="headerlink" title="Soft Matting"></a><a href="about:blank#Soft-Matting" title="Soft Matting"></a>Soft Matting</h3><p>原始得到的$\tilde t$是比较粗糙的。因此作者提出了需要用一个soft matting来进一步改进。这部分原理我看的不是很明白，具体做法如下：</p>
+<p>我们想得到的最佳的投射矩阵为$\mathbf t$，之前简单得到的投射矩阵为$\tilde{\mathbf t}$，我们要做的是优化下面这个cost funtion：</p>
+<p>E(\mathbf{t})&#x3D;\mathbf{t}^{T} \mathbf{L} \mathbf{t}+\lambda(\mathbf{t}-\tilde{\mathbf{t} })^{T}(\mathbf{t}-\tilde{\mathbf{t} }).</p>
+<p>这里$\mathbf L$是Matting Laplacian矩阵，而$\lambda$是一个正则参数。位于$\mathbf L$的元素$(i,j)$定义为：</p>
+<p>\sum_{k |(i, j) \in w_{k} }\left(\delta_{i j}-\frac{1}{\left|w_{k}\right|}\left(1+\left(\mathbf{I}_{i}-\mu_{k}\right)^{T}\left(\Sigma_{k}+\frac{\varepsilon}{\left|w_{k}\right|} \mathrm{U}_{3}\right)^{-1}\left(\mathbf{I}_{j}-\mu_{k}\right)\right)\right).</p>
+<p>这里的$\mathbf I_i, \mathbf I_j$是输入图像$\mathbf I$的颜色，而$\delta_{i,j}$是克罗内克函数，也是之前提到过的冲激函数。 $\mu_{k},\Sigma_{k}$是在窗口$w_{k}$中像素的颜色均值以及协方差矩阵，$U_{3}$是3*3单位矩阵，而$\varepsilon$是正则参数， $\left|w_{k}\right|$则是窗口$w_k$内像素的个数。</p>
+<p>最佳的$\mathbf t$可以通过解下面的稀疏线性方程得到：</p>
+<p>(L+\lambda U)\mathbf t &#x3D; \lambda \tilde{\mathbf t}.</p>
+<p>经过soft matting处理的透射图如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze2.png"></p>
+<p>可以看到，经过处理的图更加的精细，能得到更细致的结果。</p>
+<h3 id="恢复原图"><a href="#恢复原图" class="headerlink" title="恢复原图"></a><a href="about:blank#%E6%81%A2%E5%A4%8D%E5%8E%9F%E5%9B%BE" title="恢复原图"></a>恢复原图</h3><p>根据投射矩阵如何恢复原图？根据成雾模型，我们可以很容易得到：</p>
+<p>\mathbf{J}(x) &#x3D; \frac{\mathbf{I}(x) - \mathbf{A}(1 - t(x))}{t(x)}.</p>
+<p>但是有时候如果求得的$t$过小，会使得颜色过曝,放大噪声，我们可以设定一个最小阈值$t_0$，进行下面的处理：</p>
+<p>\mathbf{J}(\mathbf{x})&#x3D;\frac{\mathbf{I}(\mathbf{x})-\mathbf{A} }{\max \left(t(\mathbf{x}), t_{0}\right)}+\mathbf{A}</p>
+<h3 id="A的估计"><a href="#A的估计" class="headerlink" title="A的估计"></a><a href="about:blank#A%E7%9A%84%E4%BC%B0%E8%AE%A1" title="A的估计"></a>A的估计</h3><p>到目前为止，我们都假定总光强$\mathbf A$是已知的。实际上这个$A$是可以根据图片估计的，先前的算法会通过计算最亮的pixel来得到$\mathbf A$，但是实际上这个最亮的像素可能是来自于一个白色的汽车或者建筑，而不是天空反射的结果。在这里作者提出的方法是：首先根据暗通道图，选择最明亮的$0.1%$像素，这可以保证我们选到的区域是大片的亮色区域，比如天空，而不会选中一辆白色的小车等等。接下来在选中的这些位置里挑原图像素最亮的点作为$\mathbf A$的值。</p>
+<p>下面是一些去雾算法的效果图。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/dehaze3.png"></p>
+<p>这个算法的缺点是速度慢，难以满足实时的要求。</p>
+<p>这个文章的idea可以说是金点子了，想法新颖，容易理解，效果显著，能想出这样的idea真是太牛逼了，可遇不可求。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-vision/" rel="tag"># computer vision</a>
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/20/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/" rel="prev" title="数字图像处理——图像压缩">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——图像压缩
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/06/09/Paper%E2%80%94%E2%80%94Image%20Super-Resolution%20as%20Sparse%20Representation%20of%20Raw%20Image%20Patches/" rel="next" title="Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches">
+                  Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次阅读一篇关于超分辨的论文。这篇文章的作者里有马毅老师，他是伯克利的老师，也是TBSI的老师，是非常有威望的一名学者。这篇文章在超分辨领域是比较经典的文章了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/06/09/Paper%E2%80%94%E2%80%94Image%20Super-Resolution%20as%20Sparse%20Representation%20of%20Raw%20Image%20Patches/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次阅读一篇关于超分辨的论文。这篇文章的作者里有马毅老师，他是伯克利的老师，也是TBSI的老师，是非常有威望的一名学者。这篇文章在超分辨领域是比较经典的文章了。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse0.png">
+<meta property="article:published_time" content="2019-06-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:26:38.517Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="super resolution">
+<meta property="article:tag" content="computer vision">
+<meta property="article:tag" content="digital image processing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse5.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/06/09/Paper%E2%80%94%E2%80%94Image%20Super-Resolution%20as%20Sparse%20Representation%20of%20Raw%20Image%20Patches/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/06/09/Paper%E2%80%94%E2%80%94Image%20Super-Resolution%20as%20Sparse%20Representation%20of%20Raw%20Image%20Patches/","path":"2019/06/09/Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches/","title":"Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Super-resolution-from-Sparsity"><span class="nav-number">1.</span> <span class="nav-text">Super-resolution from Sparsity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Local-Model-from-Sparse-Representation"><span class="nav-number">1.1.</span> <span class="nav-text">Local Model from Sparse Representation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enforcing-Global-Reconstruction-Constraint"><span class="nav-number">1.2.</span> <span class="nav-text">Enforcing Global Reconstruction Constraint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Optimization-Interpretation"><span class="nav-number">1.3.</span> <span class="nav-text">Global Optimization Interpretation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dictionary-Preparation"><span class="nav-number">2.</span> <span class="nav-text">Dictionary Preparation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Random-Raw-Patches-from-Training-Images"><span class="nav-number">2.1.</span> <span class="nav-text">Random Raw Patches from Training Images</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Derivative-Features"><span class="nav-number">2.2.</span> <span class="nav-text">Derivative Features</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/06/09/Paper%E2%80%94%E2%80%94Image%20Super-Resolution%20as%20Sparse%20Representation%20of%20Raw%20Image%20Patches/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper——Image Super-Resolution as Sparse Representation of Raw Image Patches
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-09T00:00:00+08:00">2019-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:26:38" itemprop="dateModified" datetime="2023-10-21T04:26:38+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次阅读一篇关于超分辨的论文。这篇文章的作者里有马毅老师，他是伯克利的老师，也是TBSI的老师，是非常有威望的一名学者。这篇文章在超分辨领域是比较经典的文章了。  </p>
+<span id="more"></span>
+
+
+<p>超分辨（super resolution，简称SR）的问题，是从比较低的分辨率的图片中，得到高分辨率的图片。这个问题在本篇文章之前也有比较多的解决方法，它们大多数有着自己的缺陷，比如需要多张低分辨图，对于基于学习的方法，一般需要非常大的数据库来进行学习，也有一些学者提出了利用高分辨与低分辨在流形空间上的相似度来解决，但是容易因为overfitting或者underfitting会带来模糊。本篇文章主要解决的是从一张单一的低分辨图得到高分辨图，仅需要少量的训练数据来达到这样的效果，而且训练数据中也不需要在高分辨率的图片上进行学习，而是直接在低分辨率训练patch上工作。这篇文章主要是收到了稀疏信号代表的启发，关于稀疏信号代表的研究保证了高分辨与低分辨之间的线性关系，使得高分辨率的信号可以准确的从它们的低纬度投影恢复出来。</p>
+<p>这里简单介绍一下稀疏代表（sparse representation）以及字典的含义。实际上，字典是一个矩阵$\boldsymbol{D} \in \mathbb{R}^{n \times K}$，它由$K$个原型信号原子(prototype signal-atoms)组成，每个原子实际上是一个$n$维向量，一个完备（complete）的字典意思是任何一个信号$x \in \mathbb R ^n$可以由这些原子线性组合得到，过完备也就意味着，这样的组合可能不止一个。其实放到线性代数中，我觉得可以这样理解，一个字典就是n维向量空间的一组基。因此，每个信号向量$x$都可以写为：</p>
+<p>\boldsymbol{x}&#x3D;\boldsymbol{D} \boldsymbol{\alpha}_{0}</p>
+<p>其中，$\boldsymbol{\alpha}_{0} \in \mathbb{R}^{K}$是一个稀疏的系数向量，只有少量的元素（$\ll K$）非0，因为这个字典是过完备的。在实际中，我们可能只观察到$x$的一个小集合测量值$y$:</p>
+<p>\boldsymbol{y} \doteq L \boldsymbol{x}&#x3D;L \boldsymbol{D} \boldsymbol{\alpha}_{0}</p>
+<p>上式中$L \in \mathbb{R}^{k \times n}$，$k &lt; n$。在超分辨问题中，高分辨率的图像就是$x$，而低分辨率图像则是$y$。如果这个字典$\mathbf D$是过完备的，那么等式$\boldsymbol{x}&#x3D;\boldsymbol{D} \boldsymbol{\alpha}$是一个欠定方程，有无数多组$\boldsymbol{\alpha}$的解，对于等式$\boldsymbol{y}&#x3D;L \boldsymbol{D} \boldsymbol{\alpha}$也是一样。尽管如此，在弱假设（<a target="_blank" rel="noopener" href="https://math.stackexchange.com/questions/1656203/what-do-mathematicians-mean-by-mild-condition">mild condition</a>）下，对于这个等式最稀疏的解$\boldsymbol{\alpha_0}$也是唯一的。此外，如果$\boldsymbol{D}$满足一个合适的near-isometry条件，那么对一个高分辨率图像$\boldsymbol{x}$的任何足够稀疏的线性代表都可以完美的从低分辨率图像中恢复出来。下面的图是一个超分辨的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse5.png"></p>
+<p>实际上稀疏代表已经应用到图像处理的各个方向，比如图像压缩，图像去噪以及图像恢复。在这篇论文中，作者没有直接计算高分辨率patch的字典，而是建立了两个字典，$D_{\hbar}$对应于高分辨率patch，而$\boldsymbol{D}_{\ell}&#x3D;L \boldsymbol{D}_{\hbar}$则对应于低分辨率patch。$\boldsymbol{D}_{\ell}$被用来直接从对应的$D_{\hbar}$恢复高分辨率patch，因为各个patch之间的overlap，可以得到一个局部一致的解，接着利用全局优化，来得到全局一致的解。注意，这里高分辨率patch的字典只用来进行高分辨率path的恢复，而且算法会自动选择最相关的patch，因此相对于其他的算法，这个算法有更好的表现。</p>
+<p>下面介绍下算法的推导。</p>
+<h2 id="Super-resolution-from-Sparsity"><a href="#Super-resolution-from-Sparsity" class="headerlink" title="Super-resolution from Sparsity"></a><a href="about:blank#Super-resolution-from-Sparsity" title="Super-resolution from Sparsity"></a>Super-resolution from Sparsity</h2><p>这部分简单介绍一下从系数得到超分辨的模型。现在有一个低分辨图$\mathbf Y$，超分辨问题就是用这张图恢复相同场景下的高分辨图$\mathbf X$。$\mathbf X$与$\mathbf Y$之间最基本的约束是需要保持consistent。观察的$\mathbf Y$是原先的高分辨率图的一个模糊加下采样的结果：</p>
+<p>\boldsymbol{Y}&#x3D;D H \boldsymbol{X}</p>
+<p>在这里,$H$是一个模糊滤波器，$D$表示下采样操作。对于低分辨率$Y$，实际上可以有无数的高分辨率图像在模糊与下采样之后得到$Y$，因此作者通过对$X$上的小区域（patch）$\boldsymbol x$的先验来重新整理这个问题：稀疏代表先验。解释如下：<br>对于高分辨率图片$X$的patch$\boldsymbol x$可以表示成字典$D_{\hbar}$中向量的稀疏线性组合，字典$D_{\hbar}$是通过对训练集中的高分辨patch采样得到的：</p>
+<p>\boldsymbol{x} \approx \boldsymbol{D}_{\hbar} \boldsymbol{\alpha} \quad \text { for some } \boldsymbol{\alpha} \in \mathbb{R}^{K} \text { with }\|\boldsymbol{\alpha}\|_{0} \ll K</p>
+<p>为了使用稀疏代表的先验来解决超分辨问题，作者将问题分成了两个步骤来解决：</p>
+<ol>
+<li>使用稀疏先验，找到每个局部patch的稀疏代表，并且要考虑到相邻patch的关系。</li>
+<li>根据上面的到的稀疏代表，来利用重建约束来对整个图片进行改进。</li>
+</ol>
+<h3 id="Local-Model-from-Sparse-Representation"><a href="#Local-Model-from-Sparse-Representation" class="headerlink" title="Local Model from Sparse Representation"></a><a href="about:blank#Local-Model-from-Sparse-Representation" title="Local Model from Sparse Representation"></a>Local Model from Sparse Representation</h3><p>这一部分讲得到局部稀疏代表的过程。首先，我们要建立字典，前面提到的字典有两种：高分辨率的字典以及对应的低分辨率的字典。假设我们已经得到了低分辨率字典。$\boldsymbol{D}_{\ell}$，那么关于低分辨率patch的最稀疏的代表定义如下：</p>
+<p>\min \|\boldsymbol{\alpha}\|_{0} \text { s.t. }\left\|F \boldsymbol{D}_{\ell} \boldsymbol{\alpha}-F \boldsymbol{y}\right\|_{2}^{2} \leq \epsilon</p>
+<p>这里的$F$表示特征提取，它的作用会在之后说明。尽管上述问题的解决是NP-hard，是对0范数的求解。但是最近的结果显示了只要$\alpha$是足够稀疏的，那么它们可以通过解决1范数来近似，因此优化问题变成了下面的形式：</p>
+<p>\min \|\boldsymbol{\alpha}\|_{1} \quad \text { s.t. } \quad\left\|F \boldsymbol{D}_{\ell} \boldsymbol{\alpha}-F \boldsymbol{y}\right\|_{2}^{2} \leq \epsilon</p>
+<p>使用拉格朗日乘数方法可以构造一个等价的式子：</p>
+<p>\min \lambda\|\boldsymbol{\alpha}\|_{1}+\frac{1}{2}\left\|F \boldsymbol{D}_{\ell \boldsymbol{\alpha} }-F \boldsymbol{y}\right\|_{2}^{2}</p>
+<p>但是对每个patch单独解决上述的式子得到的结果不能保证相邻patch之间的兼容性，因此我们还需要别的约束，加上之后这个优化问题变成了：</p>
+<p>\begin{aligned} \min \|\boldsymbol{\alpha}\|_{1} \quad \text { s.t. } &amp;\left\|F \boldsymbol{D}_{\ell} \boldsymbol{\alpha}-F \boldsymbol{y}\right\|_{2}^{2} \leq \epsilon_{1} \\\left\|P \boldsymbol{D}_{\hbar} \boldsymbol{\alpha}-\boldsymbol{w}\right\|_{2}^{2} \leq \epsilon_{2} \end{aligned}</p>
+<p>这里的$P$提取了当前目标patch与之前重建的高分辨率图像之间的重接区域，而$\boldsymbol{w}$包含了之前重建的高分辨率图片中重叠区域的值。这个优化问题可以被简化写成成下面的形式：</p>
+<p>\min \lambda\|\boldsymbol{\alpha}\|_{1}+\frac{1}{2}\|\tilde{\boldsymbol{D} } \boldsymbol{\alpha}-\tilde{\boldsymbol{y} }\|_{2}^{2}</p>
+<p>上式中：</p>
+<p>\tilde{D}&#x3D;\left[\begin{array}{c}{F \boldsymbol{D}_{\ell} } \\ {\beta P \boldsymbol{D}_{h} }\end{array}\right] \text { and } \tilde{\boldsymbol{y} }&#x3D;\left[\begin{array}{c}{F \boldsymbol{y} } \\ {\beta \boldsymbol{w} }\end{array}\right]</p>
+<p>这里$\beta$是一个参数，用来调整兼容性与对应之间的tradeoff，可以简单设为1。利用上式求得$\boldsymbol \alpha^{*}$，那么高分辨率patch可以通过下式得到：</p>
+<p>\boldsymbol{x}&#x3D;\boldsymbol{D}_{\hbar} \boldsymbol{\alpha}^{*}.</p>
+<h3 id="Enforcing-Global-Reconstruction-Constraint"><a href="#Enforcing-Global-Reconstruction-Constraint" class="headerlink" title="Enforcing Global Reconstruction Constraint"></a><a href="about:blank#Enforcing-Global-Reconstruction-Constraint" title="Enforcing Global Reconstruction Constraint"></a>Enforcing Global Reconstruction Constraint</h3><p>需要注意的是，在上面的推导中，我们不要求$\left|F \boldsymbol{D}_{\ell} \boldsymbol{\alpha}-F \boldsymbol{y}\right|_{2} &#x3D; 0$，再加上noise的存在，使得最后得到的结果不一定会满足全局的约束，也就是从得到的高分辨率图片$X_0$经过模糊下采样之后，不一定能得到$Y$。为了使得结果满足全局一致，我们投影$X_0$到$D H \boldsymbol{X}&#x3D;\boldsymbol{Y}$的解空间，计算：</p>
+<p>\boldsymbol{X}^{*}&#x3D;\arg \min _{\boldsymbol{X} }\left\|\boldsymbol{X}-\boldsymbol{X}_{0}\right\| \quad \text { s.t. } \quad D H \boldsymbol{X}&#x3D;\boldsymbol{Y}</p>
+<p>可以通过back-projection方法迭代来解决上面的问题，更新等式如下：</p>
+<p>\boldsymbol{X}_{t+1}&#x3D;\boldsymbol{X}_{t}+\left(\left(\boldsymbol{Y}-D H \boldsymbol{X}_{t}\right) \uparrow s\right) * p</p>
+<p>这里的$p$是一个back-projection滤波器，而$\uparrow s$表示因子$s$下的上采样。</p>
+<p>到目前为止，整个算法流程如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse4.png"></p>
+<p>我们将$\boldsymbol X^*$作为最后对高分辨率图像的估计。这个估计在满足全局约束的条件下尽可能接近最开始估计的$\boldsymbol X_0$。</p>
+<h3 id="Global-Optimization-Interpretation"><a href="#Global-Optimization-Interpretation" class="headerlink" title="Global Optimization Interpretation"></a><a href="about:blank#Global-Optimization-Interpretation" title="Global Optimization Interpretation"></a>Global Optimization Interpretation</h3><p>上述中，对于patch各个计算是分开进行的，实际上给定足够多的计算资源，对于所有patch的相关联系是可以同时计算的。此外，整个高分辨率图像本身可以作为一个变量，因此与其要求$X$通过稀疏代表系数$\alpha$被完美地恢复，我们可以将高分辨率图像与这些系数的差异作为一个惩罚项。通过这些细数得到的高分辨率图像，允许这个解不是完全稀疏的，但是会更好的满足重建约束。这样的策略下，对于高分辨率问题的求解成了一个很大的优化问题：</p>
+<p>\begin{aligned} \boldsymbol{X}^{*}&#x3D;&amp; \underset{\mathbf{X},\left\{\boldsymbol{\alpha}_{i j}\right\} }{\arg \min }\left\{\|D H \boldsymbol{X}-\boldsymbol{Y}\|_{2}^{2}+\eta \sum_{i, j}\left\|\boldsymbol{\alpha}_{i j}\right\|_{0}+\gamma \sum_{i, j}\|\boldsymbol{D}_{\hbar} \boldsymbol{\alpha}_{i j}-P_{i j} \boldsymbol{X}\|_{2}^{2}+\tau \rho(\boldsymbol{X}) \right\} \end{aligned}</p>
+<p>上式中$\boldsymbol{\alpha}_{i j}$表示$X$在位置$(i,j)$的patch的代表系数，$P_{i,j}$是一个投影矩阵用来选择$X$的第$(i,j)$个patch，而$\rho(\boldsymbol{X})$是一个惩罚函数，编码了关于高分辨率的一些先验信息，对于不同种类的图片应该对应不同的$\rho$。实际上，我们之前提出的稀疏代表算法，正是对这个算法的一个计算效率比较高的估计。仔细观察，原来版本的优化问题是在最小化上式的第二项和第三项，将第二项的0范数放宽成了1范数，同时用低分辨率的字典下的稀疏代表来估计高分辨率的版本。同时，当代表系数固定时，实际上：</p>
+<p>\sum_{i, j}\left\|\boldsymbol{D}_{\hbar} \boldsymbol{\alpha}_{i j}-P_{i j} \boldsymbol{X}\right\|_{2}^{2} \approx \left\|\boldsymbol{X}_{0}-\boldsymbol{X}\right\|_{2}^{2}</p>
+<p>因此，对于比较小的$\gamma$，之前算法的back-projection步骤正是在最小化全局优化问题中的第一项和第三项。但是我们之前的算法并没有解决第4项，但实际上稀疏代表假设已经是一个足够强的先验信息，让算法能取得比较好的结果。</p>
+<h2 id="Dictionary-Preparation"><a href="#Dictionary-Preparation" class="headerlink" title="Dictionary Preparation"></a><a href="about:blank#Dictionary-Preparation" title="Dictionary Preparation"></a>Dictionary Preparation</h2><p>分析到现在，可以看到字典在算法中的关键作用。这一部分将说明如何构造出字典。</p>
+<h3 id="Random-Raw-Patches-from-Training-Images"><a href="#Random-Raw-Patches-from-Training-Images" class="headerlink" title="Random Raw Patches from Training Images"></a><a href="about:blank#Random-Raw-Patches-from-Training-Images" title="Random Raw Patches from Training Images"></a>Random Raw Patches from Training Images</h3><p>想要学习一个最佳的过完备字典是非常困难的。在这篇文章中，作者没有试着去学习这样一个字典或者使用一个通用的基向量，而是通过对原始训练集（相似的统计数据）中的patch简单进行随机采样。实验中我们发现这样简单的策略，就足够生成高质量的重建结果了。</p>
+<p>下图是展示了几张训练用的图片以及从它们中采样得到的patch，在作者给出的实验中，准备了两个字典：一个是对各类型花朵的采样，生成的字典用来恢复相似场景的超分辨率图像，另一个是对动物图片的采样，用来恢复带有毛的纹理表现更好。对于每张高分辨率图像$\mathbf X$，我们通过模糊以及下采样来得到对应的低分辨率图像$\mathbf Y$。对于某种类型的图片，我们仅仅对30多张训练图片进行随机采样得到100000左右的patch来生成字典。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse3.png"></p>
+<h3 id="Derivative-Features"><a href="#Derivative-Features" class="headerlink" title="Derivative Features"></a><a href="about:blank#Derivative-Features" title="Derivative Features"></a>Derivative Features</h3><p>在之前Local Model from Sparse Representation中，我们在公式中有一个特征提取的操作$F$，来确保计算得到的系数能够匹配上低分辨率信号中最相关的部分。典型地来说，$F$是一些高通滤波器，在感知角度来说这个是合理的，因为人们对图片中的高频内容更敏感。同样的，低分辨率中的高频信息在恢复高分辨率中被丢掉的高频内容的过程中也是最重要的。在本篇文章中，选取的高频滤波是一阶二阶导数，来作为低分辨率patch的特征。尽管这个滤波器很简单，但是却非常有效。更准确的说，4个用来提取导数的1-D滤波器为：</p>
+<p>\begin{array}{ll}{f_{1}&#x3D;[-1,0,1],} &amp; {f_{2}&#x3D;f_{1}^{T} } \\ {f_{3}&#x3D;[1,0,-2,0,1],} &amp; {f_{4}&#x3D;f_{3}^{T} }\end{array}</p>
+<p>通过应用这些滤波器，对于每个patch我们得到4个描述特征，它们被组织成一个向量，来作为最终低分辨率patch的代表。</p>
+<p>到目前为止，整个算法过程就说完了。这个算法的流程如下：</p>
+<ol>
+<li>生成patch，通过3×3或者5×5大小的patch，运用一阶二阶导数滤波器，得到一个向量来作为该patch的代表。</li>
+<li>对训练集中的高分辨率图，通过模糊以及下采样得到低分辨率图，根据低分辨率图来生成低分辨率的字典，根据高分辨率图来生成高分辨率的字典。生成字典的方式是随机采样得到patch代表，对于每个种类的图片，生成字典大概仅仅需要30张图片以及100000个patch。</li>
+<li>根据低分辨率的字典以及低分辨率的输入图像，求解得到每个patch的稀疏代表（一个优化问题，最稀疏），同时根据高分辨率字典来恢复高分辨率的patch，接着，根据全局约束，来不断迭代得到的高分辨率图，直到满足全局约束，最后得到的就是恢复的超分辨图像。</li>
+</ol>
+<p>下面是一些实验结果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse2.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse1.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/sr_sparse0.png"></p>
+<p>可以看到的是，实际上这个算法对于字典的依赖很大，因此如果训练集的图片与输入图片不相关，那么最后得到的超分辨图像也是崩掉的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/super-resolution/" rel="tag"># super resolution</a>
+              <a href="/tags/computer-vision/" rel="tag"># computer vision</a>
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/26/Paper%E2%80%94%E2%80%94Single%20Image%20Haze%20Removal%20Using%20Dark%20Channel%20Prior/" rel="prev" title="Paper——Single Image Haze Removal Using Dark Channel Prior">
+                  <i class="fa fa-angle-left"></i> Paper——Single Image Haze Removal Using Dark Channel Prior
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/07/04/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Introduction/" rel="next" title="压缩感知与稀疏模型——Introduction">
+                  压缩感知与稀疏模型——Introduction <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

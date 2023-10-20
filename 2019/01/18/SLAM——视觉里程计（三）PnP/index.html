@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——视觉里程计（三）PnP">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp3.png">
+<meta property="article:published_time" content="2019-01-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:30.647Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="pnp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/","path":"2019/01/18/SLAM——视觉里程计（三）PnP/","title":"SLAM——视觉里程计（三）PnP"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——视觉里程计（三）PnP | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">直接线性变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#P3P"><span class="nav-number">2.</span> <span class="nav-text">P3P</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bundle-Adjustment"><span class="nav-number">3.</span> <span class="nav-text">Bundle Adjustment</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——视觉里程计（三）PnP | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——视觉里程计（三）PnP
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-18 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-18T00:00:00+08:00">2019-01-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:30" itemprop="dateModified" datetime="2023-10-21T04:27:30+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。</p>
+<span id="more"></span>
+
+
+<p>因为PnP需要有3D点的位置，因此对于双目相机或者是RGB-D相机，我们可以一开始就使用PnP来求得位姿，而对于单目相机，必须需要使用对极约束得到第一组对点的空间估计，才能在后面使用PnP。这个叫做单目相机的初始化。</p>
+<p>PnP问题有很多解法，如直接线性变换，只需要3对点的P3P等等，还可以使用Bundle Adjustment。</p>
+<h3 id="直接线性变换"><a href="#直接线性变换" class="headerlink" title="直接线性变换"></a><a href="about:blank#%E7%9B%B4%E6%8E%A5%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2" title="直接线性变换"></a>直接线性变换</h3><p>现在假设一个空间点$P$，它的齐次坐标为$P&#x3D;(X,Y,Z,1)^T$。而在图像中，它被投影到特征点$x &#x3D; (u,v,1)^T$，这时候相机的位姿$R,t$都是未知的，是我们需要估计的量。我们定义增广矩阵$T &#x3D; [R|t]$为一个$3\times 4$的矩阵，它包含了旋转与平移的信息，则：</p>
+<p>s\begin{pmatrix} u\\ v\\ 1 \end{pmatrix} &#x3D; K \left(\begin{array}{c|c} R&amp;t \end{array}\right) P &#x3D; \left(\begin{array}{ccc|c} t_1&amp;t_2&amp;t_3&amp;t_4\\ t_5&amp;t_6&amp;t_7&amp;t_8\\ t_9&amp;t_{10}&amp;t_{11}&amp;t_{12} \end{array}\right) \begin{pmatrix} X\\ Y\\ Z\\ 1 \end{pmatrix}</p>
+<p>在这里，$s$为相机坐标下的Z值，也就是$s&#x3D;t_9X+t_{10}Y+t_{11}Z+t_{12}$。由于$K$是个常数，我们为了简化问题将它忽略掉了。展开上面的式子，消去s，我们可以得到：</p>
+<p>u &#x3D; \frac{t_1X+t_2Y+t_3Z+t_4}{t_9X+t_{10}Y+t_{11}Z+t_{12} }, v &#x3D; \frac{t_5X+t_9Y+t_7Z+t_8}{t_9X+t_{10}Y+t_{11}Z+t_{12} }</p>
+<p>我们定义$T$的行向量分别为$\mathbf{t}_1,\mathbf{t}_2,\mathbf{t}_3$，则：</p>
+<p>\mathbf{t}_1 P &#x3D; u \mathbf{t}_3P, \mathbf{t}_2 P &#x3D; v \mathbf{t}_3P</p>
+<p>因此我们可以看到的是每对点提供了两个线性约束。假设一共有N个点，则我们可以列出下面的线性方程组：</p>
+<p>\begin{pmatrix} P_1^T &amp;0&amp; -u_1P_1^T\\ 0&amp;P_1^T&amp;-v_1P_1^T\\ \vdots&amp;\vdots&amp;\vdots\\ P_N^T &amp;0&amp; -u_NP_N^T\\ 0&amp;P_N^T&amp;-v_NP_N^T \end{pmatrix} \begin{pmatrix} \mathbf{t}_1^T &amp; \mathbf{t}_2^T &amp; \mathbf{t}_3^T \end{pmatrix} &#x3D; 0</p>
+<p>由于$\mathbf{t}$维度为12维，因此最少通过6对匹配点就可以解得这个方程。这种方法称为直接线性变换。当然，如果匹配点数过多，可以使用最小二乘，SVD等解超定方程。</p>
+<p>在这个求解中，我们直接将T矩阵看成12个未知数，而忽略他们的联系。因此求出的解不一定满足旋转矩阵的约束。因此对于求得的旋转矩阵R，我们需要对他进行一个最好的近似，可以用QR分解完成。</p>
+<h3 id="P3P"><a href="#P3P" class="headerlink" title="P3P"></a><a href="about:blank#P3P" title="P3P"></a>P3P</h3><p>我们上面说$\mathbf{t}$的维度为12，但是我们知道实际上旋转和平移各只有3个自由度，总共也就只有6个自由度。因此实际上使用的点对应该更少。而P3P就只需要3对点来估计位姿。不过值得注意的是P3P并不会直接得到位姿，而是得到了各个点在相机坐标系下的坐标。然后通过下一次要说的3D-3D来求位姿。为什么要这样？因为3D-3D下对位姿的估计是非常简单的。</p>
+<p>现在假设我们输入了3个3d点的世界坐标以及图像上的2d投影坐标，希望求的是它们在当前相机位姿下的相机坐标，从而求得位姿变换。如图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp.png"></p>
+<p>另外一种做法是输入了点的在上一个相机位置的相机坐标，以及当前图像上的2D投影坐标，这时候求得的就是当前相机位姿相对于上一个相机位姿的位姿变换。二者本质是一样的。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp2.png"></p>
+<p>P3P求解是从余弦定理开始的。观察最开始的图，我们可以得到：</p>
+<p>OA^2 + OB^2 - 2\cdot OA \cdot OB \cdot\cos\langle a,b\rangle &#x3D; AB^2\\ OA^2 + OC^2 - 2\cdot OA \cdot OC \cdot \cos \langle a,c \rangle &#x3D; AC^2\\ OB^2 + OC^2 - 2\cdot OB \cdot OC \cdot \cos \langle b,c \rangle &#x3D; BC^2</p>
+<p>对上述式子两侧同时除以$OC^2$，并且令：</p>
+<p>y &#x3D; \frac{OB}{OC},x &#x3D; \frac{OA}{OC}</p>
+<p>则我们得到：</p>
+<p>x^2 + y^2 - 2xy\cos\langle a,b \rangle &#x3D; \frac{AB^2}{OC^2}\\ x^2 + 1 - 2x\cos \langle a,c \rangle &#x3D; \frac{AC^2}{OC^2}\\ y^2 + 1 - 2y \cos \langle b,c\rangle &#x3D; \frac{BC^2}{OC^2}</p>
+<p>令：</p>
+<p>u &#x3D; \frac{AB^2}{OC^2},v &#x3D; frac{BC^2}{AB^2}, w &#x3D; \frac{AC^2}{AB^2}</p>
+<p>则我们可以得到：</p>
+<p>x^2 + y^2 - 2xy\cos\langle a,b \rangle &#x3D; u\\ x^2 + 1 - 2x\cos \langle a,c \rangle &#x3D; vu\\ y^2 + 1 - 2y \cos \langle b,c\rangle &#x3D; wu</p>
+<p>将第一个式子带入后面两个，得到：</p>
+<p>(1 - w)x^2 - w y^2 - 2x\cos \langle a,c\rangle + 2wxy\cos\langle a,b\rangle + 1 &#x3D; 0\\ (1 - v)y^2 - v x^2-2y\cos\langle b,c \rangle + 2vxy\cos\langle a,b \rangle+1 &#x3D; 0</p>
+<p>上面的式子中，我们知道的：</p>
+<p>w,v,\cos \langle a,c\rangle,\cos \langle b,c\rangle,\cos\langle a,b\rangle,</p>
+<p>因为剩余的未知量只剩两个，因此我们可以求得$x,y$。不过这个方程为二元二次方程，求解较为复杂，需要使用吴消元法。最后求出来的有四组解。为了得到正确的解，我们还需要一个额外的点来检验，选取重投影误差最小的点。</p>
+<p>现在知道了$x,y$的值，我们可以进一步解方程，求得$OA,OB,OC$的值。为了求得坐标，我们只需要将$a$的坐标$(u,v,1)$归一化后得到向量，乘以$OA$的长度即可。这个利用了经过原点的一条直线上的点在各个坐标轴的投影三角形相似的原理。</p>
+<h3 id="Bundle-Adjustment"><a href="#Bundle-Adjustment" class="headerlink" title="Bundle Adjustment"></a><a href="about:blank#Bundle-Adjustment" title="Bundle Adjustment"></a>Bundle Adjustment</h3><p>PnP问题同样也能使用万金油式的Bundle Adjustment（BA）来解决。为了使用Bundle Adjustment，我们需要把PnP问题构建成一个定义于李代数上得非线性最小二乘问题。之前说的方法，我们都是先求相机位姿再求得空间点，或者先求空间点，从而得到相机位姿。而在BA问题中，我们可以将它们都看成优化变量，放在一起优化。这是非常通用得求解方式，实际上BA在后端做全局优化的时候使用得更多。不过目前我们就讨论Bundle Adjustment如何被用来解决PnP问题。</p>
+<p>在PnP问题中，BA主要是一个最小化重投影误差（reprojection errpr）的过程。考虑n各三维空间点$P$以及其投影$p$，我们希望计算的是相机的位姿$R,t$，它们的李代数表达为$\xi$。假设某空间点坐标为$P_i &#x3D; [X_i,Y_i,Z_i]^T$，其像素坐标为$p_i &#x3D; [u_i,v_i]^T$。我们知道像素位置与空间点位置的关系如下：</p>
+<p>s_i\begin{bmatrix} u_i\\ v_i\\ 1 \end{bmatrix} &#x3D; K \exp(\xi ^{\hat{} }) \begin{bmatrix} X_i\\ Y_i\\ Z_i\\ 1 \end{bmatrix}</p>
+<p>即:</p>
+<p>s_ip_i &#x3D; K\exp(\xi ^{\hat{} })P_i</p>
+<p>当然，上述过程中包含了齐次坐标到非齐次坐标的转换。现实世界中，我们采集到的数据往往存在着噪声，因此我们要把误差求和，并使其最小化，也就是最理想的位姿为：</p>
+<p>\xi ^* &#x3D; \arg\min_{\xi} \frac{1}{2}\sum_{i&#x3D;1}^n \left\Vert p_i - \frac 1 {s_i}K\exp(\xi^{\hat{} })P_i \right\Vert^2</p>
+<p>如果我们观察上式，$ \frac 1 {s_i}K\exp(\xi^{\hat{} })P_i$可以说是$P_i$的重投影，所以这个误差被称为重投影误差。如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp3.png"></p>
+<p>因为这个重投影误差要考虑很多的点，因此最后到每个相机的重投影误差可能都不会精确为0。使用齐次坐标的话，误差的维度是3维，但是最后一维我们设定为1，因此不应该考虑它的误差项。因此我们一般在优化时候使用非齐次坐标，因此误差项维二维。最小二乘法的优化问题我们之前讨论过了，可以使用高斯牛顿法。列文伯格——马夸尔特法等进行求解。不过，我们首先要求的是每个误差项关于优化变量的导数，求导数的过程其实也是线性化的过程：</p>
+<p>e(x + \Delta x) \approx e(x) + J\Delta X</p>
+<p>假如$e$为误差项，它的维度为2维，而$x$为相机位姿（李代数）为6维，这时候的雅可比矩阵$J$为$2\times 6$的矩阵。现在我们来推导$J$的形式。下面的推导需要用到之前关于<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">李群李代数</a>的讲解。</p>
+<p>假如，我们假设相机坐标系下的坐标为$P’$，则：</p>
+<p>P’ &#x3D; (\exp(\xi^{\hat{} })P) &#x3D; [X’,Y’,Z’]^T</p>
+<p>则它的投影为：</p>
+<p>su’ &#x3D; KP’</p>
+<p>展开得到：</p>
+<p>\begin{bmatrix} su’\\ sv’\\ s \end{bmatrix} &#x3D; \begin{bmatrix} f_x &amp; 0 &amp; c_x\\ 0 &amp; f_y &amp; c_y\\ 0&amp;0&amp;1 \end{bmatrix}\begin{bmatrix} X’\\ Y’\\ Z’\\ \end{bmatrix}</p>
+<p>消去$s &#x3D; Z’$，我们可以得到：</p>
+<p>u’ &#x3D; f_x \frac{X’}{Z’} + c_x, v’ &#x3D; f_y \frac{Y’}{Z’} + c_y, p’ &#x3D; [u’,v’]^T</p>
+<p>实际上上面的内容就是对于针孔相机模型的回顾。而这个$u’,v’$正是重投影得到的，误差就是它和实际像素坐标的值，即$e(x) &#x3D; (p - p’)$。接下来，我们来求$J$。这里我们使用左乘扰动模型。根据求导的链式法则：</p>
+<p>\frac{\partial e}{\partial \xi} &#x3D; \lim_{\delta\xi \rightarrow 0} \frac{e(\delta \xi \oplus \xi) - e(\xi)}{\delta \xi} &#x3D; \frac{\partial e}{\partial P’}\frac{\partial P’}{\partial \xi}</p>
+<p>在这里$\oplus$指的是对$\xi$左乘扰动模型的操作。因为左乘扰动模型是在李群上进行的，在李代数上的形式会比单纯的相加更复杂一点。</p>
+<p>我们很容易得到的是$\frac{\partial e}{\partial P’}$：</p>
+<p>\begin{equation} \frac{\partial e}{\partial P’} &#x3D; - \begin{bmatrix} \frac{\partial u’}{X’_i} &amp; \frac{\partial u’}{Y’_i} &amp; \frac{\partial u’}{Z’_i}\\ \frac{\partial v’}{X’_i} &amp; \frac{\partial v’}{Y’_i} &amp; \frac{\partial v’}{Z’_i} \end{bmatrix} \end{equation}</p>
+<p>而在之前的推导中，我们知道：</p>
+<p>\begin{aligned} \frac{\partial (TP)}{\partial \xi} &amp;&#x3D; \lim_{\delta \xi \rightarrow 0} \frac{\begin{bmatrix} \delta \phi^{\hat{} }(RP+t) + \delta P\\ 0 \end{bmatrix} }{\delta \xi}\\ &amp;&#x3D; \begin{bmatrix} I&amp;-(RP+t)^{\hat{} }\\ 0&amp;0 \end{bmatrix}\\ &amp;\triangleq (TP)^{\bigodot}\\ &amp;&#x3D;\begin{bmatrix} I&amp;-(P’)^{\hat{} }\\ 0&amp;0 \end{bmatrix} \end{aligned}</p>
+<p>而$P’ &#x3D; TP$，如果只取前3维，从而我们可以得到：</p>
+<p>\begin{equation} \frac{\partial P’}{\partial \xi} &#x3D; [I,-{P’}^{\hat{} }] \end{equation}</p>
+<p>将$(1),(2)$相乘可以得到：</p>
+<p>\frac{\partial e}{\partial \xi} &#x3D; - \begin{bmatrix} \frac{f_x}{Z’} &amp; 0 &amp; -\frac{f_xX’}{Z’^2} &amp; -\frac{f_xX’Y’}{Z’^2} &amp; f_x + \frac{f_xX^2}{Z’^2} &amp; -\frac{f_xY’}{Z’}\\ 0 &amp; \frac{f_y}{Z’} &amp; -\frac{f_yY’}{Z’^2} &amp;-f_y - \frac{f_yY’}{Z’^2} &amp; \frac{f_yX’Y’}{Z’^2} &amp; \frac{f_yX’}{Z’} \end{bmatrix}</p>
+<p>这个之前有负号，是因为我们对$e$的定义是观测值减去预测值，而观测值是常数。如果对于se(3)的定义是旋转在前，平移在后，只要将前3列与后3列对调即可。由此我们得到了一阶雅可比矩阵。</p>
+<p>此外，除了对相机位姿的优化，就像我们最开始说的，我们可以对空间点的位置也进行优化。所以需要求的是误差关于$P$的导数。这个导数相对来说会简单很多：</p>
+<p>\frac{\partial e}{\partial P} &#x3D; \frac{\partial e}{\partial P’}\frac{\partial P’}{\partial P}</p>
+<p>第一项已经知道了。至于第二项，按照定义：$P’ &#x3D; RP+t$，因此这个导数为$R$。因此：</p>
+<p>\frac{\partial e}{\partial P} &#x3D;-\begin{bmatrix} \frac{f_x}{Z’} &amp; 0 &amp; -\frac{f_xX’}{Z’^2}\\ 0 &amp; \frac{f_y}{Z’} &amp; -\frac{f_yY’}{Z’^2} \end{bmatrix}R</p>
+<p>这两个雅可比矩阵（分别是误差关于位姿的和关于空间点位置的）非常重要，是Bundle Adjustment的关键。</p>
+<p>我在思考的问题是，为什么一定要建出来一个中间变量$P’$，如果直接对$P,\xi$求导，则得到的结果是用$\xi,P,K$表示的导数，理论上也能带我们走向极小值。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/pnp/" rel="tag"># pnp</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/" rel="prev" title="ICP——迭代最近点">
+                  <i class="fa fa-angle-left"></i> ICP——迭代最近点
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/20/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E5%9B%9B%EF%BC%89ICP/" rel="next" title="SLAM——视觉里程计（四）ICP">
+                  SLAM——视觉里程计（四）ICP <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

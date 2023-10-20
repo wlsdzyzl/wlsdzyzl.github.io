@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次的Hoeffding不等式那篇，证明了一个hypothesis集合是有限集合，那么学习是可行的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——VC bound">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94VC-bound/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次的Hoeffding不等式那篇，证明了一个hypothesis集合是有限集合，那么学习是可行的。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/SEKLYM%60EURGS%40%5D4F%247%5B347X.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/XU%5DTY%7DQ%24SSE4X%40B%24_A1ZORN.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png">
+<meta property="article:published_time" content="2018-08-11T10:13:11.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:34:00.368Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="mathematics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/SEKLYM%60EURGS%40%5D4F%247%5B347X.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94VC-bound/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94VC-bound/","path":"2018/08/11/机器学习——VC-bound/","title":"机器学习——VC bound"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——VC bound | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Break-Point"><span class="nav-number">1.</span> <span class="nav-text">Break Point</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-finite-E-in-and-infinite-E-out"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. finite $E_{in}$ and infinite $E_{out}$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-decompose-H-by-kind"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. decompose H by kind</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-hoeffding-without-replacement"><span class="nav-number">1.0.3.</span> <span class="nav-text">3. hoeffding without replacement</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VC-bound"><span class="nav-number">2.</span> <span class="nav-text">VC bound</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interpreting-of-VC-dimension"><span class="nav-number">3.</span> <span class="nav-text">Interpreting of VC dimension</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p-s"><span class="nav-number">4.</span> <span class="nav-text">p.s.</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94VC-bound/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——VC bound | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——VC bound
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-11 18:13:11" itemprop="dateCreated datePublished" datetime="2018-08-11T18:13:11+08:00">2018-08-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:34:00" itemprop="dateModified" datetime="2023-10-21T03:34:00+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次的Hoeffding不等式那篇，证明了一个hypothesis集合是有限集合，那么学习是可行的。</p>
+<span id="more"></span>
+<p>如果定义$E_{in}$是资料上的错误率，$E_{out}$是整体的错误率，我们证明的结果，如果N足够大，那么很大概率上，$E_{in} \approx E_{out}$.我们只需要在有限的集合利用里学习算法选出一个$E_{in}$最低的，就可以实现学习，因为很大概率上它对整体分类后的错误率也是与$E_{in}$差不太多的。</p>
+<p>先思考一个问题，H的大小影响的了什么？学习需要做的有两个：1. 保证$E_{in} \approx E_{out}$ 2.找到一个h使得$E_{in}很小$。<br>如果H集合过大，那么我们不容易保证第一个条件，但是如果集合过小，我们不一定能找到一个h使得它甚至在测试数据上有很好的表现。</p>
+<p>上次博客留下来了一个问题：如果这个$H$集合是无限集合呢？例如之前实现的PLA算法。那我们怎么保证在无限的集合上，学习是可行的呢？</p>
+<p>首先，我们来观察上次得到的hoeffding不等式：$P_{baddata} \leq 2te^{-2\epsilon ^2N}.如果其中t-&gt;$\lnfty$，那么这个不等式实际上是没有意义的，因为右边的值将会远大于1，但是说一个概率小于等于1那是废话。</p>
+<p>仔细想想，那是因为我们的union bound太宽松了。它们实际上会有很多重叠的部分，比如对于某个hypothesis是bad data，对于另一个它可能也是。这就要求我们将这个union bound继续压缩。</p>
+<p>利用2D的perceptron learning algorithm来举例，如果N &#x3D; 1，也就是我们只有一个样本，那么它要么是正要么是负，虽然平面上有无数条线，但是似乎只有这么两个效果，也就是只有这么两类线，在这两类线上，它们的$E_{in}$是一致的。</p>
+<p>同样的道理，如果平面上有两个点，我们利用平面上的直线最多也就只能分成4种情况,我们将每一种情况称为一个dichotomy。</p>
+<p>当N为3的时候，在纸上我们可以画出，平面上可以有8种dichotomy，但是也会有意外，例如如果3个点拍成一条直线，那么“× ○ ×”的情况，我们似乎无法用一条直线分开了。</p>
+<p>当N为4的时候，即使4个点是每一个点都是凸四边形的顶点，我们依然无法将所有的情况都表示出来，如下面这种情况：</p>
+<p>× ○</p>
+<p>○ ×</p>
+<p>实际上，当N为4的时候，我们可以分出来的dichotomy共有14种。而所有的情况有$2^4&#x3D;16$种，很明显可以看出dichotomy的数量是少于$2^N$。</p>
+<p>我们将某个大小为N的dataset所有情况都可以用这个H做出来(dichotomy的数量为$2^N$)，成为被H shatter。</p>
+<p>当N&gt;4的时候，这个dichotomy又有多少？现在我们很难找到2d perceptron其中这个规律。幸运的是最后我们也不需要关注它具体是多少。</p>
+<p>在这里我们考虑几种不同的简单的H，来更加熟悉这个概念：</p>
+<ol>
+<li>Positive Ray</li>
+</ol>
+<p>样本为1维的点，这个hypothesis set是在直线上所有的非样本点，选取一个点，该点坐标之前的为positive，之后的为negative。容易看出来，当样本个数为N时候，最多可以有N+1个dichotomy（N个点将该轴分为N+1个部分，每个部分的点是一类）。</p>
+<ol start="2">
+<li>Positive Intervals</li>
+</ol>
+<p>样本依然是1维的点，这个hypothesis set是选取一个范围，范围内的为positive，范围之外的为negative。当样本个数为N的时候，最多可以有$\frac {(N+1)N} {2}+1$个dichotomy（N个点将该轴分为N+1个部分，从N+1个部分中任两个取一个点即可，但是这样还缺一种，就是全是positive的情况，我们依然可以做到将这个情况，只需要将两次的点选在同一个部分即可）。</p>
+<ol start="3">
+<li>Convex Sets</li>
+</ol>
+<p>样本是二维的点，并且是凸N边形的顶点。选取一个凸多边形的范围，使得多边形内部为positive，外部为negative。可以看到任何时候这个dataset都可以被H shatter，所以它的dichotomy个数是$2^N$.</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/SEKLYM%60EURGS%40%5D4F%247%5B347X.png" alt="1"></p>
+<ol start="4">
+<li>1D perceptron（positive&#x2F;negative ray）</li>
+</ol>
+<p>与1类似，除了最端点的两个部分，其他的分割之后都有个与之对立的dichotomy，而端点的部分得到的是全p或者全n，所有是$2(N+1-2)+2 &#x3D; 2N$.</p>
+<p>而这个2N，N+1等等，我们乘其为成长函数。假设我们希望用$m_H$来代替乘进去的那个集合的大小，用$m_H(N)$来表示成长函数，例如：对于positive ray来说，$m_H(N) &#x3D; N+1$。</p>
+<h2 id="Break-Point"><a href="#Break-Point" class="headerlink" title="Break Point"></a>Break Point</h2><p>我们引入一个新的定义，叫做Break Point，它表示第一个所有情况下都不能被shatter的样本个数。我们将break point简写为k，举个例子，positive ray的k &#x3D; 2，因为$2+1!&#x3D;2^2$，同样的道理，positive intervals的k &#x3D; 3，1D perceptron的k &#x3D; 3，convex sets的k不存在。</p>
+<p>如果用2D perceptron为例，他的k &#x3D; 4，但是我们很难得到它的成长函数。我们希望它的成长函数可以是一个多项式，这样随着N的增加，$E_{in}$与$E_{out}$还是会很大可能相差不多的。</p>
+<p>找不到成长函数，另一个希望是可以找到成长函数的上限。比如，在k &#x3D; 4的情况下，N个样本最多能产生几个dichotomy？我们将这个简写为B(N,k).<br>k &#x3D; 4，意味着任意3个样本都不能被shatter。我们试图去填写下面这样的一个表格：</p>
+<p>B(N,k)|1|2|3|4|5|…|N<br>—|:–:|:–:|:–:|:–:|:–:|:–:<br>1|1|2|2|2|2|…|2<br>2|1|3|4|4|4|…|4<br>3|1| |7|8|8|…|8<br>4|1| | |15|16|…|16<br>5|1| | | |31|…|32</p>
+<p>表格中的已经填写的部分我们很容易就知道了，如果N &lt; k，那么可以shatter，答案就是$2^N$，如果N &#x3D; k，那么恰好不能shatter，所以最多就是$2^N-1$,接下来我们尝试一个简单的,N &#x3D; 3,k &#x3D; 2的情况。我们一个个列举所看到的情况，很容易发现最多最多，可以写出4个dichotomy，任意两个都没有被shatter,如下：</p>
+<p>o o o</p>
+<p>o o x</p>
+<p>o x x</p>
+<p>x o o </p>
+<p>我们再添加任何一种，都会导致有两个样本被shatter。</p>
+<p>将 4 填入表中后，我们发现了一个有趣的规律，在已经填好的数据里，任何一个$B(N,k) &#x3D; B(N-1,k)+B(N-1,k-1)$，不知道这是否是个巧合？</p>
+<p>利用程序$^{见p.s1.}$将B(4,3)的情况跑出来，发现B(4,3)&#x3D;11:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">11</span><br><span class="line">[0, 0, 0, 0]</span><br><span class="line">[1, 0, 0, 0]</span><br><span class="line">[0, 1, 0, 0]</span><br><span class="line">[1, 1, 0, 0]</span><br><span class="line">[0, 0, 1, 0]</span><br><span class="line">[1, 0, 1, 0]</span><br><span class="line">[0, 1, 1, 0]</span><br><span class="line">[0, 0, 0, 1]</span><br><span class="line">[1, 0, 0, 1]</span><br><span class="line">[0, 1, 0, 1]</span><br><span class="line">[0, 0, 1, 1]</span><br></pre></td></tr></table></figure>
+
+<p>我们将0标为negative，1标为positive，经过整理可以得到下面的样子：</p>
+<p>2α</p>
+<p>$$<br>\begin{Bmatrix}<br>X &amp; X &amp; X &amp; X \<br>X &amp; X &amp; X &amp; O \<br>X &amp; X &amp; O &amp; X \<br>X &amp; X &amp; O &amp; O \<br>X &amp; O &amp; X &amp; X \<br>X &amp; O &amp; X &amp; O \<br>O &amp; X &amp; X &amp; X \<br>O &amp; X &amp; X &amp; O<br>\end{Bmatrix}<br>$$</p>
+<p>β</p>
+<p>$$<br>\begin{Bmatrix}<br>O &amp; O &amp; X &amp; X \<br>O &amp; X &amp; O &amp; X \<br>X &amp; O &amp; O &amp; X<br>\end{Bmatrix}<br>$$</p>
+<p>首先，前2α中每一组种每个dichotomy前3个是一致的，因此只看前3列，$\alpha + \beta \leq B(3,3)$，再看前α组的第一行的前3个，它们每两个必然不能shatter，否则加上第四列的就会出现3个样本被shatter的情况，因此$\alpha \leq B(3,2)$.</p>
+<p>总的来说共有$2\alpha + \beta$种，它是小于等于B(3,3)+B(3,2)的。推广到更大的N，这个也依然是成立的，我简单说明一下其中的道理：</p>
+<p>B(N-1,k-1)的dichotomy每个后面都增加一个O或者X，那么个数会翻倍，而且可以shatter的样本个数加一，这就是B(N,k)的一部分，其余部分的前N-1个元素不会出现相同的情况，如果相同，则前N-1个元素与之前的2*B(N-1,k-1)个必然会有k-1个被shatter，加上最后的一列会有k个被shatter，这与前提是矛盾的，而且剩余的个数是小于$B(N-1,k) - B(N-1,k-1)$的，不然依然会与条件矛盾。</p>
+<p>因此，我们可以填满这张表格了：</p>
+<p>B(N,k)|1|2|3|4|5|…|N<br>—|:–:|:–:|:–:|:–:|:–:|:–:<br>1|1|2|2|2|2|…|2<br>2|1|3|4|4|4|…|4<br>3|1|4|7|8|8|…|8<br>4|1|5|11|15|16|…|16<br>5|1|6|16|26|31|…|32</p>
+<p>那么B(N,k) &#x3D; B(N-1,k-1) +B(N-1,k) ,利用上面的表格一路上去，我们可以使用数学归纳法证明下式成立：<br>$$<br>B(N,k) \leq \sum _{i&#x3D;0} ^{k-1} C_N^i<br>$$<br>实际上等号也是成立的，但是证明需要更加复杂的数学理论。</p>
+<p>而$C_N^i$的上限是$N^i$，那么$B(N,k)$首项最高项就是$N^{k-1}$，这是一个好消息，因为它的增长速度不够快。所以$m_H(N)$我们可以使用$N^{k-1}$来代替了（当$N \leq 2,k \leq 3$时）。</p>
+<p>但是它能否直接带入原来的不等式呢？还是有点问题，实际上，我们无法保证</p>
+<p>$$<br>P[∃h \ln H s.t. |E_{in}(h) - E_{out}(h)|&gt;\epsilon] \leq 2 m_H(N) e^{-2\epsilon ^2N}<br>$$</p>
+<p>我们最终得到的是下面的样子：</p>
+<p>$$<br>P[∃h \ln H s.t. |E_{in}(h) - E_{out}(h)|&gt;\epsilon] \leq 2 \cdot 2 m_H(2N) \cdot e^{-2 \cdot \frac 1 {16} \epsilon ^2 N}<br>$$</p>
+<p>严格的证明需要很高的数学技巧以及数学理论，但是可以从以下3个方向简单解释下原因：</p>
+<h4 id="1-finite-E-in-and-infinite-E-out"><a href="#1-finite-E-in-and-infinite-E-out" class="headerlink" title="1. finite $E_{in}$ and infinite $E_{out}$"></a>1. finite $E_{in}$ and infinite $E_{out}$</h4><p>我们的这些证明都是在只考虑了$E_{in}$的基础上，在泛化的过程中是有问题的。首先，对于dataset，$E_{in}$的个数是有限的，因为只要有break point，我们一定可以根据N与k找到h种类的上限，但是$E_{out}$的个数是无限的。虽然同一类h它们的$E_{in}$可能一致，但是它们的$E_{out}$并不一致。</p>
+<p>如何对付这个无限的$E_{out}$？我们可以再从总体种抽出一个数目为N的dataset，它用H得到的错误率记为$E’<em>{in}$，然后我们用$E</em>{in}$与$E’<em>{in}$来解决这个问题，因为同样，$E’</em>{in}的个数是有限的$。</p>
+<p>从下图中可以看出来，当$|E_{in}-E_{out}| \geq \epsilon$时候，$|E_{in}-E’_{in}| \geq \epsilon$的概率大概为1&#x2F;2，当然可能会更大。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/XU%5DTY%7DQ%24SSE4X%40B%24_A1ZORN.png"></p>
+<p>不过实际上的其他情况下，$|E_{in}-E’_{in}| \geq \epsilon$也是有可能会发生的，因此</p>
+<p>$$<br>\frac 1 2 P[∃h \ln H s.t. |E_{in}(h) - E_{out}(h)| &gt; \epsilon] \leq P[∃h \ln H s.t. |E_{in}(h) - E’_{in}(h)| &gt; \frac {\epsilon} 2]<br>$$</p>
+<p>为什么要对${\epsilon}$除以2，我也不清楚。$E_{out}$是无限的，如果$E_{out}$与$E_{in}$是一一对应的关系，那么不除以二上式也是成立的。也许因为是更严格的数学限制，但是不管怎么说经过复杂的数学证明（超出我的能力界限，交给统计学家与数学家吧），上式一定是成立的。</p>
+<p>因此我们将无限的换成了有限的，这样离终点就进了一步。我们可以携程下面的样子：</p>
+<p>$P[Baddata] \leq 2P[∃h \ln H s.t. |E_{in}(h) - E’_{in}(h)| &gt; \frac {\epsilon} 2]$</p>
+<h4 id="2-decompose-H-by-kind"><a href="#2-decompose-H-by-kind" class="headerlink" title="2. decompose H by kind"></a>2. decompose H by kind</h4><p>这一步，需要使用$m_H(N)$来处理上式的$∃h \ln H$，但是值得注意的是，因为我们后来又取了N个样本来做$E’_{in}$，因此所有的样本量是2N，需要替换为$m_H(2N)$,得到下面的结果：</p>
+<p>$P[Baddata] \leq 2 m_H(2N) P[fixed h s.t. |E_{in}(h) - E’_{in}(h)| &gt; \frac {\epsilon} 2]$</p>
+<h4 id="3-hoeffding-without-replacement"><a href="#3-hoeffding-without-replacement" class="headerlink" title="3. hoeffding without replacement"></a>3. hoeffding without replacement</h4><p>第三个，就要用来处理$P[fixed h s.t. |E_{in}(h) - E’_{in}(h)| &gt; \frac {\epsilon} 2]$了。实际上，我们可以将上式写成下面的样子：</p>
+<p>$$<br>P[fixed h s.t. |E_{in}(h) - \frac {E’<em>{in}(h)+E</em>{in}(h)} 2 | &gt; \frac {\epsilon} 4 ]<br>$$</p>
+<p>仔细观察，上面其实就是hoeffding不等式的一种，只不过这时候的bin不是无限大了，但是最后结果是一样的。（从2N个抽出N个，算出错误的比率，与实际上2N的错误的比率的差）（<font color=red>实际上我对这个解释是存有疑虑的，这个随机抽出2N个应该是从整体出发的，而不是从2N个中抽出来N个，算这个期望差，也许可以从数学上证明二者概率是一致的吧</font>）。</p>
+<p>代入hoeffding不等式可以得到最终的结果：<br>$$<br>P[∃h \ln H s.t. |E_{in}(h) - E_{out}(h)|&gt;\epsilon] \leq 2 \cdot 2 m_H(2N) \cdot e^{-2 \cdot \frac 1 {16} \epsilon ^2 N}<br>$$</p>
+<p>这就是对怎么得到最终结果的简单的说明。严格的证明是非常复杂的。不过我们好歹似乎明白了那么一点点其中的道理。</p>
+<h2 id="VC-bound"><a href="#VC-bound" class="headerlink" title="VC bound"></a>VC bound</h2><p>上面的简单证明得到的结果，叫做Vapnik Chervonenkis Bound，简称为VC bound。</p>
+<p>引入一个新的定义，叫做VC dimension，它的定义与break point非常类似，VC dimension &#x3D; k - 1，也就是最后一个可以在某种dataset下被shatter的dataset的大小。</p>
+<p>现在我们尝试推算一下 perceptrons 的 VC dimension.</p>
+<p>对于1维的来说很简单， 它的VC dimension 是 2.</p>
+<p>对于2维的来说，由之前的也可以得到是 3.</p>
+<p>那么对于d维的perceptron，我们可以猜测，它的vc dimension 难道是 d+1吗？</p>
+<p>为了证明V(d) &#x3D; d+1,我们需要证明两点：1. $V(d) \geq d+1$ 2. $ V(d) \leq d+1$.</p>
+<p><strong>证明$V(d) \geq d+1$：</strong></p>
+<p>首先，构造下面一个d+1*d+1的矩阵：</p>
+<p>$$<br>\begin{bmatrix}<br>1&amp;0&amp;0&amp;0&amp;0&amp;…&amp;0 \<br>1&amp;1&amp;0&amp;0&amp;0&amp;…&amp;0 \<br>1&amp;0&amp;1&amp;0&amp;0&amp;…&amp;0 \<br>…\<br>1&amp;0&amp;0&amp;0&amp;0&amp;…&amp;1<br>\end{bmatrix}<br>$$</p>
+<p>上述矩阵每一行都是一个样本的，是d维的，不过会加上额外的$x_0$维度。<br>共有d+1个样本。</p>
+<p>回想perceptron，$XW &#x3D; Y$(在本例中),而上述矩阵是可逆的，则$W &#x3D; YX_{-1}$，因此不管Y怎么变，都有W可以使得它成立，因此至少上面的这个dataset可以被H shatter，所有$V(d) \geq d+1$.</p>
+<p><strong>证明$V(d) \leq d+1$：</strong></p>
+<p>为了证明上式，我们要再加入一个样本，证明无论如何d+2个样本是不能被shatter的。</p>
+<p>我们再上面的矩阵里再加一个非零的行向量$X_{d+2}$，那么由线性代数可以知道:<br>$$<br>X_{d+2} &#x3D; \sum _{i &#x3D; 1}^{d+1} a_iX_i<br>$$</p>
+<p>因此 $X_{d+2}W &#x3D; \sum _{i &#x3D; 1}^{d+1} a_iX_iW$.</p>
+<p>则 y &#x3D; ${sign(a_1),sign(a_2),…sign(a_{d+1}) ,-1 }$这种情况就一定是不能生成的($a_iX_iW$后每一项都是大于等于0的)。<br>所以d+2个样本是无法被shatter的.</p>
+<p>如果前d+1个样本都不能被shatter，就更不用说d+2个可以被shatter了。</p>
+<p>所以我们可以得到，V(d) &#x3D; d+1.</p>
+<p>VC dimension 实际上是自由度，一般来说，它是互不依赖的可以变动的参数个数（并不一定总是这样）。</p>
+<h2 id="Interpreting-of-VC-dimension"><a href="#Interpreting-of-VC-dimension" class="headerlink" title="Interpreting of VC dimension"></a>Interpreting of VC dimension</h2><p>Hoeffding 告诉我们坏事情发生的概率，我们现在反推，好事情发生的概率，很简单如下：</p>
+<p>$P[|E_{in}(g) - E_{out}(g)|&lt; \epsilon ] \geq 1 -  4(2N)^{d_{vc} }e^{- \frac 1 8 \epsilon ^2 N} $</p>
+<p>如果将大于等于后复杂的那一部分（VC bound）列为$\delta$，那么经过推算可以得到：</p>
+<p>$$<br>\epsilon &#x3D; \sqrt {\frac 8 N \ln  {(\frac {4(2N)^{d_{vc} } } {\delta })} }<br>$$</p>
+<p>那么我们可以在$1 - \delta$的概率下获得保证$E_{out}$在这个范围内：</p>
+<p>$$<br>\left [ E_{in}(g) - \sqrt {\frac 8 N \ln {(\frac {4(2N)^{d_{vc} } } {\delta })} }, E_{in}(g) + \sqrt {\frac 8 N \ln {(\frac {4(2N)^{d_{vc} } } {\delta })} } \right ]<br>$$<br>我们比较重视右边的部分，也就是$E_{out}$最坏是多少。我们称$\sqrt {…}$为penalty for model complexity，记为${\Omega (N,H,\delta)}$.</p>
+<p>一般来说，有个以下的关系图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png"></p>
+<p>从上面可以看出来，如果样本个数一定而且保证很高的probability，一味增加维度（增加新的特征）可能会出现过拟合的情况，因为它增加了模型复杂度。这启发了我们在机器学习时候不一定非要增加过多的特征量，或者一味地去降低$E_{in}$，从而导致泛化能力不强。</p>
+<p>此外，我们还需要注意一点，如果我们利用VC bound去求所需要的数据量，往往得到一个很大的值，但是实际上一般来说只要10$d_{vc}$就差不多足够了，这说明VC bound是很宽松的。因为我们一直取的都是上限，但是我们也很难在包容这么多分布的情况下找到一个更好的界限。</p>
+<p>到这里，就说的差不多了，我们证明了如果有VC dimension，那么在N足够大的情况，可以取得不错的学习效果。同时也启发了以后我们在机器学习上的一些做法。</p>
+<h2 id="p-s"><a href="#p-s" class="headerlink" title="p.s."></a>p.s.</h2><ol>
+<li>用程序生成B(4,3)，我使用的是很简单的程序，但是应该可以证明这样生成的dichotomy个数就是最大的个数。程序如下：<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">check</span>(<span class="params">result,l</span>):</span><br><span class="line">    <span class="keyword">for</span> in_a <span class="keyword">in</span> [[<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>],[<span class="number">0</span>,<span class="number">1</span>,<span class="number">3</span>],[<span class="number">0</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]]:</span><br><span class="line">        exist = [<span class="number">0</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">8</span>)]</span><br><span class="line">        size = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> result:</span><br><span class="line">            temp = <span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> bit <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>):</span><br><span class="line">                temp+=(i[in_a[bit]]&lt;&lt;bit)</span><br><span class="line">            <span class="keyword">if</span> exist[temp] == <span class="number">0</span>:</span><br><span class="line">                exist[temp] = <span class="number">1</span></span><br><span class="line">                size+=<span class="number">1</span></span><br><span class="line">        temp = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> bit <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>):</span><br><span class="line">            temp += (l[in_a[bit]] &lt;&lt; bit)</span><br><span class="line">        <span class="keyword">if</span> exist[temp] == <span class="number">0</span>:</span><br><span class="line">            exist[temp] = <span class="number">1</span></span><br><span class="line">            size += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> size == <span class="number">8</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">four_three</span>():</span><br><span class="line">    l = []</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">16</span>):</span><br><span class="line">        temp = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">            temp.append((i&gt;&gt;j)&amp;<span class="number">1</span>)</span><br><span class="line">        l.append(temp)</span><br><span class="line"></span><br><span class="line">    result.append(l[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">16</span>):</span><br><span class="line">        <span class="keyword">if</span> check(result,l[i]):</span><br><span class="line">            result.append(l[i])</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    result = four_three()</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(result))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> result:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br></pre></td></tr></table></figure></li>
+<li>hoeffding不等式是无需知道数据分布情况的，也就是对于任何分布它都适用，这也是为何VC bound很宽松的一个原因。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/" rel="prev" title="机器学习——（基石）作业1">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）作业1
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/12/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Noise-and-Error/" rel="next" title="机器学习——Noise and Error">
+                  机器学习——Noise and Error <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

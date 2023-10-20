@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="不出意外的话，以后我的方向应该就是三维重建方向了，而SLAM是一个逃不开的东西。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——基本介绍">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/06/SLAM%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="不出意外的话，以后我的方向应该就是三维重建方向了，而SLAM是一个逃不开的东西。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-06T13:04:23.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:23.347Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="3D reconstruction">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="CMake">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/06/SLAM%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/06/SLAM%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/","path":"2018/11/06/SLAM——基本介绍/","title":"SLAM——基本介绍"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——基本介绍 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E6%84%9F%E5%99%A8%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">传感器介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E8%A7%89SLAM%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">视觉SLAM框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%A6%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">数学描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMake"><span class="nav-number">4.</span> <span class="nav-text">CMake</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/06/SLAM%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——基本介绍 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——基本介绍
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-06 21:04:23" itemprop="dateCreated datePublished" datetime="2018-11-06T21:04:23+08:00">2018-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:23" itemprop="dateModified" datetime="2023-10-21T04:27:23+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>不出意外的话，以后我的方向应该就是三维重建方向了，而SLAM是一个逃不开的东西。<span id="more"></span></p>
+<!--more-->
+
+
+<p>SLAM（simultaneous localization and mapping），即时定位与地图构建。它是个什么东西？就是将一个机器人放到一个陌生的环境，它能够自我定位并构建出当前环境的三维地图。我们实验室的有一个项目：<a target="_blank" rel="noopener" href="http://luvision.net/FlashFusion/">FlashFusion</a>，和SLAM也有这千丝万缕的关系。</p>
+<p>SLAM已经诞生了30多年了，也取得了很长足的进步吸引了很多学术界的关注，但是一直达不到业界使用的要求。</p>
+<p>SLAM学习的门槛比较高，因为对知识储备以及工程能力都有较高的要求。</p>
+<p>我的这个SLAM打算利用高翔的《SLAM十四讲》来完成。首先第一章是一些大概的介绍以及一些编程的环境的搭建。实际上我对linux还不够熟悉，对于CMake也使用较少。所以这篇博客也会介绍一些这方面的东西。</p>
+<h2 id="传感器介绍"><a href="#传感器介绍" class="headerlink" title="传感器介绍"></a>传感器介绍</h2><p>首先，SLAM需要的一些传感器，有激光，也有相机。实际上我们的重点在于相机，因为相机便宜，而激光很贵。相机分为单目相机，双目相机（Stereo）以及深度相机（RGBD），事件相机（Event）。一般来说使用较多的Stereo和RGBD，单目没有深度，只能同过移动相机来想办法产生深度，Stereo相机通过两个镜头来获得深度，而RGBD相机通过一定的物理手段来获取深度（如红外线，结构光等）。而到后面我们会知道，深度对于SLAM是非常重要的一个信息。</p>
+<p>当我们拍摄一张照片的时候，从3D到2D，会损失了很多信息。所以我们需要深度才能构建三维模型。单目相机，只能通过运动来推算距离（远的运动慢，近的运动快），但是计算比较复杂，也经常出问题，不能避免很多不确定性。</p>
+<h2 id="视觉SLAM框架"><a href="#视觉SLAM框架" class="headerlink" title="视觉SLAM框架"></a>视觉SLAM框架</h2><ul>
+<li>前端（Visual Odometry）</li>
+<li>后端（Optimization）</li>
+<li>回环检测（Loop Closure Detection）</li>
+<li>建图（Mapping）</li>
+</ul>
+<p>这些模块每个都需要很多的知识和精力来学习，所以这里只列出来框架。以后学习完毕之后，在给它们加上超链接。</p>
+<h2 id="数学描述"><a href="#数学描述" class="headerlink" title="数学描述"></a>数学描述</h2><p>我们假设地图是由路标描述的，路标有N个，则路标分别为：$\mathbf{y}_1,…,\mathbf{y}_N$. 而各个时刻的机器人的位置表示为$\mathbf{x}_1,…,\mathbf{x}_k$.其中k为时刻。</p>
+<p>则我们可以用下面两个式子来描述SLAM:<br>$$<br>\left {<br>\begin{aligned}<br>\mathbf{x}<em>k &#x3D; f(\mathbf{x}</em>{k-1},\mu_k,\mathbf{w}<em>k)\<br>z</em>{k,j} &#x3D; h(\mathbf{y}_j,\mathbf{x}<em>k,\mathbf{v}</em>{k,j})<br>\end{aligned}<br>\right.<br>$$</p>
+<p>上式中，$\mu_k$为传感器读数,$\mathbf{w}_k$为噪声。第一个式子为运动方程，也就是我们通过之前的位置和运动传感器的输入得到了目前时刻的位置。</p>
+<p>第二个式子为观测方程，z为观测数据，$\mathbf{v}_{k,j}$为观测噪声。观测方程中$z$是我们直接观测到的。</p>
+<p>如果我们可以得到$\mathbf{x}_k$与$\mathbf{y}_k$的值，不就实现了定位与建图吗？</p>
+<h2 id="CMake"><a href="#CMake" class="headerlink" title="CMake"></a>CMake</h2><p>在SLAM中C++语言是占有绝对优势的。任何程序都可以使用g++编译，但是对于过于复杂的工程，g++的命令会太长不好操作，因此我们需要使用CMake工具。</p>
+<p>CMake是一种跨平台编译工具，比make更为高级，使用起来要方便得多。CMake主要是编写CMakeLists.txt文件，然后用cmake命令将CMakeLists.txt文件转化为make所需要的makefile文件，最后用make命令编译源码生成可执行程序或静态库(.a)或者共享库（.so(shared object)）。</p>
+<p>实际上，CMake的使用主要在于CMakeList.txt的编写。</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1.cmake verson，指定cmake版本 </span></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.project name，指定项目的名称，一般和项目的文件夹名称对应</span></span><br><span class="line"><span class="keyword">PROJECT</span>(test_sqrt)</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.head file path，头文件目录</span></span><br><span class="line"><span class="keyword">INCLUDE_DIRECTORIES</span>(</span><br><span class="line"><span class="keyword">include</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.source directory，源文件目录</span></span><br><span class="line"><span class="keyword">AUX_SOURCE_DIRECTORY</span>(src DIR_SRCS)</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.set environment variable，设置环境变量，编译用到的源文件全部都要放到这里，否则编译能够通过，但是执行的时候会出现各种问题，比如&quot;symbol lookup error xxxxx , undefined symbol&quot;</span></span><br><span class="line"><span class="keyword">SET</span>(TEST_MATH</span><br><span class="line"><span class="variable">$&#123;DIR_SRCS&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#6.add executable file，添加要编译的可执行文件</span></span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> <span class="variable">$&#123;TEST_MATH&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#7.add link library，添加可执行文件所需要的库，比如我们用到了libm.so（命名规则：lib+name+.so），就添加该库的名称</span></span><br><span class="line"><span class="keyword">TARGET_LINK_LIBRARIES</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> m)</span><br></pre></td></tr></table></figure>
+<p>aux_source_directory(&lt; dir &gt; &lt; variable &gt;)</p>
+<p>搜集所有在指定路径下的源文件的文件名，将输出结果列表储存在指定的变量中。<br>如果想要生成库文件：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#静态库</span></span><br><span class="line"><span class="keyword">add_library</span>( name libname.cpp)</span><br><span class="line"><span class="comment">#共享库</span></span><br><span class="line"><span class="keyword">add_library</span>(name_shared SHARED libname.cpp)</span><br></pre></td></tr></table></figure>
+
+<p>当然，Cmake工具还有更多使用的技巧，需要平时做项目的时候去积累。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/3D-reconstruction/" rel="tag"># 3D reconstruction</a>
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/CMake/" rel="tag"># CMake</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Covariance-Matrix-Derivation/" rel="prev" title="Learning From Data——Covariance Matrix Derivation">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Covariance Matrix Derivation
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/" rel="next" title="SLAM——刚体运动以及Eigen">
+                  SLAM——刚体运动以及Eigen <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

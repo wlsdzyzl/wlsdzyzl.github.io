@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前说明了linear SVM的，但是实际上依然还有一些问题。虽然在一定程度上，linear SVM会减小特征转换带来的复杂度，但是另一方面，它依然依赖着d.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Dual Support Vector Machine">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前说明了linear SVM的，但是实际上依然还有一些问题。虽然在一定程度上，linear SVM会减小特征转换带来的复杂度，但是另一方面，它依然依赖着d.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-11T11:33:33.000Z">
+<meta property="article:modified_time" content="2018-11-29T09:05:02.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/","path":"2018/10/11/机器学习——Dual-Support-Vector-Machine/","title":"机器学习——Dual Support Vector Machine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Dual Support Vector Machine | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Dual Support Vector Machine | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Dual Support Vector Machine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-11 19:33:33" itemprop="dateCreated datePublished" datetime="2018-10-11T19:33:33+08:00">2018-10-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-11-29 17:05:02" itemprop="dateModified" datetime="2018-11-29T17:05:02+08:00">2018-11-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前说明了linear SVM的，但是实际上依然还有一些问题。虽然在一定程度上，linear SVM会减小特征转换带来的复杂度，但是另一方面，它依然依赖着d.<span id="more"></span>如果d过大，即使使用很多现有的QP工具，依然很难得到结果。如何处理数据维度很大，甚至是无穷维的情况？这是我们想要解决的问题。</p>
+<p>但是要注意的事，实际上的数学推导非常复杂，因此在这里我只会做简单的推导，来慢慢达到自己的目标。</p>
+<p>首先我们拿出来上次讨论到最后的成型的问题：</p>
+<p><strong>$\min$</strong>  $\frac 1 2 W^TW$</p>
+<p>$s.t.  y_n(W^TX_n+b) \ge 1,n &#x3D;1,2,…,N $.</p>
+<p>我们可以想到的是利用拉格朗日乘数，类似于之前的正则化，来构造一个函数$\zeta(W,b,\alpha)$,定义如下：<br>$$<br>\zeta(W,b,\alpha) &#x3D; \frac 1 2 W^TW + \sum _{n &#x3D; 1} ^{N} \alpha_n (1 - y_n(W^TX_n+b))<br>$$</p>
+<p>我们要做的SVM是：$\min_{W,b}(\max_{ \alpha_i \ge 0,i&#x3D;1,…,n} \zeta (W,b,\alpha) )$,很神奇的，我们需要的那些约束都融入到一个式子当中了。在这里，希望简单可以说明一下，实际上我们上面的SVM与原来的效果是一样的。</p>
+<p>首先，如果原来的约束不满足，则：$y_n(W^TX_n+b) &lt;1$，那么$(1-y_n(W^TX_n+b))&gt;0$，而要最大化$\zeta(W,b,\alpha)$，$\alpha$又大于等于0，那么可以肯定的是$\sum _{n &#x3D; 0} ^{N} \alpha_n (1 - y_n(W^TX_n+b)) $最后的结果是无穷大了，它一定不会被选上；</p>
+<p>如果原来的约束满足的话，$(1 - y_n(W^TX_n+b)) \leq 0$,因为它小于0，要最大化$\zeta(W,b,\alpha)$，只能使得$\sum _{n &#x3D; 0} ^{N} \alpha_n (1 - y_n(W^TX_n+b)) $等于0，也就是最后得到的结果是$\zeta(W,b,\alpha) &#x3D; \frac 1 2 W^TW$，因此实际上最终求的的最大值，依然是满足条件的。</p>
+<p>通过这样就很巧妙地将条件与我们想要做的优化问题融合成了一个式子。</p>
+<p>而且我们很容易知道的事：$\min_{W,b}(\max_{\alpha_i \ge 0,i&#x3D;1,…,n} \zeta (W,b,\alpha) ) \ge \min_{W,b} \zeta (W,b,\alpha ‘)$,上式中$\alpha’$是个定值，<br>也就可以推断出来：$\min_{W,b}(\max_{\alpha_i \ge 0,i&#x3D;1,…,n} \zeta (W,b,\alpha) ) \ge \max_{\alpha_i \ge 0,i&#x3D;1,…,n}( \min_{W,b} \zeta (W,b,\alpha ‘))$.</p>
+<p>更令人兴奋的是，在这些条件下：</p>
+<p>1.convex primal</p>
+<p>2.feasible primal（true if separable）</p>
+<p>3.linear constraints</p>
+<p>上式的等号是成立的。</p>
+<p>因此我们只需要解决右边的部分就好了。这就是Lagrange Duality，拉格朗日对偶。（为何不解左边？emmm，$\alpha$ 是一个向量，N维的，一般来说N&gt;&gt;d+1）</p>
+<p>嗯，但是似乎这个式子，还是很复杂，全部写出来看一下：<br>$$<br>\zeta(W,b,\alpha) &#x3D; \frac 1 2 W^TW + \sum _{n &#x3D; 1} ^{N} \alpha_n (1 - y_n(W^TX_n+b))<br>$$</p>
+<p>首先，要在把$\alpha$看作定值的情况下找到最小值，那么我们知道它一定满足的条件：<br>$$<br>\frac {\partial \zeta}{\partial b} &#x3D; \sum _{n&#x3D;1}\alpha_n y_n &#x3D; 0<br>$$</p>
+<p>因此，上面的式子变成了：<br>$$<br>\zeta(W,b,\alpha) &#x3D; \frac 1 2 W^TW + \sum _{n &#x3D; 1} ^{N} \alpha_n (1 - y_nW^TX_n)<br>$$</p>
+<p>简化了很大一部分。然后求$W$的偏导：</p>
+<p>$$<br>\frac {\partial \zeta}{\partial W} &#x3D; W - \sum_{n&#x3D;1}^N \alpha_n y_nX_n &#x3D; 0<br>$$</p>
+<p>我们可以得到$  \sum_{n&#x3D;1}^N \alpha_n y_nX_n &#x3D; W$,因此最后式子简化为：<br>$$<br>\zeta(W,b,\alpha) &#x3D;   \sum _{n &#x3D; 1} ^{N} \alpha_n - \frac 1 2 W^TW.<br>$$</p>
+<p>式子又简单了很多。同时我们再继续将$W$替换:</p>
+<p>$$<br>\zeta(W,b,\alpha) &#x3D;   \sum <em>{n &#x3D; 1} ^{N} \alpha_n - \frac 1 2 ||\sum</em>{n&#x3D;1}^N \alpha_n y_nX_n||^2.<br>$$</p>
+<p>而且不要忘了我们最之前推导的： $\alpha_n (1 - y_n(W^TX_n+b)) &#x3D; 0$.</p>
+<p>因此，现在的式子里面已经没有$W$与$b$了，我们要做的就是</p>
+<p>$\max_{\alpha_i \ge 0,i&#x3D;1,…,n,\sum y_n \alpha_n &#x3D; 0,W &#x3D;\sum \alpha_n y_nX_n } - \frac 1 2 ||\sum_{n&#x3D;1}^N \alpha_n y_nX_n||^2 +  \sum _{n &#x3D; 1} ^{N} \alpha_n$.</p>
+<p>总结一下，要解决对偶问题得到上面的结果，需要达到的条件：</p>
+<p>1.primal feasible： $y_n(W^TX_n+b) \ge 1$</p>
+<p>2.dual feasible: $a_n \ge 0$</p>
+<p>3.dual-inner optimal:$\sum y_n \alpha_n &#x3D; 0;W &#x3D;\sum \alpha_n y_nX_n$</p>
+<p>4.primal-inner optimal: $\alpha_n (1 - y_n(W^TX_n+b)) &#x3D; 0$.</p>
+<p>上面的这些条件，被称为KKT（Karush-Kuhn-Tucker）条件，对于优化问题是非常必要的。哇，之前听过的高大上的名词逐渐拨开云雾见青天了。</p>
+<p>我们将上面的式子继续展开：</p>
+<p>$$<br>-\frac 1 2 \sum_{n&#x3D;1}^N \sum_{m&#x3D;1}^N a_na_my_ny_mX_n^TX_m + \sum_{n&#x3D;1}^N \alpha_n.<br>$$</p>
+<p>接下来我们开始尝试最大化上面的这个式子,首先依然我们把最大化问题转化成为最小化问题，用数学语言描述：</p>
+<p>$\min_{\alpha} \frac 1 2 \sum_{n&#x3D;1}^N \sum_{m&#x3D;1}^N a_na_my_ny_mX_n^TX_m - \sum_{n&#x3D;1}^N \alpha_n$</p>
+<p> <strong>subject to</strong> $\sum_{n&#x3D;1}^N y_n\alpha_n &#x3D; 0;a_n \ge 0,n&#x3D;1,…,N$</p>
+<p> 因为式子中没有$W$,我们暂时将约束中的$W$去掉，专注这个问题，最后再尝试计算出$W$.</p>
+<p> 而这个如果仔细观察，我们会发现它是一个QP问题。也就是通过现成的工具，可以计算出最佳的$\alpha$.</p>
+<p> 计算出最佳的$\alpha$，可以很轻易地计算出$W$，而且通过约束也能轻易地计算出$b$.而且我们可以通过约束发现，其实相当一大部分$\alpha_n&#x3D;0$，而$\alpha \ne 0$的那些点，也正是我们的支撑向量。</p>
+<p> 最后，我们提出一个疑问：这个计算方法，真的和维度没关系了吗？恐怕不是，维度隐含在了计算$Q$矩阵当中了.这还是没有达到我们的目的。这需要下一个改进：kernel。</p>
+<p> ##p.s. QP问题的解决</p>
+<p> 一般来说，解决QP问题的工具，需要提供下面几个参数：</p>
+<p>optimal $\alpha$ $\leftarrow$ $QP(Q,\mathbf{p},A,\mathbf{c})$</p>
+<p> $\min_{\alpha}$  $\frac 1 2 \alpha ^T Q \alpha + p^T\alpha$</p>
+<p>subject to $a_i^T \alpha \ge C_i$, for i &#x3D; 1,2,…</p>
+<p>因此，在本例中，Q：<br>$q_{n,m} &#x3D; y_ny_mX^nX^m;$</p>
+<p>$\mathbf{p} &#x3D; -1_N;$</p>
+<p>$a_1 &#x3D; Y ,a_2 &#x3D; -Y;a_3 &#x3D; 1_N$</p>
+<p>$c_1 &#x3D; 0,c_2 &#x3D; 0,c_3 &#x3D; 0;$</p>
+<p>当然，具体的参数类型还要看具体的工具包，但是所需参数都不难从已知的条件转换得到。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/" rel="prev" title="机器学习——Linear Support Vector Machine">
+                  <i class="fa fa-angle-left"></i> 机器学习——Linear Support Vector Machine
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/" rel="next" title="机器学习——Kernel Support Vector Macine">
+                  机器学习——Kernel Support Vector Macine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

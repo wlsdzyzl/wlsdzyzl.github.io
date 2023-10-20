@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture of Gaussians）上的情况以及在因子分析上的用途。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Mixture of Gaussians &amp; EM">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture of Gaussians）上的情况以及在因子分析上的用途。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM7.png">
+<meta property="article:published_time" content="2018-12-17T04:32:12.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.776Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="unsupervised learning">
+<meta property="article:tag" content="factor analysis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/","path":"2018/12/17/Learning-From-Data——Mixture-of-Gaussians-EM/","title":"Learning From Data——Mixture of Gaussians & EM"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Mixture of Gaussians & EM | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mixture-modes"><span class="nav-number">1.</span> <span class="nav-text">Mixture modes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Expectation-Maximization"><span class="nav-number">2.</span> <span class="nav-text">Expectation Maximization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Proof-of-Correctness"><span class="nav-number">2.1.</span> <span class="nav-text">Proof of Correctness</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Jensen%E2%80%99s-Inequality"><span class="nav-number">2.1.1.</span> <span class="nav-text">Jensen’s Inequality</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EM-for-Mixture-of-Gaussians"><span class="nav-number">2.2.</span> <span class="nav-text">EM for Mixture of Gaussians</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Factor-Analysis"><span class="nav-number">3.</span> <span class="nav-text">Factor Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Example"><span class="nav-number">3.1.</span> <span class="nav-text">Example</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Factor-Analysis-Terminology"><span class="nav-number">3.2.</span> <span class="nav-text">Factor Analysis Terminology</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EM-for-factor-analysis"><span class="nav-number">3.3.</span> <span class="nav-text">EM for factor analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Sigma-%E2%80%99s-derivation"><span class="nav-number">3.3.1.</span> <span class="nav-text">$\Sigma$’s derivation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#E-step"><span class="nav-number">3.3.2.</span> <span class="nav-text">E-step</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M-step"><span class="nav-number">3.3.3.</span> <span class="nav-text">M-step</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E6%B7%B7%E5%90%88%E9%AB%98%E6%96%AF%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">3.4.</span> <span class="nav-text">与混合高斯模型的对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8EPCA%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.5.</span> <span class="nav-text">与PCA的关系</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Mixture of Gaussians & EM | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Mixture of Gaussians & EM
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-17 12:32:12" itemprop="dateCreated datePublished" datetime="2018-12-17T12:32:12+08:00">2018-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture of Gaussians）上的情况以及在因子分析上的用途。</p>
+<span id="more"></span>
+<p>首先介绍一下，什么是混合模型。</p>
+<h2 id="Mixture-modes"><a href="#Mixture-modes" class="headerlink" title="Mixture modes"></a>Mixture modes</h2><p>一个混合模型假设数据是通过下面的过程生成的：</p>
+<ul>
+<li>样本$z^{(i)} \in {1,…,k}$并且$z^{(i)}\sim Multinomial(\phi)$:$$p(z^{(i)} &#x3D; j) &#x3D; \phi_j \text{ for all }j$$</li>
+<li>样本可以观测的量$x^{(i)}$是符合某些分布$p(z^{(i)},x^{(i)})$:$$p(z^{(i)},x^{(i)}) &#x3D; p(z^{(i)})p(x^{(i)}\vert z^{(i)})$$</li>
+</ul>
+<p>例如：非监督学习的手写识别是一个10个伯努利分布的混合模型，财务收益估计采用两个高斯混合模型，正态模型和危机时间分布。</p>
+<p>而高斯混合模型为：<br>$$<br>z^{(i)}\sim Multinomial(\phi)\<br>x^{(i)} \sim \mathcal{N}(\mu_j,\Sigma_j)<br>$$</p>
+<p>现在我们面临的问题是如何学习得到$\phi_j,\mu_j,\Sigma_j$？</p>
+<p>这要分成两种情况来讨论：</p>
+<ul>
+<li><p>$z^{(j)}$是已知的，那么这个问题变成了一个监督学习的问题。解决的办法我们之前也学到过，实际上就是<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/">generative learning algorithm</a>的一种，不过它实际上是二次判别分析的例子，比上面的博客的内容更稍微进了一步，可以看<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Covariance-Matrix-Derivation/">Covariance Matrix Derivation</a>了解详情。在这个情况下：<br>$$<br>\phi_j &#x3D; \frac{1}{m} \sum_{i&#x3D;1}^m \mathbf{1}{z^{(i)} &#x3D; j}, \mu_j &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{z^{(i)}&#x3D;j}x^{(i)} }{\sum_{i&#x3D;1}^m\mathbf{1}{z^{(i)} &#x3D; j} }<br>$$<br>$$<br>\begin{equation*}<br>\begin{aligned}<br>\Sigma_j &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;j}(x^{(i)} - \mu_{j}) (x^{(i)} - \mu_{j})^T}{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;j} }<br>\end{aligned}<br>\end{equation*}<br>$$</p>
+</li>
+<li><p>$z^{(j)}$是未知的，这时候则是属于非监督学习的范畴。我们使用期望最大化(expectation mamximization),也就是EM算法。</p>
+</li>
+</ul>
+<h2 id="Expectation-Maximization"><a href="#Expectation-Maximization" class="headerlink" title="Expectation Maximization"></a>Expectation Maximization</h2><p>EM算法是一个迭代求解最大似然估计的算法。求解最大似然估计我们已经遇到多次，与其他不同的地方在于，它估计的模型依赖于潜在的变量(latent variables)，这些变量是无法观察的。</p>
+<p>首先，我们和往常一样，求数据的log-likelihood：<br>$$<br>I(\theta) &#x3D; \sum_{i&#x3D;1}^m\log p(x;\theta) &#x3D; \sum_{i&#x3D;1}^m\log\sum_z p(x,z;\theta)<br>$$</p>
+<p>我们先来看看EM算法的步骤，然后再证明它的正确性：</p>
+<blockquote>
+<p>Initialize θ</p>
+</blockquote>
+<blockquote>
+<p>Repeat untill convergence {</p>
+</blockquote>
+<blockquote>
+<p>(E - step ) For each i , set</p>
+</blockquote>
+<blockquote>
+<p>$Q_i(z^{(i)} ):&#x3D; p(z^{(i)} |x^{(i)} ; θ) \leftarrow $ Posterior distribution $z|x$ under $θ$</p>
+</blockquote>
+<blockquote>
+<p>(M - step ) Set</p>
+</blockquote>
+<blockquote>
+<p>$$\begin{equation}<br>\theta &#x3D; \arg\max_{\theta} \sum_i \sum_{z^{(i)} }Q_i(z^{(i)}\log \frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})})<br>\end{equation}$$</p>
+</blockquote>
+<blockquote>
+<p>$\leftarrow$ Update parameter θ<br>}</p>
+</blockquote>
+<h3 id="Proof-of-Correctness"><a href="#Proof-of-Correctness" class="headerlink" title="Proof of Correctness"></a>Proof of Correctness</h3><p>我们将会证明(1)等价于$\arg\max_\theta I(\theta)$，也就是等式(1)是$I(\theta)$的一个很紧下界。我们也将会证明这个算法最终会收敛。<br>定义：<br>$$<br>J(Q,\theta) &#x3D; \sum_j \sum_{z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}<br>$$<br>第一步：<br>我们要说明，$J(Q,\theta)$是$I(\theta)$的一个下界，而且当$Q_i(z^{(i)}) &#x3D; p(z^{(i)}\vert x^{(i)};\theta)$时，这个下界是tight bound.</p>
+<h4 id="Jensen’s-Inequality"><a href="#Jensen’s-Inequality" class="headerlink" title="Jensen’s Inequality"></a>Jensen’s Inequality</h4><p>首先需要回顾一下Jensen不等式。如果$f$是一个convex函数，若$X$为随机变量，则：<br>$$<br>\mathbf{E}[f(X)] \ge f(\mathbf{E}[X])<br>$$</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM1.png"></p>
+<p>注意：</p>
+<ul>
+<li>如果f(x)为concave函数，则$\mathbf{E}[f(X)] \leq f(\mathbf{E}[X])$.</li>
+<li>如果f(x)为线性函数，则$\mathbf{E}[f(X)] &#x3D; f(\mathbf{E}[X])$.</li>
+</ul>
+<p>我们知道$\log$是一个concave函数，实际上，我们可以将$J(Q,\theta)$写为：<br>$$<br>\begin{aligned}<br>J(Q,\theta) &amp;&#x3D; \sum_j \sum_{z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}\<br>&amp;&#x3D; \sum_j \mathbb{E}<em>Q[log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}] \<br>&amp;leq \sum_j \log \mathbb{E}[\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}]\<br>&amp;&#x3D; \sum_j \log \sum</em>{z^{(i)} }Q_i(z^{(i)})\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}\<br>&amp;&#x3D; \sum_j\log \sum_{z^{(i)} } p(x^{(i)},z^{(i)};\theta)\<br>&amp;&#x3D; I(\theta)<br>\end{aligned}<br>$$</p>
+<p>如何证明是一个tight bound?</p>
+<p>继续查看上面的Jensen不等式，想要这个不等式变得更紧一点，一个容易想到的策略是让$f$变为一个常量。因此在这里，最简单的做法就是让$\log$后的内容与$z^{(i)}无关$：<br>$$<br>\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})} &#x3D; C<br>$$</p>
+<p>简单取$C&#x3D;1$，我们得到：<br>$$<br>Q_i(z^{(i)}) &#x3D; p(x^{(i)},z^{(i)};\theta)<br>$$</p>
+<p>但是，因为$Q$是一个分布，因此我们必须要让$\sum_{z^{(i)} }Q_i(z^{(i)}) &#x3D; 1$。所以$Q$的取值就比较容易求得了：<br>$$<br>\begin{aligned}<br>Q_i(z^{(i)}) &amp;&#x3D; \frac{p(x^{(i)},z^{(i)};\theta)}{\sum_{z^{(i)} }p(x^{(i)},z^{(i)};\theta)}\<br>&amp;&#x3D; \frac{p(x^{(i)},z^{(i)};\theta)}{p(x^{(i)});\theta}\<br>&amp;&#x3D; p(z^{(i)}\vert x^{(i)};\theta)<br>\end{aligned}<br>$$<br>因此，上面的推导同时也就证明了当$Q_i(z^{(i)}) &#x3D; p(z^{(i)}\vert x^{(i)};\theta)$时，$J(Q,\theta)$是一个tight lower bound（取到了等号）。到这里，我们完成了E-step。</p>
+<p>第二步，证明收敛。<br>EM算法会单调增加log-likelihood，也就是，如果$\theta^{(t)}$作为第ｔ次迭代的参数值，则：<br>$$<br>I(\theta^{(t)})\leq I(\theta^{(t+1)}),<br>$$<br>$$<br>Q_i^{(t)}(z^{(i)}) &#x3D; p(z^{(i)}\vert x^{(i)};\theta^{(t)})<br>$$</p>
+<p>这个证明和$Q$的取值息息相关。首先，从之前的推导，我们已经知道了：<br>$$<br>I(\theta ^{(t)}) &#x3D; \sum_j \sum_{z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i(z^{(i)})}<br>$$</p>
+<p>观察M-step，既然$\theta^{(t+1)}$是让上式取得最大值得到的$\theta$，那么可以得到：<br>$$<br>\begin{aligned}<br>I(\theta ^{(t+1)}) &amp;\ge \sum_j \sum_{z^{(i)} }Q_i^{(t)}(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_i(z^{(i)})}\<br>&amp;\ge \sum_j \sum_{z^{(i)} }Q_i^{(t)}(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i(z^{(i)})}\<br>&amp;&#x3D; I(\theta^{(t)})<br>\end{aligned}<br>$$</p>
+<p>第一步简单地由Jensen不等式得到（对于任何分布$Q$都是成立的）。由此我们便证明了这个算法最终会收敛。</p>
+<h3 id="EM-for-Mixture-of-Gaussians"><a href="#EM-for-Mixture-of-Gaussians" class="headerlink" title="EM for Mixture of Gaussians"></a>EM for Mixture of Gaussians</h3><p>现在我们来说明以下高斯混合模型下的EM算法。算法步骤如下：</p>
+<blockquote>
+<p>Repeat until convergence{</p>
+</blockquote>
+<blockquote>
+<p>(E - step ) For each i, j , set</p>
+</blockquote>
+<blockquote>
+<p>$w^{(i)}_j:&#x3D;p(z^{(i)} &#x3D; j\vert x^{(i)};\phi,mu,\Sigma)$</p>
+</blockquote>
+<blockquote>
+<p>(M - step ) Update parameters : assume $\phi_j &#x3D; \mathbb{E}[w_j]$</p>
+</blockquote>
+<blockquote>
+<p>$$\phi_j &#x3D; \frac 1 m \sum_{i&#x3D;1}^m w_j^{(i)};\<br>\mu_j &#x3D; \frac{\sum_{i&#x3D;1}^m w_j^{(i)}x^{(i)} }{\sum_{i&#x3D;1}^mw_j^{(i)} };\<br>\Sigma_j &#x3D; \frac{\sum_{i&#x3D;1}^mw_j^{(i)}(x^{(i)} - \mu_j)(x^{(i)} - \mu_j)^T}{\sum_{i&#x3D;1}^mw_j^{(i)} }<br>$$<br>}</p>
+</blockquote>
+<p>下图是一个利用混合高斯模型EM算法的例子：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM2.png"></p>
+<p>同时在这里我们可以看一下EM算法与Llyod’s k-means算法的比较：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM3.png"></p>
+<p>可以看到，混合高斯模型可以看作是k-means聚类问题的一个“软”版本。</p>
+<h2 id="Factor-Analysis"><a href="#Factor-Analysis" class="headerlink" title="Factor Analysis"></a>Factor Analysis</h2><h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM4.png"></p>
+<p>Figure: Self-ratings on 32 Personality Traits</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM5.png"></p>
+<p>Figure: Pairwise correlation plot of 32 variables from 240 participants</p>
+<h3 id="Factor-Analysis-Terminology"><a href="#Factor-Analysis-Terminology" class="headerlink" title="Factor Analysis Terminology"></a>Factor Analysis Terminology</h3><p>首先介绍几个因子分析中的术语。</p>
+<p><strong>observed randam variables</strong> $x \in \mathbb{R}^n$<br>$$<br>x &#x3D; \mu + Λz+\epsilon<br>$$</p>
+<p><strong>factor</strong> $z \in \mathbb{R}^{k}$ is the hidden (latent) construct that “causes” the observed variables.</p>
+<p><strong>factor loading</strong>  $ Λ \in \mathbb{R}^{n\times k}$: the degree to which variable $x_i$ is “caused” by the factors.</p>
+<p>$\mu,\epsilon \in \mathbb{R}^n$ are the mean and error vectors.</p>
+<p>这一些解释我认为用中文翻译的有点别扭，所以就写成了英文。</p>
+<p>下面是一个factor loading  Λ的例子：</p>
+<p>Table: Matrix of factor loading Λ for personality test data</p>
+<table>
+<thead>
+<tr>
+<th align="center">variable</th>
+<th align="center">factor1</th>
+<th align="center">factor2</th>
+<th align="center">factor3</th>
+<th align="center">factor4</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">distant</td>
+<td align="center">0.59</td>
+<td align="center">0.27</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">talkative</td>
+<td align="center">-0.50</td>
+<td align="center">-0.51</td>
+<td align="center">0</td>
+<td align="center">0.27</td>
+</tr>
+<tr>
+<td align="center">careless</td>
+<td align="center">0.46</td>
+<td align="center">-0.47</td>
+<td align="center">0.11</td>
+<td align="center">0.14</td>
+</tr>
+<tr>
+<td align="center">hardworking</td>
+<td align="center">-0.46</td>
+<td align="center">0.33</td>
+<td align="center">-0.14</td>
+<td align="center">0.35</td>
+</tr>
+<tr>
+<td align="center">kind</td>
+<td align="center">-0.488</td>
+<td align="center">0.222</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+</tr>
+</tbody></table>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM6.png"></p>
+<p>Figure: Visualize loading of the ﬁrst two factors</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM7.png"></p>
+<p>Figure: Visualize loading of the ﬁrst two factors, rotated to align with axes</p>
+<p>实际上因子分析也是一个混合模型，这里有可观察的变量：$x\in \mathbb R ^n$，以及潜在变量$z \in \mathbb{R}^k$，$(k &lt; n)$.</p>
+<p>因子分析模型定义了一个联合分布$p(x,z)$:<br>$$<br>z \sim  \mathcal N(0,I)\<br>\epsilon \sim  \mathcal N (0,\Psi)\<br>x &#x3D; \mu + \wedge z + \epsilon<br>$$<br>其中$\Psi \in \mathbb{R}^{n \times n}$ 是一个对角矩阵，$\epsilon,\mu \in \mathbb R ^n$,并且互相独立, $\wedge \in \mathbb R ^{n \times k}$。</p>
+<p>给定了$x^{(1)},…,x^{(m)}$，如何得到参数$\mu,\wedge,\Psi$？</p>
+<h3 id="EM-for-factor-analysis"><a href="#EM-for-factor-analysis" class="headerlink" title="EM for factor analysis"></a>EM for factor analysis</h3><p>应该比较容易看出这个问题是可以用EM来解决的。下面写出迭代步骤：</p>
+<blockquote>
+<p>Initialize µ,Λ,Ψ</p>
+</blockquote>
+<blockquote>
+<p>Repeat untill convergence {</p>
+</blockquote>
+<blockquote>
+<p>(E-step)  For each i , set<br>$$<br>Q_i(z^{(i)}):&#x3D; p(z^{(i)}\vert x^{(i)};\mu,\wedge,\Psi),<br>$$</p>
+</blockquote>
+<blockquote>
+<p>z is a continuous variable </p>
+</blockquote>
+<blockquote>
+<p>(M-step) Set</p>
+</blockquote>
+<blockquote>
+<p>$$\begin{equation}<br>\mu,\wedge,\Psi:&#x3D; \arg\max_{\mu,\wedge,\Psi} \sum_{i&#x3D;1}^m\int_{z^{(i)} }Q_i(z^{(i)}) \log \frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)}<br>\end{equation}<br>$$</p>
+</blockquote>
+<p>首先，我们需要把$p(z^{(i)}\vert x^{(i)}),p(z^{(i)},x^{(i)})$写成模型参数的形式。</p>
+<p>我们的随机变量$\begin{bmatrix}z\x\end{bmatrix} \sim  \mathcal N (\mu_{zx},\Sigma)$，其中：<br>$$<br>\mu_{xz} &#x3D; \begin{bmatrix}<br>0\<br>\mu<br>\end{bmatrix},\Sigma &#x3D; \begin{bmatrix}<br>I&amp;\wedge^T\<br>\wedge&amp;\wedge\wedge^T+\Psi<br>\end{bmatrix}<br>$$</p>
+<p>我们知道 $\mathbb{E}[z] &#x3D; 0$,因为$ z \sim  \mathcal N(0,I)$。同时我们也可以得到：<br>$$<br>\begin{aligned}<br>\mathbb{E}[x]&amp;&#x3D;\mathbb{E}[\mu+\wedge z+\epsilon]\<br>&amp;&#x3D;\mu+\wedge\mathbb E [z]+\mathbb{E}[\epsilon]\<br>&amp;&#x3D;\mu<br>\end{aligned}<br>$$</p>
+<p>所以可以得到：<br>$$<br>\mu_{xz} &#x3D; \begin{bmatrix}<br>0\<br>\mu<br>\end{bmatrix}<br>$$</p>
+<p>如果想要得到$\Sigma$，需要比较长的推导。如果不在乎的过程的话可以直接跳过。</p>
+<h4 id="Sigma-’s-derivation"><a href="#Sigma-’s-derivation" class="headerlink" title="$\Sigma$’s derivation"></a>$\Sigma$’s derivation</h4><p>为了得到$\Sigma$，我们需要计算$\Sigma_{zz} &#x3D; \mathbb{E}[(z − \mathbb{E}[z])(z − \mathbb{E}[z])^T]$($\Sigma$的左上角)，$\Sigma_{zx} &#x3D; \mathbb{E}[(z − \mathbb{E}[z])(x − \mathbb{E}[x])^T]$($\Sigma$的右上角)以及$ \Sigma{xx} &#x3D; \mathbb{E}[(x − \mathbb{E}[x])(x − \mathbb{E}[x])^T] $(右下角)。</p>
+<p>首先，因为$z \sim  \mathcal N(0,I)$，我们可以轻易得到：$\Sigma_{zz} &#x3D; Cov(z) &#x3D; I$。此外：<br>$$<br>\begin{aligned}<br> \mathbb{E}[(z − \mathbb{E}[z])(x − \mathbb{E}[x])^T] &amp;&#x3D; \mathbb{E}[z(\mu+\wedge z + \epsilon - \mu)^T]\<br>&amp;&#x3D; \mathbb{E}[zz^T]\wedge^T +  \mathbb{E}[z\epsilon^T]\<br>&amp;&#x3D;\wedge^T<br>\end{aligned}<br>$$<br>在最后一步中，我们利用了$ \mathbb{E}[zz^T] &#x3D; Cov(z)$，因为z是zero-mean，以及$ \mathbb{E}[z\epsilon^T] &#x3D;  \mathbb{E}[z] \mathbb{E}[\epsilon] &#x3D; 0$，因为他们是独立的。最后:<br>$$<br>\begin{aligned}<br>\mathbb{E}[(x − \mathbb{E}[x])(x − \mathbb{E}[x])^T] &amp;&#x3D; \mathbb{E}[(\mu+\wedge z + \epsilon - \mu)(\mu+\wedge z + \epsilon - \mu)^T]\<br>&amp;&#x3D; \mathbb{E}[\wedge z z^T\wedge^T + \epsilon z^T \wedge^T + \wedge^T z \epsilon^T + \epsilon\epsilon^T]\<br>&amp;&#x3D;\wedge \mathbb{E}[zz^T]\wedge^T + \mathbb{E}[\epsilon\epsilon^T]\<br>&amp;&#x3D; \wedge\wedge^T+\Psi<br>\end{aligned}<br>$$</p>
+<p>最后我们就得到了：<br>$$<br>\Sigma &#x3D; \begin{bmatrix}<br>I&amp;\wedge^T\<br>\wedge&amp;\wedge\wedge^T+\Psi<br>\end{bmatrix}<br>$$</p>
+<h4 id="E-step"><a href="#E-step" class="headerlink" title="E-step"></a>E-step</h4><p>E-step不难理解，因为后验分布：$$z^{(i)}\vert x^{(i)} \sim \mathcal N \left( \mu_{z^{(i)}\vert x^{(i)} },\Sigma_{z^{(i)}\vert x^{(i)} }\right)$$，根据EM算法可以得到：<br>$$<br>\mu_{z^{(i)}\vert x^{(i)} } &#x3D; \wedge^T(\wedge\wedge^T + \Psi)^{-1}(x^{(i)}-\mu)\<br>\Sigma_{z^{(i)}\vert x^{(i)} } &#x3D; I - \wedge^T(\wedge\wedge^T + \Psi)^{-1}\wedge\<br>Q_i(z^{(i)}) &#x3D; \frac{1}{(2\pi)^{k&#x2F;2}\vert \Sigma_{z^{(i)}\vert x^{(i)} }\vert^{1&#x2F;2} }\exp\left(-\frac{1}{2}(z^{(i)} - \mu_{z^{(i)}\vert x^{(i)} })^T\Sigma^{-1}<em>{z^{(i)}\vert x^{(i)} }(z^{(i)} - \mu</em>{z^{(i)}\vert x^{(i)} })\right)<br>$$</p>
+<h4 id="M-step"><a href="#M-step" class="headerlink" title="M-step"></a>M-step</h4><p>$$<br>\begin{equation}<br> \arg\max_{\mu,\wedge,\Psi} \sum_{i&#x3D;1}^m\int_{z^{(i)} }Q_i(z^{(i)}) \log \frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)}<br>\end{equation}<br>$$</p>
+<p>我们可以知道：<br>$$<br>\int_{z^{(i)} }Q_i(z^{(i)}) \log \frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)} \<br>&#x3D;\mathbb{E}<em>{z\sim Q_i}[\log p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi) + \log p(z^{(i)})−\log Q_i(z^{(i)})]<br>$$<br>所以(3)也就等价于：<br>$$<br>\begin{equation}<br>\arg\max</em>{\mu,\wedge,\Psi} \sum_{i&#x3D;1}^m\mathbb{E}_{z\sim Q_i}[\log p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi) + \log p(z^{(i)})−\log Q_i(z^{(i)})]<br>\end{equation}<br>$$</p>
+<p>因为$x &#x3D;\mu + \wedge z + \epsilon,\epsilon \sim  \mathcal N (0,\Psi)$，我们可以得到：<br>$$<br>x^{(i)}\vert z^{(i)} \sim \mathcal N (\mu+\wedge z,\Psi)<br>$$<br>即：<br>$$<br>p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi)\<br>&#x3D;\frac{1}{(2\pi)^{n&#x2F;2}\vert \Psi\vert^{1&#x2F;2} }\exp\left(-\frac{1}{2}(x^{(i)} - \mu-\wedge z^{(i)})^T\Psi^{-1}(x^{(i)} - \mu-\wedge z^{(i)})\right)<br>$$</p>
+<p>我们通过$\mu,\wedge,\Psi$来最大化(4)。</p>
+<h3 id="与混合高斯模型的对比"><a href="#与混合高斯模型的对比" class="headerlink" title="与混合高斯模型的对比"></a>与混合高斯模型的对比</h3><ul>
+<li>混合高斯模型假设有足够的数据和相对较少的随机变量，也就是当$n\approx m$或者$n &gt; m$，$\Sigma$是奇异矩阵。</li>
+<li>而因子分析在$n &gt; m$的时候通过允许模型误差来处理。</li>
+</ul>
+<h3 id="与PCA的关系"><a href="#与PCA的关系" class="headerlink" title="与PCA的关系"></a>与PCA的关系</h3><ul>
+<li>他们都能找到低纬度潜在的子空间。</li>
+<li>PCA可以用来做数据压缩，或者去除冗余数据，它减少了可以观察的数据间的联系。</li>
+<li>因子分析适合来做数据勘探，来找到观测数据中的独立，共同因子。</li>
+<li>因子分析允许噪声具有任意的对角协方差矩阵，而PCA假设噪声是球形的。</li>
+</ul>
+<p>总之，这节课上的还是很懵逼的。</p>
+<p>参考资料：<br><a target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes8.pdf">EM algorithm</a>，<a target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes9.pdf">factor analysis</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/unsupervised-learning/" rel="tag"># unsupervised learning</a>
+              <a href="/tags/factor-analysis/" rel="tag"># factor analysis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/" rel="prev" title="SLAM——视觉里程计（一）feature">
+                  <i class="fa fa-angle-left"></i> SLAM——视觉里程计（一）feature
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/20/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Unbiased-Estimation/" rel="next" title="数学——Unbiased Estimation">
+                  数学——Unbiased Estimation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

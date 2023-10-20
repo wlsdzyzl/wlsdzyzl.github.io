@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Bezier曲线虽然有很多优点，但是有一些明显的缺点。上次也提到了，在CAD中通常不鼓励使用高阶的Bezier基函数来画曲线，而使用低阶拼接。但是在低阶中拼接，要保证几何连续性又是非常困难的一件事情。对于Bezier曲线，如果控制点过多，无法进行局部调控。改变一个控制点，就会改变整个曲线，这里介绍B样条。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——B样条曲线和曲面">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/19/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%92%8C%E6%9B%B2%E9%9D%A2/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="Bezier曲线虽然有很多优点，但是有一些明显的缺点。上次也提到了，在CAD中通常不鼓励使用高阶的Bezier基函数来画曲线，而使用低阶拼接。但是在低阶中拼接，要保证几何连续性又是非常困难的一件事情。对于Bezier曲线，如果控制点过多，无法进行局部调控。改变一个控制点，就会改变整个曲线，这里介绍B样条。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt4.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt5.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt6.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt11.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt7.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt8.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt9.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt10.jpg">
+<meta property="article:published_time" content="2019-03-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:15.678Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt1.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/19/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%92%8C%E6%9B%B2%E9%9D%A2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/19/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%92%8C%E6%9B%B2%E9%9D%A2/","path":"2019/03/19/图形学——B样条曲线和曲面/","title":"图形学——B样条曲线和曲面"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——B样条曲线和曲面 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BAB%E6%A0%B7%E6%9D%A1"><span class="nav-number">1.</span> <span class="nav-text">引出B样条</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%8F%8A%E5%85%B6%E6%80%A7%E8%B4%A8"><span class="nav-number">2.</span> <span class="nav-text">B样条曲线及其性质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#B%E6%A0%B7%E6%9D%A1%E5%9F%BA%E5%87%BD%E6%95%B0%E6%80%A7%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">B样条基函数性质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B%E6%A0%B7%E6%9D%A1%E5%88%86%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">B样条分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%9D%87%E5%8C%80B%E6%A0%B7%E6%9D%A1"><span class="nav-number">2.3.</span> <span class="nav-text">非均匀B样条</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#de-Boor%E7%AE%97%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">de Boor算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%82%E7%82%B9%E6%8F%92%E5%85%A5"><span class="nav-number">2.5.</span> <span class="nav-text">节点插入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E9%9D%A2"><span class="nav-number">3.</span> <span class="nav-text">B样条曲面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NURBS%E6%9B%B2%E7%BA%BF-%E6%9B%B2%E9%9D%A2"><span class="nav-number">4.</span> <span class="nav-text">NURBS曲线&#x2F;曲面</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%86%E9%94%A5%E6%9B%B2%E7%BA%BF%E7%9A%84NURBS%E8%A1%A8%E7%A4%BA"><span class="nav-number">4.0.1.</span> <span class="nav-text">圆锥曲线的NURBS表示</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NURBS%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">4.0.2.</span> <span class="nav-text">NURBS的修改</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/19/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%92%8C%E6%9B%B2%E9%9D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——B样条曲线和曲面 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——B样条曲线和曲面
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-19 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-19T00:00:00+08:00">2019-03-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:15" itemprop="dateModified" datetime="2023-10-21T04:24:15+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Bezier曲线虽然有很多优点，但是有一些明显的缺点。上次也提到了，在CAD中通常不鼓励使用高阶的Bezier基函数来画曲线，而使用低阶拼接。但是在低阶中拼接，要保证几何连续性又是非常困难的一件事情。对于Bezier曲线，如果控制点过多，无法进行局部调控。改变一个控制点，就会改变整个曲线，这里介绍B样条。  </p>
+<span id="more"></span>
+
+
+<p>B样条的动机来源于插值中的Runge-Kutta现象，高阶多项式很容易产生不稳定的上下波动。而样条思想，就是用分段低阶多项式通过连续的连接来代替高阶的多项式。</p>
+<h2 id="引出B样条"><a href="#引出B样条" class="headerlink" title="引出B样条"></a><a href="about:blank#%E5%BC%95%E5%87%BAB%E6%A0%B7%E6%9D%A1" title="引出B样条"></a>引出B样条</h2><p>在Schoenberg提出了一个基于样条的方法来近似曲线，在提出之后的很长一段时间里，人们都认为使用样条来进行形状设计太过于复杂，因此不能实现，直到Gordon和Riesenfeld基于前人的工作提出了B样条以及一系列对应的几何算法。B样条曲线和曲面保证了Bezier的优点，同时也克服了Bezier曲线的缺点。</p>
+<p>样条函数的插值，可以通过求解一个三对角方程来进行，可能就是对几个点做一个空间曲线（比如二次三次）的假设，求解曲线的参数。而对于一个给定的区间划分，可以类似地计算样条曲线的插值。给定区间上的所有样条函数组成一个线性空间，这个线性空间的基函数就叫做B样条基函数。</p>
+<h2 id="B样条曲线及其性质"><a href="#B样条曲线及其性质" class="headerlink" title="B样条曲线及其性质"></a><a href="about:blank#B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%8F%8A%E5%85%B6%E6%80%A7%E8%B4%A8" title="B样条曲线及其性质"></a>B样条曲线及其性质</h2><p>P(t) &#x3D; \sum_{i&#x3D;0}^nP_iN_{i,k}(t).</p>
+<p>上式中，$P_{i}(i&#x3D;0,…,n)$是控制点，$N_{i,k}(i&#x3D;0,…,n)$是第$i$个$k$阶B样条基函数。B样条基函数是分段$k$次（$k+1$阶）多项式，它们由节点向量唯一决定，节点向量则是一串非减的实数序列。要注意这里的阶比次多一，但是实际上是一样的，只是由于历史原因叫法不同。次是从0开始，而阶从1开始。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt1.jpg"></p>
+<p>B样条基函数定义有多种解释，最简单的是由de Boor-Cox递推公式定义的：</p>
+<p>N_{i,0}(t) &#x3D; \left\{\begin{matrix} 1 &amp; t_i &lt; t&lt; t_{i+1}\\ 0 &amp; otherwise \end{matrix}\right.\\ N_{i,k} &#x3D; \frac{t - t_i}{t_{i+k} - t_{i} }N_{i,k-1}(t) + \frac{t_{i+k+1} - t}{t_{i+k+1} - t_{i+1} } N_{i+1,k-1}(t)</p>
+<p>而$t$为节点向量，非减的实数序列：</p>
+<p>t_0,t_1,…,t_{k-1},t_k,…,t_n,t_{n+1},…,t_{n+k-1},t_{n+k+1}.</p>
+<p>现在考虑几个B样条基函数的问题：</p>
+<ul>
+<li>B样条基函数$N_{i,k}(t)$的非零区间是什么？<br>从上述可以看到，当$k&#x3D;0$时，$N_{i,0}(t)$的非零区间为：$(t_i - t_{i+1})$。根据递推公式，可以得到： N_{i,1} &#x3D; \frac{t-t_i}{t_{i+1} - t_{i} } N_{i,0}(t) + \frac{t_{i+2} - t}{t_{i+2}-t_{i+1} }N_{i+1,0}(t)</li>
+</ul>
+<p>这时候，只要$N_{i,0},N_{i+1,0}$有一个不为0，那么$N_{i,1}$就不为0，因此它的非零区间为：$(t_i,t_{i+1})\cup(t_{i+1},t_{i+2})$,也就是：$(t_{i},t_{i+2})$。</p>
+<p>依次类推，我们得到$N_{i,2}$的非零区间为：$(t_i,t_{i+2})\cup(t_{i+1},t_{i+3})$，也就是$(t_{i},t_{i+3})$。</p>
+<p>最终得到$N_{i,k}$的非零区间为：$(t_{i},t_{i+k+1})$。</p>
+<ul>
+<li>一共需要多少个节点？</li>
+</ul>
+<p>$N_{i,k}(t)$的非零区间是$(t_{i},t_{i+k+1})$，共有$n$个控制节点，因此所有的非零区间为：$(t_{0},t_{k+1})\cup (t_{1},t_{k+2})\cup…\cup (t_{n},t_{n+k+1})$。因此需要的节点个数为$n+k+2$。</p>
+<ul>
+<li>B样条插值得到的曲线定义区间是什么？<br>这个也很容易得到：$(0,t_{n+k+1})$。</li>
+</ul>
+<p>以$k&#x3D;3,n&#x3D;4$为例：$P_{t} &#x3D; \sum_{i&#x3D;0}^4P_iN_{i,3}(t)$，则求解$N_{i,3}$的过程如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt2.jpg"></p>
+<h3 id="B样条基函数性质"><a href="#B样条基函数性质" class="headerlink" title="B样条基函数性质"></a><a href="about:blank#B%E6%A0%B7%E6%9D%A1%E5%9F%BA%E5%87%BD%E6%95%B0%E6%80%A7%E8%B4%A8" title="B样条基函数性质"></a>B样条基函数性质</h3><p>B样条基函数有很多性质与Bezier曲线类似。</p>
+<ul>
+<li><p>非负性和局部支撑性<br>$N_{i,k}(t)$是非负的，$N_{i,k}(t)$是$[t_i,t_{i+k+1}]$上的分段非零多项式： N_{i,k}(t) &#x3D; \left \{ \begin{matrix} \ge 0 &amp; t\in [t_i,t_{i+k+1}]\\ &#x3D;0&amp; otherwise \end{matrix} \right.</p>
+</li>
+<li><p>归一性<br>区间$[t_i,t_{i+1}]$上的所有$k$次非零基函数的和为1：</p>
+<p>\sum_{i&#x3D;0}^n N_{i,k}(t) &#x3D; 1,t \in [t_i,t_{i+1}].</p>
+</li>
+<li><p>基函数所满足的微分方程：</p>
+<p>N’_{i,k}(t) &#x3D; \frac{k-1}{t_{i+k-1} - t_i}N_{i,k-1}(t)+\frac{k-1}{t_{i+k}- t_{i+1} }N_{i+1,k-1}(t)</p>
+</li>
+</ul>
+<h3 id="B样条分类"><a href="#B样条分类" class="headerlink" title="B样条分类"></a><a href="about:blank#B%E6%A0%B7%E6%9D%A1%E5%88%86%E7%B1%BB" title="B样条分类"></a>B样条分类</h3><p>一般的曲线可以根据其起始点和终止点是否重叠分为开曲线（不重叠）和闭曲线（重叠）。</p>
+<p>根据节点向量中节点的分类，B样条可以分为：</p>
+<ul>
+<li>均匀B样条。节点成等差数列均匀分布，这样的节点分布对应的是均匀B样条基函数。</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt3.jpg"></p>
+<ul>
+<li>准均匀B样条。准均匀B样条的起始节点和终止节点都具有$k+1$的重复度,其他的节点和均匀B样条一致。均匀B样条不保持Bezier曲线的断电性质，起始点和终止点不在控制端点上。而准均匀B样条具有端点性质。</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt4.jpg"></p>
+<ul>
+<li>分段Bezier曲线。<br>除了终点和起始节点具有k+1个重复度，其他的节点具有$k$个重复度，这样得到的实际上是分段的Bezier曲线。此时需要节点个数满足：$(n+k+2-2)%k&#x3D;0$。</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt5.jpg"></p>
+<p>对于分段的Bezier曲线，不同的曲线段相对独立。移动控制点只会影响其所在的Bezier曲线段，而其他的Bezier曲线段不会改变，但是分段Bezier曲线需要更多的参数和变量来进行控制，更多的控制点和更多的节点信息。</p>
+<ul>
+<li>非均匀B样条。最一般的B样条，我们主要介绍这个。它的起始节点和终止节点的重复度小于等于$k+1$，而其他节点重复度小于$k$。</li>
+</ul>
+<h3 id="非均匀B样条"><a href="#非均匀B样条" class="headerlink" title="非均匀B样条"></a><a href="about:blank#%E9%9D%9E%E5%9D%87%E5%8C%80B%E6%A0%B7%E6%9D%A1" title="非均匀B样条"></a>非均匀B样条</h3><p>B样条曲线的性质：</p>
+<ul>
+<li>局部支持性。区间$t \in [t_i,t_{i+1}]$上的曲线仅由至多$k+1$个控制点决定。修改控制点$P_i$仅会影响到$(t_i,t_{i+k+1})$上的曲线。</li>
+</ul>
+<p>上述这个性质是可以根据定义推导出来的。</p>
+<ul>
+<li><p>连续性：$P(t)$在每一个重复度为$r$的节点上具有$C^{k-r}$的连续性。不知道在说什么。</p>
+</li>
+<li><p>凸包性。B样条曲线被包围在其控制顶点的凸包内部。</p>
+</li>
+<li><p>分段多项式性质：任何一个由相邻节点确定的区间上，$P(t)$是一个关于t的次数不超过$k$的多项式。</p>
+</li>
+<li><p>导数公式： \begin{aligned} P’(t) &amp;&#x3D; \left(\sum_{i&#x3D;0}^n P_i N_{i,k}(t) \right)’ \\ &amp;&#x3D; \sum_{i &#x3D; 0}^n P_i N_{i,k}’(t)\\ &amp;&#x3D; (k-1)\sum_{i&#x3D;0}^n \left(\frac{P_i - P_{i-1} }{t_{i+k} - t} \right)N_{i,k-1}(t), t\in[t_k,t_{n+1} ] \end{aligned}</p>
+</li>
+<li><p>变差缩减性：任何一条直线与B样条曲线的交点个数不会超过该直线与B样条曲线的控制多边形的交点数目</p>
+</li>
+<li><p>几何不变性：曲线的形状和相对于控制点的位置不取决于坐标系的选择</p>
+</li>
+<li><p>仿射不变性：将仿射变换用于控制点，变换后的控制点得到的曲线就是仿射变换后的曲线。</p>
+</li>
+<li><p>直线保持性：如果控制多边形退化成一条直线，那么B样条曲线在这条直线上</p>
+</li>
+<li><p>灵活性：使用B样条可以方便构成线段，尖点，切线等等特殊效果。对于灵活性有下面几个3次B样条基函数的例子：</p>
+</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt6.jpg"></p>
+<h3 id="de-Boor算法"><a href="#de-Boor算法" class="headerlink" title="de Boor算法"></a><a href="about:blank#de-Boor%E7%AE%97%E6%B3%95" title="de Boor算法"></a>de Boor算法</h3><p>计算B样条曲线的一点可以直接使用B样条的公式，但是de Boor算法是一个更有效的算法。首先，我们知道：</p>
+<p>\begin{aligned} P(t) &amp;&#x3D; \sum_{i&#x3D;0}^nP_i N_{i,k}(t) &#x3D; \sum_{i &#x3D; j-k}^j P_iN_{i,k}(t)\\ &amp;&#x3D; \sum_{i&#x3D;j-k}^j P_i \left [\frac{t - t_i}{t_{i + k} - t_i} N_{i,k-1}(t) + \frac{t_{i+k+1} - t}{t_{i + k + 1} - t_{i+1} }N_{i+1,k-1}(t) \right]\\ &amp;&#x3D; \sum_{i&#x3D; j-k}^j\left [ \frac{t - t_i}{t_{i+k} - t_i}P_i + \frac{t_{i+k} - t}{t_{i+k} - t_i} P_{i-1} \right] N_{i,k-1}(t) \end{aligned}, t \in [t_j,t_{j+1}]</p>
+<p>上面式子的由来也就是通过确定$t$的区间段$[t_j,t_{j+1}]$，然后我们知道在这个区间内的曲线最多受到$k+1$个控制顶点的控制。</p>
+<p>令：</p>
+<p>P_i^{[r]}(t) &#x3D; \left\{ \begin{matrix} P_i&amp; r &#x3D; 0, i &#x3D; j-k,..,j;\\ \frac{t - t_i}{t_{i+k+1-r} - t_i}P_i^{[r-1]}(t) + \frac{t_{i+k+1-r} - t}{t_{i+k+1-r} - t_i} P_{i-1}^{[r-1]}(t)&amp; r &#x3D; 1,2,…,k-1; i &#x3D; j-k+r,…,j \end{matrix} \right.</p>
+<p>则：</p>
+<p>\begin{aligned} P(t) &amp;&#x3D; \sum_{i&#x3D;j-k}^jP_iN_{i,k}(t)\\ &amp;&#x3D; \sum_{i&#x3D; j -k+ 1}^j P_i^{[1]}(t)N_{i,k}(t) \\ &amp;&#x3D; \sum_{i&#x3D;j-k+2}^jP_i^{[2]}(t)N_{i,k-2}(t)\\ &amp;&#x3D; …\\ &amp;&#x3D; P_i^{[k]}(t)N_{i,0}(t) \end{aligned}</p>
+<p>这就是de Boor算法。de Boor算法的递推也就是$P_i^{[k]}(t)$的过程。为了求这个，需要的递归方式如下图（下图的k表示的是阶数，因此是从$j-k+1$到$j$，需要的是$k$个控制点点，也就是次数里$k+1$个控制点）：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt11.jpg"></p>
+<p>对于de Boor算法有比较直观的几何解释，也就是割角。因此它也被称为割角算法。下图的k依然是阶数。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt7.jpg"></p>
+<h3 id="节点插入"><a href="#节点插入" class="headerlink" title="节点插入"></a><a href="about:blank#%E8%8A%82%E7%82%B9%E6%8F%92%E5%85%A5" title="节点插入"></a>节点插入</h3><p>节点插入可以增加曲线的可控度。为了增加节点而且保持原有的曲线形状以及原来的次数，需要改变控制顶点的个数。节点插入可以被描述为下面的过程：</p>
+<ul>
+<li>插入新的节点$t$到节点区间$[t_i,t_{i+1}]$</li>
+<li>节点向量变为：$T^1 &#x3D; [t_0,t_1,…,t_i,t,t_{i+1},…,t_{n+k+1}]$</li>
+<li>新的节点向量变为：$T^1 &#x3D; [t^1_0,…,t^1_i,t^1_{i+1},t^1_{i+2},…,t_{n+k+2}]$</li>
+</ul>
+<p>新的节点向量对应了新的B样条计函数。假设原始曲线$P(t)$可以由这些新的基函数和新的控制定点$P_j^1$来表示，则：</p>
+<p>P(t) &#x3D; \sum_{j&#x3D;0}^{n+1}P_j^1 N^1_{j,k}(t)</p>
+<p>而Boehm给出了计算这些新的控制点的公式：</p>
+<p>\left\{ \begin{matrix} P_j^1 &#x3D; P_j &amp; j&#x3D;0,1,…,i-k\\ P_j^1 &#x3D; (1 - \beta_j)P_{j-1}+\beta_jP_j&amp; j &#x3D; i-k+1,…,i-r\\ P_j^1 &#x3D; P_{j-1} &amp; j&#x3D;i-r+1,…,n+1 \end{matrix} \right.</p>
+<p>上式中：</p>
+<p>\beta_j &#x3D; \frac{t - t_j}{t_{j+k} - t_j},</p>
+<p>$r$是新插入的节点$t$在节点序列中的重复度。如下图（图中k为阶数）：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt8.jpg"></p>
+<h2 id="B样条曲面"><a href="#B样条曲面" class="headerlink" title="B样条曲面"></a><a href="about:blank#B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E9%9D%A2" title="B样条曲面"></a>B样条曲面</h2><p>给定$U,V$轴上的节点向量：</p>
+<p>U &#x3D; [u_0,u_1,…,u_{m+p}]\\ V &#x3D; [v_0,v_1,…,v_{n+q}]</p>
+<p>阶为$p \times q$的B样条曲面可以定义为：</p>
+<p>P(u,v) &#x3D; \sum_{i&#x3D;0}^m \sum_{j&#x3D;0}^n P_{ij}N_{i,p}(u)N_{j,q}(v)</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt9.jpg"></p>
+<h2 id="NURBS曲线-曲面"><a href="#NURBS曲线-曲面" class="headerlink" title="NURBS曲线&#x2F;曲面"></a><a href="about:blank#NURBS%E6%9B%B2%E7%BA%BF-%E6%9B%B2%E9%9D%A2" title="NURBS曲线/曲面"></a>NURBS曲线&#x2F;曲面</h2><p>B样条和Bezier都有缺点，不能精确表示圆锥曲线。而NURBS（非均匀有理B样条）目的在于找到能精确描述圆锥曲线以及二次曲面的方法。在这里简单介绍一下NURBS。</p>
+<p>NURBS有下面几个优势：</p>
+<ul>
+<li>它提供了一个更一般更精确的方法来表达并对自由曲线&#x2F;曲面进行设计。</li>
+<li>提供了一个通用的数学形式，可以同时表示标准的解析曲线&#x2F;曲面（如圆锥曲线）以及自由曲线&#x2F;曲面（如参数曲线）。</li>
+<li>存在稳定快速的数值计算方法。</li>
+<li>具有仿射变换不变性，也有投影变换不变性</li>
+<li>对于NURBS的控制点和权重都能任意修改，用NURBS来做设计有更大的灵活性</li>
+<li>非有理B样条，非有理和有理Bezier曲线&#x2F;曲面都可以看作NURBS的特殊形式<br>它的缺点是比传统的表达需要更大的存储空间，而且如果权重设计不合理，NURBS曲线可能会产生畸变。在某些情况下如曲线重叠，使用NURBS非常难以处理。</li>
+</ul>
+<p>NURBS曲线是由分段有理B样条多项式基函数定义的：</p>
+<p>P(t) &#x3D; \frac{\sum_{i&#x3D;0}^n \omega_i P_i N_{i,k}(t)}{\sum_{i&#x3D;0}^n \omega_iN_{i,k}(t)} &#x3D; \sum_{i&#x3D;0}^nP_iR_{i,k}(t)</p>
+<p>其中：</p>
+<p>R_{i,k}(t) &#x3D; \frac{\omega_i N_{i,k}(t)}{\sum_{j&#x3D;0}^n \omega_jN_{j,k}(t)}</p>
+<p>因此，从定义可以看出来它是B样条加权重。它的基函数$R_{i,k}(t)$包含了B样条基函数的所有性质：<br>局部支持性，归一性，可微，变差缩减，凸包，仿射不变。</p>
+<p>如果一个控制点的权重为0，那么该控制点的位置不对曲线产生任何影响。</p>
+<p>如果一个控制点权重为正无穷，而$\omega_i&#x3D;+\infty,R_{i,k}(t)&#x3D;1$，当$t \in [t_i,t_{i+k}$，$P(t) &#x3D; P_i$。</p>
+<p>如果用齐次坐标表示控制点，即：$P_i^{\omega} &#x3D; (\omega_ix_i,\omega_iy_i,\omega_i)$，则：</p>
+<p>P^{\omega} (t) &#x3D; \sum_{i&#x3D;0}^n P_i^{\omega}N_{i,k}(t).</p>
+<h4 id="圆锥曲线的NURBS表示"><a href="#圆锥曲线的NURBS表示" class="headerlink" title="圆锥曲线的NURBS表示"></a><a href="about:blank#%E5%9C%86%E9%94%A5%E6%9B%B2%E7%BA%BF%E7%9A%84NURBS%E8%A1%A8%E7%A4%BA" title="圆锥曲线的NURBS表示"></a>圆锥曲线的NURBS表示</h4><p>对于3个控制定点，节点向量$T&#x3D;[0,0,0,1,1,1]$，NURBS曲线退化成二阶Bezier曲线。很容易可以证明该曲线是二次曲线：</p>
+<p>P(t) &#x3D; \frac{(1-t^2)\omega_0P_0 + 2t(1-t)\omega_1P_1 + t^2 \omega_2P_2}{(1-t^2)\omega_0+2t(1-t)\omega_1+ t^2 \omega_2}</p>
+<p>其中:</p>
+<ul>
+<li>$C_{sf} &#x3D; \frac{\omega_1^2}{\omega_0\omega_2} $是形状因子，决定了圆锥曲线的类型。当$C_{sf}&#x3D;1$时，曲线为抛物线。而对于$C_{sf}&lt;1$，曲线为椭圆，当$c_{sf}&#x3D;0$，曲线退化为一条直线，当$c_{sf}&gt;1$，曲线为双曲线，当$C_{sf} \rightarrow \infty$，曲线退化为两条直线。</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/Byt10.jpg"></p>
+<h4 id="NURBS的修改"><a href="#NURBS的修改" class="headerlink" title="NURBS的修改"></a><a href="about:blank#NURBS%E7%9A%84%E4%BF%AE%E6%94%B9" title="NURBS的修改"></a>NURBS的修改</h4><p>我们可以通过修改权重，控制点以及节点来修改NURBS曲线。对于权重，如果增加或者减少一个控制点的权重，曲线会向控制点靠近或远离。如果希望一个点$S$朝着控制点$P_i$靠近或原理距离$d$，可以修改权重:</p>
+<p>\omega^* &#x3D; \omega_i\left[ 1 + \frac{d}{R_{i,k}(t)(P_iS - d)}\right].</p>
+<p>对于控制点的修改，也会改变NURBS曲线的形状。我们还可以通过带约束的优化方法，来求解对于每个控制点的修改量，以得到最佳的修改量（比如需要经过空间中的某个点）。</p>
+<p>NURBS曲面的定义也就是曲线简单的拓展：</p>
+<p>P(u,v) &#x3D; \frac{\sum_{i&#x3D;0}^m\sum_{j&#x3D;0}^n \omega_{ij} P_{ij} N_{i,p}(u)N_{j,q}(v)}{\sum_{i&#x3D;0}^m\sum_{j&#x3D;0}^n \omega_{ij} N_{i,p}(u)N_{j,q}(v)} &#x3D; \sum_{i&#x3D;0}^m\sum_{j&#x3D;0}^n P_{ij}R_{i,p;j,q}(u,v) , u,v\in[0,1]</p>
+<p>上式中：</p>
+<p>R_{i,p;j,q}(u,v) &#x3D; \frac{ \omega_{ij} N_{i,p}(u)N_{j,q}(v)}{\sum_{r&#x3D;0}^m\sum_{s&#x3D;0}^n \omega_{rs} N_{r,p}(u)N_{s,q}(v)}</p>
+<p>NURBS曲面也具有可微性，同时存在局部极值点，也具有和B样条曲面类似的多种性质。这里就不过多介绍了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/18/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Bezier%E6%9B%B2%E7%BA%BF%E5%8F%8A%E6%9B%B2%E9%9D%A2/" rel="prev" title="图形学——Bezier曲线及曲面">
+                  <i class="fa fa-angle-left"></i> 图形学——Bezier曲线及曲面
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/" rel="next" title="图形学——网格">
+                  图形学——网格 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

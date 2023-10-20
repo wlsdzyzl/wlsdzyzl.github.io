@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在我们的生活中，其实大部分使用的都是soft-margin SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Kernel Logistic Regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="在我们的生活中，其实大部分使用的都是soft-margin SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-06T05:37:08.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.774Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="regression">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/","path":"2018/11/06/机器学习——Kernel-Logistic-Regression/","title":"机器学习——Kernel Logistic Regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Kernel Logistic Regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Platt%E2%80%99s-Model"><span class="nav-number">1.</span> <span class="nav-text">Platt’s Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kernal-Logistic-Regression"><span class="nav-number">2.</span> <span class="nav-text">Kernal Logistic Regression</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Kernel Logistic Regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Kernel Logistic Regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-06 13:37:08" itemprop="dateCreated datePublished" datetime="2018-11-06T13:37:08+08:00">2018-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在我们的生活中，其实大部分使用的都是soft-margin SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？</p>
+<span id="more"></span>
+<p>之前我们试着将soft-margin SVM的数学描述写成了另外一种形式：</p>
+<p><strong>min</strong>  $\frac 1 2 W^TW + C\sum_{n&#x3D;1}^N max{1-y_n(W^TX_n+b),0}.$</p>
+<p>实际上，这个形式如果你仔细观察这个形式，就会发现实际上它和losgistic regression加上L2正则化之后的形式非常的相似：</p>
+<table>
+<thead>
+<tr>
+<th>algorithm</th>
+<th>minimize</th>
+<th>constraint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>regularization by constraint</td>
+<td>$E_{in}$</td>
+<td>$W^TW \leq C$</td>
+</tr>
+<tr>
+<td>hard-margin SVM</td>
+<td>$W^TW$</td>
+<td>$E_{in} &#x3D; 0$[and more]</td>
+</tr>
+<tr>
+<td>L2 regularization</td>
+<td>$\frac \lambda N W^TW + E_{in}$</td>
+<td></td>
+</tr>
+<tr>
+<td>soft-margin SVM</td>
+<td>$\frac 1 2 W^TW + CN\hat{E_{in} }$</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>只不过之前我们用$\lambda$，而现在采用的是一个常数C。我们知道，C越大，也就是对应的$\lambda$越小。在这里，我们将$ max{1-y(W^TX_n+b),0}$看作为一种error measurement。</p>
+<p>如果画出这几个错误的曲线与0\1错误的对比：<br>$$</p>
+<p>$$</p>
+<p>实际上，这两个函数是非常接近的。当$y_n(W^TX_n+b)$很大的时候，logistic regression的$E_{in}(\log_2^{1+e^{-ys} })$和 SVM的$\hat{E_{in} }(max{1-y(W^TX_n+b),0})$都是趋于0的,而当$y_n(W^TX_n+b)$非常小（远小于0）的时候，它们的$E_{in}$有都趋于$\vert y_n(W^TX_n+b) \vert$.</p>
+<p>所以我们可以觉得，实际上SVM和logistic regression with L2 regularization几乎在做一样的事情。</p>
+<p>现在我们希望可以将二者结合，例如我们用SVM的值来预测概率，我们也可以得到不错的结果。但是这个实际上没有用到logistic。或者我们用SVM的结果来做Logitsitc regression的初始值，但是既然logistic regression的$E_{in}$是凸函数，因此实际上得到的最终结果区别也不大，也就是实际上就像没有用到SVM。</p>
+<h3 id="Platt’s-Model"><a href="#Platt’s-Model" class="headerlink" title="Platt’s Model"></a>Platt’s Model</h3><p>有一种这样的方法，将目标函数写为：$g(X) &#x3D; \theta (A(W_{SVM}^T \phi(X) + b_{SVM}) +B)$</p>
+<p>对上面的函数进行Logistic Regression。</p>
+<p>所以这时候的Cost Function变成：<br>$$<br>min_{A,B} \frac 1 N \sum_{n&#x3D;1}^N \log\left( 1+\exp\left( -y_n(A\cdot(W_{SVM}^T\phi(X_n)+b_{SVM})+B)\right)\right)<br>$$</p>
+<p>这时候的cost funtion 好像看上去非常复杂，但是仔细想一想的话，实际上既然我们已经有了SVM的结果，因此实际上$W_{SVM}^T\phi(X_n)+b_{SVM}$就是一个值，而不再是一个向量，也就是我们只需要两个数的值：A，B。就可以融合SVM和Logistic Regression。</p>
+<p>当然，如果SVM做的好的话，A的值应该是大于0的，B的值应该是接近于0的，因为我们得到的最终的参数分别为$AW_{SVM}^T$与$Ab_{SVM}+AB$，分别对应最终的W和b，如果SVM做的不错，意味着他们和$W_{SVM},b_{SVM}$差距太大。</p>
+<p>上述中$\phi(X)$意味着利用了特征转换，也就是会使用kernel。可以得到比较不错的logistic regression在z空间不错的解。</p>
+<p>但是上面这个办法，不能保证这是logistic regression在Z空间（转换之后的空间）真正最好的解。</p>
+<h3 id="Kernal-Logistic-Regression"><a href="#Kernal-Logistic-Regression" class="headerlink" title="Kernal Logistic Regression"></a>Kernal Logistic Regression</h3><p>想要找到logistic regression在Z空间真正最好的解，一个办法是在Z空间做logistic regression。但是我们的转换实际上是由kernel提供的，方便计算$Z_n^TZ_m$。而logistic regression根本就不是二次规划问题，又如何用到kernel？</p>
+<p>其实，我们一直在求的东西是$W$，$W$的维度是和$Z$的维度一样，那么$W$是不是$Z$的线性组合呢？</p>
+<p>在SVM中，正是这样，还记得$W$怎么算吗：<br>$$<br>W &#x3D; \sum_{n&#x3D;1}^N \alpha_n y_nX_n<br>$$</p>
+<p>同样的，在PLA，Logistic Regression中也是这样。假如我们想想$W$的初始值为0,那么每次更新步骤不就是一个系数乘上一个$X_i$的线性组合吗？</p>
+<p>实际上，在L2的regularization中，最好的W都是可以被Z线性组合表示出来的。</p>
+<p>如何证明这件事情？</p>
+<p>我们将optimal $W$ 写为$W^*$.<br>其中$W^*$可以表示为垂直X空间的与平行X空间（线性组合即为平行）的。</p>
+<p>$W^* &#x3D; W_{\Vert} + W_{\perp}$</p>
+<p>我们可以证明的是，当$W^*$中$W^{\perp}$为0.</p>
+<p>如果$W_{\perp}!&#x3D;0$,则$W^{*T}X &#x3D; W_{\Vert}^T X + 0$。</p>
+<p>从另一方面来说：<br>$W^{ * T}W^* &#x3D; W_{\Vert} ^T W_{\Vert} + W_{\perp}^TW_{\perp} &gt;W_{\Vert} ^T W_{\Vert} $</p>
+<p>这说明$W_{\Vert}$比$W^*$是更好的选择，与假设矛盾。</p>
+<p>所以，$W^{*} &#x3D; \sum_{n&#x3D;1}^N\beta_nZ_n$.</p>
+<p>因此，我们将W换成上式，那么就会出现了我们想要的$Z_nZ_m$.</p>
+<p>L2 regularization变成下面的样子：<br>$$<br>min_{W} \frac \lambda N \sum_{n&#x3D;1}^N\sum_{m&#x3D;1}^N \beta_n\beta_m Z_n^TZ_m + \frac 1 N \sum_{n&#x3D;1}^N \log \left(1 + \exp\left(-y_n \sum_{m&#x3D;1}^N \beta_m Z_m Z_n \right) \right)<br>$$</p>
+<p>我们可以轻易将上式中的$Z_n^TZ_m$换成$k(x_n,x_m)$.从而实现在z空间上logistic regression的最优解。</p>
+<p>从另一方面来说，$ \sum_{n}^N\sum_{m}^N \beta_n\beta_m k(x_n,_m) &#x3D; \beta ^T K \beta$,可以将它看成一种特殊的正则化。所以实际上我们可以将KLR看成关于转换后的数据在$\beta$上的线性模型（原来是关于W的线性模型）。</p>
+<p>一般来说$beta_n$都不为0,所以这个和SVM中的$\alpha_n$不一样。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/" rel="prev" title="信息论——Lossless Encoding">
+                  <i class="fa fa-angle-left"></i> 信息论——Lossless Encoding
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/" rel="next" title="Learning From Data——Neural Network">
+                  Learning From Data——Neural Network <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

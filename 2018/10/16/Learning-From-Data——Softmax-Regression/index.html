@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Learning From Data是研究生修的一门课，其实也就是机器学习的另一种叫法。第一门课中介绍了Linear Regression，Logistic Regression，Softmax Regression.虽然前两个都学过，但是还是有一些收获，比如另外的解释方法等等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Softmax Regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/16/Learning-From-Data%E2%80%94%E2%80%94Softmax-Regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="Learning From Data是研究生修的一门课，其实也就是机器学习的另一种叫法。第一门课中介绍了Linear Regression，Logistic Regression，Softmax Regression.虽然前两个都学过，但是还是有一些收获，比如另外的解释方法等等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-16T03:43:43.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:34:00.368Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="regression">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/16/Learning-From-Data%E2%80%94%E2%80%94Softmax-Regression/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/16/Learning-From-Data%E2%80%94%E2%80%94Softmax-Regression/","path":"2018/10/16/Learning-From-Data——Softmax-Regression/","title":"Learning From Data——Softmax Regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Softmax Regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">Linear Regression</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Logistic-Regression"><span class="nav-number">2.</span> <span class="nav-text">Logistic Regression</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Softmax-Regression"><span class="nav-number">3.</span> <span class="nav-text">Softmax Regression</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/16/Learning-From-Data%E2%80%94%E2%80%94Softmax-Regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Softmax Regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Softmax Regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-16 11:43:43" itemprop="dateCreated datePublished" datetime="2018-10-16T11:43:43+08:00">2018-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:34:00" itemprop="dateModified" datetime="2023-10-21T03:34:00+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Learning From Data是研究生修的一门课，其实也就是机器学习的另一种叫法。第一门课中介绍了Linear Regression，Logistic Regression，Softmax Regression.虽然前两个都学过，但是还是有一些收获，比如另外的解释方法等等。<span id="more"></span></p>
+<h2 id="Linear-Regression"><a href="#Linear-Regression" class="headerlink" title="Linear Regression"></a>Linear Regression</h2><p>这次Linear Regression主要学习到的新的东西是，从概率角度来理解为什么使用Least Square.</p>
+<p>假设目标函数是 $Y &#x3D; W^Tx+ \epsilon$，其中$\epsilon$是N维向量.假设$\epsilon$是独立同分布（IID）的，而且满足高斯分布$N(0,\sigma)$,则:<br>$$<br>p(y_n|X_n,W) &#x3D; \frac 1 {\sqrt{2\pi }\sigma } exp \left(-\frac{(Y_n - W^TX_n)^2}{2\sigma ^2} \right)<br>$$</p>
+<p>而出现这个样本的概率如下：</p>
+<p>$L(W) &#x3D; p(Y|X,W) &#x3D; \prod _{n&#x3D;1}^N p(y_n|X_n,W)$.</p>
+<p>我们想要求得最大概率估计（Maximum Likelihood Estimation）:$W_{MLE} &#x3D; argmax_W(L{W})$.</p>
+<p>展开之前我们应该加个log，因为我们喜欢sum而不是prod。如下：</p>
+<p>$$<br>\begin{array} {l}<br>\log{L(W)} &amp;&#x3D; \sum <em>{n&#x3D;1}^N(\log{\frac 1 {\sqrt {2 \pi} \sigma} }- \frac 1 {2\sigma ^2 } (Y_n - W^TX_n)^2 \log e )\<br> &amp;&#x3D; m \log{\frac 1 {\sqrt {2 \pi }\sigma} } - \frac 1 {2\sigma ^2 }  \sum</em>{n&#x3D;1}^N  (Y_n - W^TX_n)^2<br>\end{array}<br>$$</p>
+<p>所以，$argmax_{W} (L(W)) &#x3D; argmin_{W} (\sum_{n&#x3D;1}^N  (Y_n - W^TX_n)^2 )$.这也正是我们的cost function的定义。</p>
+<h2 id="Logistic-Regression"><a href="#Logistic-Regression" class="headerlink" title="Logistic Regression"></a>Logistic Regression</h2><p>Logistic Regression学习了从另一种角度思考得到另一种定义cost function的方法，当然最终效果是一致的。</p>
+<p>之前的logsitic regression对于$P(X_i \bigcap y_i)$的估计如下：<br>$$<br>P(X_i \bigcap y_i) &#x3D;\frac {(y_i+1)} 2 P(X_i) \times P(y_i &#x3D; +1|X_i) +\frac {(1 - y_i)} 2 P(X_i) \times (1 - P(y_i &#x3D; +1|X_i))<br>$$</p>
+<p>实际上有另外一种可以达到一样的效果,不过此时我们需要的就是另外一种对$y$的定义了：$y \in {0,1}$:<br>$$<br>P(X_i \bigcap y_i) &#x3D; (P(X_i) \times P(y_i &#x3D; 1|X_i))^{y_i} (P(X_i) \times (1 - P(y_i &#x3D; 1|X_i)))^{1-y_i}<br>$$</p>
+<p>因此出现这个样本的概率为：<br>$$<br>L(W) &#x3D; \prod _{i&#x3D;1}^N (P(X_i \bigcap y_i) &#x3D; P(X_i) \times h_w(X_i) )^{y_i} (P(X_i) \times (1-h_W(X_i)))^{1-y_i} .<br>$$</p>
+<p>我们可以略去这些$P(X_i)$,因为这是确定的而且也不是我们需要注意的。<br>这时候log之后，得到最后的cost funtion的形式与之前就有了一些不同：</p>
+<p>$$<br>f(W) &#x3D; -(\sum _{i&#x3D;1}^N y_i \log h_W{X_i} + (1 - y_i)\log{ (1 -h_W{X_i})})<br>$$</p>
+<p>接下来要做的就是求这个函数的梯度，但是为了看的清楚，首先说明下各个函数的意义：</p>
+<p>$$<br>h_W(X) &#x3D; \frac 1 {1 - e^{-g_W(X)} }<br>$$</p>
+<p>$$<br>g_W(X) &#x3D; W^TX<br>$$</p>
+<p>求梯度过程如下：</p>
+<p>$$<br>\begin{array}{l}<br>\nabla f(W) &amp;&#x3D; -(\sum <em>{i&#x3D;1} ^N (y_i log(h_W(X_i)) + (1-y_i) log(1-h_W(X_i))))\<br>&amp;&#x3D; -(\sum</em>{i&#x3D;1}^N \left[ \frac {y_i}{h_W(X_i)} - \frac {1-y_i}{1-h_W(X_i)} \right] h_W’(x))\<br>&amp;&#x3D; -(\left[y_i + \frac {1-y_i}{e^{-g_W(X_i)} } \right] \frac {e^{-g_W(X_i)} }{1 - e^{-g_W(X_i)} } g_W’(X_i)) \\<br>&amp;&#x3D; -(\left[ \frac 1 {1 - e^{-g_W(X_i)} } - y_i \frac {1 - e^{-g_W(X_i)} }{1 - e^{-g_W(X_i)} } \right] g_W’(X_i))\<br>&amp;&#x3D;-(y_i - h_W(X_i))X_i<br>\end{array}<br>$$</p>
+<p>而且这个cost function的好处是，利用梯度下降的时候它和线性回归的步骤是非常相似的,线性回归中：</p>
+<p>$$<br>\frac {\partial f(W)}{\partial w_j} &#x3D; \sum <em>{i&#x3D;1}^N(y_i - g</em>{W}(X_i))x_{i,j}.<br>$$</p>
+<p>即<br>$$<br>\nabla f(W) &#x3D; \sum_{i&#x3D;1}^N (y_i - g_{W}(X_i))X_i.<br>$$</p>
+<p>最后回到两种不同的cost funtion，实际上两者本质没有太大的区别，只是negative，positive的标识数字不同。最后得到的结果可能也不一样，但是差距不会太大，都会得到比较理想的结果。</p>
+<h2 id="Softmax-Regression"><a href="#Softmax-Regression" class="headerlink" title="Softmax Regression"></a>Softmax Regression</h2><p>Softmax Regression是一种多维分类算法。依然是站在概率的角度来讨论。</p>
+<p>假设共有k类，即$y \in {1,…,k}$.我们先给出一个概率估计，之前得概率估计是logistic函数，现在我们给出另一种情况：</p>
+<p>$$<br>h_W(X_i) &#x3D; \left [<br>    \begin{matrix}<br>p(y_i &#x3D; 1|X_i;W_1)\<br>p(y_i&#x3D;2|X_i;W_2)\<br>…\<br>p(y_i&#x3D;k|X_i;W_k)<br> \end{matrix}\right] &#x3D; \frac 1 {\sum _{j&#x3D;1}^k e^{W_j^TX_i} }<br> \left[\begin{matrix} e^{W_1^TX_i}\<br> e^{W_2^TX_i}\<br> …\<br> e^{W_k^TX_i}<br> \end{matrix}\right]<br>  &#x3D; softmax(W,X_i)<br>$$</p>
+<p>同时我们定义:$softmax(z_i) &#x3D; p{y &#x3D; i|X,W} &#x3D; \frac {e^{z_i} }{\sum _{j&#x3D;1}{k} e^{z_j} }$，此时$i \in {1,…,k}$.</p>
+<p>当然，W参数也会发生变化：</p>
+<p>$$<br>W &#x3D; \left[<br>\begin{matrix}<br>-W_1^T-\<br>-W_2^T-\<br>…\<br>-W_k^T-<br>\end{matrix}<br>\right]<br>$$</p>
+<p>因此我们确定了给定$W$和$X$的时候，$y$的概率。</p>
+<p>而出现当前样本的概率（我们忽略$P(W,X)$,像之前一样它不会影响结果）：<br>$$<br>L(W) &#x3D; \prod_{i&#x3D;1}^{N} P(y_i|X_i,W).<br>$$<br>其实我们可以想象的是这个式子展开了后会很复杂，因为对$y_i$可能的各个情况也要连乘。不如先log好了：</p>
+<p>$$<br>\begin {array}{l}<br> F(W) &#x3D; \log{L(W)} &amp;&#x3D; \sum_{i&#x3D;1}^N \log {p(y_i|X_i,W) }\<br> &amp;&#x3D; \sum_{i&#x3D;1}^N \log{\prod_{j&#x3D;1}^k p_{W_j}(j|X_i,W)^{\mathbf{1}{y_i &#x3D; j} } }\<br> &amp;&#x3D; \sum_{i&#x3D;1}^N \sum_{j&#x3D;1}^k \mathbf{1}{y_i &#x3D; j} \log { \frac {e^{W_jX_i} }{\sum _{l&#x3D;1}^k e^{W_l^TX_i} } }<br>\end {array}<br>$$</p>
+<p>这个东西，其实我推算的时候对他的符号表示已经很头大了。但是它虽然复杂但原理不难懂，和logistic regression的道理基本上一样的。</p>
+<p>最后，我们就是要求这个函数的梯度了。这个函数的梯度求解想必是非常复杂的，但是实际上没有想象的那么麻烦。最后的结果也非常的简单：</p>
+<p>$$<br>\nabla _{W_j} F(W) &#x3D;<br>\sum _{i&#x3D;1}^m \left( \mathbf{1}{y_i &#x3D; j} \log {\frac {e^{W_j^TX_i} }{\sum <em>{l&#x3D;1}^k e^{W_l^TX_i} } } + \mathbf{1}{y_i \ne j} \log {\frac {e^{W</em>{y_i}^TX_i} }{\sum _{l&#x3D;1}^k e^{W_l^TX_i} } } \right)<br>$$</p>
+<p>我们仔细观察原式就可以化简上面的样子。为了简化后面的步骤，假设$g(W_l) &#x3D; W_l^TX_i$.<br>第一种情况$ {y_i &#x3D; j}$：</p>
+<p>$$<br>f_1(W) &#x3D; \log {\frac {e^{g(W_j)} }{\sum_{l&#x3D;1}^k e^{g(W_l)} } }<br>$$</p>
+<p>$$<br>\begin{array}{l}<br>\nabla <em>{W_j} f_1(W)  &amp;&#x3D; \frac {\sum</em>{l&#x3D;1}^k e^{g(W_l)} }{e^{g(W_j)} } \cdot \frac { -e^{2g(W_j)}+ (\sum_{l&#x3D;1}^k e^{W_l})e^{W_j} }{(\sum_{l&#x3D;1}^k e^{g(W_l)})^2} \cdot g’(W_j)\<br>&amp;&#x3D; \frac{\sum_{l&#x3D;1}^k e^{g(W_l) - e^{g(W_j)} } }{\sum_{l&#x3D;1}^k e^{g(W_l)} } \cdot g’(W_j) \\<br>&amp;&#x3D; (1 - p(y_i &#x3D; l|X_i,W))X_i<br>\end{array}<br>$$</p>
+<p>第二种情况$y_i \ne j$,假设$y_i &#x3D; q \ne j$:</p>
+<p>$$<br>f_2(W) &#x3D; \log {\frac {e^{g(W_q)} }{\sum_{l&#x3D;1}^k e^{g(W_l)} } }<br>$$</p>
+<p>$$<br>\begin{array}{c}<br>\nabla <em>{W_j} f_2(W) &amp;&#x3D;\frac {\sum</em>{l&#x3D;1}^k e^{g(W_l)} }{e^{g(W_q)} } \cdot \frac { -e^{g(W_j) e^{g(W_q)} } }{(\sum_{l&#x3D;1}^k e^{g(W_l)})^2} \cdot g’(W_j)\<br>&amp;&#x3D; - p(y_i &#x3D; l|X_i,W)X_i<br>\end{array}<br>$$</p>
+<p>也是两种情况的差别只有前面是否加一个1。合并两种情况，可以得到：</p>
+<p>$$<br>\nabla _{W_j} F(W) &#x3D; \sum _{i&#x3D;1} ^N [(\mathbf{1}{y_i&#x3D;j} - p(y_i&#x3D;l|X_i,W))X_i]<br>$$</p>
+<p>上面推出来的要注意是我们想要最大化的函数。</p>
+<p>而cost funtion的梯度应该是： $\sum _{i&#x3D;1} ^N [(-\mathbf{1}{y_i&#x3D;j} + p(y_i&#x3D;l|X_i,W))X_i] $</p>
+<p>对于softmax regression我们需要知道，它的参数$W_j$之间并不是独立的，因为各个概率加起来为1，有这个约束后实际上，只要知道$k-1$个参数，就可以确定这个模型。</p>
+<p>实际上，可以很容易证明logistic regression 是 softmax regression的特殊情况。</p>
+<p>以上就是上节课学到的所有新东西。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/16/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Newton-Method/" rel="prev" title="数学——Newton Method">
+                  <i class="fa fa-angle-left"></i> 数学——Newton Method
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/" rel="next" title="Learning From Data——Generalized Linear Model">
+                  Learning From Data——Generalized Linear Model <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

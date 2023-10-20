@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="虽然这篇文章的名字很简单：后端，但是它实际上是SLAM中非常重要的部分。因为在帧与帧的定位在局部来说还是比较准确，但是每次都会有一定的漂移（drift），而放到全局就会造成严重的全局不一致（inconsistence），可以说没有一个好的后端就无法实现好的定位与重建。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——后端（一）滤波器后端">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%B8%80%EF%BC%89%E6%BB%A4%E6%B3%A2%E5%99%A8%E5%90%8E%E7%AB%AF/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="虽然这篇文章的名字很简单：后端，但是它实际上是SLAM中非常重要的部分。因为在帧与帧的定位在局部来说还是比较准确，但是每次都会有一定的漂移（drift），而放到全局就会造成严重的全局不一致（inconsistence），可以说没有一个好的后端就无法实现好的定位与重建。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:17.527Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%B8%80%EF%BC%89%E6%BB%A4%E6%B3%A2%E5%99%A8%E5%90%8E%E7%AB%AF/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%B8%80%EF%BC%89%E6%BB%A4%E6%B3%A2%E5%99%A8%E5%90%8E%E7%AB%AF/","path":"2019/01/23/SLAM——后端（一）滤波器后端/","title":"SLAM——后端（一）滤波器后端"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——后端（一）滤波器后端 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E7%B3%BB%E7%BB%9F%E4%B8%8EKF"><span class="nav-number">1.</span> <span class="nav-text">线性系统与KF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%B3%BB%E7%BB%9F%E5%92%8CEKF"><span class="nav-number">2.</span> <span class="nav-text">非线性系统和EKF</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%B8%80%EF%BC%89%E6%BB%A4%E6%B3%A2%E5%99%A8%E5%90%8E%E7%AB%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——后端（一）滤波器后端 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——后端（一）滤波器后端
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-23 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-23T00:00:00+08:00">2019-01-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:17" itemprop="dateModified" datetime="2023-10-21T04:27:17+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>虽然这篇文章的名字很简单：后端，但是它实际上是SLAM中非常重要的部分。因为在帧与帧的定位在局部来说还是比较准确，但是每次都会有一定的漂移（drift），而放到全局就会造成严重的全局不一致（inconsistence），可以说没有一个好的后端就无法实现好的定位与重建。</p>
+<span id="more"></span>
+
+
+<p>在SLAM中，对于后端的实现一般有两种，基于滤波（filter）的后端与基于全局优化（global opitimization）的后端。本次主要介绍基于滤波的后端。后端的需要解决的问题主要是从带噪声的数据估计内在状态。</p>
+<p>最简单的，我们在实际中面对的问题有两种，一种是实时的数据，另外一种是已经采集好的数据，可以离线进行建图。最简单的办法，前一种一帧一帧处理，后一中可以做批量处理，分布称为渐进式和批量式。而滤波就是用来处理渐进式的方法。</p>
+<ol>
+<li>保持当前状态的估计，在加入新信息时，更新已有的估计</li>
+<li>线性系统+高斯噪声&#x3D;卡尔曼滤波</li>
+<li>非线性系统+高斯噪声+线性近似&#x3D;扩展卡尔曼滤波</li>
+<li>非线性系统+非高斯噪声+非参数化&#x3D;粒子滤波器</li>
+<li>滑动窗口滤波以及多状态卡尔曼（MSCKF）</li>
+</ol>
+<p>我们知道SLAM的过程是用运动方程与观测方程描述的：</p>
+<p>\left\{ \begin{matrix} x_k &#x3D; f(x_{k-1},u_k) + w_k\\ z_{k,j} &#x3D; h(y_j,x_k)+v_{k,j} \end{matrix} \right. k&#x3D;1,…,N,j&#x3D;1,…,M</p>
+<p>我们知道每个方程都受噪声影响，所以要把这里的位姿$x$和路标$y$看成服从某种概率分布的随机变量。因此我们的问题就变成了拥有运动数据$u$和观测数据$z$的时候，如何确定$x,y$的分布，以及得到新的数据的时候，他们的状态又该如何改变。一般来说，我们会假设状态量和噪声项都服从高斯分布——这意味着程序中只需要存储它们的均值和协方差矩阵。均值为最优估计，而协方差定义了它的不确定性。</p>
+<p>我们假设$x_k$为$k$时刻的所有待估计变量的和，这意味着它包含了路标位置和位姿：</p>
+<p>x_k \triangleq \{x_k,y_1,…,y_m\}.</p>
+<p>同时我们把k时刻的所有观测数据记为$z_k$，这时候新的方程就变成了：</p>
+<p>\left\{ \begin{matrix} x_k &#x3D; f(x_{k-1},u_k)+w_k\\ z_k &#x3D; h(x_k)+v_k \end{matrix} \right. k &#x3D; 1,…,N.</p>
+<p>现在考虑第k时刻的情况，我们希望用过去0到k-1时刻的状态来估计现在的状态分布：</p>
+<p>P(x_k\vert x_0,u_{1:k},z_{1:k})</p>
+<p>下标$1:k$表示：从1到$k$时刻的所有数据。</p>
+<p>按照贝叶斯法则，将$z_k$与$x_k$的位置交换，得到：</p>
+<p>P(x_k\vert x_0,u_{1:k},z_{1:k}) \propto P(z_k\vert x_k)P(x_k\vert x_0,u_{1:k},z_{1:k-1}).</p>
+<p>右式中第一项为似然，第二项为先验。似然有观测方程给定（比如知道位置和位姿求空间点的投影像素位置），先验部分$x_k$是基于过去所有的状态估计得来的，至少它会收到$k-1$时刻的状态影响：</p>
+<p>P(x_k\vert x_0,u_{1:k},z_{1:k-1}) &#x3D; \int \underbrace{P(x_k\vert x_{k-1},x_0,u_{1:k},z_{1:k-1})}_ {\alpha} \underbrace {P(x_{k-1}\vert x_0,u_{1:k},z_{1:k-1})}_ {\beta}dx_{k-1}</p>
+<p>如果考虑之前更久的状态，就要对上面的式子继续展开。到这一步，处理就产生了两种办法，一是马尔可夫性质的假设，认为$k$时刻至于$k-1$时刻有关，这样我们就会得到扩展卡尔曼滤波（EKF）的处理方法;另外就是依然考虑$k$时刻的状态与之前所有时刻的状态都是相关的，这时候就得到非线性优化的优化框架。这一篇主要介绍卡尔曼滤波与EKF。</p>
+<h3 id="线性系统与KF"><a href="#线性系统与KF" class="headerlink" title="线性系统与KF"></a><a href="about:blank#%E7%BA%BF%E6%80%A7%E7%B3%BB%E7%BB%9F%E4%B8%8EKF" title="线性系统与KF"></a>线性系统与KF</h3><p>如果我们假设了马尔可夫性，由于当前时刻只和上一个时刻有关，则$\alpha$简化为：</p>
+<p>\alpha &#x3D; P(x_k\vert x_{k-1},x_0,u_{1:k},z_{1:k-1}) &#x3D; P(x_k\vert x_{k-1}, u_k)</p>
+<p>$beta$可以写为：</p>
+<p>\beta &#x3D; P(x_{k-1}\vert x_0,u_{1:k},z_{1:k-1}) &#x3D; P(x_{k-1}\vert x_0,u_{1:k-1},z_{1:k-1})</p>
+<p>这是因为$u_k$，是$k-1$时刻之后的输入，它不会对过去的状态产生影响。我们可以看到，$\beta$实际上是$k-1$时刻的状态分布。因此我们在做的是如何把$k-1$时刻的状态分布推导到$k$时刻，因此整个程序实现中，我们需要维护的只有一个状态分布而已，并不断用它结合输入来得到下一个时刻的状态分布。如果我们假设噪声服从高斯分布，我们需要维护的只有均值和协方差即可。</p>
+<p>现在首先假设我们的系统为线性高斯系统，也就是运动方程和观测方程可以由线性方程来描述：</p>
+<p>\left\{ \begin{matrix} x_k &#x3D; A_kx_{k-1} + u_k + w_k\\ z_k &#x3D; C_kx_k + v_k \end{matrix} \right . k &#x3D; 1,…,N</p>
+<p>并且假设所有的状态和噪声均满足高斯分布。假如这里的噪声满足零均值高斯分布，则：</p>
+<p>w_k \sim N(0,R), v_k \sim N(0,Q)</p>
+<p>假设我们知道了$k-1$时刻的后验状态估计$\hat x_{k-1}$以及协方差$\hat P_{k-1}$，现在要根据$k$时刻的输入和观测数据，确定$x_k$的后验分布。为了区分先验和后验，我们在记号上规定有$\hat{}$的为后验，有$\overline{}$的为先验。</p>
+<p>卡尔曼滤波器的第一步，通过运动方程确定$x_k$的先验分布。根据高斯分布的性质可以得到：</p>
+<p>P(x_k\vert x_0,u_{1:k},z_{1:k}) &#x3D; N(A_k\hat x_{k-1} + u_k,A_k\hat P_{k-1}A_k^T + R)</p>
+<p>这一步称为预测，它显示了如何从上一个时刻的状态根据输入信息推断当前时刻的状态分布。这个分布也就是先验，记：</p>
+<p>\overline x_k &#x3D; A_k \hat x_{k-1} + u_k,\overline P_k &#x3D; A_k \hat P_{k-1} A_k^T + R</p>
+<p>而由观测方程，我们可以计算在某个状态下产生怎样的观测数据：</p>
+<p>P(z_k\vert x_k) &#x3D; N(C_kx_k,Q).</p>
+<p>为了得到后验概率，需要计算他们的乘积。假如结果为：$x_k \sim N(\hat x_k, \hat P_k)$，那么：</p>
+<p>N(\hat x_k, \hat P_k) &#x3D; N(C_kx_k,Q)\cdot N(\overline x_k,\overline P_k)</p>
+<p>由于都是高斯分布，我们可以先只关注指数部分：</p>
+<p>(x_k - \hat x_k)^T\hat P_k ^{-1} (x_k - \hat x_k) &#x3D; (z_k - C_k x_k)^TQ^{-1}(z_k - C_kx_k) + (x_k - \overline x_k)^T\overline{P}_k^{-1} (x_k - \overline x_k)</p>
+<p>为了求得左侧的$\hat x_k$与$\hat P_k$，我们先将两边展开,比较$x_k$的二次和一次系数。</p>
+<ul>
+<li><p>对于二次可以得到：</p>
+<p>\hat P_k^{-1} &#x3D; C_k^TQ^{-1}C_k + \overline P_k^{-1}</p>
+<p>该式给出了协方差的计算过程。对上式左右各乘$\hat P_k$，我们可以得到：</p>
+<p>I &#x3D; \hat P_k C_k^T Q^{-1}C_k + \hat P_k \overline P_k ^{-1}</p>
+<p>定义:$K &#x3D; \hat P_k C_k^T Q^{-1}$，则得到：</p>
+<p>I &#x3D; KC_k + \hat P_k \overline P_k^{-1}.</p>
+<p>即：</p>
+<p>\hat P_k &#x3D; (I - KC_k)\overline P_k.</p>
+</li>
+<li><p>比较一次项系数，有：</p>
+<p>-2\hat x_k^T \hat P_k^{-1}x_k &#x3D; -2z_k^TQ^{-1}C_kx_k - 2\overline x_k^T \overline P_k^{-1}x_k.</p>
+<p>取系数并转置后，可以得到：</p>
+<p>\hat P_k^{-1}\hat x_k &#x3D; C_k^T Q^{-1}z_k + \overline P_k^{-1}\overline x_k.</p>
+<p>对上式两侧乘以$\hat P_k$带入$K$的定义，可以得到：</p>
+<p>\begin{aligned} \hat x_k &amp;&#x3D; \hat P_k C_k^TQ^{-1}z_k + \hat P_k \overline P_k^{-1}\overline x_k\\ &amp;&#x3D;Kz_k + (I-KC_k)\overline x _k \\ &amp;&#x3D; \overline x_k + K(z_k - C_k\overline x_k) \end{aligned}</p>
+</li>
+</ul>
+<p>因此我们得到了后验均值的表达。上面两个步骤可以称为<strong>预测</strong>与<strong>更新</strong>:</p>
+<ol>
+<li>预测： \overline x_k &#x3D; A_k\hat x_{k-1} + u_k, \overline P_k &#x3D; A_k\hat P_{k-1} A_k^T +R</li>
+<li>更新：先计算$K$，又被称为卡尔曼增益： K &#x3D; \overline P_k C_k^T (C_k\overline P_k C_k^T + Q_k)^{-1}.计算后验概率的分布： \hat x_k &#x3D; \overline x_k + K(z_k - C_k\overline x_k),\hat P_k &#x3D; (I - KC_k)\overline P_k.</li>
+</ol>
+<p>于是到这里，我们就推到了卡尔曼滤波器的整个过程。实际上它有若干种推导方式，我们使用的是从概率角度出发的最大后验概率估计的形式。可以看到，在线性高斯系统中，卡尔曼滤波器构成了该系统中的最大后验概率估计，由于高斯分布经过线性变换后仍然为高斯分布，整个过程我们并没有进行任何的近似，因此可以说卡尔曼滤波器是线性系统的最优无偏估计。</p>
+<h3 id="非线性系统和EKF"><a href="#非线性系统和EKF" class="headerlink" title="非线性系统和EKF"></a><a href="about:blank#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%B3%BB%E7%BB%9F%E5%92%8CEKF" title="非线性系统和EKF"></a>非线性系统和EKF</h3><p>我们前面推导的是线性系统下的卡尔曼滤波器，而SLAM中运动方程与观测方程都散非线性函数。而一个高斯分布再进行非线性变换之后，就不一定是高斯分布了，因此在非线性系统中，我们需要取一定的近似，将一个非高斯分布近似乘为高斯分布。</p>
+<p>如果我们希望把卡尔曼滤波器的结果拓展到非线性系统中，称为扩展卡尔曼滤波器（Extended Kalman Filter，EKF）。可以想到的做法是对观测方程与运动方程进行线性近似，也就是进行泰勒展开，保留一阶项,然后按照上面的线性系统来计算，也就是：</p>
+<p>x_k \approx f(\hat x_{k-1},u_k) + \frac{\partial f}{\partial x_{k-1} }\vert_{\hat x_{k-1} }(x_{k-1} - \hat x_{k-1}) + w_k.</p>
+<p>记这里的偏导数为：</p>
+<p>\mathbf{F} &#x3D; \frac{\partial f}{\partial x_{k-1} }\vert_{\hat x_{k-1} }.</p>
+<p>同样的，对于观测方程：</p>
+<p>z_k \approx h(\overline x_k) + \frac{\partial h}{\partial x_k}\vert_{\overline x_k}(x_k - \overline x_k) + n_k.</p>
+<p>记这里的偏导数：</p>
+<p>\mathbf{H} &#x3D; \frac{\partial h}{\partial x_k}\vert_{\overline x_k}.</p>
+<p>那么在预测步骤中，根据运动方程有：</p>
+<p>P(x_k\vert x_0,u_{1:k},z_{0:k-1}) &#x3D; N(f(\hat x_{k-1},u_k),\mathbf F\hat P_{k-1}\mathbf F^T + R_k).</p>
+<p>记先验和协方差均值为：</p>
+<p>\overline x_k &#x3D; f(\hat x_{k-1},u_k), \overline P_k &#x3D; \mathbf F\hat P_{k-1}\mathbf F^T + R_k.</p>
+<p>考虑在观测中我们有：</p>
+<p>P(z_k \vert x_k) &#x3D; N(h(\overline x_k) +\mathbf{H}(x_k - \overline x_k),Q_k).</p>
+<p>根据最开始的贝叶斯展开式，这些接下来的推导与卡尔曼滤波器的内容都是非常相似的，因此就不在这里介绍中间步骤了，而直接介绍结果。我们同样会定义一个卡尔曼增益$K_k$:</p>
+<p>K_k &#x3D; \overline P_k \mathbf H^T (\mathbf H\overline P_k \mathbf H^T + Q_k)^{-1}.</p>
+<p>在卡尔曼增益的基础上，后验概率形式为：</p>
+<p>\hat x_k &#x3D; \overline x_k + K_k(z_k - h(\overline x_k)), \hat P_k &#x3D; (I - K_k \mathbf{H})\overline P_k.</p>
+<p>因此，在SLAM这种非线性系统下，EKF给出了单次线性近似下的最大后验估计。</p>
+<p>滤波器方法在较早的时候非常流行，而在现在的实际应用中，往往是渐进式与批量式集合的方法。如获取新的一帧后，不只是根据上一帧来优化，而是可以根据之前的所有帧来做这个处理。当然，实际中计算机算力有限，我们往往基于关键帧的策略来做这个事情。这就要用到下一次我们要说明的方法Bundle Adjustment。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%BA%8C%EF%BC%89Bundle%20Adjustment/" rel="prev" title="SLAM——后端（二）Bundle Adjustment">
+                  <i class="fa fa-angle-left"></i> SLAM——后端（二）Bundle Adjustment
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/25/3D%20Reconstruction%E2%80%94%E2%80%94TSDF%20volume%20reconstruction/" rel="next" title="3D Reconstruction——TSDF volume reconstruction">
+                  3D Reconstruction——TSDF volume reconstruction <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

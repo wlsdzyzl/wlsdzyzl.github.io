@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="因为目前做的项目需要用到CPP的并发编程，之前虽然用CPP写过不少代码，但大多是OJ和课后题目，以及一些黑框小游戏，而没有涉及到并发编程。涉及到并发的一直都是用Java，Python的语言去做的，也用c语言做过一个服务器，利用fork，pthread等等，是操作系统层面的操作（linux，windows等）。因此这次了解一下CPP的并发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CPP——并发编程（一）thread">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/28/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89thread/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="因为目前做的项目需要用到CPP的并发编程，之前虽然用CPP写过不少代码，但大多是OJ和课后题目，以及一些黑框小游戏，而没有涉及到并发编程。涉及到并发的一直都是用Java，Python的语言去做的，也用c语言做过一个服务器，利用fork，pthread等等，是操作系统层面的操作（linux，windows等）。因此这次了解一下CPP的并发。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:25:45.259Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="concurrent programmingm">
+<meta property="article:tag" content="Programming language">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/28/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89thread/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/28/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89thread/","path":"2019/03/28/CPP——并发编程（一）thread/","title":"CPP——并发编程（一）thread"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CPP——并发编程（一）thread | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/28/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89thread/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CPP——并发编程（一）thread | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CPP——并发编程（一）thread
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-28 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-28T00:00:00+08:00">2019-03-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:25:45" itemprop="dateModified" datetime="2023-10-21T04:25:45+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">程序设计语言</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>因为目前做的项目需要用到CPP的并发编程，之前虽然用CPP写过不少代码，但大多是OJ和课后题目，以及一些黑框小游戏，而没有涉及到并发编程。涉及到并发的一直都是用Java，Python的语言去做的，也用c语言做过一个服务器，利用fork，pthread等等，是操作系统层面的操作（linux，windows等）。因此这次了解一下CPP的并发。  </p>
+<span id="more"></span>
+
+
+<p>CPP之前的并发感觉用的比较多的boost库，现在C++11也加入了对线程的支持，可以直接在语言层面编写并行代码。下面简单了解一下C++11中的线程。</p>
+<p>std::thread，包含在thread头文件中（#include）。</p>
+<p>thread的默认构造函数，初始化，拷贝构造函数，移动构造函数分别如下：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>声明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>default (1)</td>
+<td>thread() noexcept;</td>
+</tr>
+<tr>
+<td>initialization (2)</td>
+<td>template explicit thread (Fn&amp;&amp; fn, Args&amp;&amp;… args);</td>
+</tr>
+<tr>
+<td>copy [deleted ] (3)</td>
+<td>thread (const thread&amp;) &#x3D; delete;</td>
+</tr>
+<tr>
+<td>move (4)</td>
+<td>thread (thread&amp;&amp; x) noexcept;</td>
+</tr>
+</tbody></table>
+<p>可以看到的是，thread类型的初始化为参数可变参数,且不能隐式转换（explicit关键字），没有拷贝构造函数。移动构造后，原有的线程不再存在。示例代码如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span> &amp;n)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    n +=<span class="number">10</span>;</span><br><span class="line">}</span><br><span class="line"><span class="comment">//wrong </span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(f,n)</span></span>;</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(f,<span class="built_in">std</span>::ref(n))</span></span>;</span><br><span class="line"><span class="comment">//wrong: copy[deleted]</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(t)</span></span>;</span><br><span class="line"><span class="comment">//right: move</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(<span class="built_in">std</span>::move(t))</span></span>;</span><br><span class="line"><span class="comment">//wrong: t is moved, it is not joinable</span></span><br><span class="line">t.join();</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line">t2.join();</span><br></pre></td></tr></tbody></table>
+
+<p>第一个wrong，是因为thread中f如果包含引用，那么传入引用的变量需要经过std::ref。这是因为thread的可变参数是右值引用，如果直接传入根据引用叠加规则会导致错误。具体的原理需要深究，现在只需要知道即可。</p>
+<p>除了拷贝和移动，另一个值得关注的是<strong>赋值函数</strong>。赋值函数有两个重构：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>声明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>move (1)</td>
+<td>thread&amp; operator&#x3D; (thread&amp;&amp; rhs) noexcept;</td>
+</tr>
+</tbody></table>
+<p>copy [deleted ] (2)thread&amp; operator&#x3D; (const thread&amp;) &#x3D; delete;</p>
+<p>可以看到的是赋值函数的两个重构对应的是拷贝构造函数和移动构造函数，也就是thread只可以被右值赋值。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::thread t = thread(f,<span class="built_in">std</span>::ref(n));</span><br><span class="line"><span class="comment">//wrong</span></span><br><span class="line"><span class="built_in">std</span>::thread t1 = t;</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::thread t2=<span class="built_in">std</span>::move(t);</span><br></pre></td></tr></tbody></table>
+
+<p>下面介绍thread别的成员函数。</p>
+<p><strong>thread::join()</strong></p>
+<p>void join();</p>
+<p>join函数阻塞线程执行完毕再执行之后的结果。如：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(f,<span class="built_in">std</span>::ref(n))</span></span>;</span><br><span class="line">t.join();</span><br><span class="line">other_operation();</span><br></pre></td></tr></tbody></table>
+
+<p>则other_operation只有在t线程执行完，也就是f函数执行完毕才会执行。需要注意的是，一旦一个线程创建了，它就开始运行了。</p>
+<p><strong>thread::joinable()</strong></p>
+<p>bool joinable() const noexcept;</p>
+<p>joinable返回这个线程是否可以join，也就是阻塞。当线程有下面几个特征中一点时，是不能join的：</p>
+<ul>
+<li>默认构造函数构造的，只是一个空线程，并没有执行的函数</li>
+<li>已经被move了，被move后是一个右值，它原有的内容都是未定义的</li>
+<li>已经join或者detach过，detach稍后说明</li>
+</ul>
+<p><strong>thread::get_id()</strong></p>
+<p>id get_id() const noexcept;</p>
+<p>返回线程的id。没什么好说的，创建线程的时候会给每个线程分配一个id。</p>
+<p><strong>thread::detach()</strong></p>
+<p>void detach();</p>
+<p>分离线程函数。调用detach，那么该线程会和主线程分离。一般来说子线程和主线程的关系是，主线程结束，子线程不管结束还是没有结束都会被销毁，而join会让主线程等待子线程结束，detach会让子线程脱离主线程，及时主线程结束了，子线程依然可以继续运行。</p>
+<p><strong>thread::swap</strong></p>
+<p>void swap (thread&amp; x) noexcept;</p>
+<p>交换两个线程。</p>
+<p><strong>thread::native_handle()</strong></p>
+<p>native_handle_type native_handle();</p>
+<p>这个函数只有库函数支持该函数时方法才有效。如果有效，它用于获取与操作系统相关的原生线程句柄。</p>
+<p>此外，thread还有两个数据成员，id和native_handle_type，他们分布代表id和原生句柄的类型。</p>
+<p>thread还有一个静态成员函数：<strong>thread::hardware_concurrency</strong>：</p>
+<p>static unsigned hardware_concurrency() noexcept;</p>
+<p>这个函数用于获取程序可以调动的最大线程数，在多核系统中，也就代表CPU个数，仅作参考。上面就是关于线程的内容，内容不多。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cpp/" rel="tag"># cpp</a>
+              <a href="/tags/concurrent-programmingm/" rel="tag"># concurrent programmingm</a>
+              <a href="/tags/Programming-language/" rel="tag"># Programming language</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/27/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BA%B9%E7%90%86/" rel="prev" title="图形学——纹理">
+                  <i class="fa fa-angle-left"></i> 图形学——纹理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/29/CPP%E2%80%94%E2%80%94%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89atomic/" rel="next" title="CPP——并发编程（二）atomic">
+                  CPP——并发编程（二）atomic <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

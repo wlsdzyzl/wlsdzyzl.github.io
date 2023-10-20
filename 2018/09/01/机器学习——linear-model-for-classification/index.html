@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="到目前为止，已经学习了3个线性模型了，他们都使用到了$score &#x3D; W^TX$(后文中简写为$s$)，使用特征间线性组合来打分，通过分数来做后续的处理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——linear model for classification">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="到目前为止，已经学习了3个线性模型了，他们都使用到了$score &#x3D; W^TX$(后文中简写为$s$)，使用特征间线性组合来打分，通过分数来做后续的处理。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/87T%7EV%5DV75N992E1I%5B3M9%5DZK.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/CCO%29%25RV4OG9Z8%7D60%40%404W6G0.png">
+<meta property="article:published_time" content="2018-09-01T13:42:33.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="classification">
+<meta property="article:tag" content="visualization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/87T%7EV%5DV75N992E1I%5B3M9%5DZK.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/","path":"2018/09/01/机器学习——linear-model-for-classification/","title":"机器学习——linear model for classification"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——linear model for classification | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——linear model for classification | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——linear model for classification
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-01 21:42:33" itemprop="dateCreated datePublished" datetime="2018-09-01T21:42:33+08:00">2018-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>到目前为止，已经学习了3个线性模型了，他们都使用到了$score &#x3D; W^TX$(后文中简写为$s$)，使用特征间线性组合来打分，通过分数来做后续的处理。<span id="more"></span></p>
+<p>linear regression用于分类前面有一篇博客已经说明，现在我们想要知道，logistic regression 是否也可以用于分类？毕竟线性回归的错误对于二元分类来说是一个很大的上界，这意味着它的效果虽然不差，但可能错失更好的。而PLA找到一个最小的$E_{in}$是NP-hard问题，只能使用改进的POCKET算法。我们希望看到logistic regression用于二元分类可以有更好的表现。</p>
+<p>与之前的步骤一样，逻辑回归中，$E_{in} &#x3D; \sum_{n &#x3D; 1}^{N} \ln{1 + e^{-y_nW^TX_n} }$，我们对比的是单个样本的错误，就写作$err_{name}$好了。</p>
+<p>为了让这3种模型都有较为清晰的对比，我们对PLA以及线性回归的错误衡量也做处理，如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">method</th>
+<th align="center">linear classification</th>
+<th align="center">linear regression</th>
+<th align="center">logistic regression</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">err</td>
+<td align="center">$[sign(ys \neq 1)]$</td>
+<td align="center">$(sy-1)^2$</td>
+<td align="center">$\ln{1+e^{-ys} }$</td>
+</tr>
+</tbody></table>
+<p> 将它们的曲线绘制到一张图上，可以得到下面的结果：<br> <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/87T%7EV%5DV75N992E1I%5B3M9%5DZK.png"><br> 其中蓝色是linear classification的错误，红色是linear regression的错误，绿色是logistic regression。坏了，绿色的线并不总是大于蓝色的线，这意味着我们无法像之前一样，简单地将$E_{in}(linear classification)$换成$E_{in}(logistic regression)$。</p>
+<p> 实际上，之前我们选择用$ln$函数是因为这是最常见的，只是将乘法换成加法，理论上我们可以取任何对数，如，将对数函数换为$log_2^x$,就可以得到另外一副曲线图：<br> <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/CCO%29%25RV4OG9Z8%7D60%40%404W6G0.png"></p>
+<p> 这样就可以满足我们的需要，也方便下面的证明。<br>我们称使用$ln(x)$函数的错误为$err_{ce}$，使用$log_2(x)$的为$err_{sce}$，则由上图可以知道：</p>
+<p>$err_{0&#x2F;1}(s,y) \leq err_{sce}(s,y) &#x3D; \frac 1 {\ln2} err_{ce}(s,y)$，<br>（由换底公式：$\frac {\ln x}{\ln2} &#x3D; log_2x ）<br>也就可以知道：<br>$$<br>E_{in}^{0&#x2F;1} \leq E_{in}^{sce} &#x3D; \frac 1 {\ln2} E_{in}^{ce}<br>$$</p>
+<p>同样的道理：<br>$$<br>E_{out}^{0&#x2F;1} \leq E_{out}^{sce} &#x3D; \frac 1 {\ln2} E_{out}^{ce}<br>$$</p>
+<p>因此，我们可以像之前一样推导：</p>
+<p>$$<br>E_{out}^{0&#x2F;1} \leq E_{in}^{0&#x2F;1}+ \Omega ^{0&#x2F;1} \leq \frac 1 {\ln2} E_{in}^{ce}+\Omega ^{0&#x2F;1}<br>$$</p>
+<p>同样，从另一个方向也可以推导：</p>
+<p>$$<br>E_{out}^{0&#x2F;1} \leq \frac 1 {\ln{2} } E_{out}^{ce} \leq \frac 1 {\ln2} E_{in}^{ce}+\Omega ^{ce}<br>$$</p>
+<p>无论哪个，都可以证明，logistic regression是可以用于二元分类的。而上面的图像也说明了，他的效果比线性回归更好，bound更紧一点。</p>
+<p>在实际应用中，我们使用linear regression来初始化$W$，然后通过POCKET或者logistic regression来进行后面的步骤，而且logistic regression更为常用。</p>
+<p><em><strong>注：上面推导中，判断都是以s&#x3D;0为界定，对应到logistic regression也就是概率为0.5为界定。</strong></em></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/classification/" rel="tag"># classification</a>
+              <a href="/tags/visualization/" rel="tag"># visualization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/" rel="prev" title="机器学习——Gradient Decent">
+                  <i class="fa fa-angle-left"></i> 机器学习——Gradient Decent
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/" rel="next" title="机器学习——Multiclass（OVA and OVO）">
+                  机器学习——Multiclass（OVA and OVO） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

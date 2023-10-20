@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次博客最后一个主题矩阵，只说了句矩阵可以完成很多转换。而这次就主要来说明各种转换。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——Transformation">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次博客最后一个主题矩阵，只说了句矩阵可以完成很多转换。而这次就主要来说明各种转换。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-25T07:13:46.000Z">
+<meta property="article:modified_time" content="2018-10-31T09:59:52.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta property="article:tag" content="transformation">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/","path":"2018/10/25/图形学——Transformation/","title":"图形学——Transformation"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——Transformation | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%A9%E6%94%BE%EF%BC%88Scale%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">缩放（Scale）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%99%E5%88%87%EF%BC%88Shear%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">错切（Shear）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%8B%E8%BD%AC%EF%BC%88Rotation%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">旋转（Rotation）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2D-rotation"><span class="nav-number">3.1.</span> <span class="nav-text">2D rotation</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%99%E9%87%8C%E8%AF%B4%E7%9A%84%E6%97%8B%E8%BD%AC%E6%98%AF%E7%BB%95%E7%9D%80%E5%8E%9F%E7%82%B9%E6%97%8B%E8%BD%AC%E3%80%82-begin-bmatrix-x%E2%80%99-y%E2%80%99-end-bmatrix"><span class="nav-number"></span> <span class="nav-text">这里说的旋转是绕着原点旋转。$$\begin{bmatrix}x’\y’\end{bmatrix}</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3D-rotation"><span class="nav-number">0.1.</span> <span class="nav-text">3D rotation</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#R-p-begin-pmatrix-x-u-y-u-z-u-x-v-y-v-z-v-x-w-y-w-z-w-end-pmatrix-begin-pmatrix-x-p-y-p-z-p-end-pmatrix"><span class="nav-number"></span> <span class="nav-text">$$R_p &#x3D;\begin{pmatrix}x_u &amp; y_u &amp; z_u\x_v &amp; y_v &amp; z_v\x_w &amp; y_w &amp; z_w\end{pmatrix}\begin{pmatrix}x_p\y_p\z_p\end{pmatrix}</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BD%97%E5%BE%B7%E9%87%8C%E6%A0%BC%E6%97%8B%E8%BD%AC-Rodrigues-%E5%85%AC%E5%BC%8F"><span class="nav-number">0.0.1.</span> <span class="nav-text">罗德里格旋转(Rodrigues)公式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Note"><span class="nav-number">1.</span> <span class="nav-text">Note</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BD%90%E6%AC%A1%E5%9D%90%E6%A0%87%E8%BD%AC%E6%8D%A2%EF%BC%88Homogeneous-Coordinates%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">齐次坐标转换（Homogeneous Coordinates）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E7%A7%BB-Translate"><span class="nav-number">2.1.</span> <span class="nav-text">平移(Translate)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%95%E5%90%91%E8%BD%AC%E6%8D%A2%EF%BC%88Normal-Transformation%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">法向转换（Normal Transformation）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——Transformation | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——Transformation
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-25 15:13:46" itemprop="dateCreated datePublished" datetime="2018-10-25T15:13:46+08:00">2018-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-10-31 17:59:52" itemprop="dateModified" datetime="2018-10-31T17:59:52+08:00">2018-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次博客最后一个主题矩阵，只说了句矩阵可以完成很多转换。而这次就主要来说明各种转换。</p>
+<span id="more"></span>
+
+<p>所有的转换我们都是通过矩阵和向量完成的。</p>
+<h3 id="缩放（Scale）"><a href="#缩放（Scale）" class="headerlink" title="缩放（Scale）"></a>缩放（Scale）</h3><p>$$<br>Scale(s_x,s_y,s_z) &#x3D;<br>\begin{pmatrix}<br>s_x&amp;0&amp;0\<br>0&amp;s_y&amp;0\<br>0&amp;0&amp;s_z<br>\end{pmatrix} \ Scale^{-1}(s_x,s_y,s_z) &#x3D;<br>\begin{pmatrix}<br>s_x^{-1}&amp;0&amp;0\<br>0&amp;s_y^{-1}&amp;0\<br>0&amp;0&amp;s_z^{-1}<br>\end{pmatrix}<br>$$</p>
+<p>上述中$s_x,s_y,s_z$分别为各个坐标轴的缩放倍数。实际的转换过程如下：</p>
+<p>$$<br>\begin{pmatrix}<br>s_x&amp;0&amp;0\<br>0&amp;s_y&amp;0\<br>0&amp;0&amp;s_z<br>\end{pmatrix} \begin{pmatrix}<br>x\<br>y\<br>z<br>\end{pmatrix} &#x3D;<br>\begin{pmatrix}<br>s_xx\<br>s_yy\<br>s_zz<br>\end{pmatrix}<br>$$</p>
+<h3 id="错切（Shear）"><a href="#错切（Shear）" class="headerlink" title="错切（Shear）"></a>错切（Shear）</h3><p>错切可以将一个矩形转换成平行四边形。</p>
+<p>$$<br>Shear(s_x,s_y) &#x3D;<br>\begin{pmatrix}<br>s_x&amp;a\<br>0&amp;s_y<br>\end{pmatrix} \ Shear^{-1}(s_x,s_y) &#x3D;<br>\begin{pmatrix}<br>s_x&amp;-a\<br>0&amp;s_y<br>\end{pmatrix}<br>$$</p>
+<p>上面式子主要完成的是对于y&gt;0的点前移，y&lt;0的点后移，而各点的y坐标不变。从而产生了错切的感觉。得到的结果：$y’&#x3D;y,x’&#x3D;x+ay$.</p>
+<h3 id="旋转（Rotation）"><a href="#旋转（Rotation）" class="headerlink" title="旋转（Rotation）"></a>旋转（Rotation）</h3><p>2维空间的旋转变换次序是没有影响的，但是对于三维空间却可能得到不一样的结果。</p>
+<h4 id="2D-rotation"><a href="#2D-rotation" class="headerlink" title="2D rotation"></a>2D rotation</h4><h1 id="这里说的旋转是绕着原点旋转。-begin-bmatrix-x’-y’-end-bmatrix"><a href="#这里说的旋转是绕着原点旋转。-begin-bmatrix-x’-y’-end-bmatrix" class="headerlink" title="这里说的旋转是绕着原点旋转。$$\begin{bmatrix}x’\y’\end{bmatrix}"></a>这里说的旋转是绕着原点旋转。<br>$$<br>\begin{bmatrix}<br>x’\<br>y’<br>\end{bmatrix}</h1><p>\begin{bmatrix}<br>\cos \theta &amp; - \sin \theta\<br>\sin \theta &amp;\cos \theta<br>\end{bmatrix}<br>\begin{bmatrix}<br>x\<br>y<br>\end{bmatrix}<br>$$</p>
+<p>有趣的是：$R^T R &#x3D; I$</p>
+<h4 id="3D-rotation"><a href="#3D-rotation" class="headerlink" title="3D rotation"></a>3D rotation</h4><p>3D的rotation相比于2D的要复杂很多。但是实际上我们可以这样去理解：二维的旋转，相当于绕着Z轴旋转，因为z坐标不会变。</p>
+<p>因此可以得到绕各个坐标轴旋转的矩阵：</p>
+<p>$$<br>R_z &#x3D;<br>\begin{pmatrix}<br>\cos \theta &amp; - \sin \theta &amp; 0\<br>\sin \theta &amp;\cos \theta &amp; 0\<br>0&amp;0&amp;1<br>\end{pmatrix}<br>$$</p>
+<p>同样的道理也就可以得到绕x轴与绕y轴的旋转：</p>
+<p>$$<br>R_x &#x3D;<br>\begin{pmatrix}<br>1&amp;0&amp;0\<br>0&amp;\cos \theta &amp; - \sin \theta \<br>0&amp;\sin \theta &amp;\cos \theta \<br>\end{pmatrix} \ R_y &#x3D;<br>\begin{pmatrix}<br>\cos \theta &amp; 0&amp;- \sin \theta \<br>0&amp;1&amp;0\<br>\sin \theta &amp;0 &amp;\cos \theta<br>\end{pmatrix}<br>$$</p>
+<p>同样的:$R^TR &#x3D; I$.</p>
+<p>如果我们仔细观察可以发现，3D中R的各个行（列）向量满足一个三维坐标系的要求：单位向量且正交。因此如果我们将旋转矩阵写成下面的形式：</p>
+<p>$$<br>R &#x3D;<br>\begin{pmatrix}<br>x_u &amp; y_u &amp; z_u\<br>x_v &amp; y_v &amp; z_v\<br>x_w &amp; y_w &amp; z_w<br>\end{pmatrix}<br>$$</p>
+<p>则</p>
+<h1 id="R-p-begin-pmatrix-x-u-y-u-z-u-x-v-y-v-z-v-x-w-y-w-z-w-end-pmatrix-begin-pmatrix-x-p-y-p-z-p-end-pmatrix"><a href="#R-p-begin-pmatrix-x-u-y-u-z-u-x-v-y-v-z-v-x-w-y-w-z-w-end-pmatrix-begin-pmatrix-x-p-y-p-z-p-end-pmatrix" class="headerlink" title="$$R_p &#x3D;\begin{pmatrix}x_u &amp; y_u &amp; z_u\x_v &amp; y_v &amp; z_v\x_w &amp; y_w &amp; z_w\end{pmatrix}\begin{pmatrix}x_p\y_p\z_p\end{pmatrix}"></a>$$<br>R_p &#x3D;<br>\begin{pmatrix}<br>x_u &amp; y_u &amp; z_u\<br>x_v &amp; y_v &amp; z_v\<br>x_w &amp; y_w &amp; z_w<br>\end{pmatrix}<br>\begin{pmatrix}<br>x_p\<br>y_p\<br>z_p<br>\end{pmatrix}</h1><p>\begin{pmatrix}<br>\mathbf{u} \cdot \mathbf{p} \<br>\mathbf{v} \cdot \mathbf{p} \<br>\mathbf{z} \cdot \mathbf{p}<br>\end{pmatrix}<br>$$</p>
+<p>上式最后一项正是$\mathbf{p}$在uvw坐标轴下的坐标值。因此旋转的本质实际上是将它映射到另一个坐标系当中了。</p>
+<p>对于旋转矩阵如何求逆？因为旋转矩阵是正交矩阵，所有$R^{-1} &#x3D; R^T$.</p>
+<p>3D旋转是不可交换的。</p>
+<p>但是上面的旋转矩阵相对来说比较简单，因为是绕着坐标轴旋转的。那么有没有办法绕着任意一个向量旋转$\theta$的公式？</p>
+<h5 id="罗德里格旋转-Rodrigues-公式"><a href="#罗德里格旋转-Rodrigues-公式" class="headerlink" title="罗德里格旋转(Rodrigues)公式"></a>罗德里格旋转(Rodrigues)公式</h5><p>接下来这个公式就是用来解决上述问题的。假设向量（点）$b$绕着单位向量$\mathbf{a}$旋转$\theta$.</p>
+<p>$\mathbf{b}&#x3D;\mathbf{b}<em>{∥}+\mathbf{b}</em>{⊥}$，分布表示平行与垂直于$\mathbf{a}$的分量。很容易知道，$\mathbf{b}_{∥}$在旋转过程中是不变的。</p>
+<p>$\mathbf{b}_{∥} &#x3D; \mathbf{a} \cdot \mathbf{b} \mathbf{a}$</p>
+<p>$\mathbf{b}<em>{⊥} &#x3D; 1 -\mathbf{b}</em>{∥}$</p>
+<p>然后我们要考虑到$\mathbf{b}_{⊥}$是如何旋转的。实际上它旋转的平面是垂直于$\mathbf{a}$与$\mathbf{b}$的，容易想到利用叉乘来构造：</p>
+<p>$\mathbf{c} &#x3D; \mathbf{a} \times \mathbf{b}$，而且由于叉乘的性质，$\mathbf{c}$的长度恰好等于$\mathbf{b}_{⊥}$.</p>
+<p>现在旋转角度是$\theta$，则旋转后的向量在$\mathbf{b}<em>{⊥}$与$\mathbf{c}$方向上的投影分别是$\mathbf{b}</em>{⊥} \cos \theta$与$\mathbf{c} \sin \theta$.</p>
+<p>旋转后的向量边上上述向量之和，并且希望写成旋转矩阵的形式（矩阵乘以向量）：<br>$$<br>\begin{align}<br>b’ &amp;&#x3D; \mathbf{b}<em>{⊥} \cos \theta +\mathbf{c} \sin \theta + \mathbf{b}</em>{∥}\<br>&amp;&#x3D; (\mathbf{b} -\mathbf{a} \cdot \mathbf{b} \mathbf{a} )\cos \theta +\mathbf{a} \times \mathbf{b} \sin \theta +\mathbf{a} \cdot \mathbf{b} \mathbf{a}\<br>&amp;&#x3D; \mathbf{a}\mathbf{a}^T \mathbf{b} + (I -\mathbf{a}\mathbf{a}^T)\mathbf{b} \cos \theta + A^* \sin \theta \mathbf{b}<br>\end{align}<br>$$</p>
+<p>所以$R(\mathbf{a},\theta) &#x3D;\mathbf{a}\mathbf{a}^T+ (I -\mathbf{a}\mathbf{a}^T)\cos \theta + A^* \sin \theta$.</p>
+<p>上式是计算机图形学中很重要的一个基础公式。</p>
+<h3 id="Note"><a href="#Note" class="headerlink" title="Note"></a>Note</h3><p>如果要回到原来的样子，可以对所有的转换求逆。但是要注意的是：$M &#x3D; M_1M_2M_3,M^{-1} &#x3D; M_3^{-1}M_2^{-1}M_1^{-1}$.</p>
+<h3 id="齐次坐标转换（Homogeneous-Coordinates）"><a href="#齐次坐标转换（Homogeneous-Coordinates）" class="headerlink" title="齐次坐标转换（Homogeneous Coordinates）"></a>齐次坐标转换（Homogeneous Coordinates）</h3><p>不知道有没有人有这么一个疑问：为什么没有平移？？平移应该是最简单的转换，但是实际起来的实现却没有那么容易。首先做个尝试：</p>
+<p>$$<br>\begin{pmatrix}<br>x’\<br>y’\<br>z’<br>\end{pmatrix} &#x3D;<br>\begin{pmatrix}<br>?&amp;?&amp;?\<br>?&amp;?&amp;?\<br>?&amp;?&amp;?<br>\end{pmatrix}<br>\begin{pmatrix}<br>x\<br>y\<br>z<br>\end{pmatrix}&#x3D;<br>\begin{pmatrix}<br>x+5\<br>y\<br>z<br>\end{pmatrix}<br>$$<br>中间的矩阵怎么做？有人会说将第一行第一列写为$\frac 5 z$即可，但是这就失去了转换矩阵的意义。转换矩阵中不应该包含我们要转换的坐标的信息。</p>
+<p>计算机图形学中，解决这个问题的方法就说用齐次坐标，先看一下下面的转换：</p>
+<p>$$<br>\begin{pmatrix}<br>x’\<br>y’\<br>z’\<br>w’<br>\end{pmatrix} &#x3D;<br>\begin{pmatrix}<br>1&amp;0&amp;0&amp;5\<br>0&amp;1&amp;0&amp;0\<br>0&amp;0&amp;1&amp;0\<br>0&amp;0&amp;0&amp;1</p>
+<p>\end{pmatrix}<br>\begin{pmatrix}<br>x\<br>y\<br>z\<br>1<br>\end{pmatrix}&#x3D;<br>\begin{pmatrix}<br>x+5\<br>y\<br>z\<br>1<br>\end{pmatrix}<br>$$</p>
+<p>通过加入一个其次坐标w而实现了平移。而加入这个量不会对上面提到的旋转等操作产生影响，而且他有很多的好处，因此被普遍用于图形相关的软件与硬件中。</p>
+<h4 id="平移-Translate"><a href="#平移-Translate" class="headerlink" title="平移(Translate)"></a>平移(Translate)</h4><p>$$<br>\begin{pmatrix}<br>x’\<br>y’\<br>z’\<br>w’<br>\end{pmatrix} &#x3D;<br>\begin{pmatrix}<br>1&amp;0&amp;0&amp;T_x\<br>0&amp;1&amp;0&amp;T_y\<br>0&amp;0&amp;1&amp;T_z\<br>0&amp;0&amp;0&amp;1</p>
+<p>\end{pmatrix}<br>\begin{pmatrix}<br>\mathbf{p}_x\<br>\mathbf{p}_y\<br>\mathbf{p}_z\<br>1<br>\end{pmatrix}&#x3D;<br>\begin{pmatrix}<br>\mathbf{p}_x+T_x\<br>\mathbf{p}_y+T_y\<br>\mathbf{p}_z+T_z\<br>1<br>\end{pmatrix} &#x3D;<br>\mathbf{p}+T<br>$$<br>主要旋转平移矩阵和平移旋转矩阵是不一样的，因为平移矩阵实际上需要的是最右侧的一个向量：</p>
+<p>旋转平移矩阵：<br>$$<br>\begin{bmatrix}<br>R_{3 \times 3}&amp;T_{3 \times 1}\<br>0_{1 \times 3}&amp;1<br>\end{bmatrix}<br>$$</p>
+<p>平移旋转矩阵:<br>$$<br>\begin{bmatrix}<br>R_{3 \times 3}&amp;R_{3 \times 3}T_{3 \times 1}\<br>0_{1\times 3}&amp;1<br>\end{bmatrix}<br>$$</p>
+<p>仔细推导就可以得到上面的结果。</p>
+<h3 id="法向转换（Normal-Transformation）"><a href="#法向转换（Normal-Transformation）" class="headerlink" title="法向转换（Normal Transformation）"></a>法向转换（Normal Transformation）</h3><p>法向的转换并不会按照平面各个点的转换进行。</p>
+<p>假如原来的切线向量为$\mathbf{t}$,原来的法向向量为$\mathbf{n}$，转换矩阵为$M$，则切线向量是会依照原来的转换而改变的：$\mathbf{t}’ &#x3D; M\mathbf{t}$.</p>
+<p>假设转换完成后的法向向量为$\mathbf{n}’ &#x3D; Q\mathbf{n}$.</p>
+<p>当然不管什么时候，法向与切向都应该是垂直的：$\mathbf{n}’^T\mathbf{t’} &#x3D; 0$</p>
+<p>可以得到：<br>$$<br>\mathbf{n}^TQ^TM \mathbf{t} &#x3D; 0.<br>$$</p>
+<p>因此我们希望$Q^TM &#x3D; I$,所以得到：$Q &#x3D; (M^{-1})^T$.</p>
+<p>当然上面的解并不是唯一解，但是计算机图形学是工程学科，我们希望的是能够解决这个问题即可。</p>
+<p>需要注意的是：$M$为3×3矩阵。因为法向和切向是向量，所以平移不会影响法向和切向。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+              <a href="/tags/transformation/" rel="tag"># transformation</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/" rel="prev" title="图形学——Basic Math">
+                  <i class="fa fa-angle-left"></i> 图形学——Basic Math
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/" rel="next" title="图形学——Homework1">
+                  图形学——Homework1 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

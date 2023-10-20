@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="网格有多种，三角形，四边形或者其他的多边形。但是目前使用最多的，也是本文着重介绍的是三角网格。三角网格是计算机中表示三维模型最重要的方法。这篇文章主要介绍一下网格的相关概念以及技术算法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——网格">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="网格有多种，三角形，四边形或者其他的多边形。但是目前使用最多的，也是本文着重介绍的是三角网格。三角网格是计算机中表示三维模型最重要的方法。这篇文章主要介绍一下网格的相关概念以及技术算法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh7.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh4.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh8.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh5.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh6.jpg">
+<meta property="article:published_time" content="2019-03-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:03.302Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta property="article:tag" content="mesh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh1.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/","path":"2019/03/24/图形学——网格/","title":"图形学——网格"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——网格 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E6%A0%BC%E7%9A%84%E7%94%B1%E6%9D%A5"><span class="nav-number">2.</span> <span class="nav-text">网格的由来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E7%BB%B4%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9D%A5%E6%BA%90"><span class="nav-number">3.</span> <span class="nav-text">三维数据的来源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E6%A0%BC%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">网格化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96"><span class="nav-number"></span> <span class="nav-text">网格简化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">拓扑结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%86%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">细分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Loop%E7%BB%86%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text">Loop细分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sqrt-3-%E7%BB%86%E5%88%86"><span class="nav-number">4.</span> <span class="nav-text">$\sqrt{3}$细分</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——网格 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——网格
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-24 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-24T00:00:00+08:00">2019-03-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:03" itemprop="dateModified" datetime="2023-10-21T04:24:03+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>网格有多种，三角形，四边形或者其他的多边形。但是目前使用最多的，也是本文着重介绍的是三角网格。三角网格是计算机中表示三维模型最重要的方法。这篇文章主要介绍一下网格的相关概念以及技术算法。</p>
+<span id="more"></span>
+
+
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a><a href="about:blank#%E5%AE%9A%E4%B9%89" title="定义"></a>定义</h3><p>网格就是使用多边形来表示物体的表面。一个网格模型的描述之前也说到过，它包含一系列的面片和顶点。</p>
+<p>面片$F &#x3D; (f_1,…,f_n)$，对于三角网格，每个面片都是三角形。</p>
+<p>顶点$V &#x3D; (v_1,…,v_m)$。其中，每个面片又是由3个顶点构成的三角形，因此:</p>
+<p>f_i &#x3D; (v_{i1},v_{i2},v_{i3});v_{i1},v_{i2},v_{i3} \in V.</p>
+<h3 id="网格的由来"><a href="#网格的由来" class="headerlink" title="网格的由来"></a><a href="about:blank#%E7%BD%91%E6%A0%BC%E7%9A%84%E7%94%B1%E6%9D%A5" title="网格的由来"></a>网格的由来</h3><p>计算机生成的三维模型和实际获取的数据表示模式是不同的。计算机生成的模型可能是平滑曲线曲面，而实际获取的数据，如激光扫描得到的，一般都是以点云的形式存在。图形学中需要一个统一的表示方式，同时要求视觉精度和处理速度都在可以接受的范围内。于是就选择了网格，用多边形来近似曲面，三角网格最为简单高效，再加上图形硬件的快速发展，三角网格和光栅化已经可以嵌入到硬件中去渲染。</p>
+<h3 id="三维数据的来源"><a href="#三维数据的来源" class="headerlink" title="三维数据的来源"></a><a href="about:blank#%E4%B8%89%E7%BB%B4%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9D%A5%E6%BA%90" title="三维数据的来源"></a>三维数据的来源</h3><p>一般来说，获取三维模型数据的方法有多种。我们可以直接在几何文件中输入，也可以通过程序创建，比较高级的建模软件有3Ds&#x2F;max，maya等。第二种就是通过激光扫描，结构光技术等等获取深度，得到点云模型。也有一些别的方法，如SFM，从多视图（多张照片）中构建三维模型。</p>
+<p>三维模型又可以分为实体模型和表面模型。</p>
+<ul>
+<li>实体模型，多用于CAD领域，通常强调对应实际工业生产中的加工过程，如切割，钻孔等。它是实心的而非空心，在显示过程中需要考虑很多的东西，占用内存较大，因此不利于显示。</li>
+<li>表面模型，我们平时见到的模型多是表面模型，只考虑物体的表面细节并直接进行处理，这种模型易于显示。</li>
+</ul>
+<h3 id="网格化"><a href="#网格化" class="headerlink" title="网格化"></a><a href="about:blank#%E7%BD%91%E6%A0%BC%E5%8C%96" title="网格化"></a>网格化</h3><p>网格化是指将模型（点云，多边形等等）分割称为更容易处理的图元，如凸多边形，三角形或者四边形。如果分割成三角形，被称为三角化。我们先看看2D网格化，而3D空间中的网格化也和2D中类似。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh1.jpg"></p>
+<p>如上图，最左侧的多边形不能被称作网格化，第二个是凸多边形网格化，第三个是三角化，最右侧是被均匀分割。</p>
+<p>这里介绍两个三角网格化的非常简单的算法。</p>
+<ul>
+<li>基本的网格化算法</li>
+</ul>
+<p>给定多边形，检验其任意两个顶点之间的线段是否与该多边形的边相交或者部分重叠。如果是，则不能用于分割三角形，否则，用该线段来将多边形分成两个多边形，对每个部分继续上述算法。</p>
+<ul>
+<li>割耳（ear clipping）算法</li>
+</ul>
+<p>首先找到多边形的ear：查看所有具有顶点序列$i,i+1,i+2 (\mod n)$的三角形，称这个三角形为顶点为$i+1$的三角形，检查线段$i,i_2$是不是没有与任何边相交。如果是，则这个三角形构成一个ear，去掉该ear，检查顶点$i$和$i+2$处的三角形是不是构成ear。重复上述过程。这个算法每次都会分出一个新的三角形。</p>
+<p>上述两种算法对凹多边形进行三角化，会使得其变成凸多边形的样子。原本不是面的部分由于三角化而多了面片。</p>
+<p>除此之外，我们还需要注意一种特殊的情况叫T型顶点：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh2.jpg"></p>
+<p>它最常出现在网格细分或者网格简化过程中，使得一个顶点出现在了某个面片的边上。理论上这个点是完全在边上，但是实际渲染中顶点的位置可能不会那么精确。当一个模型中有T顶点存在，一些算法可能会失败。</p>
+<h2 id="网格简化"><a href="#网格简化" class="headerlink" title="网格简化"></a><a href="about:blank#%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96" title="网格简化"></a>网格简化</h2><p>网格的简化有很多好处。比如当前我做的项目中，就需要网格简化来节省内存。同时，网格简化还有很多好处。</p>
+<ul>
+<li>减少几何冗余：如果一个具有很多共面小三角形的平坦区域，可以将这些小三角形合并成大的多边形来降低模型复杂度。</li>
+<li>减小模型大小</li>
+<li>提高运行性能</li>
+</ul>
+<p>而且有时候，对于网格的简化，并不会引起多大的感官差异，例如我们可以对较远的场景进行网格简<a target="_blank" rel="noopener" href="https://www.baidu.com/baidu?wd=163&tn=ubuntuu_cb&ie=utf-8%E7%9A%84%E4%B8%9C%E8%A5%BF%E7%9C%8B%E4%B8%8D%E6%B8%85%EF%BC%8C%E5%A4%8D%E6%9D%82%E7%9A%84%E7%BD%91%E6%A0%BC%E5%92%8C%E7%AE%80%E5%8C%96%E4%B9%8B%E5%90%8E%E7%9A%84%E7%BD%91%E6%A0%BC%E5%B7%AE%E5%88%AB%E4%B8%8D%E5%A4%A7%E3%80%82%E8%BF%99%E4%B9%9F%E6%98%AF%E5%BD%93%E5%89%8D%E5%BE%88%E5%A4%9A%E6%B8%B8%E6%88%8F%E8%83%BD%E5%AE%9E%E6%97%B6%E8%BF%90%E8%A1%8C%E7%9A%84%E4%B8%80%E4%B8%AA%E9%87%8D%E8%A6%81%E7%9A%84%E6%8A%80%E6%9C%AF%EF%BC%8C%E5%8F%AB%E5%81%9A%E7%94%9F%E6%88%90%E5%9C%BA%E6%99%AF%E4%B8%AD%E7%89%A9%E4%BD%93%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%86%E5%88%86%E3%80%82">https://www.baidu.com/baidu?wd=163&tn=ubuntuu_cb&amp;ie&#x3D;utf-8的东西看不清，复杂的网格和简化之后的网格差别不大。这也是当前很多游戏能实时运行的一个重要的技术，叫做生成场景中物体的层次细分。</a></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh7.jpg"></p>
+<h3 id="拓扑结构"><a href="#拓扑结构" class="headerlink" title="拓扑结构"></a><a href="about:blank#%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84" title="拓扑结构"></a>拓扑结构</h3><p>拓扑结构指的是多边形网格的连接结构。有一些专业术语需要了解一下，对于网格简化，细分等会用到。</p>
+<ul>
+<li>亏格（genus）<br>亏格指的是网格表面孔洞的数目。如下：</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh4.png"></p>
+<ul>
+<li>面片，边或顶点的拓扑结构，指相邻元素的局部连接关系。如下图：</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh3.png"></p>
+<p>临界边只接一个三角形， 普通边接两个三角形， 奇异边接三个三角形。对于没有临界边的网格称为closed mesh。</p>
+<ul>
+<li>二维流形（2-manifold）</li>
+</ul>
+<p>二维流行网格定义如下：</p>
+<ol>
+<li>一条网格边为一个或两个网格三角面片共享；</li>
+<li>一个网格顶点的一环邻域三角片构成一个闭合或者开放的扇面。</li>
+</ol>
+<p>看上去不好理解，看图片就比较好明白。</p>
+<p>非流形网格：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh2.png"></p>
+<p>流形网格：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh1.png"></p>
+<p>很显然，流形网格只包含临界边和普通边。</p>
+<p>网格简化的方法有很多，但是不外乎是下面四种的改进或者组合。</p>
+<ul>
+<li><p>采样（sample）。很好理解，简单的选取模型表面上的点进行几何采样，编程较为复杂。这种方法对高频特征难以精确采样，通常在没有尖角的光滑表面上能取得最好的效果。</p>
+</li>
+<li><p>自适应细分（adaptive subdivision）通过寻找一个可以递归细分逼近最初模型的基网格，该算法在基模型容易获取的情况下能取到很好的效果，但是它会保持表面拓扑细节，因此对模型进行大规模简化的能力不足。</p>
+</li>
+<li><p>去除（decimation）。去除方法迭代地去除网格上的顶点或者面片，并三角化每次去除后的空洞。这类方法比较简单，易于编程实现而且运行效率也较高，且通常保持原有的亏格，尤其适用于处理像共面多边形这种冗余的几何。</p>
+</li>
+<li><p>顶点合并（vertex merging）。顶点合并一般将多个顶点合并成一个顶点，该算法也比较好实现，但是需要采用多种技术来确定哪些点被合并以及合并次序。<br>有一个例子是边坍塌算法，将共边的两个顶点合并为一个点，该算法通常保持局部拓扑，但也允许修改拓扑。</p>
+</li>
+</ul>
+<h3 id="细分"><a href="#细分" class="headerlink" title="细分"></a><a href="about:blank#%E7%BB%86%E5%88%86" title="细分"></a>细分</h3><p>网格的细分和简化相反。对于一个给定的原始网格，通过网格细分产生更光滑的效果。细分广泛应用于电影行业，实际上算法提出者之一Catmull还是皮克斯和迪士尼的总裁。</p>
+<p>下面是几个细分的例子：</p>
+<p>一维细分，原本是4个点的线段，通过向中间插入点得到下一张图，不断迭代得到圆滑曲线。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh3.jpg"></p>
+<p>三维网格细分，根据特定细分规则，每次细分每一个三角形被细分成4个小的三角形。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh4.jpg"></p>
+<p>细分可以看做是一个两阶段过程，最初的网格被称为控制网格。</p>
+<ol>
+<li>细化阶段，创建新的顶点并与先前顶点相连，产生新的更小的三角形</li>
+<li>平滑阶段，计算新顶点的位置</li>
+</ol>
+<p>这两步的细节决定了不同的细分方案，在第一步中一个三角形可以以不同的形式进行分割，第二部新顶点的位置可以以不同的方式插值产生。</p>
+<h3 id="Loop细分"><a href="#Loop细分" class="headerlink" title="Loop细分"></a><a href="about:blank#Loop%E7%BB%86%E5%88%86" title="Loop细分"></a>Loop细分</h3><p>Loop细分是第一个基于三角网格的细分方案。它更新每个已有的顶点，并对每条边创建一个新的顶点，这样每个三角形被分割成4个新的三角形。经过n步细分，一个三角形被分割成$4^n$个三角形。</p>
+<p>下图为一个loop细分的例子，新的顶点以黑色显示。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh8.jpg"></p>
+<p>为了更好说明Loop细分的步骤，现在进行下面的符号定义：</p>
+<p>$p^k$是当前已存在的顶点，其中$k$是已经进行的细分步数，$p^0$表示控制网格的顶点。一般来说，细分的过程可以表示为：</p>
+<p>p^0\rightarrow p^1\rightarrow p^2 \rightarrow p^3 \rightarrow…</p>
+<p>如果$p^k$的度是n，那么$p^k$有n个相邻顶点，记做：</p>
+<p>p_i^k,i \in \{0,1,…,n-1\}</p>
+<p>则Loop细分规则如下，第一个公式是将每个顶点$p^k$升级为$p^{k+1}$的准则，第二个公式是在边$p^kp_i^k$创建新顶点$p_i^{k+1}$的准则：</p>
+<p>p^{k+1} &#x3D; (1 - n\beta)p^k + \beta(p_0^k +…+p_{n-1}^k)\\ p_i^{k+1} &#x3D; \frac{3p_k + 3p_i^k + p_{i-1}^k + p_{i+1}^k}{8},i&#x3D;0,…,n-1</p>
+<p>下图中左侧给出了第二个公式的相关点，右侧给出了第一个公式的相关点：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh5.jpg"></p>
+<p>$\beta$是n的函数：</p>
+<p>\beta &#x3D; \frac{1}{n}(\frac{5}{8} - (\frac{3}{8} + \frac{1}{4}\cos \frac{2\pi}{n})^2)</p>
+<h3 id="sqrt-3-细分"><a href="#sqrt-3-细分" class="headerlink" title="$\sqrt{3}$细分"></a><a href="about:blank#sqrt-3-%E7%BB%86%E5%88%86" title="$\sqrt{3}$细分"></a>$\sqrt{3}$细分</h3><p>另外有一种细分方法，被称为$\sqrt 3$细分。和Loop细分不同的地方在于，Loop把每个三角形划分成4个三角形，而$\sqrt 3$细分把每个三角形细分成3个三角形。这意味着新增加的顶点在原三角形内部。不过，很明显内部点直接与各个点连线构成的三角形很奇怪，如下图中的第二张。而$\sqrt 3$在连线之后，会做一个边翻转，把原来的边删掉，而连接新的顶点的作为边，像是把原来的边进行了一个翻转，如下图中最后一张：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh6.jpg"></p>
+<p>细分规则与Loop细分类似，下面第一行公式中，$p_m$表示中间顶点（新的顶点），由计算三角形三个顶点$p_a,p_b,p_c$的平均值得来。而$p_i^k$依然表示$p^k$的相邻顶点，$n$代表顶点的度，这个和之前类似。第一个公式计算新的中心顶点，第二个公式更新旧顶点。</p>
+<p>p_m^{k+1} &#x3D; \frac{p_a^k + p_b^k + p_c^k}{3}\\ p^{k+1} &#x3D; (1-n\beta)p^k + \beta\sum_{i&#x3D;0}^{n-1}p_i^k</p>
+<p>可以看到，对于旧顶点的更新与Loop一致。进一步，$\beta$是一个度数为$n$的函数，选择下面的$\beta(n)$最终可以产生至少为$C^1$连续的曲面：</p>
+<p>\beta (n) &#x3D; \frac{4 - 2 \cos\frac{2\pi}{n} }{9n}</p>
+<p>这里$C^1$表示是1阶连续，也就是数学上的可微分连续，而$G^i$则表示的是几何连续性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+              <a href="/tags/mesh/" rel="tag"># mesh</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/19/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94B%E6%A0%B7%E6%9D%A1%E6%9B%B2%E7%BA%BF%E5%92%8C%E6%9B%B2%E9%9D%A2/" rel="prev" title="图形学——B样条曲线和曲面">
+                  <i class="fa fa-angle-left"></i> 图形学——B样条曲线和曲面
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96/" rel="next" title="图形学——网格简化">
+                  图形学——网格简化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="如何将离散随机变量的这些概念推广到连续随机变量？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——连续随机变量的熵和互信息">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="如何将离散随机变量的这些概念推广到连续随机变量？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-01T07:43:56.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.774Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/","path":"2018/11/01/信息论——连续随机变量的熵和互信息/","title":"信息论——连续随机变量的熵和互信息"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——连续随机变量的熵和互信息 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E5%88%86%E5%B8%83%E7%9A%84%E5%BE%AE%E5%88%86%E7%86%B5"><span class="nav-number">1.</span> <span class="nav-text">高斯分布的微分熵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">互信息</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——连续随机变量的熵和互信息 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——连续随机变量的熵和互信息
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-01 15:43:56" itemprop="dateCreated datePublished" datetime="2018-11-01T15:43:56+08:00">2018-11-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>如何将离散随机变量的这些概念推广到连续随机变量？</p>
+<span id="more"></span>
+
+<p>使用黎曼积分，我们可以得到：</p>
+<p>$$<br>\begin{align}<br>H(X) &amp;&#x3D; -\sum_{x} p(x)\Delta x \log p(x) \Delta x\<br>&amp;&#x3D; -\sum_{x}p(x)\log p(x)\Delta x - -\sum_{x}p(x)\log \Delta x\Delta x<br>\end{align}<br>$$</p>
+<p>上式中，最后一项是趋于负无穷的。</p>
+<p>这意味着连续随机变量包含的信息是无穷的。但是无穷的是无法研究的，因此香农重新给了一个微分熵的定义，它在数学上不够严格，但是在实际上却非常有用。</p>
+<p>$$<br>h(X) &#x3D; \int _{-\infty }^{+\infty} p(x)\log p(x) dx<br>$$</p>
+<p>可以看到它在形式上与离散形式的熵是非常相似的。</p>
+<p>同时也有联合熵：<br>$$<br>h(X,Y) &#x3D; -\int p(x,y)\log p(x,y) dxdy<br>$$</p>
+<p>条件熵：<br>$$<br>h(X|Y) &#x3D; -\iint p(x,y) \log p(x|y) dxdy &#x3D; -\int p(y) \int p(x|y) \log p(x|y) dx dy<br>$$</p>
+<p>不等式关系：<br>$<br>h(X,Y) &#x3D; h(X) + h(Y|X) &#x3D; h(Y) + h(X|Y)<br>$</p>
+<p>$<br>h(X|Y) \leq h(X), h(Y|X) \leq h(Y)<br>$</p>
+<p>$<br>h(X,Y)\leq h(X) + h(Y)<br>$</p>
+<p>这些不等式都是存在的，与离散形式一致，但是要注意的是h(X)不一定是非负的了。</p>
+<p>例如：<br>$$<br>X:p(x) &#x3D; \left { \begin{array}{c}<br>    \frac 1 {b-a} , a \leq x \leq b;\<br>    0, otherwise;<br>    \end{array}<br>    \right.<br>$$</p>
+<p>那么它的微分熵实际上等于$\log(b-a)$.当$b-a&lt;1$的时候，这个熵是小于0的。</p>
+<h3 id="高斯分布的微分熵"><a href="#高斯分布的微分熵" class="headerlink" title="高斯分布的微分熵"></a>高斯分布的微分熵</h3><p>高斯分布概率密度如下：</p>
+<p>$X:p(x) &#x3D; \frac{1}{\sqrt {2 \pi \sigma} } exp [-\frac{(x-m)^2}{2\sigma ^2}]$</p>
+<p>而它的微分熵为$h(x) &#x3D; \frac 1 2 \log 2 \pi e \sigma^2$.</p>
+<p>这个需要记住。当然只要带进定义就可以推算出来的。值得注意的是，它的微分熵和m（期望）是无关的</p>
+<p>给定m和$\sigma$的情况下，当连续变量服从高斯分布的时候，微分熵最大。</p>
+<h3 id="互信息"><a href="#互信息" class="headerlink" title="互信息"></a>互信息</h3><p>$I(X;Y) &#x3D; \iint p(x,y) \log \frac{p(x,y)}{p(x)p(y)}dxdy$</p>
+<p>可以直接使用黎曼积分得到，与离散的情况也非常一致。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Fano%E4%B8%8D%E7%AD%89%E5%BC%8F/" rel="prev" title="信息论——Fano不等式">
+                  <i class="fa fa-angle-left"></i> 信息论——Fano不等式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/" rel="next" title="信息论——Lossless Encoding">
+                  信息论——Lossless Encoding <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

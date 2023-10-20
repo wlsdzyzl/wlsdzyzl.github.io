@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这个博客将介绍ALM，介绍一个用来解决一个等式限制的问题的框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/07/21/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Augmented%20Lagrange%20Multipler(ALM)/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这个博客将介绍ALM，介绍一个用来解决一个等式限制的问题的框架。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm3.png">
+<meta property="article:published_time" content="2019-07-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:56.823Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="sparse model">
+<meta property="article:tag" content="convex optimization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/07/21/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Augmented%20Lagrange%20Multipler(ALM)/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/07/21/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Augmented%20Lagrange%20Multipler(ALM)/","path":"2019/07/21/压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)/","title":"压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM) | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/07/21/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Augmented%20Lagrange%20Multipler(ALM)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM) | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-07-21 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-21T00:00:00+08:00">2019-07-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:56" itemprop="dateModified" datetime="2023-10-21T04:24:56+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">压缩感知与稀疏模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这个博客将介绍ALM，介绍一个用来解决一个等式限制的问题的框架。  </p>
+<span id="more"></span>
+
+
+<p>考虑下面的问题：</p>
+<p>\begin{array}{ll}{\text { minimize } } &amp; {g(\boldsymbol{x})} \\ {\text { subject to } } &amp; {A x&#x3D;y}\end{array}</p>
+<p>这里的$g:\mathbb R^n \rightarrow \mathbb R$是一个凸函数，$A \in \mathbb R^{m\times n},y \in \text{range}(A)$。在之前的Lasso问题中，我们加入了噪声，然后用惩罚函数代替约束来解决。实际上用同样的方法是可以解决类似的问题：</p>
+<p>\text{minimize }g(\boldsymbol{x})+\frac{\mu}{2}\|\boldsymbol{y}-\boldsymbol{A} \boldsymbol{x}\|_{2}^{2}</p>
+<p>只要$\mu$足够大，意味着有更大的权重放在对于cost函数的优化上，这样就可以得到足够好的结果来满足约束。但是这个算法的问题在于，之前我们优化这类函数的算法，PG还是APG，他们收敛率很大程度上是受梯度$\nabla(\mu f)&#x3D;\mu A^{*}(A x-y)$在点与点之间能变化速率影响的，这个速率由Lipschitz常数来衡量：</p>
+<p>L_{\nabla \mu f}&#x3D;\mu\|\boldsymbol{A}\|_{2}^{2}</p>
+<p>因此就带来一个问题：$\mu$越大，那么上述问题就越难解决。但是想要解决等式限制问题，又必须要$\mu$足够大。这就意味着使用二次惩罚函数代替等式限制的方法是不够完美的。</p>
+<p>Lagrange对偶可以将一个约束问题转化成无约束问题，而原目标函数的拉格朗日函数如下：</p>
+<p>\mathcal{L}(\boldsymbol{x}, \boldsymbol{\lambda}) \doteq g(\boldsymbol{x})+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle</p>
+<p>而原问题的最优解，是拉格朗日函数的鞍点（saddle point）：</p>
+<p>\sup _{\boldsymbol{\lambda} } \inf _{\boldsymbol{x} } \mathcal{L}(\boldsymbol{x}, \boldsymbol{\lambda})&#x3D;\text{sup inf}_{\boldsymbol{\lambda} } g(\boldsymbol{x})+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle</p>
+<p>如果我们定义对偶函数如下：</p>
+<p>d(\boldsymbol{\lambda}) \doteq \inf _{\boldsymbol{x} } g(\boldsymbol{x})+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle</p>
+<p>那么找到最优解可以通过下面的式子：</p>
+<p>\begin{aligned} \boldsymbol{x}_{k+1} &amp;&#x3D;\arg \min _{\boldsymbol{x} } \mathcal{L}\left(\boldsymbol{x}, \boldsymbol{\lambda}_{k}\right) \\ \boldsymbol{\lambda}_{k+1} &amp;&#x3D;\boldsymbol{\lambda}_{k}+t_{k+1}\left(\boldsymbol{A} \boldsymbol{x}_{k+1}-\boldsymbol{y}\right) \end{aligned}</p>
+<p>$\boldsymbol{A} \boldsymbol{x}_{k+1}-\boldsymbol{y}$是对偶问题$d(\lambda)$的一个次梯度，这个算法就是实际上是在最大化对偶问题，因此也叫dual ascent。这个算法的缺点在于，在一些问题上，它会失败。下面是一个例子：</p>
+<p>\inf _{\boldsymbol{x} }\|\boldsymbol{x}\|_{1}+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle&#x3D;\left\{\begin{array}{ll}{-\infty} &amp; {\left\|\boldsymbol{A}^{*} \boldsymbol{\lambda}\right\|_{\infty}&gt;1} \\ {-\langle\boldsymbol{\lambda}, \boldsymbol{y}\rangle} &amp; {\left\|\boldsymbol{A}^{*} \boldsymbol{\lambda}\right\|_{\infty} \leq 1}\end{array}\right.</p>
+<p>可以看到的是传统的Lagrangian对于约束的惩罚是不够的，因此提出了Augmented Lagrangian：</p>
+<p>\mathcal{L}_{\mu}(\boldsymbol{x}, \boldsymbol{\lambda}) \doteq g(\boldsymbol{x})+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle+\frac{\mu}{2}\|\boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\|_{2}^{2}</p>
+<p>上面的函数可以看做是下面约束问题的Lagrangian：</p>
+<p>\begin{array}{ll}{\text { minimize } } &amp; {g(\boldsymbol{x})+\frac{\mu}{2}\|\boldsymbol{y}-\boldsymbol{A} \boldsymbol{x}\|_{2}^{2} } \\ {\text { subject to } } &amp; {\boldsymbol{A} \boldsymbol{x}&#x3D;\boldsymbol{y} }\end{array}.</p>
+<p>由于惩罚项$|\boldsymbol{y}-\boldsymbol{A} \boldsymbol{x}|_{2}^{2}$对于可用集合中的$x$来说都为0，因此这个问题的最佳值与原问题的最佳值是一样的。而且通过Augmented Lagrangian，让对偶问题仅仅需要对$g$的一些弱假设就可以被证明是一定收敛的。为了实现它，我们对步长大小进行一个特殊的选择：$t_k &#x3D; \mu$，得到下面的迭代策略：</p>
+<p>\begin{aligned} \boldsymbol{x}_{k+1} &amp; \in \arg \min _{\boldsymbol{x} } \mathcal{L}_{\mu}\left(\boldsymbol{x}, \boldsymbol{\lambda}_{k}\right) \\ \boldsymbol{\lambda}_{k+1} &amp;&#x3D;\boldsymbol{\lambda}_{k}+\boldsymbol{\mu}\left(\boldsymbol{A} \boldsymbol{x}_{k+1}-\boldsymbol{y}\right) \end{aligned}</p>
+<p>对于步骤$\boldsymbol{x}_{k+1}\in \arg \min _{\boldsymbol{x} }\mathcal{L}_{\mu}\left(\boldsymbol{x}, \boldsymbol{\lambda}_{k}\right)$，本身就是一个凸优化问题，可以使用PG算法来解决。注意，$t_{k+1}&#x3D;\mu$是非常重要的，它避免了出现失败的情况。因此对于ALM算法，可以总结如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm1.png"></p>
+<ol>
+<li>ALM for Basis Pursuit<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm2.png"></li>
+<li>ALM for Principal Component Pursuit<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/alm3.png"></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/sparse-model/" rel="tag"># sparse model</a>
+              <a href="/tags/convex-optimization/" rel="tag"># convex optimization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/12/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94OpenNI%E8%AF%BB%E5%8F%96%E5%A4%9A%E4%B8%AAxtion%E7%9A%84%E8%BE%93%E5%85%A5/" rel="prev" title="踩过的坑——OpenNI读取多个xtion的输入">
+                  <i class="fa fa-angle-left"></i> 踩过的坑——OpenNI读取多个xtion的输入
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/07/22/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94PGD,APG,ALM%E7%9A%84%E5%AE%9E%E7%8E%B0/" rel="next" title="压缩感知与稀疏模型——PGD,APG,ALM的实现">
+                  压缩感知与稀疏模型——PGD,APG,ALM的实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近做的工作是三维重建的，需要解决的问题是submap中tsdf的re-integrate与de-ingegrate。现在先搞明白整个TSDF fusion是怎么回事。我们从一个简单的例子：从多张输入帧中重建出三维模型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3D Reconstruction——TSDF volume reconstruction">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/25/3D%20Reconstruction%E2%80%94%E2%80%94TSDF%20volume%20reconstruction/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="最近做的工作是三维重建的，需要解决的问题是submap中tsdf的re-integrate与de-ingegrate。现在先搞明白整个TSDF fusion是怎么回事。我们从一个简单的例子：从多张输入帧中重建出三维模型。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf6.png">
+<meta property="article:published_time" content="2019-01-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:20:50.361Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="3D reconstruction">
+<meta property="article:tag" content="sdf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/25/3D%20Reconstruction%E2%80%94%E2%80%94TSDF%20volume%20reconstruction/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/25/3D%20Reconstruction%E2%80%94%E2%80%94TSDF%20volume%20reconstruction/","path":"2019/01/25/3D Reconstruction——TSDF volume reconstruction/","title":"3D Reconstruction——TSDF volume reconstruction"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>3D Reconstruction——TSDF volume reconstruction | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TSDF"><span class="nav-number">1.</span> <span class="nav-text">TSDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaptive-Raycasting"><span class="nav-number">2.</span> <span class="nav-text">Adaptive Raycasting</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/25/3D%20Reconstruction%E2%80%94%E2%80%94TSDF%20volume%20reconstruction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="3D Reconstruction——TSDF volume reconstruction | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          3D Reconstruction——TSDF volume reconstruction
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-25 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-25T00:00:00+08:00">2019-01-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:20:50" itemprop="dateModified" datetime="2023-10-21T04:20:50+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/" itemprop="url" rel="index"><span itemprop="name">三维重建</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近做的工作是三维重建的，需要解决的问题是submap中tsdf的re-integrate与de-ingegrate。现在先搞明白整个TSDF fusion是怎么回事。我们从一个简单的例子：从多张输入帧中重建出三维模型。  </p>
+<span id="more"></span>
+
+<p>输入帧每一对由一张颜色图（RGB）与对应的深度图（depth）结合而成的。对于这个重建的过程必须要足够快，才能满足实时的要求。如下图，分别为输入的RGB与depth。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf1.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf2.png"></p>
+<p>整个系统的pipeline如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf7.png"></p>
+<p>首先，输入一对frame，对于深度图，我们需要经过双边滤波来降噪，并且计算法向量，以进行ICP点云配准，最后结合color进行TSDF的integration，得到TSDF field，根据TSDF进行raycasting，从而获得重建表面。</p>
+<p>这其中必须提到的是坐标系的转换。因为多个帧的相机坐标系是不一样的，但是我们要将他们重建在一起，需要转换到全局坐标系下，或者得到各个相机坐标系之间的相互转换，也就是要求得相机的位姿。对于相机坐标（针孔相机，pinhole camera）与世界坐标的模型，我们现在应该已经很熟悉了。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf3.png"></p>
+<p>上述的图片展示了从世界坐标转换到相机坐标最后到像素投影坐标的过程。期间有一个gridPos的转换，这个是将空间分割成了大小相等的体素，这个步骤很简单一般只是对空间坐标的缩放保留精度问题。</p>
+<h3 id="TSDF"><a href="#TSDF" class="headerlink" title="TSDF"></a><a href="about:blank#TSDF" title="TSDF"></a>TSDF</h3><p>接下来就到了TSDF的介绍了。TSDF（Truncated Signed Distance Function）是截断符号距离函数的缩写，各个体素的截断符号距离组成了TSDF field。这个TSDF是如何计算的？</p>
+<p>首先我们需要介绍什么是SDF值。一个体素的SDF值，是它到最近的表面的距离，如果它在表面前（也就是距离相机更近），它是正值，如果在表面后，则为负值。对于这个值的计算，我们首先将在视锥内的体素投影到像素坐标，然后用该像素坐标的深度值减去这个体素的实际z值。在相机运动的过程中，空间voxel的sdf值可能会更新的。</p>
+<p>而TSDF就是规定了一个最远距离。因为我们知道，三维重建我们关注的是重建的表面，如果一个体素距离表面太远，它对表面重建不会有什么实际贡献。因此TSDF规定一个最远距离，如果距离比这个更大，它的TSDF值就是无效的，也就是用SDF值除以$d_{\max}$，只保留区间$[-1,1]$的值。下面这幅图形象地解释了什么是TSDF。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf5.png"></p>
+<p>在相机运动的过程中，同一个voxel对应的color与depth值是不一样的，因此在integrate的时候对于不同的值我们需要加上权重，来表示它的可信赖程度。如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf4.png"></p>
+<p>可以看到，入射角更小，则是比较好的情况，入射角越大，带来的结果也相对更不可靠，因为很明显它不应该是距离表面最近的距离。因此实际中的权重，应该给入射角小的相机位置采集到的帧率更大的权重。具体的实现，可以将voxel位置向量（相机坐标系下）与它的法向量相称，入射角小的时候，根据向量乘，我们知道它能得到更大的乘积结果。</p>
+<h3 id="Adaptive-Raycasting"><a href="#Adaptive-Raycasting" class="headerlink" title="Adaptive Raycasting"></a><a href="about:blank#Adaptive-Raycasting" title="Adaptive Raycasting"></a>Adaptive Raycasting</h3><p>Raycasting是从TSDF场中恢复出表面的过程。我们可以这样想象，从一个地方射出一条线过去，如果它经过了表面，那么这个光线经过的体素的TSDF值一定有一个从正变负，或者从负变正（如果是实时重建，那么只有从正到负）的过程。这个射出的方向，就是相机坐标系z轴的。而正负交接点0点，我们称为zero-crossing，就是表面所在的voxel。我们要做的就是找到这个地方，当然有时候可能不会有哪个的体素大小直接是0,这时候就需要进行三线性插值（trilineal interpolation），找到逼近0的哪个地方。距离操作中，我们为了加速，可能会开始已一个比较大的步长，找到了zero-crossing，换成更小的步长，直到得到要求的精度，使得选取点的TSDF值尽量接近于0。得到这个点之后，再同样根据线性插值，写入color（实际中color可能是包含在TSDF场中的，以及权重）。</p>
+<p>上面的算法没有包含光线和阴影的部分。</p>
+<p>接下来的就是mesh生成与法向量的提取。这个就是另外的部分了，现在我们已经简单介绍了一般的实时三维重建的步骤，这里都是非常通俗的语言，没有包含任何公式。实际中的工程遵循上面的思想，还会遇到各种各样的实际问题。总之希望能有所帮助吧。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tsdf6.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/3D-reconstruction/" rel="tag"># 3D reconstruction</a>
+              <a href="/tags/sdf/" rel="tag"># sdf</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/23/SLAM%E2%80%94%E2%80%94%E5%90%8E%E7%AB%AF%EF%BC%88%E4%B8%80%EF%BC%89%E6%BB%A4%E6%B3%A2%E5%99%A8%E5%90%8E%E7%AB%AF/" rel="prev" title="SLAM——后端（一）滤波器后端">
+                  <i class="fa fa-angle-left"></i> SLAM——后端（一）滤波器后端
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/02/16/SLAM%E2%80%94%E2%80%94%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" rel="next" title="SLAM——回环检测">
+                  SLAM——回环检测 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

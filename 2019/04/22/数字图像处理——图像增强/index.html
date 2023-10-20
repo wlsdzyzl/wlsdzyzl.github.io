@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="从这周开始进行数字图像处理这门课程。实际上图像处理，也是计算机图形学的一个分支。我们生活中使用的各种美图ps等等都是属于图像处理的范畴。这次介绍图像处理中图像增强的部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——图像增强">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/04/22/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="从这周开始进行数字图像处理这门课程。实际上图像处理，也是计算机图形学的一个分支。我们生活中使用的各种美图ps等等都是属于图像处理的范畴。这次介绍图像处理中图像增强的部分。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement8.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement9.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement10.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement11.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement12.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement13.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement0.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement21.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement15.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement14.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement16.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement17.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement18.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement19.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement20.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_black.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_original.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_he.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/result_1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/result_2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_3.png">
+<meta property="article:published_time" content="2019-04-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:30.181Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="algorithm">
+<meta property="article:tag" content="digital image processing">
+<meta property="article:tag" content="filtering">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/04/22/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/04/22/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/","path":"2019/04/22/数字图像处理——图像增强/","title":"数字图像处理——图像增强"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——图像增强 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%82%B9%E6%93%8D%E4%BD%9C%EF%BC%88point-operation%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">点操作（point operation）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A3%81%E5%89%AA%E5%92%8C%E9%98%88%E5%80%BC%E5%8C%96%EF%BC%88clipping-and-thresholding%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">裁剪和阈值化（clipping and thresholding）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E5%83%8F%E5%8F%8D%E8%BD%AC%EF%BC%88image-negatives%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">图像反转（image negatives）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Log%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.3.</span> <span class="nav-text">Log转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E6%95%B0%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.4.</span> <span class="nav-text">指数转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%AE%B5%E7%BA%BF%E6%80%A7%E8%BD%AC%E6%8D%A2%EF%BC%88piecewise-linear-transformation%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">分段线性转换（piecewise linear transformation）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%81%B0%E5%BA%A6%E7%BA%A7%E5%88%87%E7%89%87%E6%93%8D%E4%BD%9C%EF%BC%88gray-level-slicing%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">灰度级切片操作（gray level slicing）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bit%E5%B9%B3%E9%9D%A2%E7%9A%84%E5%88%87%E7%89%87%E6%93%8D%E4%BD%9C-bit-plane-slicing"><span class="nav-number">1.7.</span> <span class="nav-text">bit平面的切片操作(bit plane slicing)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E6%93%8D%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">全局操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96%EF%BC%88histogram-equalization%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">直方图均衡化（histogram equalization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%96%B9%E5%9B%BE%E8%A7%84%E5%AE%9A%E5%8C%96%EF%BC%88histogram-specification%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">直方图规定化（histogram specification）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E5%83%8F%E7%9A%84%E6%94%BE%E5%A4%A7%E7%BC%A9%E5%B0%8F%EF%BC%88resize%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">图像的放大缩小（resize）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/04/22/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——图像增强 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——图像增强
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-04-22 00:00:00" itemprop="dateCreated datePublished" datetime="2019-04-22T00:00:00+08:00">2019-04-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:30" itemprop="dateModified" datetime="2023-10-21T04:23:30+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>从这周开始进行数字图像处理这门课程。实际上图像处理，也是计算机图形学的一个分支。我们生活中使用的各种美图ps等等都是属于图像处理的范畴。这次介绍图像处理中图像增强的部分。</p>
+<span id="more"></span>
+
+<p>图像获取是将模拟连续信号转化成数字信号的过程，而在采样过程中，有一个著名的定律：奈奎斯特采样定律。它要求采样的频率是原始信号频率的2倍以上，才能保证不丢失信息。获取到图像后，就有很多后续的操作了。</p>
+<p>实际上，图像增强是一个很大的范畴。简单来说，是因为我们的目的不同，所以增强的方法也不同。简单的来说，图像增强在空间域上分为3类：点操作，全局操作，以及块操作（更熟悉的名字，叫滤波），除了空间域，在频域上也有很多相关的算法。图像增强经常应用到各种特征提取的预处理阶段，也常常应用到生活中，下图是图像增强的几个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement1.png"></p>
+<p>在这里介绍几个很重要的图像增强相关算法。对于空间域上的操作，我们可以用下面的式子来表示：</p>
+<p>g(x,y)&#x3D; T[f(x,y)]</p>
+<p>上式中，$f(x,y)$表示图像，$(x,y)$表示图像的像素位置，因此一个图像经常可以用矩阵来表示。而$f$表示的是像素的值，这个值可以是多种的，比如灰度值，RGB值，亮度值，甚至是深度值（那么这个图是深度图）。$g(x,y)$表示增强后的图像，而$T$表示这个操作。操作$(x,y)$位置的像素时候牵涉得到的其他像素值的范围，决定了这个值是点操作还是块操作还是全局操作，如下图是一个滤波的一般范围（$3 \times 3$，也可以是别的大小）：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement2.png"></p>
+<h2 id="点操作（point-operation）"><a href="#点操作（point-operation）" class="headerlink" title="点操作（point operation）"></a><a href="about:blank#%E7%82%B9%E6%93%8D%E4%BD%9C%EF%BC%88point-operation%EF%BC%89" title="点操作（point operation）"></a>点操作（point operation）</h2><p>点操作，也就是对每个像素的处理，只由自己决定，这意味着它不会受到位置影响，只受到值的影响，因此可以简单的写成：$s &#x3D; T(r)$。</p>
+<h3 id="裁剪和阈值化（clipping-and-thresholding）"><a href="#裁剪和阈值化（clipping-and-thresholding）" class="headerlink" title="裁剪和阈值化（clipping and thresholding）"></a><a href="about:blank#%E8%A3%81%E5%89%AA%E5%92%8C%E9%98%88%E5%80%BC%E5%8C%96%EF%BC%88clipping-and-thresholding%EF%BC%89" title="裁剪和阈值化（clipping and thresholding）"></a>裁剪和阈值化（clipping and thresholding）</h3><p>最简单的点操作算法（可能也是最简单的图像处理算法）是二值化，它是阈值化的一种。二值化指的是设定一个阈值$t$，当值大于$t$设定为$255$，当值小于$t$的时候设定为$0$。因此最后整个图像只包含两个值。而裁剪就更灵活一点,可以选取某段范围内的值不改变，不过也会根据阈值，比如大于$t$的设定为某个值，小于则为原来的值。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement3.png"></p>
+<h3 id="图像反转（image-negatives）"><a href="#图像反转（image-negatives）" class="headerlink" title="图像反转（image negatives）"></a><a href="about:blank#%E5%9B%BE%E5%83%8F%E5%8F%8D%E8%BD%AC%EF%BC%88image-negatives%EF%BC%89" title="图像反转（image negatives）"></a>图像反转（image negatives）</h3><p>做图像反转，是因为对于人眼来说，黑暗中亮的物体和亮中暗的物体效果是不一样的。下面是一个图像反转的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement4.png"></p>
+<p>计算过程为：</p>
+<p>s &#x3D; L-1 -r,r \in [0,L-1]</p>
+<h3 id="Log转换"><a href="#Log转换" class="headerlink" title="Log转换"></a><a href="about:blank#Log%E8%BD%AC%E6%8D%A2" title="Log转换"></a>Log转换</h3><p>还有一系列根据$r$计算$s$的算法，使用log函数：</p>
+<p>s &#x3D; c\log(1+r)</p>
+<p>下面这张图展示了经过log转换以及图像反转后的值：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement5.png"></p>
+<h3 id="指数转换"><a href="#指数转换" class="headerlink" title="指数转换"></a><a href="about:blank#%E6%8C%87%E6%95%B0%E8%BD%AC%E6%8D%A2" title="指数转换"></a>指数转换</h3><p>另外一个比较重要的是根据指数计算新的值：</p>
+<p>s &#x3D; c(r+\epsilon)^v</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement6.png"></p>
+<p>实际上这些转换都非常简单，我们甚至可以自己构造更多的函数来达到想要的效果。上图中，如果$L$表示亮度或者灰度值，那么$v&gt;1$的情况下，会使得整个图变暗，相反会使得整个图变亮，需要注意的是，上面的$r$值是经过处理的，因为我们要保证$log$(1+r),(r)^v$的值域为$[0,1]$，因此这里的$r$并不是原始的值，而是经过了归一化处理。下面的图像就是整个色调变亮：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement7.png"></p>
+<p>一个指数转换的例子是<strong>伽马校正（gamma correction）</strong>，一般来说ps操作可能会遇到：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement8.png"></p>
+<p>另外比如<strong>对比度增强</strong>也会用到指数转换：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement9.png"></p>
+<p>上面的图对应$c&#x3D;1,v&#x3D;0.4,0.6,0.3$的效果，图像整个变亮，而且经过指数转换，颜色深的部分的对比度会增加，因此从人眼角度可以显示更多的细节。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement10.png"></p>
+<p>上图对应$c&#x3D;1,v&#x3D;3.0,4.0,5.0$，同样的道理，整个图像变暗，但是对于颜色较亮的部分对比度会增加。</p>
+<h3 id="分段线性转换（piecewise-linear-transformation）"><a href="#分段线性转换（piecewise-linear-transformation）" class="headerlink" title="分段线性转换（piecewise linear transformation）"></a><a href="about:blank#%E5%88%86%E6%AE%B5%E7%BA%BF%E6%80%A7%E8%BD%AC%E6%8D%A2%EF%BC%88piecewise-linear-transformation%EF%BC%89" title="分段线性转换（piecewise linear transformation）"></a>分段线性转换（piecewise linear transformation）</h3><p>我们可以根据分段线性转换来达到想要的效果。比如之前的提升的都是暗色的部分或者亮色的部分，如果想要提升中间部分的对比度，容易想到的是使用sigmod函数，或者使用分段线性函数：</p>
+<p>s &#x3D;\left\{ \begin{matrix} \alpha r, 0 \leq r &lt; a\\ \beta(r - a)+v_a,a \leq r &lt; b\\ \gamma(r - b)+v_b, b \leq r &lt; L \end{matrix} \right.</p>
+<p>我们对$[a,b]$范围内的值延伸至$[v_a,v_b]$，这其中：</p>
+<p>\alpha &#x3D; \frac{v_a}{a},\beta &#x3D; \frac{v_b- v_a}{b-a}, \gamma &#x3D; \frac{L - v_b}{L-b}</p>
+<p>效果如下图（右下角是二值化）：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement11.png"></p>
+<h3 id="灰度级切片操作（gray-level-slicing）"><a href="#灰度级切片操作（gray-level-slicing）" class="headerlink" title="灰度级切片操作（gray level slicing）"></a><a href="about:blank#%E7%81%B0%E5%BA%A6%E7%BA%A7%E5%88%87%E7%89%87%E6%93%8D%E4%BD%9C%EF%BC%88gray-level-slicing%EF%BC%89" title="灰度级切片操作（gray level slicing）"></a>灰度级切片操作（gray level slicing）</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement12.png"><br>使得处于某部分范围内的值着重显示。</p>
+<h3 id="bit平面的切片操作-bit-plane-slicing"><a href="#bit平面的切片操作-bit-plane-slicing" class="headerlink" title="bit平面的切片操作(bit plane slicing)"></a><a href="about:blank#bit%E5%B9%B3%E9%9D%A2%E7%9A%84%E5%88%87%E7%89%87%E6%93%8D%E4%BD%9C-bit-plane-slicing" title="bit平面的切片操作(bit plane slicing)"></a>bit平面的切片操作(bit plane slicing)</h3><p>我们知道一般$r$是有8个bit表示的：</p>
+<p>r &#x3D; k_1k_2…k_8</p>
+<p>做下面的处理：</p>
+<p>s &#x3D;\left\{ \begin{matrix} L, \text{if n-th significant bit &#x3D; 1}\\ 0,\text{otherwise} \end{matrix} \right.</p>
+<p>下面是一个选取不同的significant bit的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement13.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement0.png"></p>
+<p>可以看到的是，可以表达的细节更少，但是不同的significant bit的选择，会带来神奇的效果。</p>
+<h2 id="全局操作"><a href="#全局操作" class="headerlink" title="全局操作"></a><a href="about:blank#%E5%85%A8%E5%B1%80%E6%93%8D%E4%BD%9C" title="全局操作"></a>全局操作</h2><p>全局操作指的是新的像素值，是由整张图片决定的。这里介绍一个频率直方图上的操作（histogram），在空间域上它被归属于全局操作，实际上它也是频域上的操作。</p>
+<p>一个图像的频率直方图如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement21.png"></p>
+<p>直方图高度代表有多少个像素是这个值。有了直方图就有较多的操作了，比如直方图分布不均匀，如何将直方图变得均匀一点？也就是我们希望对像素值进行映射，需要一个映射函数。映射函数必须满足两点：</p>
+<ol>
+<li>必须不能影响原来值的大小关系，也就是是严格单调递增函数</li>
+<li>值域不能越界</li>
+</ol>
+<h3 id="直方图均衡化（histogram-equalization）"><a href="#直方图均衡化（histogram-equalization）" class="headerlink" title="直方图均衡化（histogram equalization）"></a><a href="about:blank#%E7%9B%B4%E6%96%B9%E5%9B%BE%E5%9D%87%E8%A1%A1%E5%8C%96%EF%BC%88histogram-equalization%EF%BC%89" title="直方图均衡化（histogram equalization）"></a>直方图均衡化（histogram equalization）</h3><p>为了解决这个问题，首先我们要知道直方图实际上是概率分布图，考虑连续的情况。对于一个连续的概率密度函数，如何做映射到均匀分布？这里有一个非常巧妙的方法。我们选择了概率中的累积分布函数。它满足了上面最基本的要求。下面分析为什么它能使得分布均衡化。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement15.png"></p>
+<p>上图中，如果非严格单增，可能原来多个不相等的值映射到相同的值。</p>
+<p>我们希望做到下面的映射：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement14.png"></p>
+<p>令：</p>
+<p>s&#x3D; (L-1)\int_0^r p_r(w)d_w</p>
+<p>则：</p>
+<p>\frac{ds}{dr} &#x3D;(L-1) p_r(r)</p>
+<p>这时候求$p_s(s)$，我们知道：</p>
+<p>p_s(s) &#x3D; p_r(r)\lvert\frac{dr}{ds}\rvert</p>
+<p>这一步比较难懂一点。实际上这里是概率论相关的内容。假设有两个随机变量$X,Y$，它们的概率密度函数分别为：$f_X(x),f_Y(y)$，累积分布函数分别为：$F_X(x),F_Y(y)$。而且$X,Y$满足下面的关系：</p>
+<p>Y &#x3D; g(X)</p>
+<p>且$g$是单调可导函数。那么该函数具有反函数：</p>
+<p>X &#x3D; g^{-1}(Y)</p>
+<p>根据定义：</p>
+<p>\begin{aligned} F_Y(y) &amp;&#x3D; P(Y\leq y)\\ &amp;&#x3D; P(g(X) \leq y)\\ &amp;&#x3D; P(X \leq g^{-1}(y))\\ &amp;&#x3D; \int_{0}^{g^{-1}(y)}f_X(w)dw\\ &amp;&#x3D; F_X(x)\vert_0^{g^{-1}(y)}\\ &amp;&#x3D; F_X(g^{-1}(y)) - F_X(0) \end{aligned}</p>
+<p>上式两侧同时对$y$进行求导：</p>
+<p>f_Y(y) &#x3D; f_X(g^{-1}(y)) \frac{dg^{-1}(y)}{dy} &#x3D; f_X(x)\frac{dx}{dy}</p>
+<p>反函数的导数是原来导数的倒数。当函数是单调减函数时，$\frac{dx}{dy}&lt;0$，而概率密度函数应该始终非负，因此需要加上绝对值。<br>则：</p>
+<p>p_s(s) &#x3D; p_r(r)\lvert \frac{dr}{ds} \rvert &#x3D; \frac{1}{L-1}</p>
+<p>而这正是均匀分布的特征。</p>
+<p>对于离散的情况，也就是我们需要处理的情况：</p>
+<p>\begin{aligned} s_k &amp;&#x3D; T(r_k) &#x3D; (L-1)\sum_{j&#x3D;0}^kp_r(r_j) \\ &amp;&#x3D; (L-1)\sum_{j&#x3D;0}^k\frac{n_j}{n}\\ &amp;&#x3D; \frac{L-1}{n}\sum_{j&#x3D;0}^k n_j \end{aligned} k &#x3D; 0,…,L-1</p>
+<p>离散情况下，我们无法保证概率密度函数一定是严格单调增的，但是这个实际上不会太影响，没有严格单调增是因为某些像素值在图片中是不存在的，对该值的映射也就无所谓了。需要注意的是，有可能会将多个值映射到一个值上，因为像素值是整数，我们必须要做取整的操作。</p>
+<p>在离散情况下，得到的不会是绝对的均匀分布。由于离散情况下，每个值对应一个值（或者多个），因此均衡化后各个对应值的频率不会减少，但是会将过于集中的分布拉开。<br>下面是一个直方图均衡化的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement16.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement17.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement18.png"></p>
+<h3 id="直方图规定化（histogram-specification）"><a href="#直方图规定化（histogram-specification）" class="headerlink" title="直方图规定化（histogram specification）"></a><a href="about:blank#%E7%9B%B4%E6%96%B9%E5%9B%BE%E8%A7%84%E5%AE%9A%E5%8C%96%EF%BC%88histogram-specification%EF%BC%89" title="直方图规定化（histogram specification）"></a>直方图规定化（histogram specification）</h3><p>直方图均衡化并不一定总是符合我们的要求。有时候我们不希望分布的太均匀，而是希望直方图分布照着我们想要的样子来。这时候我们需要提供两张图片，一张原始图像，一张目标图像，表示希望原始图像映射后与目标图的直方图类似。原始图像与目标图像的概率分布分别为：$p_r(r)$与$p_z(z)$。对于规定化，首先做的是均衡化。分布对两张图像都进行均值化：</p>
+<p>s &#x3D; T(r) &#x3D; (L-1)\int_0^r p_r(w)d_w\\ v &#x3D; G(z) &#x3D; (L-1)\int_0^z p_z(w)d_w</p>
+<p>分别表示均衡化后的原始图像和目标图像。实际上我们可以根据均值化后的结果，求出原始图像：</p>
+<p>r &#x3D; T^{-1}(s)</p>
+<p>由于目标图像和原始图像都进行了均值化处理，因此他们应该具有相同的概率密度（离散情况下不一定会完全相同）：</p>
+<p>p_s(s) &#x3D; p_v(v)</p>
+<p>因此可以使用目标图像均值化后的结果来得到原始图像规定化的样子：</p>
+<p>z &#x3D; G^{-1}(v) &#x3D; G^{-1}(s)</p>
+<p>在离散情况下，这个问题更好解决，只要根据映射反向回去即可。但是需要注意的是，映射并不是一一对应的，原来的多个值映射到一个值，因此反向的时候，可能有多个值找不到对应的映射，这时候只要简单的找附近的值对应的映射就可以了。</p>
+<p>上面就是直方图规定化的内容，可以看到均值化是规定化的基础。</p>
+<p>除了上面介绍的之外，还有图像之间的and，or以及sub等等操作，都是非常简单的内容。下面是几个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement19.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/enhancement20.png"></p>
+<p>下面会用python的代码实现一下直方图均衡化和直方图规定化：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python histogram equalization and specification</span></span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> pylab <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">equalization</span><span class="params">(im)</span>:</span></span><br><span class="line">    obj = im.flatten()</span><br><span class="line">    sta = [<span class="number">0</span> <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">256</span>)]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> obj:</span><br><span class="line">        sta[i] = sta[i]+<span class="number">1</span></span><br><span class="line">    sta = [i /len(obj) <span class="keyword">for</span> i <span class="keyword">in</span> sta ]</span><br><span class="line"></span><br><span class="line">    updated = []</span><br><span class="line">    integral=<span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> sta:</span><br><span class="line">        integral += i</span><br><span class="line">        updated.append(int(integral * <span class="number">255</span>))</span><br><span class="line">    nim = np.array(im)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(im)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(len(im[i])):</span><br><span class="line">            nim[i][j] = updated[im[i][j]]</span><br><span class="line">    <span class="keyword">return</span> nim,updated</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">specification</span><span class="params">(im,im_s)</span>:</span></span><br><span class="line">    nim,updated1 = equalization(im)</span><br><span class="line"></span><br><span class="line">    nim_s,updated2 = equalization(im_s)</span><br><span class="line">    updated = [<span class="number">-1</span> <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">256</span>)]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">256</span>):</span><br><span class="line">        <span class="keyword">if</span> updated[updated2[i]]==<span class="number">-1</span>:</span><br><span class="line">            updated[updated2[i]] = i</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">256</span>):</span><br><span class="line">        j=<span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> updated[i] == <span class="number">-1</span>:</span><br><span class="line">            updated[i] = updated[(i+j)%<span class="number">256</span>]</span><br><span class="line">            <span class="keyword">if</span> updated[i] == <span class="number">-1</span>:</span><br><span class="line">                updated[i] = updated[((i-j)+<span class="number">256</span>)%<span class="number">256</span>]</span><br><span class="line">            j+=<span class="number">1</span></span><br><span class="line">    final = np.array(im)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(im)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(len(im[i])):</span><br><span class="line">            <span class="keyword">if</span> updated[im[i][j]]!= <span class="number">-1</span>:</span><br><span class="line">                final[i][j] = updated[im[i][j]]</span><br><span class="line">    <span class="keyword">return</span> final</span><br><span class="line"></span><br><span class="line">im = np.array(Image.open(<span class="string">"./image_black.jpg"</span>).convert(<span class="string">"L"</span>))</span><br><span class="line">nim = equalization(im)[<span class="number">0</span>]</span><br><span class="line">im_s = np.array(Image.open(<span class="string">"./object1.jpg"</span>).convert(<span class="string">"L"</span>))</span><br><span class="line">final = specification(im,im_s)</span><br><span class="line"></span><br><span class="line"><span class="string">'''Image.fromarray(im).show()</span></span><br><span class="line"><span class="string">Image.fromarray(nim).show()</span></span><br><span class="line"><span class="string">Image.fromarray(im_s).show()</span></span><br><span class="line"><span class="string">Image.fromarray(final).show()'''</span></span><br><span class="line">figure()</span><br><span class="line"><span class="comment">#hist(im.flatten(),256)</span></span><br><span class="line"><span class="comment">#hist(nim.flatten(),256)</span></span><br><span class="line">hist(im_s.flatten(),<span class="number">256</span>)</span><br><span class="line">hist(final.flatten(),<span class="number">256</span>)</span><br><span class="line">show()</span><br></pre></td></tr></tbody></table>
+
+<p>原始图像为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_black.jpg"></p>
+<p>它的灰度图为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_original.png"></p>
+<p>经过直方图均衡化之后的效果:</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/image_he.png"></p>
+<p>均衡化前后的直方图对比（原来的直方图为蓝色，均衡化后的为黄色）：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_1.png"></p>
+<p>对于规定化，需要选择目标图像。为了更好地显示效果，我选了两个目标图像来分别作规定化。第一个目标图原图为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object1.jpg"></p>
+<p>第一个目标图灰度图如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object1.png"></p>
+<p>经过规定化之后，效果如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/result_1.png"></p>
+<p>可以看到的是，由于我选了宇宙图，黑色占了大多数，因此整个图的色调会变暗很多。而目标图的直方图（蓝）和规定化后的直方图（黄）对比如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_2.png"></p>
+<p>对于第二个规定化，我选择了蓝天白云的风景图，可以看到，这个应该会让整个图的色调变亮。第二个目标图原图为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object2.jpg"></p>
+<p>第二个目标图灰度图为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/object2.png"></p>
+<p>经过规定化后，效果为：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/result_2.png"></p>
+<p>目标图的直方图（蓝）和规定化后的直方图（黄）对比如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/h_3.png"></p>
+<h2 id="图像的放大缩小（resize）"><a href="#图像的放大缩小（resize）" class="headerlink" title="图像的放大缩小（resize）"></a><a href="about:blank#%E5%9B%BE%E5%83%8F%E7%9A%84%E6%94%BE%E5%A4%A7%E7%BC%A9%E5%B0%8F%EF%BC%88resize%EF%BC%89" title="图像的放大缩小（resize）"></a>图像的放大缩小（resize）</h2><p>图像的放大和缩小也是一个图像的基本操作。图像的缩小和放大会有比较多的插值方法。最简单的就是不做差值，直接复制原来的像素或者采样。这样效果很差。而比较有名的插值方法有最邻近插值（nearest），双线性插值（bilinear），双立方插值（bicubic）等等，一般来说这些方法都会被直接实现在各个程序包中了。比如在matlab的imresize函数以及PIL中Image的resize函数，我们可以选择不同的插值方法来达到不同的效果。这些算法背后就是数学的插值方法，这里就不多介绍了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+              <a href="/tags/filtering/" rel="tag"># filtering</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/04/08/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8A%A8%E7%94%BB/" rel="prev" title="图形学——计算机动画">
+                  <i class="fa fa-angle-left"></i> 图形学——计算机动画
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/" rel="next" title="数字图像处理——频域滤波">
+                  数字图像处理——频域滤波 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

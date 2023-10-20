@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前说到,我们直觉构造的1比特下高斯信源的传输与理论上的失真还有点差距，需要进行分组才能得到最优。下面，我们用失真联合典型序列来证明，同时证明率失真定理。  率失真定理的核心是我们要证明$R(D) &#x3D; R^{(I)}(D)$。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——信息速率失真函数与熵压缩编码（二）">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前说到,我们直觉构造的1比特下高斯信源的传输与理论上的失真还有点差距，需要进行分组才能得到最优。下面，我们用失真联合典型序列来证明，同时证明率失真定理。  率失真定理的核心是我们要证明$R(D) &#x3D; R^{(I)}(D)$。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort3.jpg">
+<meta property="article:published_time" content="2019-01-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:36.061Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort2.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/","path":"2019/01/09/信息论——信息速率失真函数与熵压缩编码（二）/","title":"信息论——信息速率失真函数与熵压缩编码（二）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——信息速率失真函数与熵压缩编码（二） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%AE%9A%E7%90%86%E7%9A%84converse"><span class="nav-number">1.</span> <span class="nav-text">率失真定理的converse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%BC%96%E7%A0%81%E7%9A%84%E5%AD%98%E5%9C%A8%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">率失真编码的存在性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%B1%E7%9C%9F%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97"><span class="nav-number">2.1.</span> <span class="nav-text">失真典型序列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%81%E6%98%8E%E6%80%9D%E8%B7%AF"><span class="nav-number">2.2.</span> <span class="nav-text">证明思路</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——信息速率失真函数与熵压缩编码（二） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——信息速率失真函数与熵压缩编码（二）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-09 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-09T00:00:00+08:00">2019-01-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:36" itemprop="dateModified" datetime="2023-10-21T04:24:36+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前说到,我们直觉构造的1比特下高斯信源的传输与理论上的失真还有点差距，需要进行分组才能得到最优。下面，我们用失真联合典型序列来证明，同时证明率失真定理。  率失真定理的核心是我们要证明$R(D) &#x3D; R^{(I)}(D)$。</p>
+<span id="more"></span>
+
+
+<h3 id="率失真定理的converse"><a href="#率失真定理的converse" class="headerlink" title="率失真定理的converse"></a><a href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%AE%9A%E7%90%86%E7%9A%84converse" title="率失真定理的converse"></a>率失真定理的converse</h3><p>与之前不同的是，我们首先来证明定理的逆。我们需要说明这样一件事：</p>
+<p>对于服从分布$P(x)$的随机变量$X$和失真度量$d(x,\hat x)$，以及任意满足失真小于$D$的率失真编码$(2^{nR},n)$来说，$R \ge R^{(I)}(D)$。</p>
+<p>如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort2.jpg"></p>
+<p>我们证明的是可行域是如图所示的。</p>
+<p>\begin{aligned} nR &amp;\ge H(\hat X^n)\\ &amp;\ge H(\hat X^n) - H(\hat X^n|X^n)\\ &amp;&#x3D; I(\hat X^n,X^n)\\ &amp;&#x3D; H(X^n)-H(X^n|\hat X^n)\\ &amp;&#x3D; \sum_{i&#x3D;1}^n H(X_i) - \sum_{i&#x3D;1}^n H(X_i|\hat X^n,X_1,…,X_{i-1})\\ &amp;\ge \sum (H(X_i) - H(X_i|\hat X_i))\\ &amp; &#x3D; \sum I(X_i;\hat X_i)\\ &amp; \ge \sum R^{(I)}(E[d(X_i,\hat X_i)]) \\ &amp;&#x3D; n\sum \frac 1 n R^{(I)}(E[d(X_i, \hat X_i)])\\ &amp;\ge nR^{(I)}(\frac 1 n \sum E[d(X_i,\hat X_i)])\\ &amp;&#x3D; nR^{(I)}(D) \end{aligned}</p>
+<p>因此我们证明了任何一个率失真编码得到的率失真函数都不可能比信息论上的率失真函数来得更小。</p>
+<h3 id="率失真编码的存在性"><a href="#率失真编码的存在性" class="headerlink" title="率失真编码的存在性"></a><a href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%BC%96%E7%A0%81%E7%9A%84%E5%AD%98%E5%9C%A8%E6%80%A7" title="率失真编码的存在性"></a>率失真编码的存在性</h3><p>对于存在性的证明，是依照这样的想法进行的：</p>
+<ul>
+<li><p>设$X_1,X_2,…,X_n$是服从$p(x)$的独立同分布随机变量</p>
+</li>
+<li><p>设$d(x,\hat x)$为有界的失真度量</p>
+</li>
+<li><p>对于任何$D$，有$R \ge R^{(I)}(D)$</p>
+</li>
+<li><p>现在我们要证明的是，存在一组率失真编码，他们的码率都是$R$，而失真渐进达到$D$</p>
+</li>
+</ul>
+<p>这个过程与信道编码定理是很类似的，不同的是多了一个失真的约束。因此我们首先定义”失真”典型序列。</p>
+<h4 id="失真典型序列"><a href="#失真典型序列" class="headerlink" title="失真典型序列"></a><a href="about:blank#%E5%A4%B1%E7%9C%9F%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97" title="失真典型序列"></a>失真典型序列</h4><p>设$p(x,\hat x)$和$d(x,\hat x)$分别是$X\times \hat X$上的联合概率分布和失真度量。对于任意$\epsilon&gt;0$，若一个序列对$(x^n,\hat x^n)$满足以下条件，就被称为失真$\epsilon$-典型序列。</p>
+<p>\left. \begin{matrix} \lvert -\frac 1 n \log p(x^n) - H(X) \rvert &lt; \epsilon\\ \lvert -\frac 1 n \log p(\hat x^n) - H(\hat X) \rvert &lt; \epsilon\\ \lvert -\frac 1 n \log p(x^n,\hat x^n) - H(X,\hat X) \rvert &lt; \epsilon\\ \lvert d(x^n,\hat x^n) - E[d(X,\hat X)] \rvert &lt; \epsilon \end{matrix} \right \} 联合典型序列</p>
+<p>前三个条件实际上就是联合典型序列的定义。实际上这个定义就是联合典型序列的拓展，失真联合典型序列一定是联合典型序列。</p>
+<p>有了上面的定义，有这样一条引理：设$(X_i,\hat X_i)$是服从联合概率分布$p(x,\hat x)$的独立同分布随机变量，当$n\rightarrow \infty$时，$Pr(A_{d,\epsilon}^(n)) \rightarrow 1$。</p>
+<p>证明如下：</p>
+<p>按照大数定理，前三个不等式的左侧都散以概率1收敛到期望值0的，而对于最后一个条件，我们有：</p>
+<p>d(x^n,\hat x^n) &#x3D; \frac 1 n \sum_{i&#x3D;1}^n d(x_i,\hat x_i)</p>
+<p>根据大数定律，上式也会收敛到失真度量的统计平均。因此，最后一个条件也依概率1收敛到0。因此这个命题是成立的。</p>
+<h4 id="证明思路"><a href="#证明思路" class="headerlink" title="证明思路"></a><a href="about:blank#%E8%AF%81%E6%98%8E%E6%80%9D%E8%B7%AF" title="证明思路"></a>证明思路</h4><p>与之前的香农第二定理一样，这里我们依然要用到随机生成的码本。</p>
+<ul>
+<li><p>随机生成一个码本$C$，含有$2^{nR}$个序列$\hat X ^n \sim \prod _{i&#x3D;1}^n p(\hat x_i)$</p>
+</li>
+<li><p>将上述随机生成的$2^{nR}$个码进行编号$w \in {1,2,…,2^{nR} }$，因此我们可以确定的是这个信道的传输码率是$R$。</p>
+</li>
+<li><p>构造编码映射：</p>
+<blockquote>
+<p>若$(X^n,\hat X^n(W)) \in A_{d,\epsilon}^{(n)}$，则编码映射$X^n \rightarrow w$；若满足以上条件的$w$多于1，则取最小的$w$，否则，取$w &#x3D; 1$。</p>
+</blockquote>
+</li>
+<li><p>构造解码映射：取恢复点为$\hat X^n (w)$</p>
+</li>
+<li><p>我们需要证明它的失真渐进等于$D$</p>
+</li>
+</ul>
+<p>这个信道的输入只有$2^{nR}$种字符，因此它的码率一定是$n$。</p>
+<p>这个信道如图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort1.jpg"></p>
+<p>传输过程会有两种情况：</p>
+<ol>
+<li><p>$\exists w$, s.t. $(x^n,\hat X^n(w)) \in A_{d,\epsilon}^{(n)}$，则$d(x^n,\hat X^n(w)) &lt; D+\epsilon$</p>
+</li>
+<li><p>不存在上述$w$，那么这时候$d(x^n,\hat X^n(w)) &lt; d_{max}$</p>
+</li>
+</ol>
+<p>因此得到：</p>
+<p>E[d(X^n,\hat X^n(X^n))] \leq (1-P_e)(D+\epsilon) + P_e \cdot d_{max}\leq D + \epsilon +P_e \cdot d_{max}</p>
+<p>为了证明，我们再引入两个数学引理：</p>
+<ul>
+<li>对于所有$(x^n,\hat x ^n) \in A_{d,\epsilon}^{(n)}$， p(\hat x^n) \ge p(\hat x^n| x^n) 2 ^{-n(I(X;\hat X)+3\epsilon)}</li>
+<li>对于$0\leq x,y\leq 1,n&gt;0$, (1 - xy)^n \leq 1 -x + e^{-yn}</li>
+</ul>
+<p>再引入一个标记函数：</p>
+<p>k(x^n,\hat x^n) &#x3D; \left \{ \begin{matrix} 1 &amp; (x^n,\hat x^n )\in A_{d,\epsilon}^{(n)}\\ 0 &amp; \text{otherwise} \end{matrix} \right.</p>
+<p>则：</p>
+<p>\begin{aligned} P_e &amp;&#x3D; \sum_{x^n}p(x^n)[1-\sum_{\hat x^n} p(\hat x ^n)k(x^n,\hat x^n)]^{2^{nR} }\\ &amp;\leq \sum_{x^n}p(x^n)[1-2^{-n(I(X;\hat X) + 3\epsilon)} \sum_{\hat x^n}p(\hat x^n|x^n)k(x^n,\hat x^n)]^{2^{nR} }\\ &amp;\leq \sum_{x^n}p(x^n)[1-p(\hat x^n|x^n)k(x^n,\hat x^n) + \exp(-2^{-n(I(X;\hat X) + 3\epsilon)} 2^{nR})]\\ &amp;\leq 1- \sum_{x^n\hat x^n}p(x^n)p(\hat x^n|x^n)k(x^n,\hat x^n) + \exp(-2^{n(R - I(X;\hat X) - 3\epsilon)}) \end{aligned}</p>
+<p>为了让上式趋于0,我们需要让$R \ge I(X;\hat X)$。而上式实际上就是$R \ge R^{(I)}(D)$。因此我们证明了，只要$R \ge R^{(I)}(D)$，失真是可以无限渐进逼近于$D$的。</p>
+<p>最后，形象化的解释如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distort3.jpg"></p>
+<p>实际上推导到现在，我们也能够感觉到实际上信道编码定理和率失真定理之间是有一定的对偶关系的。在信道编码时候，由于信道噪声的存在，使得一个个$X^n$空间的点胀成了超球，而这个容量C就是最多能容纳多少个球。在率失真的情况下，由于失真$D$，我们想要求的是最少可以有多少个球可以覆盖信源。但是球的半径由于平均失真限制住，不能无限大。而这两个过程，正是对互信息的最大化和最小化。</p>
+<p><a target="_blank" rel="noopener" href="https://wlsdzyzl.top/tags/information-theory/"># information theory</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/08/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="信息论——信息速率失真函数与熵压缩编码（一）">
+                  <i class="fa fa-angle-left"></i> 信息论——信息速率失真函数与熵压缩编码（一）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/" rel="next" title="SLAM——视觉里程计（二）对极几何">
+                  SLAM——视觉里程计（二）对极几何 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次介绍了图像增强的算法，而这次介绍一些滤波的内容。滤波是图像处理中非常重要的一部分内容，而且它涉及到很多的算法，我们需要合理选择，来达到自己的目的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——空间域滤波">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E5%9F%9F%E6%BB%A4%E6%B3%A2/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次介绍了图像增强的算法，而这次介绍一些滤波的内容。滤波是图像处理中非常重要的一部分内容，而且它涉及到很多的算法，我们需要合理选择，来达到自己的目的。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s14.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s8.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s15.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s16.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s12.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s11.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s10.png">
+<meta property="article:published_time" content="2019-04-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:02.146Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="algorithm">
+<meta property="article:tag" content="digital image processing">
+<meta property="article:tag" content="filtering">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s14.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E5%9F%9F%E6%BB%A4%E6%B3%A2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E5%9F%9F%E6%BB%A4%E6%B3%A2/","path":"2019/04/29/数字图像处理——空间域滤波/","title":"数字图像处理——空间域滤波"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——空间域滤波 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C%E5%A2%9E%E5%BC%BA"><span class="nav-number">1.</span> <span class="nav-text">边界增强</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%90%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">锐化</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E5%9F%9F%E6%BB%A4%E6%B3%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——空间域滤波 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——空间域滤波
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-04-29 00:00:00" itemprop="dateCreated datePublished" datetime="2019-04-29T00:00:00+08:00">2019-04-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:02" itemprop="dateModified" datetime="2023-10-21T04:23:02+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次介绍了图像增强的算法，而这次介绍一些滤波的内容。滤波是图像处理中非常重要的一部分内容，而且它涉及到很多的算法，我们需要合理选择，来达到自己的目的。</p>
+<span id="more"></span>
+
+
+
+<p>滤波算法分为空间域上的和频域上的。这一部分，我们主要介绍空间域上的滤波。</p>
+<p>实际上，空间域的滤波，也就对应的之前提到的块操作。一般来说，空间域上的滤波又叫邻域操作算子。它会根据周围的像素，决定中间像素的值。我们定义块的大小（$3\times 3$，或者$5\times 5$或其他），然后对Block中的各个像素分配权重，做卷积操作（convolution）或者相关操作（correlation）。而根据目的不同，如何定义权重以及块的大小，以及卷积或者相关操作，可以演化出很多不同的算法。</p>
+<p>对于滤波操作，可以用下面的数学形式来表述：</p>
+<p>f(x, y) \longrightarrow[w(x, y)] \longrightarrow g(x, y)</p>
+<p>而从$f$到$g$的转换，除了需要权重$w$，还需要的是卷积或者相关操作。其中相关定义如下：</p>
+<p>w(x,y) \star f(x,y) &#x3D; \frac{1}{\sum_{i,j} w(i,j)}\sum_{i&#x3D;-a}^{a}\sum_{i&#x3D;-b}^bw(i,j)f(x+i,y+j)</p>
+<p>而卷积定义如下：</p>
+<p>w(x,y)*f(x,y) &#x3D; \frac{1}{\sum_{i,j} w(i,j)} \sum_{i&#x3D;-a}^{a}\sum_{i&#x3D;-b}^bw(i,j)f(x-i,y-j)</p>
+<p>卷积和相关的定义区别只是卷积在计算时会对滤波器旋转180°。如果滤波器是中心对称的，那么它的卷积操作和相关操作是一致的。对于图像边缘的，由于没有办法构成一个block，那么可以重复边缘的像素，或者是从图像另一端获取像素，或者直接忽略即可。而滤波的过程，可以看做是权重向量和块向量的乘积，非常简单。</p>
+<p>使用上述卷积相关操作的滤波有，均匀滤波，各个权重为1。可以想象，这样的滤波会让这个图像变得非常平滑模糊，但是它对于一些噪声的去除是非常有用的。高斯滤波，也就是对最中间像素的值会有最高的权重，块中其余像素的权重是按照二维高斯分布决定的，这样的滤波能减少模糊，保留一定的细节。高斯函数：</p>
+<p>h(x,y) &#x3D; e^{-\frac{x^2 +y^2}{2\sigma^2} }</p>
+<p>对于$5 \times 5$滤波器，标准正态高斯滤波如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s14.png"></p>
+<p>除了使用上述方法，进行卷积或者相关操作的线性运算，我们还有例如中值滤波，最大值滤波最小值滤波等等。也就是，在block中，选取中位数，最大值，或者最小值作为中心点的像素。其中，中值滤波有时候也有比较好的去噪效果，尤其是椒盐噪声和斑点噪声。</p>
+<p>下图为中值滤波去除椒盐噪声：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s8.png"></p>
+<h3 id="边界增强"><a href="#边界增强" class="headerlink" title="边界增强"></a><a href="about:blank#%E8%BE%B9%E7%95%8C%E5%A2%9E%E5%BC%BA" title="边界增强"></a>边界增强</h3><p>图像滤波有一个重要的作用是提取边界。对于边界，一个简单的想法是边界两侧像素值相差很多。在数学角度上，描述两侧差距大小也就是变化率，而梯度很符合这个概念。</p>
+<p>离散函数的导数退化成了差分，一维一阶差分公式和二阶差分公式分别为：</p>
+<p>\frac{\partial f}{\partial x} &#x3D; f(x+1) - f(x)\\ \frac{\partial ^2 f}{\partial x^2} &#x3D; f(x+1) +f(x-1) - 2f(x)</p>
+<p>我们先从简单的入手，也就是图像的偏导数。我们可以计算横向的和纵向的边缘，以及45度的，对于这些计算，有多种算子，但是实际上本质就是左右（或者上下）像素相减，求某个方向上的偏导数，只是对于不同位置的偏导权重不同，下面分布是Sobel，Kirsch以及Robinson算子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s7.png"></p>
+<p>上面的内容都非常简单，因为是简单的一阶偏导。而另一方面，如果上升到二阶导数，我们这里介绍<strong>拉普拉斯</strong>算子。</p>
+<p>\text{Laplacian: }L(x,y) &#x3D; \frac{\partial ^2 I}{\partial x^2} + \frac{\partial ^2 I}{\partial y^2}</p>
+<p>由之前提到的二阶导数，我们可以得到拉普拉斯算子的在图像上的差分形式：</p>
+<p>\nabla^2 f(x,y ) &#x3D; f(x+1,y) + f(x-1,y) +f(x,y-1)+f(x,y+1) - 4f(x,y)</p>
+<p>写成filter mask如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s6.png"></p>
+<p>可以看到它的形式是非常简单的。而拉普拉斯算子对噪声很敏感，因此使用之前需要降噪，或者直接高斯拉普拉斯算子（Laplacian of Gaussian）：</p>
+<p>\operatorname{LoG}(x, y)&#x3D;-\frac{1}{\pi \sigma^{4} }\left[1-\frac{x^{2}+y^{2} }{2 \sigma^{2} }\right] e^{-\frac{x^{2}+y^{2} }{2 \sigma^{2} } }</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s5.png"></p>
+<p>另外，也可以使用高斯差分（Difference of Gaussian）：</p>
+<p>D o G \triangleq G_{\sigma_{1} }-G_{\sigma_{2} }&#x3D;\frac{1}{\sqrt{2 \pi} }\left[\frac{1}{\sigma_{1} } e^{-\left(x^{2}+y^{2}\right) &#x2F; 2 \sigma_{1}^{2} }-\frac{1}{\sigma_{2} } e^{-\left(x^{2}+y^{2}\right) &#x2F; 2 \sigma_{2}^{2} }\right]</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s4.png"></p>
+<h3 id="锐化"><a href="#锐化" class="headerlink" title="锐化"></a><a href="about:blank#%E9%94%90%E5%8C%96" title="锐化"></a>锐化</h3><p>有时候我们希望锐化图片边缘。对于锐化，主要做的是进一步加大有差异像素之间的差异。一个普遍的做法是：</p>
+<ol>
+<li>模糊原来的图像，使用均值滤波等</li>
+<li>用原来的图像，减去滤波后的图像，得到的就是差异值</li>
+<li>将这个差异值叠加到原来的图片上</li>
+</ol>
+<p>用数学描述如下：</p>
+<p>g_{mask}(x,y) &#x3D; f(x,y) - \overline f(x,y);\\ g(x,y) &#x3D;f(x,y) + k \cdot g_{mask}(x,y),k\ge 0</p>
+<p>当$k \ge 1$时候，上述算法被称为高通量滤波（highboost filtering）。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s3.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s2.png"></p>
+<p>这里有一个关于边探测的阅读材料：<br><a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/Lecture3_supplemental_material.pdf">supplemental material</a></p>
+<p>我想在这里再终点说明一下其中的一个边探测算法：Canny Edge Detection。Canny边探测算法可能是计算机图形学中使用最多的边探测算法。</p>
+<p>Canny提出了边检测算法的3个衡量准则：</p>
+<ol>
+<li>低错误率，尽可能减少漏检和误检</li>
+<li>最优定位，检测到的边缘应该在实际边缘的中心，因为比如使用高斯拉普拉斯算法，得到的会是模糊后的边缘，因此边缘很粗，这样并不利于确定实际的边缘在哪</li>
+<li>在图像中任意边缘应该只被标记一次，图像噪声不应产生伪边缘</li>
+</ol>
+<p>Canny算法步骤如下：</p>
+<ol>
+<li>高斯模糊</li>
+<li>计算梯度的幅度和方向，可以使用上面介绍的sobel等算子 \begin{array}{l}{\left(S_{x}, S_{y}\right) \text { Gradient Vector } } \\ {\text { magnitude }&#x3D;\sqrt{\left(S_{x}^{2}+S_{y}^{2}\right)} } \\ {\text { direction }&#x3D;\theta&#x3D;\tan ^{-1} \frac{S_{y} }{S_{x} } }\end{array}<img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s15.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s16.png"></li>
+<li>进行非极大值抑制。因为进行模糊后，边缘检测的结果往往比较粗，进行非极大值抑制可以有效减少这个现象，而非极大值抑制需要使用梯度的方向和幅度。非极大值抑制如下：因为一般的边缘是个曲线，我们通过2得到了曲线的梯度，比较梯度方向（正向和反向）的值，如果当前值（幅度）为最大，则保留，否则抑制，也就是设为0，从而细化边界。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s12.png"></li>
+<li>双阈值。一般边缘检测算法只有一个阈值，而Canny边缘检测有两个阈值，比大的阈值大称为强边缘，比大的阈值小，但是比小的阈值大称为弱边缘，而删除掉比小的阈值更小的点。</li>
+<li>滞后边界跟踪。这个是Canny算法和其他的算法差别最大的地方。Canny算法假设强边缘检测点一定是边缘点，而弱的边缘检测点则有可能是边缘点，也有可能是噪声。而通常来说，边缘是连通的，而噪声却不会，因此滞后边界跟踪会检查递归检查连通的弱边缘点的8连通领域像素，只要有强边缘点存在，这个条边就被保留下。也就是，我们检查一条弱边缘点构成的边，通过搜索弱边缘点的8连通领域像素，来得到连通的边缘点，只要这些边缘点中有强边缘点，就留下这条边。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s11.png"></li>
+</ol>
+<p>下面是Canny算法的效果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s10.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+              <a href="/tags/filtering/" rel="tag"># filtering</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/" rel="prev" title="数字图像处理——频域滤波">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——频域滤波
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%9C%E8%89%B2%E5%9B%BE%E5%A4%84%E7%90%86/" rel="next" title="数字图像处理——颜色图处理">
+                  数字图像处理——颜色图处理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

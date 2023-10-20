@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次主要介绍一些刚体运动中需要的数学知识以及Eigen库的基本使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——刚体运动以及Eigen">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次主要介绍一些刚体运动中需要的数学知识以及Eigen库的基本使用。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-07T13:22:37.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.776Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="Eigen">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/","path":"2018/11/07/SLAM——刚体运动以及Eigen/","title":"SLAM——刚体运动以及Eigen"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——刚体运动以及Eigen | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%8B%E8%BD%AC%E5%90%91%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">旋转向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A7%E6%8B%89%E8%A7%92"><span class="nav-number">2.</span> <span class="nav-text">欧拉角</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">四元数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%87%8F"><span class="nav-number">3.1.</span> <span class="nav-text">加减</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%98%E6%B3%95"><span class="nav-number">3.2.</span> <span class="nav-text">乘法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B1%E8%BD%AD"><span class="nav-number">3.3.</span> <span class="nav-text">共轭</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E9%95%BF"><span class="nav-number">3.4.</span> <span class="nav-text">模长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%86"><span class="nav-number">3.5.</span> <span class="nav-text">逆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E4%B9%98%E5%92%8C%E7%82%B9%E4%B9%98"><span class="nav-number">3.6.</span> <span class="nav-text">数乘和点乘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E5%9B%9B%E5%85%83%E6%95%B0%E8%A1%A8%E7%A4%BA%E6%97%8B%E8%BD%AC"><span class="nav-number">3.7.</span> <span class="nav-text">用四元数表示旋转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E5%85%83%E6%95%B0%E5%92%8C%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.8.</span> <span class="nav-text">四元数和旋转矩阵的转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BC%BC%EF%BC%8C%E4%BB%BF%E5%B0%84%EF%BC%8C%E5%B0%84%E5%BD%B1%E5%8F%98%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">相似，仿射，射影变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E4%BC%BC%E5%8F%98%E6%8D%A2"><span class="nav-number">4.1.</span> <span class="nav-text">相似变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2"><span class="nav-number">4.2.</span> <span class="nav-text">仿射变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%84%E5%BD%B1%E5%8F%98%E6%8D%A2"><span class="nav-number">4.3.</span> <span class="nav-text">射影变换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eigen"><span class="nav-number">5.</span> <span class="nav-text">Eigen</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#eigen%E5%87%A0%E4%BD%95%E6%A8%A1%E5%9D%97%EF%BC%9A"><span class="nav-number">5.1.</span> <span class="nav-text">eigen几何模块：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Note"><span class="nav-number">6.</span> <span class="nav-text">Note</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——刚体运动以及Eigen | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——刚体运动以及Eigen
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-07 21:22:37" itemprop="dateCreated datePublished" datetime="2018-11-07T21:22:37+08:00">2018-11-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次主要介绍一些刚体运动中需要的数学知识以及Eigen库的基本使用。</p>
+<span id="more"></span>
+
+<p>什么是刚体运动？运动过程中不会发生形变。所以实际上刚体的运动也就只有两种：旋转和平移。</p>
+<p>对于三维空间的旋转平移表示，之前的计算机图形学中介绍的比较清楚了。不过还有一些别的概念没有接触，在这里做个补充。</p>
+<h2 id="旋转向量"><a href="#旋转向量" class="headerlink" title="旋转向量"></a>旋转向量</h2><p>之前的旋转使用的是旋转矩阵，旋转矩阵是单位正交矩阵（行列式为1）。实际上会有个问题：旋转操作只需要3个自由度，但是却用了9个量来表示。这说明使用旋转矩阵是有冗余的。因此这里介绍旋转向量。</p>
+<p>我们知道任何旋转都可以使用一个旋转轴和旋转角来描述。旋转向量是一个非常聪明的做法。它的方向代表了旋转轴，而它的长度代表了旋转的角度。</p>
+<p>那么旋转向量与旋转矩阵如何转换呢？如果旋转轴（单位向量）为$\mathbf{n}$，旋转角度为$\theta$，那么旋转向量为$\theta\mathbf{n}$，旋转矩阵可以使用Rodrigues公式来计算出来：<br>$$<br>R &#x3D; \cos \theta I + (1-\cos \theta)\mathbf{nn}^T + \sin \theta \mathbf{n}^^<br>$$</p>
+<p>$\mathbf{n}^^$为向量$\mathbf{n}$的对偶矩阵。这个公式也在之前的图形学博客中做过介绍了。</p>
+<p>如何从旋转矩阵得到旋转向量？</p>
+<p>首先，对于旋转角：</p>
+<p>$$<br>\begin{aligned}<br>tr(R) &amp;&#x3D; \cos\theta tr(I) +(1 - \cos \theta) tr(\mathbf{nn}^T) + \sin \theta tr (\mathbf{n}^^)\<br>&amp;&#x3D; 3\cos \theta + (1-\cos \theta)\<br>&amp;&#x3D; 1+ 2\cos\theta<br>\end{aligned}<br>$$</p>
+<p>所以根据上式可以很简单求得：<br>$$<br>\theta &#x3D; \arccos\left( \frac{tr(R)-1}{2}\right)<br>$$</p>
+<p>至于$\mathbf{n}$，由于旋转轴的向量旋转后不会发生变化，因此$R\mathbf{n} &#x3D; \mathbf{n}$.</p>
+<p>所以$\mathbf{n}$为矩阵R特征值为1的对应的特征向量。</p>
+<h2 id="欧拉角"><a href="#欧拉角" class="headerlink" title="欧拉角"></a>欧拉角</h2><p>旋转向量以及旋转矩阵对于人的角度来说都不够直观。因此有了欧拉角的诞生。其实欧拉角就是将一个旋转转化为3个绕坐标轴的转动。因此这个转动的顺序就不唯一了。在航空里可能经常听到“偏航-俯仰-滚转”（yam-pitch-roll），实际上就是欧拉角的一种，等价与ZYX轴的旋转。</p>
+<p>因此欧拉角就是用一个向量$[ r,p,y ]^T$（3个角度）来表示一个旋转。但是欧拉角有个著名的万能锁问题。如果pitch转动了$\pm90°$,则最后一个转动绕的轴实际上和z轴一样，这就使得损失了一个自由度，这被称为奇异性问题（？）。因此欧拉角不适用与插值和迭代，往往用于人工交互。</p>
+<h2 id="四元数"><a href="#四元数" class="headerlink" title="四元数"></a>四元数</h2><p>旋转矩阵用9个量描述，有冗余，而旋转向量和欧拉角却具有奇异性。实际上我们找不到不带奇异性的三维向量描述方式。<br>因此在这里再介绍一个四元数。它用四个量来描述旋转足够紧凑同时也没有奇异性。</p>
+<p>一个四元数$\mathbf{q} &#x3D; q_0+q_1i+q_2j+q_3k$,有一个实部，3个虚部。其中虚部满足下面的一组式子：<br>$$<br>\left{<br>\begin{aligned}<br>i^2 &#x3D; j^2 &#x3D; k^2 &#x3D; -1\<br>ij&#x3D;k,ji &#x3D; -k\<br>jk&#x3D;i,kj &#x3D; -i\<br>ki&#x3D;j,ik &#x3D; -j<br>\end{aligned}<br>\right.<br>$$</p>
+<p>有时候也使用一个标量和一个向量来表示四元数：</p>
+<p>$\mathbf{q} &#x3D; [ s,\mathbf{v} ],s &#x3D; q_0 \in \mathbb{R},\mathbf{v} &#x3D; [ q_1,q_2,q_3 ]^T \in \mathbb{R}^3 $.</p>
+<p>如果实部为0,称为虚四元数，如果虚部为0称为实四元数。</p>
+<p>我们能用单位四元数表示三维空间中的任意旋转。不过由于复数的引入，它的表示是有点反直觉的。假如旋转向量为$\mathbf{n} \theta$，则对应的四元数为：<br>$$<br>\mathbf{q} &#x3D; [ \cos \frac \theta 2, n_x\sin \frac \theta 2 ,n_y \sin \frac \theta 2,n_z,\frac \theta 2]^T.<br>$$</p>
+<p>因此从单位四元数中也很容易得到对应的旋转轴和旋转角度：<br>$$<br>\left {<br>\begin{aligned}<br>\theta &#x3D; 2 \arccos q_0;<br>[ n_x,n_y,n_z] &#x3D; [ q_1, q_2,q_3]^T &#x2F; \sin \frac \theta 2<br>\end{aligned}<br>\right .<br>$$</p>
+<p>这个式子确实反直觉，给我们赚了一般的感觉。如果对$\theta $加上$2\pi$，相当于没有转动，但是他们对应的四元数却变成原来的相反数了。因此，互为四元数的相反数表示同一个旋转。</p>
+<p>四元数的概念的话现在还很懵比，不知道为什么要这样来表示一个旋转。但是能发展到现在还留下来的一定是有自己的道理。因为四元数每个值都是经过处理的轴和角结合，因此它方便进行插值。听说四元数在游戏开发里应用广泛。具体这些以后再去弄明白，先看一看四元数的基本运算吧。</p>
+<h3 id="加减"><a href="#加减" class="headerlink" title="加减"></a>加减</h3><p>$\mathbf{q}_a \pm \mathbf{q}_b &#x3D; [ s_a \pm s_b ,\mathbf{v}_a \pm \mathbf{v}_b] $</p>
+<h3 id="乘法"><a href="#乘法" class="headerlink" title="乘法"></a>乘法</h3><p>乘法就是各项轮着相称，最后相加，虚部要按照虚部的规则来乘，最后得到结果：<br>$$<br>\begin{aligned}<br>\mathbf{q}_a \mathbf{q}_b &amp;&#x3D; s_as_b - x_ax_b - y_ay_b - z_az_b\<br>&amp;+(s_ax_b+x_as_b+y_az_b-z_ay_b)i\<br>&amp;+(s_ay_b - x_az_b + y_as_b + z_ax_b)j\<br>&amp;+(s_az_b+x_ay_b-y_ax_b+z_as_b)<br>\end{aligned}<br>$$</p>
+<p>如果写成向量形式：<br>$$<br>\mathbf{q}_a \mathbf{q}_b  &#x3D; [ s_as_b - \mathbf{v}_a^T\mathbf{v}_b, s_a\mathbf{v}_b + s_b\mathbf{v}_a + \mathbf{v}_a\times \mathbf{v}_b]<br>$$<br>由于最后一项存在，四元数的乘法通常是不可交换的。</p>
+<h3 id="共轭"><a href="#共轭" class="headerlink" title="共轭"></a>共轭</h3><p>$\mathbf{q}_a^* &#x3D; s_a - x_ai - y_aj-z_ak &#x3D; [ s_a,-\mathbf{v}_a]$</p>
+<p>$\mathbf{q^ *q} &#x3D; \mathbf{qq^ *} &#x3D; [s_a^2 + \mathbf{vv}^T ,0]$ </p>
+<p>可以看到四元数和共轭相称得到一个实数。</p>
+<h3 id="模长"><a href="#模长" class="headerlink" title="模长"></a>模长</h3><p>$$<br>\Vert \mathbf{q}\Vert &#x3D; \sqrt{s^2 +x^2+y^2+z^2}<br>$$<br>可以验证：$\Vert \mathbf{q}_a\mathbf{q}_b \Vert &#x3D; \Vert  \mathbf{q}_a\Vert \Vert  \mathbf{q}_b\Vert$.</p>
+<p>这保证了单位四元数的乘积依然为单位四元数。</p>
+<h3 id="逆"><a href="#逆" class="headerlink" title="逆"></a>逆</h3><p>$\mathbf{q}^{-1} &#x3D; \frac {\mathbf{q}^*}{\Vert \mathbf{q}\Vert^2}$</p>
+<p>$\mathbf{q}^{-1}\mathbf{q} &#x3D; \mathbf{qq}^{-1} &#x3D; 1$</p>
+<p>同时可以知道，单位四元数的逆就是单位四元数的共轭，因为$\mathbf{qq}^* &#x3D; 1$.</p>
+<p>乘积的逆和矩阵的逆有同样的性质：$(\mathbf{q_a}\mathbf{q_b})^{-1} &#x3D; \mathbf{q_b}^{-1}\mathbf{q_a}^{-1}$</p>
+<h3 id="数乘和点乘"><a href="#数乘和点乘" class="headerlink" title="数乘和点乘"></a>数乘和点乘</h3><p>$k\mathbf{q} &#x3D; [ks,k\mathbf{v} ]$</p>
+<p>$\mathbf{q_a} \cdot \mathbf{q_b} &#x3D; s_as_b + x_ax_b + y_ay_b + z_az_b$</p>
+<h3 id="用四元数表示旋转"><a href="#用四元数表示旋转" class="headerlink" title="用四元数表示旋转"></a>用四元数表示旋转</h3><p>对于一个三维点$p&#x3D;[x,y,z ]$,绕着转轴$\mathbf{n}\theta$旋转，变为$p’$.我们知道使用矩阵的话，可以这样描述：$p’ &#x3D; Rp$.但是使用四元数如何描述呢？</p>
+<p>我们把空间的点用虚四元数来描述，则$\mathbf{p} &#x3D; [0,x,y,z ]$.</p>
+<p>用$\mathbf{q}$来表示旋转: $\mathbf{q} &#x3D; [\cos \frac \theta 2,\mathbf{n} \sin \theta 2]$.</p>
+<p>则：$\mathbf{p}’ &#x3D; \mathbf{qpq}^{-1}$.</p>
+<p>可以验证的是经过计算的实部为0,虚部对应的就是$q’$的坐标点。</p>
+<p>可以看到使用四元数来旋转的话也是非常方便的。</p>
+<h3 id="四元数和旋转矩阵的转换"><a href="#四元数和旋转矩阵的转换" class="headerlink" title="四元数和旋转矩阵的转换"></a>四元数和旋转矩阵的转换</h3><p>四元数与旋转矩阵的转换，我们可以想到的是利用旋转向量来做中间的桥梁。不过其中有个arccos函数代价较大，但是实际上可以通过一定的技巧绕过。在这里直接给出四元数到旋转矩阵的转换结果（省略推导过程）：</p>
+<p>设四元数为：$\mathbf{q} &#x3D; q_0+q_1i+q_2j+q_3k$,则：<br>$$<br>R &#x3D; \begin{bmatrix}<br>1-2q_2^2 - 2q_3^2&amp;2q_1q_2 - 2q_0q_3&amp; 2q_1q_3 + 2q_0q_2\<br>2q_1q_2+2q_0q_3&amp; 1-2q_1^2-2q_3^2&amp; 2q_2q_3 - 2q_0q_1 \<br>2q_1q_3-2q_0q_2&amp;2q_2q_3+2q_0q_1&amp;1 - 2q_1^2 - 2q_2^2<br>\end{bmatrix}<br>$$</p>
+<p>如果知道了旋转矩阵，想要得到四元数：</p>
+<p>$q_0 &#x3D; \frac{\sqrt{tr(R) + 1} }{2},q_1 &#x3D; \frac{r_{2,3} - r_{3,2} }{4q_0},q_2 &#x3D; \frac{r_{3,1} - r_{1,3} }{4q_0},q_3 &#x3D; \frac{r_{1,2} - r_{2,1} }{4q_0}$</p>
+<p>这里面$r_{i,j}$表示$R$的第i行j列。在计算过程中，如果$q_0$接近于0,则其他3个量就会很大，这是很需要考虑别的方式来表示旋转。</p>
+<h2 id="相似，仿射，射影变换"><a href="#相似，仿射，射影变换" class="headerlink" title="相似，仿射，射影变换"></a>相似，仿射，射影变换</h2><h3 id="相似变换"><a href="#相似变换" class="headerlink" title="相似变换"></a>相似变换</h3><p>相似变换比之前的欧式变换多了一个自由度：<br>$$<br>T_S &#x3D; \begin{bmatrix}<br>sR&amp;\mathbf{t}\<br>0&amp;1<br>\end{bmatrix}<br>$$</p>
+<p>这个s允许我们对物体进行均匀缩放。</p>
+<h3 id="仿射变换"><a href="#仿射变换" class="headerlink" title="仿射变换"></a>仿射变换</h3><p>$$<br>T_A &#x3D; \begin{bmatrix}<br>A&amp;\mathbf{t}\<br>0&amp;1<br>\end{bmatrix}<br>$$<br>仿射变换不要求A为正交矩阵，只要可逆即可。仿射变换又叫正交投影变换。</p>
+<h3 id="射影变换"><a href="#射影变换" class="headerlink" title="射影变换"></a>射影变换</h3><p>射影变换是最易般的变换。<br>$$<br>T_P &#x3D; \begin{bmatrix}<br>sR&amp;\mathbf{t}\<br>\mathbf{a}^T&amp;v<br>\end{bmatrix}<br>$$<br>左上角可逆，右上角为平移t,左下角为缩放$\mathbf{a}^T$</p>
+<p>从真实世界到相机照片的变换可以看作为一个射影变换。如果焦距为无限远，则为仿射变换。</p>
+<h2 id="Eigen"><a href="#Eigen" class="headerlink" title="Eigen"></a>Eigen</h2><p>最后介绍一些Eigen库相关的东西。Eigen是一个C++开源线性代数库.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;eigen/core&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;eigen/dense&gt;</span></span></span><br><span class="line"><span class="comment">/*3*3矩阵float型*/</span></span><br><span class="line">Eigen::Matrix&lt;<span class="type">float</span>,<span class="number">3</span>,<span class="number">3</span>,&gt; matrix_33;</span><br><span class="line"><span class="comment">/*3维向量，但实际上就是Eigen::Matrix&lt;double,3,1&gt;*/</span></span><br><span class="line">Eigen::Vector3d v_3d;</span><br><span class="line"><span class="comment">//输入</span></span><br><span class="line">v_3d&lt;&lt;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">cout&lt;&lt;v_3d&lt;&lt;endl;</span><br><span class="line"><span class="comment">//访问i行j列</span></span><br><span class="line">cout&lt;&lt;<span class="built_in">v_3d</span>(<span class="number">1</span>,<span class="number">0</span>);</span><br><span class="line"><span class="comment">//转置</span></span><br><span class="line">matrix_33.<span class="built_in">transpose</span>();</span><br><span class="line"><span class="comment">//各项和</span></span><br><span class="line">matrix_33.<span class="built_in">sum</span>();</span><br><span class="line"><span class="comment">//迹</span></span><br><span class="line">matrix_33.<span class="built_in">trace</span>();</span><br><span class="line"><span class="comment">//逆</span></span><br><span class="line">matrix_33.<span class="built_in">inverse</span>();</span><br><span class="line"><span class="comment">//行列式</span></span><br><span class="line">matrix_33.<span class="built_in">determinant</span>();</span><br><span class="line"><span class="comment">//特征值和特征向量，实对称矩阵确保对角化成功</span></span><br><span class="line"><span class="function">Eigen::SelfAdjointEigenSolver&lt;Eigen::Matrix3d&gt; <span class="title">eigen_solver</span><span class="params">(matrix_33*matrix_33.transpose())</span></span>;</span><br><span class="line">cout &lt;&lt; eigen_solver.<span class="built_in">eigenvalues</span>() &lt;&lt; endl;</span><br><span class="line">cout&lt;&lt; eigen_solver.<span class="built_in">eigenvectors</span>() &lt;&lt; endl;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Header file</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core</td>
+<td>#include &lt; Eigen&#x2F;Core &gt;</td>
+<td>Matrix和Array类，基础的线性代数运算和数组操作</td>
+</tr>
+<tr>
+<td>Geometry</td>
+<td>#include&lt; Eigen&#x2F;Geometry &gt;</td>
+<td>旋转、平移、缩放、2维和3维的各种变换</td>
+</tr>
+<tr>
+<td>LU</td>
+<td>#include&lt; Eigen&#x2F;LU &gt;</td>
+<td>求逆，行列式，LU分解</td>
+</tr>
+<tr>
+<td>Cholesky</td>
+<td>#include &lt; Eigen&#x2F;Cholesky &gt;</td>
+<td>LLT和LDLT Cholesky分解</td>
+</tr>
+<tr>
+<td>Householder</td>
+<td>#include&lt; Eigen&#x2F;Householder &gt;</td>
+<td>豪斯霍尔德变换，用于线性代数运算</td>
+</tr>
+<tr>
+<td>SVD</td>
+<td>#include&lt; Eigen&#x2F;SVD &gt;</td>
+<td>SVD分解</td>
+</tr>
+<tr>
+<td>QR</td>
+<td>#include&lt; Eigen&#x2F;QR &gt;</td>
+<td>QR分解</td>
+</tr>
+<tr>
+<td>Eigenvalues</td>
+<td>#include&lt; Eigen&#x2F;Eigenvalues &gt;</td>
+<td>特征值，特征向量分解</td>
+</tr>
+<tr>
+<td>Sparse</td>
+<td>#include&lt; Eigen&#x2F;Sparse &gt;</td>
+<td>稀疏矩阵的存储和一些基本的线性运算</td>
+</tr>
+<tr>
+<td>稠密矩阵</td>
+<td>#include&lt; Eigen&#x2F;Dense &gt;</td>
+<td>包含Core&#x2F;Geometry&#x2F;LU&#x2F;Cholesky&#x2F;SVD&#x2F;QR&#x2F;Eigenvalues模块</td>
+</tr>
+<tr>
+<td>矩阵</td>
+<td>#include&lt; Eigen&#x2F;Eigen &gt;</td>
+<td>包括Dense和Sparse(整合库)</td>
+</tr>
+</tbody></table>
+<p>这些东西都被整合在dense模块中。</p>
+<h3 id="eigen几何模块："><a href="#eigen几何模块：" class="headerlink" title="eigen几何模块："></a>eigen几何模块：</h3><p>旋转矩阵直接使用 Matrix3d 或 Matrix3f：</p>
+<p>Eigen::Matrix3d rotationMatrix&#x3D;Eigen::Matrix3d::Identity();&#x2F;&#x2F;初始化为一个单位阵。</p>
+<p>旋转向量使用 AngleAxis：</p>
+<p>Eigen::AngleAxisd rotationVector(M_PI&#x2F;4,Eigen::Vector3d(0,0,1)); &#x2F;&#x2F;角+轴：沿 Z 轴旋转 45 度</p>
+<p>欧拉角：</p>
+<p>Eigen::Vector3d ea0(yaw,pitching,droll);</p>
+<p>旋转向量-&gt;旋转矩阵：rotationMatrix&#x3D;rotation_vector.toRotationMatrix();</p>
+<p>旋转向量-&gt;四元数：Eigen::Quaterniond q &#x3D; Eigen::Quaterniond ( rotation_vector );</p>
+<p>旋转矩阵-&gt;四元数：Eigen::Quaterniond q &#x3D; Eigen::Quaterniond ( rotation_matrix );</p>
+<p>四元素-&gt;旋转矩阵：Eigen::Matrix3d Rx &#x3D; q.toRotationMatrix();</p>
+<p>旋转向量-&gt;欧拉角：Eigen::Vector3d eulerAngle&#x3D;rotationVector.matrix().eulerAngles(0,1,2);</p>
+<p>旋转矩阵-&gt;欧拉角：Eigen::Vector3d euler_angles &#x3D; rotation_matrix.eulerAngles ( 2,1,0 ); &#x2F;&#x2F; ZYX顺序，即roll pitch yaw顺序</p>
+<h2 id="Note"><a href="#Note" class="headerlink" title="Note"></a>Note</h2><p>这一讲最后说明了世界坐标和相机坐标的转换。世界坐标下的坐标为$\mathbf{p}_w$，相机坐标下的坐标为$mathbf{p}_c$，则二者转换为：<br>$$<br>\mathbf{p}<em>w &#x3D; T</em>{c2w}\mathbf{p}_c<br>$$</p>
+<p>$$<br>\mathbf{p}<em>c &#x3D; T</em>{w2c}\mathbf{p}_w<br>$$</p>
+<p>值得注意的是，它提到了一般更常用的是从世界坐标到相机坐标的转换，但是从相机坐标到世界坐标的转换却更直观。因为如果相机坐标$\mathbf{p}_c$下为0,则世界坐标$\mathbf{p}<em>w$就是相机在世界坐标的位置:<br>$$<br>\mathbf{p}<em>w &#x3D; T</em>{c2w} &#x3D; t</em>{c2w}<br>$$</p>
+<p>上式中$t_{c2w}$正是相机的位置。也是平移向量。</p>
+<p>所以从相机坐标到世界坐标的转换可以直接看到相机位置。这也是因为从相机坐标到世界坐标的转换是先旋转后平移的特性。先旋转后平移，则平移向量是不用改变的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/Eigen/" rel="tag"># Eigen</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/06/SLAM%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/" rel="prev" title="SLAM——基本介绍">
+                  <i class="fa fa-angle-left"></i> SLAM——基本介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/" rel="next" title="SLAM——李群和李代数">
+                  SLAM——李群和李代数 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="为了更好的使用ROS编程，ROS提供了Client Library，也就是一个编程库，可以用来建立node，发布消息，调用服务等等。其中有cpp版本的roscpp，python版本的rospy，还有lisp版本的roslisp，但是显然我们用的最多的是cpp与python版本。这里会编写一些简单的通信实例，以得到更好的学习效果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS——Client Library(含代码实例)">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/10/08/ROS%E2%80%94%E2%80%94Client%20Library(%E5%90%AB%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B)/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="为了更好的使用ROS编程，ROS提供了Client Library，也就是一个编程库，可以用来建立node，发布消息，调用服务等等。其中有cpp版本的roscpp，python版本的rospy，还有lisp版本的roslisp，但是显然我们用的最多的是cpp与python版本。这里会编写一些简单的通信实例，以得到更好的学习效果。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:08.101Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="ros">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/10/08/ROS%E2%80%94%E2%80%94Client%20Library(%E5%90%AB%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B)/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/10/08/ROS%E2%80%94%E2%80%94Client%20Library(%E5%90%AB%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B)/","path":"2019/10/08/ROS——Client Library(含代码实例)/","title":"ROS——Client Library(含代码实例)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ROS——Client Library(含代码实例) | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#roscpp"><span class="nav-number">1.</span> <span class="nav-text">roscpp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Topic"><span class="nav-number">1.1.</span> <span class="nav-text">Topic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service"><span class="nav-number">1.2.</span> <span class="nav-text">Service</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rospy"><span class="nav-number">2.</span> <span class="nav-text">rospy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Topic-1"><span class="nav-number">2.1.</span> <span class="nav-text">Topic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service-1"><span class="nav-number">2.2.</span> <span class="nav-text">Service</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/10/08/ROS%E2%80%94%E2%80%94Client%20Library(%E5%90%AB%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ROS——Client Library(含代码实例) | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ROS——Client Library(含代码实例)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-10-08 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-08T00:00:00+08:00">2019-10-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:08" itemprop="dateModified" datetime="2023-10-21T04:27:08+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/ROS/" itemprop="url" rel="index"><span itemprop="name">ROS</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>为了更好的使用ROS编程，ROS提供了Client Library，也就是一个编程库，可以用来建立node，发布消息，调用服务等等。其中有cpp版本的roscpp，python版本的rospy，还有lisp版本的roslisp，但是显然我们用的最多的是cpp与python版本。这里会编写一些简单的通信实例，以得到更好的学习效果。</p>
+<span id="more"></span>
+
+
+<h2 id="roscpp"><a href="#roscpp" class="headerlink" title="roscpp"></a><a href="about:blank#roscpp" title="roscpp"></a>roscpp</h2><p>先介绍一些用cpp编写的通信实例，这些过程都很简单，实际上在<a target="_blank" rel="noopener" href="http://wiki.ros.org/ROS/Tutorials">ros&#x2F;tutorials</a>上都有更清晰的介绍。</p>
+<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a><a href="about:blank#Topic" title="Topic"></a>Topic</h3><p>首先编写一个简单的发布&#x2F;订阅实例。最基本的，是在workspace中建立package。在建立package时，我们还可以在包名后添加依赖：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">catkin_create_pkg topic_demo rospy roscpp std_msgs</span><br></pre></td></tr></tbody></table>
+
+<p>建立好package之后新建目录src，msg，分别用来存放源代码与msg格式。我们首先定义消息的格式，这里命名为gps.msg，也就是发送的是位置信息，包含坐标和状态：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># content of gps.msg</span><br><span class="line">float32 x</span><br><span class="line">float32 y</span><br><span class="line">string state</span><br></pre></td></tr></tbody></table>
+
+<p>这样我们就定义了一个非常简单的Message。在编译之后，catkin会在devel&#x2F;include&#x2F;topic_demo目录下生成一个gps.h文件，这个是我们实际上之后要使用的头文件。</p>
+<p>接着，在src中，我们创建talker.cpp，与listener.cpp，分别编写publisher和subscriber的node。实际上这些代码看起来也很容易理解：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//talker.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;topic_demo/gps.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">	ros::init(argc,argv,<span class="string">"talker"</span>);</span><br><span class="line">	ros::NodeHandle nh;</span><br><span class="line">	topic_demo::gps msg;</span><br><span class="line">	msg.x = <span class="number">1.0</span>;</span><br><span class="line">	msg.y = <span class="number">1.0</span>;</span><br><span class="line">	msg.state = <span class="string">"working"</span>;</span><br><span class="line">	ros::Publisher pub = nh.advertise&lt;topic_demo::gps&gt;(<span class="string">"gps_info"</span>,<span class="number">1</span>);</span><br><span class="line">	ros::<span class="function">Rate <span class="title">loop_rate</span><span class="params">(<span class="number">1.0</span>)</span></span>;</span><br><span class="line">	<span class="keyword">while</span>(ros::ok())</span><br><span class="line">	{</span><br><span class="line">		msg.x = <span class="number">1.3</span>*msg.x;</span><br><span class="line">		msg.y = <span class="number">1.2</span>*msg.y;</span><br><span class="line">		ROS_INFO(<span class="string">"talker: GPS x = %f, y = %f"</span>,msg.x, msg.y);</span><br><span class="line">		pub.publish(msg);</span><br><span class="line">		loop_rate.sleep();	</span><br><span class="line">	}</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>首先，我们要对<code>ros::init</code>传入argc，argv参数，以及这个Node的名称，并且通过<code>ros::NodeHandle</code>建立句柄，这是建立Node都需要的步骤。接下来定义了一个gps变量，通过句柄的advertise来得到publisher，之后也可以看到，subscriber，server还有client等等都是通过这个handle得到的。从publisher也可以看出topic名称为gps_info。接下来的ros::Rate是一个控制频率的类，上述代码表示频率是1Hz，也就是一秒发送一下。之后的内容也很简单，就是简单发送的过程。上述代码实现了一个一秒发送一次位置信息的Node。</p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//content of listener.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;topic_demo/gps.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;std_msgs/Float32.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">gpsCallBack</span><span class="params">(<span class="keyword">const</span> topic_demo::gps::ConstPtr &amp;msg)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">std_msgs::Float32 distance;</span><br><span class="line">distance.data = <span class="built_in">sqrt</span>(msg-&gt;x*msg-&gt;x + msg-&gt;y * msg-&gt;y);</span><br><span class="line">ROS_INFO(<span class="string">"listener: Distance to origin = %f, state = %s"</span>, distance.data, msg-&gt;state.c_str());</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">ros::init(argc,argv,<span class="string">"listener"</span>);</span><br><span class="line">ros::NodeHandle n;</span><br><span class="line">ros::Subscriber sub = n.subscribe(<span class="string">"gps_info"</span>,<span class="number">1</span>,gpsCallBack);</span><br><span class="line">ros::spin();<span class="comment">//反复执行,阻塞</span></span><br><span class="line"><span class="comment">//ros::spinOnce();//非阻塞</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>对于订阅者，首先需要一个回调函数，也就是收到信息后做的事情，这个被定义在<code>gpsCallBack</code>中。值得注意的是函数<code>ros::spin</code>，只有代码中使用了这个函数，回调函数才会被执行，这个是一定要记住的。<code>ros::spin</code>是一个阻塞函数，也就是当没有收到消息，进程会被阻塞而非继续执行之后的内容。另外一个类似的<code>ros::spinOnce</code>，在收到消息执行一次回调函数后，就会执行之后的内容了。</p>
+<p>在做完这些之后，还需要修改CMakeLists.txt，需要修改或添加：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">find_package(catkin REQUIRED COMPONENTS</span><br><span class="line">  message_generation</span><br><span class="line">  roscpp</span><br><span class="line">  rospy</span><br><span class="line">  std_msgs</span><br><span class="line">)</span><br><span class="line">add_message_files(</span><br><span class="line">   FILES</span><br><span class="line">   gps.msg</span><br><span class="line">)</span><br><span class="line">generate_messages(</span><br><span class="line">   DEPENDENCIES</span><br><span class="line">   std_msgs</span><br><span class="line">)</span><br><span class="line">add_executable(talker src/talker.cpp)</span><br><span class="line">add_dependencies(talker topic_demo_generate_messages_cpp)</span><br><span class="line">target_link_libraries(talker ${catkin_LIBRARIES})</span><br><span class="line"></span><br><span class="line">add_executable(listener src/listener.cpp)</span><br><span class="line">add_dependencies(listener topic_demo_generate_messages_cpp)</span><br><span class="line">target_link_libraries(listener ${catkin_LIBRARIES})</span><br></pre></td></tr></tbody></table>
+
+<p>同时对package.xml也进行修改：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">buildtool_depend</span>&gt;</span>catkin<span class="tag">&lt;/<span class="name">buildtool_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_depend</span>&gt;</span>roscpp<span class="tag">&lt;/<span class="name">build_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_depend</span>&gt;</span>rospy<span class="tag">&lt;/<span class="name">build_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_depend</span>&gt;</span>std_msgs<span class="tag">&lt;/<span class="name">build_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_depend</span>&gt;</span>message_generation<span class="tag">&lt;/<span class="name">build_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_export_depend</span>&gt;</span>roscpp<span class="tag">&lt;/<span class="name">build_export_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_export_depend</span>&gt;</span>rospy<span class="tag">&lt;/<span class="name">build_export_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build_export_depend</span>&gt;</span>std_msgs<span class="tag">&lt;/<span class="name">build_export_depend</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">exec_depend</span>&gt;</span>roscpp<span class="tag">&lt;/<span class="name">exec_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">exec_depend</span>&gt;</span>rospy<span class="tag">&lt;/<span class="name">exec_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">exec_depend</span>&gt;</span>std_msgs<span class="tag">&lt;/<span class="name">exec_depend</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">exec_depend</span>&gt;</span>message_runtime<span class="tag">&lt;/<span class="name">exec_depend</span>&gt;</span></span><br></pre></td></tr></tbody></table>
+
+<p>最后，回到workspace目录，输入<code>catkin_make</code>编译，使用<code>rosrun pkg_name node_name</code>来运行node。如果找不到package，看是不是没有将package加入环境变量，可以使用<code>source workspace/devel/setup.bash</code>命令来做到这一点。</p>
+<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a><a href="about:blank#Service" title="Service"></a>Service</h3><p>下面是一个Service的实例，与topic是很类似的。同样建立service_demo的package，添加依赖项。我们编写一个客户端与服务端打招呼的简单实例，将这个服务命名为greeting。在src下有两个源代码：server.cpp，client.cpp。同时记着要编写一个Greeting.srv，也就是service的数据格式：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#content of Greeting.srv</span><br><span class="line">string name</span><br><span class="line">int32 age</span><br><span class="line">---</span><br><span class="line">string feedback</span><br></pre></td></tr></tbody></table>
+
+<p>经过编译后，上述文件会在devel&#x2F;include&#x2F;service_demo&#x2F;目录下生成Greeting.h，GreetingRequest.h，GreetingResponse.h三个头文件。不过Greeting.h中就include了后面二者，因此无需重复include。</p>
+<p>下面分别是server.cpp与client.cpp的内容。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//content of server.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;service_demo/Greeting.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">handleFuntion</span><span class="params">(service_demo::Greeting::Request &amp;req, service_demo::Greeting::Response &amp;res)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    ROS_INFO(<span class="string">"Request from %s, age %d"</span>, req.name.c_str(), req.age);</span><br><span class="line">    res.feedback=<span class="string">"Hi, "</span>+req.name+<span class="string">"."</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">ros::init(argc,argv,<span class="string">"greeting_server"</span>);</span><br><span class="line">ros::NodeHandle nh;</span><br><span class="line">ros::ServiceServer service = nh.advertiseService(<span class="string">"greeting"</span>,handleFuntion);</span><br><span class="line">ros::spin();</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//content of client.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;service_demo/Greeting.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    ros::init(argc, argv, <span class="string">"greeting_client"</span>);</span><br><span class="line">    ros::NodeHandle n;</span><br><span class="line">    ros::ServiceClient client = n.serviceClient&lt;service_demo::Greeting&gt;(<span class="string">"greeting"</span>);</span><br><span class="line">    service_demo::Greeting srv;</span><br><span class="line">    srv.request.name=<span class="string">"wlsdzyzl"</span>;</span><br><span class="line">    srv.request.age = <span class="number">23</span>;</span><br><span class="line">    <span class="keyword">if</span>(client.call(srv))</span><br><span class="line">    {</span><br><span class="line">        ROS_INFO(<span class="string">"Feedback from server :%s"</span>, srv.response.feedback.c_str());</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    {</span><br><span class="line">        ROS_ERROR(<span class="string">"Failed to call service."</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+<p>最后，对CMakeLists.txt与package.xml做类似的修改，实际上修改是很容易的，因为生成package时候给了模板和注释内容，仔细阅读取消对应注释，修改名称即可。</p>
+<h2 id="rospy"><a href="#rospy" class="headerlink" title="rospy"></a><a href="about:blank#rospy" title="rospy"></a>rospy</h2><p>python的写法与cpp还是有很大不同的，但是一般来说python的写法更简单。下面我们将用python写两个功能与上述cpp实例一样的实例。</p>
+<h3 id="Topic-1"><a href="#Topic-1" class="headerlink" title="Topic"></a><a href="about:blank#Topic-1" title="Topic"></a>Topic</h3><p>对于*.msg文件的内容我们无需改动。在新建package（topic_demo_py）之后，新建目录scripts，用来存放python脚本。新建pytalker.py与pylistener.py两个文件，内容分别如下：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># content of pytalker.py</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> rospy</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">from</span> topic_demo_py.msg <span class="keyword">import</span> gps</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">talker</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    pub = rospy.Publisher(<span class="string">'gps_info'</span>,gps,queue_size=<span class="number">1</span>)</span><br><span class="line">    rospy.init_node(<span class="string">'pytalker'</span>,anonymous=<span class="keyword">True</span>)</span><br><span class="line">    rate = rospy.Rate(<span class="number">1</span>)</span><br><span class="line">    x=<span class="number">1.2</span></span><br><span class="line">    y=<span class="number">1.3</span></span><br><span class="line">    state = <span class="string">"working"</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> rospy.is_shutdown():</span><br><span class="line">        rospy.loginfo(<span class="string">"talker x = %f, y = %f"</span>,x,y)</span><br><span class="line">        pub.publish(gps(x,y,state))</span><br><span class="line">        x = math.pow(x,<span class="number">2</span>)</span><br><span class="line">        y = math.pow(y,<span class="number">2</span>)</span><br><span class="line">        rate.sleep()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    talker()</span><br></pre></td></tr></tbody></table>
+
+<p>这里的代码也是很容易理解的，基本看字面就能知道意思，值得一提的是anonymous参数，这确保了结点名称的唯一性，通过对前面的NAME后添加随机数字。而第一行的注释：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br></pre></td></tr></tbody></table>
+
+<p>是每个python编写的ros脚本之前都需要加的，表明这个脚本按照python执行。下面是pylistener.py的内容：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># content of pylistener.py</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> rospy</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">from</span> topic_demo_py.msg <span class="keyword">import</span> gps</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(gps)</span>:</span></span><br><span class="line">    distance = math.sqrt(math.pow(gps.x,<span class="number">2</span>)+math.pow(gps.y,<span class="number">2</span>))</span><br><span class="line">    rospy.loginfo(<span class="string">"distance = %f, state = %s"</span>,distance,gps.state)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">listener</span><span class="params">()</span>:</span></span><br><span class="line">    rospy.init_node(<span class="string">'pylistener'</span>)</span><br><span class="line">    rospy.Subscriber(<span class="string">'gps_info'</span>,gps,callback)</span><br><span class="line">    rospy.spin()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    listener()</span><br></pre></td></tr></tbody></table>
+
+<p>最后还需要注意的是，尽管python是脚本应当可以直接执行，但是观察上面代码我们发现一行<code>from topic_demo_py.msg import gps</code>，这个是需要message_generation生成的，因此我们依然需要对CMakeLists.txt（不需要生成可执行文件的部分）与package.xml进行改动，用来生成python需要的包。</p>
+<p>最后，在进行<code>catkin_make</code>与<code>source workspace/devel/setup.bash</code>之后，就可以通过下面的命令来启动结点了：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rosrun pkg_name pyscript.py</span><br></pre></td></tr></tbody></table>
+
+<p>这时候如果你是ubuntu，可能发现执行不成功，因为我们编写的python脚本没有可执行的权限，需要使用下面的命令增加权限：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x pyscript.py</span><br></pre></td></tr></tbody></table>
+
+<p>接下来应该就正常了。</p>
+<h3 id="Service-1"><a href="#Service-1" class="headerlink" title="Service"></a><a href="about:blank#Service-1" title="Service"></a>Service</h3><p>对于Service来说，基本上也是一致的。除了编译后会生成多个需要引入的包，为了方便我们使用*来全部引入，下面就只贴出代码，其他的不过多介绍了。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># content of pyserver.py</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> rospy</span><br><span class="line"><span class="keyword">from</span> service_demo_py.srv <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_function</span><span class="params">(req)</span>:</span></span><br><span class="line">    rospy.loginfo(<span class="string">"name: %s, age: %d"</span>,req.name,req.age)</span><br><span class="line">    <span class="keyword">return</span> GreetingResponse(<span class="string">"Hi, "</span>+req.name)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">server</span><span class="params">()</span>:</span></span><br><span class="line">    rospy.init_node(<span class="string">"pyservice"</span>)</span><br><span class="line">    srv = rospy.Service(<span class="string">"greeting"</span>,Greeting,handle_function)</span><br><span class="line">    rospy.spin()</span><br><span class="line"><span class="keyword">if</span> __name__ ==<span class="string">"__main__"</span>:</span><br><span class="line">    server()</span><br></pre></td></tr></tbody></table>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># content of pyclient.py</span><br><span class="line">#!/usr/bin/env python</span><br><span class="line"></span><br><span class="line">import rospy</span><br><span class="line">from service_demo_py.srv import *</span><br><span class="line"></span><br><span class="line">def client():</span><br><span class="line">    rospy.init_node(&quot;pyclient&quot;)</span><br><span class="line">    #rospy.wait_for_service(&quot;greeting&quot;)</span><br><span class="line">    name = &#x27;wlsdzyzl&#x27;</span><br><span class="line">    age = 23</span><br><span class="line">    req = GreetingRequest(name,age)</span><br><span class="line">    cl = rospy.ServiceProxy(&quot;greeting&quot;,Greeting)</span><br><span class="line">    resp= cl(req)</span><br><span class="line">    rospy.loginfo(resp.feedback)</span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    client()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ros/" rel="tag"># ros</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/06/ROS%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/" rel="prev" title="ROS——基本介绍">
+                  <i class="fa fa-angle-left"></i> ROS——基本介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/21/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E5%BC%80%E6%9C%BA%E9%BB%91%E5%B1%8F/" rel="next" title="踩过的坑——记录一次开机黑屏">
+                  踩过的坑——记录一次开机黑屏 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

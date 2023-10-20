@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次用霍夫丁不等式来证明学习的可行性。首先要说明一个定理，叫做“No Free Lunch”定理。如果真是需要预测的值是完全随机的情况下，我们无论最后建立一个什么样的模型，误差期望都是一致的。这样学习似乎是不可行的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Hoeffding不等式">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次用霍夫丁不等式来证明学习的可行性。首先要说明一个定理，叫做“No Free Lunch”定理。如果真是需要预测的值是完全随机的情况下，我们无论最后建立一个什么样的模型，误差期望都是一致的。这样学习似乎是不可行的。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-06T05:13:54.000Z">
+<meta property="article:modified_time" content="2018-08-12T09:13:02.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="mathematics">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/","path":"2018/08/06/机器学习——Hoeffding不等式/","title":"机器学习——Hoeffding不等式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Hoeffding不等式 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Hoeffding不等式 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Hoeffding不等式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-06 13:13:54" itemprop="dateCreated datePublished" datetime="2018-08-06T13:13:54+08:00">2018-08-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-08-12 17:13:02" itemprop="dateModified" datetime="2018-08-12T17:13:02+08:00">2018-08-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次用霍夫丁不等式来证明学习的可行性。首先要说明一个定理，叫做“No Free Lunch”定理。如果真是需要预测的值是完全随机的情况下，我们无论最后建立一个什么样的模型，误差期望都是一致的。这样学习似乎是不可行的。<span id="more"></span>但是实际上，事物都有自己的规律。我们可以套用霍夫丁不等式来说明，在某个验证集上这个模型的准确率是p，那么在总体上它预测的实际准确率很大可能与p是相差不大的（Probably Approximately Correct）。</p>
+<p>Hoeffding不等式：$P[\nu  - \upsilon|&gt; \epsilon ] \leq 2 e^{-2\epsilon ^2N}$</p>
+<p>其中$\nu$是我们测的期望，而$\upsilon$是真实期望，这是未知的，N是测试抽取的样本数量，而$\epsilon$是我们可以容忍的误差值，因此实际上也就是$\upsilon ∈ [\nu - \epsilon , \nu + \epsilon]$的概率是大于等于$2 e^{-2\epsilon ^2N}$的，也就是置信区间与置信度的关系。</p>
+<p>因此霍夫丁不等式对独立随机变量的和与其期望值偏差的概率上限。</p>
+<p>从另一个简单的例子来说：假如我们有一个罐子里装了红球和绿球，我们想要测的是红球的占比。每次取出N个球，则这N个球中红球占比为$\nu$，而总体红球占比为$\upsilon$，我们假设可以接受的误差范围为$\epsilon$，那么这几个量满足霍夫丁不等式。总体球中取出N个有m中不同的组合，而这些组合中红球占比误差很大的组合占了所有组合的比重是小于$2 e^{-2\epsilon ^2N}$的。而这些误差很大的样本组合就是所谓的Bad Data。因为从它测出来的值与实际值偏差很大。</p>
+<p>从另一方面来讲，如果我们测试的数目足够多，依然很有可能选到错误样本。就像你我是天才的概率很小，但这个世界总会出现天才。用霍夫丁不等式来说，假如我们测试了t次，那么出现一次bad data 的概率是小于$2te^{-2\epsilon ^2N}$，为什么可以简单相加？如下：</p>
+<p>假如一件事发生的概率是p，那么n次它至少发生一次的概率是$1-(1-p)^n$。</p>
+<p> 令 $g(p) &#x3D; 1- (1-p)^n - np, g’(p) &#x3D; n(1-p)^{n-1} - n &#x3D; n[(1-p)^{n-1} - 1];$<br> 令$g’(p) &#x3D; 0$,则$p &#x3D; 0;$<br> 当p$∈[0,1]$时候， $g’(p) \leq 0, g(0) &#x3D; 0$,所以$g(p)\leq 0$;<br> 因此 $1- (1-p)^n \leq np$</p>
+<p>上述是一个简单的证明，而实际上独立随机变量至少发生一件的概率是小于它们各自发生的概率之和的。在概率论中这相当于是个常识。</p>
+<p>应用到机器学习当中，如果H是有限的，也就是我们可选假说个数是有限的，只要选取足够大的测试样本量（Hoeffding不等式中的N足够大），出现错误估计的概率依然是非常小的，该test dataset有很大的概率对每个假说都能正确评估它在总体样本上的性能，因此我们可以选择一个表现最好的来当做g，它对大多数样本都会使用，相比之下也就更接近f。</p>
+<p>这就说明学习是可行的。</p>
+<p>这里还有个问题：如果H的个数是无限的呢？</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/" rel="prev" title="Fibonacci数列——快速矩阵幂">
+                  <i class="fa fa-angle-left"></i> Fibonacci数列——快速矩阵幂
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/" rel="next" title="机器学习——（基石）作业1">
+                  机器学习——（基石）作业1 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="对研究生要跟的导师还不确定，暑假打算学习点专业课与英语，也迟迟没有做好。我想不管哪个实验室应该都不会离开机器学习吧。因此开始看这方面的东西。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——PLA">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/07/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="对研究生要跟的导师还不确定，暑假打算学习点专业课与英语，也迟迟没有做好。我想不管哪个实验室应该都不会离开机器学习吧。因此开始看这方面的东西。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=793659404,4189322929&fm=27&gp=0.jpg">
+<meta property="og:image" content="https://gss3.bdstatic.com/7Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike72%2C5%2C5%2C72%2C24/sign=71339aceab773912d02b8d339970ed7d/b3b7d0a20cf431ad4cdf9f4a4936acaf2edd98b0.jpg">
+<meta property="article:published_time" content="2018-07-28T14:45:17.000Z">
+<meta property="article:modified_time" content="2018-08-28T06:43:20.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="classification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=793659404,4189322929&fm=27&gp=0.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/07/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/07/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA/","path":"2018/07/28/机器学习——PLA/","title":"机器学习——PLA"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——PLA | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/07/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——PLA | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——PLA
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-07-28 22:45:17" itemprop="dateCreated datePublished" datetime="2018-07-28T22:45:17+08:00">2018-07-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-08-28 14:43:20" itemprop="dateModified" datetime="2018-08-28T14:43:20+08:00">2018-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>对研究生要跟的导师还不确定，暑假打算学习点专业课与英语，也迟迟没有做好。我想不管哪个实验室应该都不会离开机器学习吧。因此开始看这方面的东西。</p>
+<span id="more"></span>
+<p>今天接触了一个算法叫<strong>PLA</strong>（Percetron Learning Algorithm）,用来做线性分类的算法。它应用的前提是样本集是线性可分的。用二维特征值的样本来举例子：</p>
+<p><img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=793659404,4189322929&fm=27&gp=0.jpg" alt="linear separable"></p>
+<p>我们要的就是通过算法来找到这条线。对于二维的样本（特征分别为$x_1$,$x_2$）,则分类结果为-1，+1，分别表示为negative，positive（这与另一种常用的分类算法不一致）。思想就是每个特征对应一个参数，乘积之后如果大于某个阈值，则设定为分类结果为+1，小于则为-1。若为特征添加一个特征$ x_0 $恒等于一，则用向量化可以将分类过程写成如下形式：<br>$$ result(X) &#x3D; sign(W{X^T}) $$<br>其中W为特征的参数向量，我们使用$y$来表示样本真实类别。</p>
+<p>整个算法的思想其实很简单，刚开始画出一条线，如果分错了，则往正确的方向旋转这条线。但是如何旋转这条线，旋转多少角度，还是很有意思的。一般的想法都是从图直观上来看，利用代价函数（cost function）来解决，不过对于这个简单的线性分类，用代价函数进行梯度下降还是相对来说计算量还是比较大的。这个算法让我觉得厉害的地方在于它向量化不光是为了提高计算效率，而是从向量的角度来考虑一步步向结果逼近的：遇到的分类错误有两种情况，如果$y$应该是正，但是$W{X^T}$得到的是负的，从向量角度来说，$W$与$X$的夹角太大，因此内积为负，我们要减小两个向量的角度，可以令$W&#x3D;W+X$,相反，$y$应该是负，结果却为正，那么$W$与$X$的夹角太小，可以令$W&#x3D;W-X$，这样就增大了夹角，从下图可以很直观的看出来这个道理：</p>
+<p><img src="https://gss3.bdstatic.com/7Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike72%2C5%2C5%2C72%2C24/sign=71339aceab773912d02b8d339970ed7d/b3b7d0a20cf431ad4cdf9f4a4936acaf2edd98b0.jpg" alt="向量加减"></p>
+<p>合并两种情况，则每次遇到被错误分类的样本$X_n$，我们对参数向量$W_t$进行如下更新（其中$t$表示修正的次数）：$$ W_{t+1} &#x3D; W_t + y_nX_n $$<br>下面主要来证明一下，对于线性可分的样本来说，这个算法一定会停止，找到那条符合的参数向量$W_f$。我们可以知道：</p>
+<p>$$<br>y_n{W_f}^TX_n &gt;&#x3D; _{min}[ y_nX_nW_f^T]&gt;0<br>$$</p>
+<p>而</p>
+<p>$$<br>W_{t+1}W_f^T &#x3D; W_tW_f^t + y_nX_nW_f^T &gt;&#x3D; W_tW_f^T + _{min}[ y_nX_nW_f^T]<br>$$</p>
+<p>因此我们可以得到：</p>
+<p>$$<br>W_{t+1}W_f^T &gt;&#x3D; W_tW_f^T &gt;&#x3D; W_0W_f^T +(t+1) *_{min}[ y_nX_nW_f^T]<br>$$</p>
+<p>因为我们每次找到一个出错点才进行修正，出错点为（$X_n,y_n$），可以知道$ y_nW_tX_n^T&lt;0 $，则：</p>
+<p>$$<br>\Vert W_{t+1} \Vert ^2 &#x3D; \Vert W_t \Vert ^2 + \Vert y_nX_n \Vert ^2+2y_nW_tX_n^T&gt;&#x3D; \Vert W_t \Vert ^2+_{max}[ \Vert X_n \Vert ^2]<br>$$<br>因此我们可以得到：</p>
+<p>$$<br> \Vert W_{t+1} \Vert ^2 &#x3D; \Vert W_t \Vert ^2 +  \Vert y_nX_n \Vert ^2+2 \times y_nW_tX_n^T&gt;&#x3D; \Vert W_0 \Vert ^2+ (t+1) \times _{max}[ \Vert X_n \Vert ^2]<br>$$</p>
+<p>最后，假设最开始$W_0&#x3D;0$，通过正规化，我们可以算出$W_t$与$W_f$之间的角度是不断逼近的（角度重合时候也就得到了正确的参数，实际上角度相同后我们不在乎向量的模的大小，因为它不会影响$W_t^TX_n$的符号）：</p>
+<p>$$<br>\frac{W_tW_f^T}{ \Vert W_t \Vert  \Vert W_f \Vert } &gt;&#x3D; \frac{t \times _{min}[y_nW_fX_n]}{\sqrt{t} \times _{max} \Vert X_n \Vert  \Vert W_f \Vert } &#x3D; \sqrt{t} \frac q R<br>$$</p>
+<p>其中：$q &#x3D; _{min}[y_nW_fX_n],R^2 &#x3D; ( _{max} \Vert X_n \Vert  )^2$，而正规化后内积是小于等于1的（此时方向一致），可以得到$ t&lt;&#x3D;\frac {R^2} {q^2} $，可以得到，最多经过$\frac {R^2} {q^2} $次修正即可得到正确结果。</p>
+<p>到这里就证明结束了,以后会上传相关的代码。</p>
+<p>可以看到虽然算法实现很简单，但其中的推理还是不容易的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/classification/" rel="tag"># classification</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/07/25/hello-world/" rel="prev" title="Hello World">
+                  <i class="fa fa-angle-left"></i> Hello World
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/" rel="next" title="markdown+mathjax显示公式，苦逼的找bug过程 ">
+                  markdown+mathjax显示公式，苦逼的找bug过程  <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

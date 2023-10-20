@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="通过线性分类，我们预测的是一个样本是positive，还是negative，不过有时候我们并不想要那样明确的结果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——logistic Regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94logistic-Regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="通过线性分类，我们预测的是一个样本是positive，还是negative，不过有时候我们并不想要那样明确的结果。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Logistic-curve.svg/480px-Logistic-curve.svg.png">
+<meta property="article:published_time" content="2018-08-30T11:29:47.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="regression">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Logistic-curve.svg/480px-Logistic-curve.svg.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94logistic-Regression/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94logistic-Regression/","path":"2018/08/30/机器学习——logistic-Regression/","title":"机器学习——logistic Regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——logistic Regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94logistic-Regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——logistic Regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——logistic Regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-30 19:29:47" itemprop="dateCreated datePublished" datetime="2018-08-30T19:29:47+08:00">2018-08-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>通过线性分类，我们预测的是一个样本是positive，还是negative，不过有时候我们并不想要那样明确的结果。<span id="more"></span>有时候，这种情况在医学中更为常见，我们想知道一个样本是正的概率，比如医院中对肿瘤良性与恶性的预测，来决定后续的治疗方式。概率是从0到1的实数，因此对概率的预测依然属于回归而非分类。</p>
+<p>理想中，我们希望样本的样子是这样的：${X_1,0.9},{x_2,0.2},{x_3,0.65}…$，即对每个样本，都已知它是positive的概率。但是实际上我们往往无法得到这样的结果，我们无法确切知道某个样本是正的概率。我们得到的样本，往往与分类问题的样本一样，对每个样本，知道它是negative，还是positive。不过我们可以假想，得到的训练集是理想情况+噪声造成的：如果是negative，我们可以说它是positive的概率为0，如果是positive，我们称该概率为1。我们希望可以预测出概率。</p>
+<p>首先，有之前的pla与linear regression的基础，很容易想到，使用$WX$去得到预测值。但是预测值虽然是实数，但是因为是概率，所以它的分布仅在于$[0,1]$，因此仅仅使用$WX$是不符合预期的。</p>
+<p>这里，将介绍一种函数叫logistic函数：$f(x) &#x3D; \frac {1} {1+e^{-x} }$（在数学上这个定义更加严格一点，而此处是logistic函数的一种）.这个函数的图像如下：<br><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Logistic-curve.svg/480px-Logistic-curve.svg.png"></p>
+<p>它满足下面的条件：$\lim_{x \to +\infty} f(x) &#x3D; 1$ &amp; $\lim_{x \to -\infty} f(x) &#x3D; 0 $，它的值域是（0，1），这个性质目前很符合我们的期望。</p>
+<p>接下来，我们需要定义的就是$E_{in}$，因为有$E_{in}$我们才能从H种找到一个g，它的$E_{in}$最小。但是$E_{in}$是不能随便定义的。之前的$E_{in}$，都是在找与真正对应的$y$之间的距离，这里我们不知道真正的$y$（也就是概率值），因此我们要换种考虑方法。</p>
+<p>假如有一个理想的函数$f$，能知道样本为positive的真实概率，表示为：$P(y_i&#x3D;+1|X_i) &#x3D; f(X_i)$，那么该样本是现在这个样子的概率为：$P(X_i \bigcap y_i &#x3D; +1) &#x3D; P(X_i) \times P(y_i&#x3D;+1|X_i)$，而当$y_i &#x3D; -1$时，$P(X_i \bigcap y_i &#x3D; -1) &#x3D; P(X_i) \times (1-P(y_i&#x3D;+1|X_i))$，合并两种情况，得到：$P(X_i \bigcap y_i) &#x3D;\frac {(y_i+1)} 2 P(X_i) \times P(y_i &#x3D; +1|X_i) +\frac {(1 - y_i)} 2 P(X_i) \times (1 - P(y_i &#x3D; +1|X_i)) $.各个样本之间是独立的话，那么出现这个样本集的概率等于：$\prod_{i&#x3D;1}^{n}P(X_i \bigcap y_i)$。</p>
+<p>目前，我们不知道$f$，但是假如我们用$H$中的某个$h$来代替，这就意味着在函数h的情况下，出现这个样本集的概率，当然我们想要做的是令这个概率越大越好。平时处理的$E_{in}$都是和，而这次我们依然希望用和来处理，而不是连乘，因此我们为上式加上一个$\ln$，而因为P(X_i)的概率都是一定的，所以我们无需关注。省掉$P(X_i)$,再进行上面的处理之后变为：<br>$\frac{1}{N} \sum _{i &#x3D; 1}^{n} \ln {(\frac {(y_i+1)} 2 h(X_i) +\frac {(1 - y_i)} 2 (1 - h(X_i)))}$.</p>
+<p>但是这不符合$E_{in}$，因为我们想要的是$E_{in}$越小越好，而上面的式子是越大越好，因此需要加上一个负号，同时，如果我们使用之前的logistic function作为h，我们可以发现它有一个性质：1 - h(x) &#x3D; h(-x)，因此,可以得到下面的式子：</p>
+<p>$$<br>E_{in} &#x3D; -\frac{1}{n}  \sum _{i &#x3D; 1}^{n} \ln {(\frac {(y_i+1)} 2 h(X_i) +\frac {(1 - y_i)} 2 (1 - h(X_i)))} &#x3D; -\sum _{i &#x3D; 1}^{n} \ln h(y_iX_i).<br>$$</p>
+<p>将logistic function 带入上式：</p>
+<p>$$<br>E_{in} &#x3D;\frac{1}{n}  \sum _{i &#x3D; 1}^{n} \ln(1+e^{-y_iW^TX_i})<br>$$</p>
+<p>从上式可以看出来，如果$y_i &#x3D; 1$，而预测它为1的概率小于0.5（$W^TX_i&lt;0$），那么$E_{in}$的值会大于$ln2$，而$E_{in}$是没有上界的。错的越离谱，惩罚就越大。</p>
+<p>接下来的问题，就是如何让$E_{in}$取到最小了。</p>
+<p>首先，可以证明的是，这个$E_{in}$也是一个凸函数（证明办法需要用到更深入的线性代数知识），因此我们可以找到一个最小值。和线性回归时候遇到的情况一样，要得到极值点，就要找到梯度为0的点。因此首先要得到的是$E_{in}$的梯度。从微积分里，我们知道梯度的求法，也就是对每个方向求偏导，由它们组成的向量。为了得到梯度，我们首先应该求出$E_{in}$对每个$w_i$的偏导数，对于偏导数的求法在微积分中课程中我们也学习过，可以得到下面的结果：<br>$$<br>\frac {dE_{in} } {d{w_i} } &#x3D;\frac{1}{N}  \sum <em>{n &#x3D; 1}^N \frac {e^{-y_nW^TX_n} \times ( -y_nx</em>{n,i})} {1+e^{-y_nW^TX_n} }<br>$$<br>注意：上式中为了方便，我们用$N$替代了之前的$n$，用$n$替代了$i$，并且用$i$代表了$W$向量中维度序列。</p>
+<p>如果对上式向量化，我们可以得到 $\nabla E_{in}(\mathbf{w}) &#x3D; \frac{1}{N} \sum\limits_{n&#x3D;1}^N {\theta\left({-y_n \mathbf{w}^T \mathbf{x}_n}\right)} {\bigl(-y_n \mathbf{x}_n\bigr)}$. </p>
+<p>上式中，$\theta(x) &#x3D; \frac {1} {1+e^{-x} }$.</p>
+<p>由此，我们求到了$E_{in}$的梯度。为了让这个梯度为0，首先我们想到的是，所有的$\theta\left({-y_n \mathbf{w}^T \mathbf{x}_n}\right)$等于0，这要求所有的$y_nW^TX_n$都是远大于0，这意味着原来的数据是线性可分的。</p>
+<p>如果不是这种情况，原来的数据则不是线性可分（大多数情况下我们的数据都不是这么理想），想使得最终结果为0，那么各个数据是加权加起来最后得0.那么我们希望可以像线性回归一样通过某种表达式直接求得一个解，不过遗憾的是这个函数不是线性函数，我们没有办法一下求得这个解。我们能做的只能是步步逼近，类似于之前的PLA算法。</p>
+<p>这就要介绍一个方法，叫<strong>梯度下降</strong>（gradient decent）。</p>
+<p>梯度下降具体内容查看：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/">Gradient Decent</a>。</p>
+<p>通过梯度下降，我们可以找到一个合适的$W$，从而得到较好的逻辑回归效果。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/29/%E6%96%B0%E7%94%9F%E6%B4%BB%E2%80%94%E2%80%94%E6%9C%89%E7%82%B9%E6%83%B3%E5%9B%9E%E5%8E%BB/" rel="prev" title="新生活——有点想回去">
+                  <i class="fa fa-angle-left"></i> 新生活——有点想回去
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/" rel="next" title="机器学习——Gradient Decent">
+                  机器学习——Gradient Decent <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

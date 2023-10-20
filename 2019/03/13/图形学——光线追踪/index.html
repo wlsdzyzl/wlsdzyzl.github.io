@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前我们重视的是镜面反射和漫反射的效果，对于折射却提到很少。这意味着只能显示非透明的东西。想要显示比如透明的水晶球，还有更复杂的，比如镜面中的场景，就需要光线追踪。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——光线追踪">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/13/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前我们重视的是镜面反射和漫反射的效果，对于折射却提到很少。这意味着只能显示非透明的东西。想要显示比如透明的水晶球，还有更复杂的，比如镜面中的场景，就需要光线追踪。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking0.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking4.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking5.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking6.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking8.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking7.jpg">
+<meta property="article:published_time" content="2019-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:46.300Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking1.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/13/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/13/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/","path":"2019/03/13/图形学——光线追踪/","title":"图形学——光线追踪"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——光线追踪 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E6%B1%82%E4%BA%A4%EF%BC%88Ray-Intersection%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">光线求交（Ray Intersection）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E7%9A%84%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.1.</span> <span class="nav-text">光线的表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E4%B8%8E%E5%B9%B3%E9%9D%A2%E6%B1%82%E4%BA%A4"><span class="nav-number">1.2.</span> <span class="nav-text">光线与平面求交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E4%B8%8E%E4%B8%89%E8%A7%92%E5%BD%A2%E6%B1%82%E4%BA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">光线与三角形求交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E4%B8%8E%E5%A4%9A%E8%BE%B9%E5%BD%A2%E6%B1%82%E4%BA%A4"><span class="nav-number">1.4.</span> <span class="nav-text">光线与多边形求交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E4%B8%8E%E7%90%83%E9%9D%A2%E4%BA%A4%E7%82%B9"><span class="nav-number">1.5.</span> <span class="nav-text">光线与球面交点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%BA%BF%E4%B8%8E%E9%95%BF%E6%96%B9%E4%BD%93%E4%BA%A4%E7%82%B9"><span class="nav-number">1.6.</span> <span class="nav-text">光线与长方体交点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E9%98%B4%E5%BD%B1"><span class="nav-number">2.</span> <span class="nav-text">计算阴影</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">思考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/13/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——光线追踪 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——光线追踪
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-13 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-13T00:00:00+08:00">2019-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:46" itemprop="dateModified" datetime="2023-10-21T04:23:46+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们重视的是镜面反射和漫反射的效果，对于折射却提到很少。这意味着只能显示非透明的东西。想要显示比如透明的水晶球，还有更复杂的，比如镜面中的场景，就需要光线追踪。  </p>
+<span id="more"></span>
+
+
+<p>Whitted模型是第一个光线追踪模型。Whitted是图形学大佬，只发表了19篇文章，就被评为了工程院院士。所以大佬的作品在质不在量。光线追踪算法可以实现其他算法很难达到的视觉效果，被广泛使用。</p>
+<p>说光线追踪，首先要知道，人之所以能看到东西，是光线经过一系列反射折射等等最终摄入我们的眼睛。光线追踪的思路就是顺着这个原理倒回去。首先，计算机有个显示缓存区，是由空间中的像素组成的，人眼透过这些像素看到场景中的物品。对于每个像素$P$计算其颜色值。步骤如下：</p>
+<ul>
+<li>计算视点连接像素$P$中心的光线（Ray）延长后所碰到的第一个物品的交点</li>
+<li>使用局部光照模型计算交点处的颜色值，到目前我们还只能看到投射的效果</li>
+<li>沿交点处的反射和折射方向对光线进行追踪，比如反射，折射方向有别的物品，对这个物品继续利用局部光照模型等，则进行加权叠加，这样就能实现更逼真的反射和折射效果</li>
+</ul>
+<p>通过光线追踪，可以很容易地表现出来阴影，反射，折射等引人入胜的视觉效果。由于一个递归的过程，光线追踪适用于更复杂的物体表示方法。</p>
+<p>简单原理图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking1.jpg"></p>
+<p>效果图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking0.jpg"></p>
+<h2 id="光线求交（Ray-Intersection）"><a href="#光线求交（Ray-Intersection）" class="headerlink" title="光线求交（Ray Intersection）"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E6%B1%82%E4%BA%A4%EF%BC%88Ray-Intersection%EF%BC%89" title="光线求交（Ray Intersection）"></a>光线求交（Ray Intersection）</h2><h3 id="光线的表示"><a href="#光线的表示" class="headerlink" title="光线的表示"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E7%9A%84%E8%A1%A8%E7%A4%BA" title="光线的表示"></a>光线的表示</h3><p>光线由射线表示：</p>
+<ul>
+<li>$P(t) &#x3D; R_0+t\cdot R_d$</li>
+<li>$R_0 &#x3D; (x_0,y_0,z_0)$为光线的源点;$R_d&#x3D;(x_d,y_d,z_d)$表示光线的朝向，一般来说为单位向量</li>
+<li>$t$表示光线到达的位置，在光线的正方向上$t\ge 0$</li>
+</ul>
+<h3 id="光线与平面求交"><a href="#光线与平面求交" class="headerlink" title="光线与平面求交"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E4%B8%8E%E5%B9%B3%E9%9D%A2%E6%B1%82%E4%BA%A4" title="光线与平面求交"></a>光线与平面求交</h3><ul>
+<li><p>平面的表示</p>
+<ul>
+<li>显示表示：$n_0&#x3D;(A,B,C),P_0&#x3D;(x_0,y_0,z_0)$分别表示法向量和平面上一点</li>
+<li>隐示表示：$\begin{aligned}H(P) &amp;&#x3D; Ax+By+Cz+D&#x3D;0\\&#x3D;&amp;nP+D&#x3D;0\end{aligned}$</li>
+</ul>
+</li>
+<li><p>点到平面的距离：</p>
+<ul>
+<li>当$n$是单位法向量时，$P$到平面$H$的距离为$H(P)$</li>
+</ul>
+</li>
+<li><p>根据平面和光线的方程得到方程组，求解即可：</p>
+<p>P(t) &#x3D; R_0+t\cdot R_d\\ n\cdot P(t) + D &#x3D; 0</p>
+<p>解得：$t &#x3D; -(D+n\cdot R_0)&#x2F;(n\cdot R_d)$，最后验算$t&gt;0$。</p>
+</li>
+</ul>
+<h3 id="光线与三角形求交"><a href="#光线与三角形求交" class="headerlink" title="光线与三角形求交"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E4%B8%8E%E4%B8%89%E8%A7%92%E5%BD%A2%E6%B1%82%E4%BA%A4" title="光线与三角形求交"></a>光线与三角形求交</h3><p>首先求与三角形平面交点，再检查交点是否在三角形内。不过对于三角形中的点有多种表示方法，因此我们可以使用更简单的操作。</p>
+<ul>
+<li>重心坐标：</li>
+</ul>
+<p>三角形$P_0P_1P_2$内部一点$P$可以表示为：</p>
+<p>P &#x3D; \alpha P_0 + \beta P_1 + \gamma P_2</p>
+<p>这里的$(\alpha,\beta,\gamma)$被称为重心坐标。满足$0\leq\alpha,\beta,\gamma \leq 1,\alpha+\beta+\gamma&#x3D;1$。<br>重心坐标有很多应用，纹理映射，法向插值，颜色插值等等。</p>
+<p>通过将重心坐标与射线方程联立：</p>
+<p>P &#x3D; (1 - \beta - \gamma)P_0+\beta P_1 + \gamma P_2 &#x3D; R_0+tR_d</p>
+<p>也就是：</p>
+<p>\begin{pmatrix}R_d &amp;P_0-P_1 &amp; P_0-P_2 \end{pmatrix}\begin{pmatrix} t\\ \beta\\ \gamma \end{pmatrix} &#x3D; P_0 - R_0</p>
+<p>最后需要检查$t,\alpha,\beta,\gamma$的有效性。</p>
+<h3 id="光线与多边形求交"><a href="#光线与多边形求交" class="headerlink" title="光线与多边形求交"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E4%B8%8E%E5%A4%9A%E8%BE%B9%E5%BD%A2%E6%B1%82%E4%BA%A4" title="光线与多边形求交"></a>光线与多边形求交</h3><p>与多边形求交也非常重要。思路为求与多边形平面交点，再检查交点是否在多边形内。为了判断第二个，首先我们需要将平面和交点投影到XY，XZ或者YZ面，然后判断在这个平面上的关系。这时候需要使用交点检测算法，属于计算几何的范畴。交点检测算法的原理如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking2.jpg"></p>
+<p>很简单，如果一个点是多边形的内点，那么从它射出去的一条射线，与多边形边的交点是奇数个。如果是外点，则交点为0或者为偶数个。但是这检测的过程中会有一些有歧义的地方，比如射线和边重叠了，或者射线和多边形顶点重叠了，需要进行额外的判断。</p>
+<p>这个算法的一个改进是根据交点为原点来建立坐标系，而x的正半轴就是射出去的线的方向。这样很多事情会方便很多，但是本质上没有太大的区别。</p>
+<p>另外一个算法是面积法，通过计算该点与各个边组成的三角形面积之和，如果等于多边形的面积，则在内部。但是这个还需要进行多边形的面积计算。</p>
+<p>最后介绍一个叫弧长法。弧长法是最快的算法，不过是一步步简化的，最开始也需要大量计算。看下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking3.jpg"></p>
+<p>我们会判断该点与各个边的夹角，这个夹角是按照一定方向过去的，如果夹角之和为$2\pi$，则为内点，如果最后和为0，则为外点。如果代数和为$\pi$，则点在多边形上。</p>
+<p>仔细一看，这个方法也不算那么简单，因为计算夹角和计算面积可能区别不大。但是弧长法可以继续改进。我们将该点作为坐标系原点，各个象限内点的符号分别为：$(+,+),(-,+),(-,-),(+,-)$。如果某个顶点$P_i$的某个坐标为0，则符号为+，如果该顶点为$(0,0)$，则说明该顶点为被测点，则弧长变化为下表：</p>
+<table>
+<thead>
+<tr>
+<th>$(x_i,y_i)$</th>
+<th>$(x_{i+1},y_{i+1})$</th>
+<th>弧长变化</th>
+<th>象限变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(+,+)</td>
+<td>(+,+)</td>
+<td>0</td>
+<td>I-&gt;II</td>
+</tr>
+<tr>
+<td>(+,+)</td>
+<td>(-,+)</td>
+<td>$\pi&#x2F;2$</td>
+<td>I-&gt;II</td>
+</tr>
+<tr>
+<td>(+,+)</td>
+<td>(-,-)</td>
+<td>$\pi$</td>
+<td>I-&gt;III</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<p>下面的变化依照上面的规律。这是计算各个之间弧长（并不是真正的角度）的方法，另外一种方法通过计算:</p>
+<p>f &#x3D; y_{i+1}x_i - x_{i+1}y_i</p>
+<p>如果$f&#x3D;0$，则边穿过坐标原点，如果$f&gt;0$，弧长代数和增加$\pi$，否则弧长代数和减少$\pi$。最后，得到弧长和为$2\pi$，则为内点。</p>
+<p>弧长法好的地方在与它除了速度外还有鲁棒性。因为计算不能精确为0或者$2\pi$，只要近似，我们就能得到结果。</p>
+<h3 id="光线与球面交点"><a href="#光线与球面交点" class="headerlink" title="光线与球面交点"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E4%B8%8E%E7%90%83%E9%9D%A2%E4%BA%A4%E7%82%B9" title="光线与球面交点"></a>光线与球面交点</h3><p>之前的交点计算都是比较简单的，这次说说与球面的交点。球的隐式方程为：</p>
+<p>\Vert P(t) - P_c \Vert &#x3D; r</p>
+<p>最容易想到的方法，是根据方程组来解。联立球的坐标和射线坐标，我们可以得到一个一元二次方程组，从而得到两个解。这个方法的缺点是，需要解方程。而且，我们往往仅需要一个交点即可。下面介绍另一种几何方法。看下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking4.jpg"></p>
+<ul>
+<li>计算视点指向球心的向量为$l: l &#x3D; P_c - R_0$。</li>
+<li>判断视点是否位于球体内部，这个也非常简单，只要判断$l^2,r^2$的大小即可。如果视点位于球面上，需要考虑退化情况。</li>
+<li>计算球心到光线所在直线的投影点（垂足）： $t_p &#x3D; l\cdot R_d$，$t_p$也就是在$R_d$方向上的距离。如果$t_p&lt;0$，则光线与球面不相交。因为我们没法看到后面。</li>
+<li>计算$d$，$d$很好算，如果$d^2 &gt; r^2$，不相交。</li>
+<li>计算$t’$，为投影点到光线与球面的交点的距离，它也可以根据圆内的简单直角三角形利用勾股定理得到，得到$t’$后：<ul>
+<li>如果光源在球体外部，$t &#x3D; t_p - t’$</li>
+<li>如果光源在球体内部，$t &#x3D; t_p + t’$</li>
+</ul>
+</li>
+</ul>
+<p>由此就计算出来了$t$，从而得到交点。虽然上面的过程看着也比较复杂，但是只是简单的向量乘积，因此速度更快，而且鲁棒性更高。而解方程由于有较多除法，可能会遇到奇异解。</p>
+<h3 id="光线与长方体交点"><a href="#光线与长方体交点" class="headerlink" title="光线与长方体交点"></a><a href="about:blank#%E5%85%89%E7%BA%BF%E4%B8%8E%E9%95%BF%E6%96%B9%E4%BD%93%E4%BA%A4%E7%82%B9" title="光线与长方体交点"></a>光线与长方体交点</h3><p>求光线与长方体的交点是非常有必要的。因为在做光线追踪的时候，对于一个复杂的模型的所有三角面片进行求交点是非常麻烦的，最后求出来结果可能是根本没有交点。因此会需要一个预处理，来排除一定没有交点的情况。这时候常用的方法是用长方体做对物体做包围盒。如果光线与包围盒不相交，那么和模型也一定不相交。这个思想在图形学中是非常重要而且普遍应用的。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking5.jpg"></p>
+<p>对于长方体的求交最直接的想法是向多边形求交那样，对于长方体的6个面进行判断，但是由于长方体的形状特殊，实际上有更简便的方法。首先，长方形有6个面，每两个面是互相平行的，平面方程：$Ax+By+Cz+d &#x3D; 0$，也就是只有$d$有区别。这两个面一个是近平面，一个是远平面。我们求对每对平面（不是长方体的面，是长方体面所在平面）求$t_{max},t_{min}$,最后得到：</p>
+<p>t^{(1)}_{max},t^{(1)}_{min}, t^{(2)}_{max},t^{(2)}_{min},t^{(3)}_{max},t^{(3)}_{min}.</p>
+<p>接着，我们对所有的最大值求最小值，对所有的最小值求最大值。得到：</p>
+<p>t_{max} &#x3D; \min\{t^{(1)}_{max},t^{(2)}_{max},t^{(3)}_{max}\}\\ t_{min} &#x3D; \max\{t^{(1)}_{min},t^{(2)}_{min},t^{(3)}_{min}\}</p>
+<p>如果$t_{max} \ge t_{min}$，则这两个就是光线与长方体的交点。对于这个算法的原理解释，我们可以在二维的情况下画图理解，这个思路是非常巧妙的，如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking6.jpg"></p>
+<p>实际上，这个不光是长方体，只要有一组组平行面组成的多面体（凸的）都可以。</p>
+<h2 id="计算阴影"><a href="#计算阴影" class="headerlink" title="计算阴影"></a><a href="about:blank#%E8%AE%A1%E7%AE%97%E9%98%B4%E5%BD%B1" title="计算阴影"></a>计算阴影</h2><p>在交点向着光源发出一条射线，如果有遮挡，那说明该点位于阴影区域。在计算阴影区域时，我们只需关注是否与物体相交，而不用关注哪个是最近交点。</p>
+<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a><a href="about:blank#%E6%80%9D%E8%80%83" title="思考"></a>思考</h2><p>光线追踪算法从提出到现在，依然在广泛使用。而近些年在光线追踪方面的改进，也是主要用于加速求交等等。思考光线追踪的过程，从人眼出发，反向去找交点从而得到各个效果，是非常聪明的做法。</p>
+<p>首先，我们初中就学过，在宏观世界里，光逆向之后可以回到原点。因此这个方法是符合常识的。第二个，如果我们从光源出发，那么一个光源应该射出多少条射线？光源理论上发出来无数条光线，而在计算机中，我们不能做到无数，只能均匀发出一系列光线，而这些光线最后能弹射到人眼中的只占了一小部分，既浪费了计算量，也无法保证每个像素都能被光线弹射到，这样使得效果也差，算是费力不讨好，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking8.jpg"></p>
+<p>而从视点出发，对每个像素进行反向追踪，计算量不算大，又能得到很好的效果。</p>
+<p>要知道光线追踪算法是一个递归算法，那么这个递归如何停止。因为很有可能这个递归会一直走下去。这种情况下有两种做法，一是达到一定的层数后，自动结束递归，第二个是通过衰减系数。前面我们也知道，不管折射还是反射都是会损耗光的能量，如果这个光递归了很久衰减系数低到一定的阈值，我们就将其忽略，结束递归。这二者都能取到不错的效果。因为即使递归少了一辆层，看上去依然能得到很惊艳的光线追踪效果。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/light_tracking7.jpg"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/12/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%85%A7%E6%A8%A1%E5%9E%8B/" rel="prev" title="图形学——光照模型">
+                  <i class="fa fa-angle-left"></i> 图形学——光照模型
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/15/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="next" title="图形学——空间数据结构">
+                  图形学——空间数据结构 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

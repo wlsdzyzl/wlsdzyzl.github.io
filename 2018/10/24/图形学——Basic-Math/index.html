@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="加入了智能成像实验室，但是我对计算机图形学了解还太浅，因此需要学习一些图形学的基础知识。本篇博客先介绍一些很简单的数学基础。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——Basic Math">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="加入了智能成像实验室，但是我对计算机图形学了解还太浅，因此需要学习一些图形学的基础知识。本篇博客先介绍一些很简单的数学基础。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-24T09:22:19.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.774Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="computer graphics">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/","path":"2018/10/24/图形学——Basic-Math/","title":"图形学——Basic Math"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——Basic Math | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%B3%E6%89%8B%E5%9D%90%E6%A0%87%E7%B3%BB"><span class="nav-number">1.</span> <span class="nav-text">右手坐标系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E7%82%B9%E4%B9%98%E5%92%8C%E5%8F%89%E4%B9%98"><span class="nav-number">2.</span> <span class="nav-text">向量点乘和叉乘</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%82%B9%E4%B9%98%EF%BC%88Dot-Product%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">点乘（Dot Product）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%89%E4%B9%98%EF%BC%88Cross-Product%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">叉乘（Cross Product）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%90%E6%A0%87%E7%B3%BB-Coordinate-Frames"><span class="nav-number">3.</span> <span class="nav-text">坐标系(Coordinate Frames)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%EF%BC%88Matrix%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">矩阵（Matrix）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——Basic Math | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——Basic Math
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-24 17:22:19" itemprop="dateCreated datePublished" datetime="2018-10-24T17:22:19+08:00">2018-10-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>加入了智能成像实验室，但是我对计算机图形学了解还太浅，因此需要学习一些图形学的基础知识。本篇博客先介绍一些很简单的数学基础。</p>
+<span id="more"></span>
+
+<h3 id="右手坐标系"><a href="#右手坐标系" class="headerlink" title="右手坐标系"></a>右手坐标系</h3><p>首先是XYZ坐标轴，一般我们使用的坐标轴是符合右手定则的。这也是大多数数学教材使用的坐标轴的定义。右手定则即用右手从X轴方向握向Y轴方向，这时候伸出大拇指，大拇指的朝向就是Z轴的方向。实际上这是一个很基础的知识，但是我过去没多久才发现自己一直不知道这个东西。直到计算第二型曲面积分时候发现结果总是相反才发现。</p>
+<h3 id="向量点乘和叉乘"><a href="#向量点乘和叉乘" class="headerlink" title="向量点乘和叉乘"></a>向量点乘和叉乘</h3><h4 id="点乘（Dot-Product）"><a href="#点乘（Dot-Product）" class="headerlink" title="点乘（Dot Product）"></a>点乘（Dot Product）</h4><p>$\mathbf{a} \cdot \mathbf{b} &#x3D; \vert a \vert \vert b\vert \cos {\theta}$</p>
+<p>$\theta &#x3D; \cos ^{-1} \frac {\mathbf{a} \cdot \mathbf{b} }{\vert a \vert \vert b\vert}$</p>
+<p>实际上在笛卡尔坐标系中求解两个向量的点乘是非常容易的：</p>
+<p>$\mathbf{a} &#x3D; x_a \mathbf{x} + y_a \mathbf{y},\mathbf{b} &#x3D; x_b \mathbf{x} + y_b \mathbf{y}$</p>
+<p>则：$\mathbf{a} \cdot \mathbf{b} &#x3D; x_a x_b + y_a y_b$</p>
+<p>因此点乘可以用来求两个向量的夹角。</p>
+<p>另一个点乘的应用是求某个向量到另一个向量上的投影，如$\mathbf{a}$在$\mathbf{b}$上的投影长度实际上是$\vert \mathbf{a} \vert \cos \theta$，而$\vert \mathbf{a} \vert \cos \theta &#x3D; \frac {\vert \mathbf{b}\vert\vert \mathbf{a} \vert \cos \theta}{\mathbf{b} } &#x3D; \frac {\mathbf{a} \cdot \mathbf{b} }{\vert \mathbf{b}\vert}$.</p>
+<p>同样的想要求投影之后的向量也很简单，只要用长度乘上$\mathbf{b}$方向的单位向量即可：<br>$\mathbf{p} &#x3D;  \frac {\mathbf{a} \cdot \mathbf{b} \mathbf{b} }{\vert \mathbf{b}\vert ^2}$.</p>
+<h4 id="叉乘（Cross-Product）"><a href="#叉乘（Cross-Product）" class="headerlink" title="叉乘（Cross Product）"></a>叉乘（Cross Product）</h4><p>$\vert \mathbf{a} \times \mathbf{b} \vert&#x3D; \vert \mathbf{a} \vert \vert \mathbf{b}\vert \sin \theta$</p>
+<p>上面为叉乘的长度，除此之外，叉乘得到的是一个向量，它的方向符合右手定则，也与原来两个向量垂直。</p>
+<p>从右手定则可以很容易推导出：$\mathbf{a} \times \mathbf{b} &#x3D; - \mathbf{b} \times \mathbf{a}$.</p>
+<p>同时也有以下的一些等式：<br>$$<br>\mathbf{x} \times \mathbf{y} &#x3D; \mathbf{z},\mathbf{y} \times \mathbf{x} &#x3D; -\mathbf{z}<br>$$<br>$$<br>\mathbf{a} \times \mathbf{a} &#x3D; \mathbf{0}<br>$$<br>$$<br>\mathbf{a} \times (\mathbf{b} + \mathbf{c}) &#x3D; \mathbf{a} \times \mathbf{b}+ \mathbf{a} \times \mathbf{c}<br>$$<br>$$<br>\mathbf{a} \times (k\mathbf{b}) &#x3D; k(\mathbf{a} \times \mathbf{b})<br>$$</p>
+<p>在笛卡尔坐标系下，叉乘的计算也不算困难：</p>
+<p>$$<br>\mathbf{a}\times \mathbf{b} &#x3D;<br>\begin{vmatrix}<br>\mathbf{x}&amp;\mathbf{y}&amp;\mathbf{z}\<br>x_a&amp;y_a&amp;z_a\<br>x_b&amp;y_b&amp;z_b<br>\end{vmatrix} &#x3D;<br>\begin{pmatrix}<br>y_az_b - y_bz_a,\<br>z_ax_b - x_az_b,\<br>x_ay_b - y_ax_b<br>\end{pmatrix}<br>$$<br>而且也可以写成下面的形式：<br>$$<br>\mathbf{a}\times \mathbf{b} &#x3D; A^* \mathbf{b}<br>\begin{pmatrix}<br>0&amp;-z_a&amp;y_a\<br>z_a&amp;0&amp;-x_a\<br>-y_a&amp;x_a&amp;0<br>\end{pmatrix}<br>\begin{pmatrix}<br>x_b\<br>y_b\<br>z_b\<br>\end{pmatrix}<br>$$</p>
+<p>上式中$A^*$被成为向量$\mathbf{a}$的对偶矩阵。</p>
+<h3 id="坐标系-Coordinate-Frames"><a href="#坐标系-Coordinate-Frames" class="headerlink" title="坐标系(Coordinate Frames)"></a>坐标系(Coordinate Frames)</h3><p>坐标系并不是只有XYZ，XYZ只是标识而已。任何满足下面条件的三个向量，都可以作为坐标系：</p>
+<ul>
+<li>$\vert \mathbf{u} \vert &#x3D; \vert \mathbf{v} \vert &#x3D; \vert \mathbf{w} \vert &#x3D; 1$</li>
+<li>$\mathbf{u} \cdot \mathbf{v} &#x3D; \mathbf{v} \cdot \mathbf{w} &#x3D; \mathbf{u} \cdot \mathbf{w} &#x3D; 0$</li>
+<li>$\mathbf{w} &#x3D; \mathbf{u} \times \mathbf{v}$</li>
+</ul>
+<p>任何一个向量可以写成各个坐标系的投影之和：<br>$$<br>\mathbf{p}  &#x3D; (\mathbf{p} \cdot \mathbf{u} ) \mathbf{u} + (\mathbf{p} \cdot \mathbf{v}) \mathbf{v} + (\mathbf{p} \cdot \mathbf{w})\mathbf{w}<br>$$</p>
+<p>如何使用两个非零非同方向的向量创造一个坐标系（在三维重建中可能会经常碰到）？<br>$$<br> \mathbf{u} &#x3D; \frac {\mathbf{a} }{ \vert \mathbf{a}\vert},\mathbf{w} &#x3D; \frac {\mathbf{a} \times \mathbf{b} }{\vert \mathbf{a} \times \mathbf{b} \vert}, \mathbf{v}&#x3D; \mathbf{w} \times \mathbf{v}.<br>$$</p>
+<p>从上面我们可以看到叉乘对于创建一个坐标系的作用。</p>
+<h3 id="矩阵（Matrix）"><a href="#矩阵（Matrix）" class="headerlink" title="矩阵（Matrix）"></a>矩阵（Matrix）</h3><p>$(AB)^{-1} &#x3D; B^{-1}A^{-1}$,因为$ AB B^{-1} A^{-1} &#x3D; I$.</p>
+<p>通过矩阵可以实现空间点的各种转换。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/" rel="prev" title="Learning From Data——Generalized Linear Model">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Generalized Linear Model
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/" rel="next" title="图形学——Transformation">
+                  图形学——Transformation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Node之间的通信，是ROS的最重要的部分。这一篇文章介绍一下ROS的通信相关内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROS——通信构架">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/10/06/ROS%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%9E%84%E6%9E%B6/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="Node之间的通信，是ROS的最重要的部分。这一篇文章介绍一下ROS的通信相关内容。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:03.960Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="ros">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/10/06/ROS%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%9E%84%E6%9E%B6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/10/06/ROS%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%9E%84%E6%9E%B6/","path":"2019/10/06/ROS——通信构架/","title":"ROS——通信构架"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ROS——通信构架 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">通信方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Topic"><span class="nav-number">1.1.</span> <span class="nav-text">Topic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service"><span class="nav-number">1.2.</span> <span class="nav-text">Service</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action"><span class="nav-number">1.3.</span> <span class="nav-text">Action</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Parameter-server"><span class="nav-number">1.4.</span> <span class="nav-text">Parameter server</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/10/06/ROS%E2%80%94%E2%80%94%E9%80%9A%E4%BF%A1%E6%9E%84%E6%9E%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ROS——通信构架 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ROS——通信构架
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-10-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-06T00:00:00+08:00">2019-10-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:03" itemprop="dateModified" datetime="2023-10-21T04:27:03+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/ROS/" itemprop="url" rel="index"><span itemprop="name">ROS</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Node之间的通信，是ROS的最重要的部分。这一篇文章介绍一下ROS的通信相关内容。  </p>
+<span id="more"></span>
+
+
+<p>首先，之前提到了，Node的registration是通信的前提。因此一般来说运行ROS程序，都要先运行一行命令：<code>roscore</code>。它会启动master，同时会启动一个结点rosout，用来打印日志，还会启动参数服务器，parameter server，这个之后会介绍。</p>
+<p>除此之外，在介绍一些关于结点的命令：</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rosrun [pkg_name] [node_name]</td>
+<td>启动结点</td>
+</tr>
+<tr>
+<td>rosnode [list]</td>
+<td>列出结点</td>
+</tr>
+<tr>
+<td>rosnode [info] [node_name]</td>
+<td>打印结点信息</td>
+</tr>
+<tr>
+<td>rosnode [kill] [nodename]</td>
+<td>结束结点</td>
+</tr>
+</tbody></table>
+<p>当一个package内有多个结点，我们想要打包一起启动，可以在*.launch文件中配置，然后使用命令：<code>roslaunch [pkg_name] [filename.launch]</code>来打包启动。对于launch文件的格式，可以参考<a target="_blank" rel="noopener" href="http://wiki.ros.org/roslaunch/">roslaunch</a>。</p>
+<h2 id="通信方式"><a href="#通信方式" class="headerlink" title="通信方式"></a><a href="about:blank#%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F" title="通信方式"></a>通信方式</h2><p>接下来是重头，关于ros通信方式的介绍。ros中有4种通信方式，分别是Topic，Service，Action，Parameter Server，下面对这些通信方式分别进行介绍。</p>
+<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a><a href="about:blank#Topic" title="Topic"></a>Topic</h3><p>Topic是一种异步通信方式，Node通过publish&#x2F;subscribe机制来传递信息。这个过程是这样的，一个Node作为publisher，它发布topic，而另一个Node作为subscriber在不断地接收topic中的内容。这是最常用的通信方式，比如相机捕获图片信息之后将图片内容publish，它需要发布颜色信息和深度信息，可以分为两个topic：&#x2F;rgb与&#x2F;depth，而另一个node需要获取颜色内容，它就订阅&#x2F;rgb这个topic。</p>
+<p>这种通信方式下，发布者可以随时发布信息，而接收者一察觉到有信息发不出来就去接收。对于Topic发布的内容，在ros中称为Message，每个topic传输的内容格式是固定的，它具体的数据结构定义在*.msg中。基本的msg类型类似于cpp语言中的数据类型，有bool，int8，int16,int32,int64,float32等等，除此之外还有可变长数组与定长数组。而且我们也可以用这些基本的数据类型定义自己需要的Message数据结构，ros中已经为我们定义了一批，如sensor_msgs&#x2F;Image，用来获取传感器中的图像内容。</p>
+<p>对于Topic通信方式与Message消息，有下面几个常用的命令：</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rostopic [list]</td>
+<td>列出topic</td>
+</tr>
+<tr>
+<td>rostopic [info] [topic_name]</td>
+<td>[topic_name]的详细信息</td>
+</tr>
+<tr>
+<td>rostopic [echo] [topic_name]</td>
+<td>查看[topic_name]的内容</td>
+</tr>
+<tr>
+<td>rostopic [pub] [topic_name] …</td>
+<td>将信息发布到[topic_name]</td>
+</tr>
+<tr>
+<td>rosmsg [list]</td>
+<td>列出所有的Message名称</td>
+</tr>
+<tr>
+<td>rosmsg [show] [msg_name]</td>
+<td>查看[msg_name]的结构</td>
+</tr>
+</tbody></table>
+<h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a><a href="about:blank#Service" title="Service"></a>Service</h3><p>Topic对于需要频繁发布的信息很有用，但是偶尔一次的通信就不太合适了。首先，偶尔一次的通信一般需要较大的计算量，而频繁的发布无人接收无疑是对计算资源的浪费。而Service类似于服务器客户端之间的同步通信机制。Service通信是一个server对多个client，client需要信息则向server发出请求，而server响应client的请求，完成通信。</p>
+<p>与Topic类似，Service也有自己的通信格式，我们称为srv，格式为*.srv。srv文件一般包含两部分：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">request</span><br><span class="line">---</span><br><span class="line">reply</span><br></pre></td></tr></tbody></table>
+
+<p>上部分为request的数据类型，下部分为reply的数据类型，一般来说request数据类型很简单，而reply比较复杂，可以是msg中定义的类型。</p>
+<p>一般来说，service适合于偶尔调用的功能，而topic适用于高频连续发布的内容。对于Service也有类似的命令：</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rosservice [list]</td>
+<td>列出service</td>
+</tr>
+<tr>
+<td>rosservice [info] [service_name]</td>
+<td>[service_name]的详细信息</td>
+</tr>
+<tr>
+<td>rosservice [call] [topic_name]</td>
+<td>调用[service_name]的内容</td>
+</tr>
+<tr>
+<td>rossrv [list]</td>
+<td>列出所有srv的名称</td>
+</tr>
+<tr>
+<td>rossrv [show] [srv_name]</td>
+<td>查看[srv_name]的结构</td>
+</tr>
+</tbody></table>
+<h3 id="Action"><a href="#Action" class="headerlink" title="Action"></a><a href="about:blank#Action" title="Action"></a>Action</h3><p>Action类似于Service，是带有状态反馈的通信方式。它适用于长时间，可抢占的任务。在Action通信中，客户端向服务端发送目标，或者取消指令，可以中止任务的执行，而服务端可以给客户端发送状态，反馈信息和结果。</p>
+<p>Action的数据格式为*.action，一般包含三部分：  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">goal</span><br><span class="line">---</span><br><span class="line">result</span><br><span class="line">---</span><br><span class="line">feedback</span><br></pre></td></tr></tbody></table>
+
+<p>分布代表了目标信息数据结构，结果信息数据结构以及反馈信息的数据结构。</p>
+<h3 id="Parameter-server"><a href="#Parameter-server" class="headerlink" title="Parameter server"></a><a href="about:blank#Parameter-server" title="Parameter server"></a>Parameter server</h3><p>参数服务器，用来存储各种参数的字典，可以用命令行，launch，node进行修改。这个就不多介绍了。</p>
+<p>上面就是ROS通信架构的基本内容，对于如何编写ros代码，会在之后的文章中说明。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ros/" rel="tag"># ros</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/09/03/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E5%88%86%E6%B2%BB%E7%AD%96%E7%95%A5/" rel="prev" title="算法导论——分治策略">
+                  <i class="fa fa-angle-left"></i> 算法导论——分治策略
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/06/ROS%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/" rel="next" title="ROS——基本介绍">
+                  ROS——基本介绍 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Gradient Decent,即梯度下降。梯度下降是机器学习中非常重要的接近最优解的工具。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Gradient Decent">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="Gradient Decent,即梯度下降。梯度下降是机器学习中非常重要的接近最优解的工具。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/eta_choice.png">
+<meta property="article:published_time" content="2018-08-31T15:30:22.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.774Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="mathematics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/eta_choice.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/","path":"2018/08/31/机器学习——Gradient-Decent/","title":"机器学习——Gradient Decent"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Gradient Decent | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/31/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Gradient-Decent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Gradient Decent | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Gradient Decent
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-31 23:30:22" itemprop="dateCreated datePublished" datetime="2018-08-31T23:30:22+08:00">2018-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Gradient Decent,即梯度下降。梯度下降是机器学习中非常重要的接近最优解的工具。<span id="more"></span>理论上只要得到梯度，就可以使用梯度下降。因此它同样可以用于linear regression，在数据量很大特征很多的情况下，因为矩阵求逆的时间复杂度很大，它往往比之前介绍的linear regression“一步登天”的做法性能更好。</p>
+<p>首先，假设我们已经知道了$E_{in}$的梯度为$\nabla E_{in}$。首先，我们要知道一件事，梯度是所有方向上，“坡度”最陡的方向。梯度下降，使用了贪心的思想：每次都朝着坡度最陡的方向往下走。也许最后得到的不一定是全局最优解，但是一定是一个极小值点，通常也能取得不错的效果。</p>
+<p>所以，有一个起始点为$W_0$，每次向下走一个单位的长度乘上一个未知的$\eta$，用来控制步长。在梯度方向上的单位向量等于$\frac {\nabla E_{in} }{|\nabla E_{in}|}$，当然，我们也可以很容易知道，我们要走的方向应该是梯度的反方向。因为求出来的梯度往往指向的是函数值增加最快的方向，而我们要的是尽可能减少$E_{in}$。所以就可以得到下面的式子：</p>
+<p>$$<br>W_1 &#x3D; W_0 - \eta \frac {\nabla E_{in} }{|\nabla E_{in}|}<br>$$</p>
+<p>每次朝着梯度方向走一步，理想中这个函数就会下降一点，因为当走动的距离很小时候，有以下近似式：</p>
+<p>$$<br>E_{in}(W_0+\Delta) \approx E_{in} + \Delta \nabla E_{in} (W_0)<br>$$</p>
+<p>上式其实是多维函数泰勒展开式（一阶）。</p>
+<p>接下来，就是对$\eta$的选择了。选择$\eta$时候，有下面几种情况：<br>1.$\eta$ 太小。 如果$\eta$很小，那么我们可以保证它最后一定可以走到一个很低的地方，不过速度太慢了。因为每一步步长太小。</p>
+<p>2.$\eta$ 太大。如果$\eta$太大，那么之前的泰勒展开式就不适用，充满了不确定性。有可能一步太长走到对面，运气好的话函数值还在变小，运气不好函数值会增加，因此这样也是不可选的。</p>
+<p>3.如下图，让$\eta$在变化。当梯度很大时候，步子迈的大一点，当梯度小了，意味着距离最低点很近了，步子小一点，谨慎一点走。上面三种情况如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/eta_choice.png"></p>
+<p>很明显，我们应当选择的是第三种策略。如何控制$\eta$可变？简单的做法就是让$\eta$与$|\nabla E_{in}|$成正比，如果$\eta &#x3D; \alpha|\nabla E_{in}| $就会抵消了原来式子中的分母部分，最后得到下式：<br>$$<br>W_{i+1} &#x3D; W_i - \eta  {\nabla E_{in} }<br>$$<br>可以看到式子变得更加简洁了。</p>
+<p>上式中的$\eta$成为fixed learning rate，尽管学习率是固定的，但是每一步步长却在改变。当然，对于上式中的$\eta$我们也应该选择合适的值，否则还是会出现上述的两种情况，但是它改进了很多，使得算法效率得到了提升。</p>
+<p>最后，梯度下降什么时候停止？当$\nabla E_{in} \approx 0 $或者进行了足够多次数的迭代之后，我们就应该停止了。因为在计算机中数值上得到一个完全为0的值是很困难的，而约等于0时候，我们就可以取得满意的结果。或者进行了足够多的次数，依然得不到满意的结果，我们需要考虑的是改进算法，是不是学习率值取得不够好等等。</p>
+<p>以上就是梯度下降。</p>
+<p>在这里，另外提到一个叫随机梯度下降（Stochastic Gradient Desent）的算法。上面介绍的梯度下降算法虽然可以很好的找到我们想要的结果，但是在n很大的时候，每次更新都需要进行求和平均，这就导致了算法速度可能受到影响。实际上，它的时间复杂度与POCKET算法是一样的。我们希望可以将复杂度提升到PLA的级别。</p>
+<p>$E_{in}$的定义是对所有点的$err$加起来求平均，在n很大时候，平均值的期望值与随机抽取一个样本的值的期望值是接近的，因此随机梯度下降实际上就是每次随机选取一个点（或者少量点求平均），然后用它的$err$来计算梯度，并进行更正。它类似于PLA算法的步骤:<br>$$<br>SGD logistic regression:  W_{t+1} &#x3D; W_t + \eta  \theta (-y_nW_t^TXn)(y_nX_n)<br>$$</p>
+<p>$$<br>PLA:W_{t+1} &#x3D;  W_{t}+[y \neq sign(W_t^TX_n)] (y_nX_n)<br>$$</p>
+<p>当SGD logistic regression的错误非常离谱，它的更新效果实际上接近于PLA算法。</p>
+<p>这个算法运行什么时候终结？一般来说运行足够长的时间之后或者此时的$E_{in}$已经足够小，我们就认为已经取得了不错的效果。它的优点是速度快，缺点是最终的结果相比于梯度下降还是差了一点。因此它是梯度下降算法的一个改进。</p>
+<p>适用场景：1.n特别大 2.如果本身样本是一个一个来的，而不是一批一批来的，也可以适用这个方法，也就是可以适用于在线学习（online learning）。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94logistic-Regression/" rel="prev" title="机器学习——logistic Regression">
+                  <i class="fa fa-angle-left"></i> 机器学习——logistic Regression
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/" rel="next" title="机器学习——linear model for classification">
+                  机器学习——linear model for classification <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

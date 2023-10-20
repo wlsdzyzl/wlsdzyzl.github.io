@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次来介绍信道以及信道的容量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——信道及其容量">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次来介绍信道以及信道的容量。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7RSY%7B%29157M%7EC%7BH0%298%403KF9V.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9LI8H%7DB%281P%5B_KI%409%5BRCI7%242.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0794.PNG">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0008it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0011it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0013it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0014it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0005it.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0006it.jpg">
+<meta property="og:image" content="http://wlsdzyzl.com/">
+<meta property="og:image" content="http://wlsdzyzl.com/">
+<meta property="og:image" content="http://wlsdzyzl.com/">
+<meta property="og:image" content="http://wlsdzyzl.com/">
+<meta property="article:published_time" content="2018-11-27T06:17:16.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.775Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7RSY%7B%29157M%7EC%7BH0%298%403KF9V.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/","path":"2018/11/27/信息论——信道及其容量/","title":"信息论——信道及其容量"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——信道及其容量 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E6%80%A7%E8%B4%A8"><span class="nav-number">1.</span> <span class="nav-text">信道容量的定义以及性质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">通信是什么?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-number">1.2.</span> <span class="nav-text">信道的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%9A%84%E5%BD%A2%E5%BC%8F%E4%BB%A5%E5%8F%8A%E6%97%B6%E9%97%B4%E5%8F%96%E5%80%BC%E6%9D%A5%E5%88%92%E5%88%86"><span class="nav-number">1.2.1.</span> <span class="nav-text">按照输入输出的形式以及时间取值来划分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E4%BF%A1%E9%81%93%E9%9A%8F%E6%9C%BA%E8%BF%87%E7%A8%8B%E7%9A%84%E7%89%B9%E7%82%B9%E5%88%86%E7%B1%BB"><span class="nav-number">1.2.2.</span> <span class="nav-text">按照信道随机过程的特点分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DMC-Discrete-Memoryless-Channel"><span class="nav-number">1.3.</span> <span class="nav-text">DMC(Discrete Memoryless Channel)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">1.4.</span> <span class="nav-text">信道容量定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">离散无记忆信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E5%99%AA%E5%A3%B0%E4%BA%8C%E5%85%83%E4%BF%A1%E9%81%93"><span class="nav-number">2.0.1.</span> <span class="nav-text">无噪声二元信道</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E4%B8%8D%E9%87%8D%E5%8F%A0%E7%9A%84%E5%99%AA%E5%A3%B0%E4%BF%A1%E9%81%93"><span class="nav-number">2.0.2.</span> <span class="nav-text">输出不重叠的噪声信道</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%B7%E4%B9%B1%E6%89%93%E5%AD%97%E6%9C%BA"><span class="nav-number">2.0.3.</span> <span class="nav-text">混乱打字机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BSC-Binary-Symmetric-Channel"><span class="nav-number">2.0.4.</span> <span class="nav-text">BSC(Binary Symmetric Channel)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#EC-%E5%88%A0%E9%99%A4%E4%BF%A1%E9%81%93"><span class="nav-number">2.0.5.</span> <span class="nav-text">EC(删除信道)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E5%AF%B9%E7%A7%B0%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">离散无记忆对称信道容量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number">2.2.</span> <span class="nav-text">一般离散无记忆信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kkt-condition"><span class="nav-number">2.2.1.</span> <span class="nav-text">kkt condition</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%9A%84%E7%BB%84%E5%90%88"><span class="nav-number">3.</span> <span class="nav-text">信道的组合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A7%E8%81%94%E7%9A%84%E7%8B%AC%E7%AB%8B%E4%BF%A1%E9%81%93"><span class="nav-number">3.1.</span> <span class="nav-text">级联的独立信道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%B9%B6%E8%81%94%E4%BF%A1%E9%81%93"><span class="nav-number">3.2.</span> <span class="nav-text">输入并联信道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E7%94%A8%E4%BF%A1%E9%81%93"><span class="nav-number">3.3.</span> <span class="nav-text">并用信道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%92%8C%E4%BF%A1%E9%81%93"><span class="nav-number">3.4.</span> <span class="nav-text">和信道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">连续信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%B9%E9%87%8F%E8%B4%B9%E7%94%A8%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">容量费用函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E6%97%A0%E8%AE%B0%E5%BF%86%E5%8A%A0%E6%80%A7%E5%99%AA%E5%A3%B0%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number">4.2.</span> <span class="nav-text">连续无记忆加性噪声信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E5%99%AA%E5%A3%B0"><span class="nav-number">4.2.1.</span> <span class="nav-text">高斯噪声</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E7%9A%84%E6%97%A0%E8%AE%B0%E5%BF%86%E5%8A%A0%E6%80%A7%E5%99%AA%E5%A3%B0%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number">4.2.2.</span> <span class="nav-text">一般的无记忆加性噪声信道容量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E8%81%94%E8%BF%9E%E7%BB%AD%E9%AB%98%E6%96%AF%E4%BF%A1%E9%81%93"><span class="nav-number">4.3.</span> <span class="nav-text">并联连续高斯信道</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%B0%B4%E5%8A%9F%E7%8E%87"><span class="nav-number">4.3.1.</span> <span class="nav-text">注水功率</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number">5.</span> <span class="nav-text">模拟信道容量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AWGN%E4%BF%A1%E9%81%93"><span class="nav-number">5.1.</span> <span class="nav-text">AWGN信道</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%AD%A3%E4%BA%A4%E5%88%86%E8%A7%A3"><span class="nav-number">5.1.1.</span> <span class="nav-text">信号的正交分解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Vision-%E6%8F%90%E5%8D%87%E5%AE%B9%E9%87%8F%E7%9A%84%E5%90%84%E7%A7%8D%E6%89%8B%E6%AE%B5"><span class="nav-number">5.1.2.</span> <span class="nav-text">Vision:提升容量的各种手段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Vision-%E4%BF%A1%E6%81%AF%E4%B8%8E%E7%83%AD%E5%8A%9B%E5%AD%A6%E7%9A%84%E8%81%94%E7%B3%BB"><span class="nav-number">5.1.3.</span> <span class="nav-text">Vision:信息与热力学的联系</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">信道编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E7%A0%81%E7%8E%87"><span class="nav-number">6.1.</span> <span class="nav-text">信道编码的码率</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Example"><span class="nav-number">6.1.1.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E9%94%99%E8%AF%AF%E6%A6%82%E7%8E%87"><span class="nav-number">6.2.</span> <span class="nav-text">信道编码的错误概率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E4%B8%BB%E4%B9%89%E5%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">6.3.</span> <span class="nav-text">经验主义式的设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E7%A0%81"><span class="nav-number">6.4.</span> <span class="nav-text">重复码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%81%E6%98%8E%E9%A6%99%E5%86%9C%E7%AC%AC%E4%BA%8C%E5%AE%9A%E7%90%86"><span class="nav-number">6.5.</span> <span class="nav-text">证明香农第二定理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%94%E5%90%88%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97"><span class="nav-number">6.5.1.</span> <span class="nav-text">联合典型序列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%94%E5%90%88%E6%B8%90%E8%BF%9B%E7%AD%89%E5%90%8C%E5%88%86%E5%89%B2%E5%AE%9A%E7%90%86%EF%BC%88Joint-AEP%EF%BC%89"><span class="nav-number">6.5.2.</span> <span class="nav-text">联合渐进等同分割定理（Joint AEP）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E7%9A%84%E8%AF%81%E6%98%8E"><span class="nav-number">6.5.3.</span> <span class="nav-text">可达性的证明</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——信道及其容量 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——信道及其容量
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-27 14:17:16" itemprop="dateCreated datePublished" datetime="2018-11-27T14:17:16+08:00">2018-11-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次来介绍信道以及信道的容量。</p>
+<span id="more"></span>
+<h2 id="信道容量的定义以及性质"><a href="#信道容量的定义以及性质" class="headerlink" title="信道容量的定义以及性质"></a>信道容量的定义以及性质</h2><h3 id="通信是什么"><a href="#通信是什么" class="headerlink" title="通信是什么?"></a>通信是什么?</h3><p>物理实体A的作用引发了物理实体B的状态变化，如果A与B的变化存在一致性，我们称AB通信成功。从信息角度来看，也就是比特流端到端的无差错复制。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7RSY%7B%29157M%7EC%7BH0%298%403KF9V.png"></p>
+<h3 id="信道的分类"><a href="#信道的分类" class="headerlink" title="信道的分类"></a>信道的分类</h3><h4 id="按照输入输出的形式以及时间取值来划分"><a href="#按照输入输出的形式以及时间取值来划分" class="headerlink" title="按照输入输出的形式以及时间取值来划分"></a>按照输入输出的形式以及时间取值来划分</h4><table>
+<thead>
+<tr>
+<th align="center">取值</th>
+<th align="center">时间</th>
+<th align="center">信道分类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">离散</td>
+<td align="center">离散</td>
+<td align="center">离散信道，数字信道</td>
+</tr>
+<tr>
+<td align="center">连续</td>
+<td align="center">离散</td>
+<td align="center">连续信道</td>
+</tr>
+<tr>
+<td align="center">连续</td>
+<td align="center">连续</td>
+<td align="center">模拟信道</td>
+</tr>
+<tr>
+<td align="center">离散</td>
+<td align="center">连续</td>
+<td align="center">——</td>
+</tr>
+</tbody></table>
+<h4 id="按照信道随机过程的特点分类"><a href="#按照信道随机过程的特点分类" class="headerlink" title="按照信道随机过程的特点分类"></a>按照信道随机过程的特点分类</h4><p>离散信道可以表示为n阶转移概率矩阵<br>$$<br>Q_{t_1t_2…t_n} &#x3D; \left { q(y_{t_1t_2…t_n} | x_{t_1t_2…t_n}) \right}<br>$$</p>
+<ul>
+<li>无记忆信道<br>$$<br> q(y_{t_1t_2…t_n} | x_{t_1t_2…t_n}) &#x3D; \prod_{i&#x3D;1}^nq(y_i|x_i)<br>$$</li>
+</ul>
+<p>无记忆信道不代表输出的符号不相关，这个和输入有关。</p>
+<ul>
+<li>平稳信道：<br>$$<br>q(y_i|x_i) &#x3D; q(y|x)<br>$$</li>
+</ul>
+<h3 id="DMC-Discrete-Memoryless-Channel"><a href="#DMC-Discrete-Memoryless-Channel" class="headerlink" title="DMC(Discrete Memoryless Channel)"></a>DMC(Discrete Memoryless Channel)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9LI8H%7DB%281P%5B_KI%409%5BRCI7%242.png"><br>$$<br>\begin{align}<br>I(X^n;Y^n) &#x3D; H(Y^n) - H(Y^n|X^n)<br>\end{align}<br>$$<br>$$<br>\begin{aligned}<br>H(Y^n)&amp;&#x3D; H(Y_1) +H(Y_2|Y_1) +…+ H(Y_n|Y_1…Y_{n-1})\<br>&amp;\leq \sum_{i&#x3D;1}^n H(Y_i)<br>\end{aligned}<br>$$<br>$$<br>\begin{aligned}<br>H(Y^n|X^n)&amp;&#x3D; -\mathbb{E}<em>{XY}\log q(y^n|x^n) \<br>&amp;&#x3D; -\mathbb{E}</em>{XY}\log \prod_{i&#x3D;1}^nq(y_1|x_1)\<br>&amp;&#x3D; - \mathbb{E}<em>{XY}\sum</em>{i&#x3D;1}^n\log q(y_i|x_i)\<br>&amp;&#x3D; -\sum_{i&#x3D;1}^n \mathbb{E}<em>{XY}\log q(y_i|x_i)\<br>&amp;&#x3D; \sum</em>{i&#x3D;1}^n H(Y_i|X_i)<br>\end{aligned}<br>$$</p>
+<p>综上我们得到：<br>$$<br>I(X^n;Y^n) \leq \sum_{i&#x3D;1}^nI(X_i;Y_i)<br>$$</p>
+<p>这让我们想到，对一个序列的输入输出互信息，我们可以试图通过处理单个时刻的输入，然后让等号取得，也就得到序列输入输出互信息的最大值。</p>
+<p>为了让上面的等号取得，实际是比较简单，也就是当$Y_i$之间互相独立。下面我们来研究如何让单字母互信息得到最大值。</p>
+<h3 id="信道容量定义"><a href="#信道容量定义" class="headerlink" title="信道容量定义"></a>信道容量定义</h3><p>对于离散无记忆信道，信道容量为：<br>$$<br>C &#x3D; \max_{p(x)}I(X;Y) &#x3D; \max_{p(x)}I(p,Q)<br>$$</p>
+<p>当一个信道确定时，$Q$也就确定了，因此我们要做的就是调整输入字母的分布，让这个信道输入输出互信息得到最大，也就得到了信道的容量。之前介绍互信息的时候介绍了$I(p;Q)$这种形式，就是为了方便信道的解释。</p>
+<h2 id="离散无记忆信道的容量"><a href="#离散无记忆信道的容量" class="headerlink" title="离散无记忆信道的容量"></a>离散无记忆信道的容量</h2><p>现在来看一看最简单的信道：离散无记忆信道的容量应如何计算。这一小节主要通过举几个例子，然后再得到普遍的结论。</p>
+<h4 id="无噪声二元信道"><a href="#无噪声二元信道" class="headerlink" title="无噪声二元信道"></a>无噪声二元信道</h4><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int1.png"></p>
+<p>输入X，输出Y。由于传输误差错，所以每次传输都传递了1 bit的无差错信息。所以直观来说信道容量为1 bit.</p>
+<p>利用信道容量的定义来计算，则：<br>$$<br>C&#x3D;\max I(X;Y) &#x3D; \max(H(X) - H(X|Y)) &#x3D; \max H(X) &#x3D; 1\<br>p(X) &#x3D; (0.5,0.5)<br>$$<br>如果字符个数变成m个，则这个信道容量变为：$\log m$.</p>
+<h4 id="输出不重叠的噪声信道"><a href="#输出不重叠的噪声信道" class="headerlink" title="输出不重叠的噪声信道"></a>输出不重叠的噪声信道</h4><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int2.png"></p>
+<p>观察上图，我们发现这个信道有下面几个特点：</p>
+<ol>
+<li>信道存在噪声，输出不确定</li>
+<li>但是不确定性不影响正确估计输入</li>
+<li>信道实际是无差错的</li>
+<li>X到Y是一对多映射<br>$$<br>C &#x3D; \max I(X;Y) &#x3D; \max(H(X)-H(X|Y)) &#x3D; \max(H(X))&#x3D;1\<br>p(X) &#x3D; (0.5,0.5)<br>$$</li>
+</ol>
+<p>因此可以看到即时有噪声，我们依然可以得到无差错的信道传输。</p>
+<h4 id="混乱打字机"><a href="#混乱打字机" class="headerlink" title="混乱打字机"></a>混乱打字机</h4><p>混乱打字机把每个字母以0.5的概率映射为其自身或者下一个字母。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int5.png"></p>
+<p>则：<br>$$<br>\begin{aligned}<br>C &amp;&#x3D; \max I(X;Y)\<br>&amp;&#x3D; \max(H(Y) - H(Y|X))\<br>&amp;&#x3D; \max(H(Y)-1)\<br>&amp;&#x3D; \log 26 - 1 &#x3D; \log 13<br>\end{aligned}<br>$$</p>
+<p>我们只是在互信息求得这个，但是我们不一定能找到一个实际的概率控制得到这个容量。而实际上，这个容量是可以达到的。</p>
+<p>我们要求输入端只能输入$A,C,E…$这些字母，从而退化成了一个输出不重叠噪声信道，这称为无重叠约化。通过这个方法，我们实现了$\log13$的容量。实际上香农告诉我们，任何一种混乱的信道，都可以看作是混乱打字机信道。</p>
+<h4 id="BSC-Binary-Symmetric-Channel"><a href="#BSC-Binary-Symmetric-Channel" class="headerlink" title="BSC(Binary Symmetric Channel)"></a>BSC(Binary Symmetric Channel)</h4><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png"></p>
+<p>$$<br>\begin{aligned}<br>C &amp;&#x3D; \max_{p(x)} I(X;Y)\<br>&amp;&#x3D;\max( H(Y) - H(Y|X))\<br>&amp;&#x3D;\max(H(Y) - H(p))\<br>&amp;&#x3D;1-H(p)<br>\end{aligned}<br>$$</p>
+<p>我们必须证明这个容量可以取到,也就是一个上确界，这样得到信道的容量才有意义。为了让$H(Y)$最大，那么$p(Y)&#x3D;(0.5,0.5)$,可以简单的发现这时候$p(X) &#x3D; (0.5,0.5)$.也就是我们可以通过调制信源的输入概率分布得到这个最大的容量 因此$C_{BSC} &#x3D; 1 - H(p)$</p>
+<h4 id="EC-删除信道"><a href="#EC-删除信道" class="headerlink" title="EC(删除信道)"></a>EC(删除信道)</h4><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int4.png"><br>$$<br>C &#x3D; \max_{p(x)}I(X;Y)<br>$$<br>$$<br>\begin{aligned}<br>I(X;Y) &amp;&#x3D; H(Y) - H(Y|X)\<br>&amp;&#x3D;H(Y) - H(p)\<br>&amp;\leq \log 3 - H(p)<br>\end{aligned}<br>$$</p>
+<p>这时候我们就遇到问题了，我们不能通过调制信源的输入概率分布使得$p(Y)&#x3D;(\frac{1}{3},\frac{1}{3},\frac 1 3)$，因此上面得到的不是信道容量。因此重新计算这个容量,假设$p(X) &#x3D; (\pi,1-\pi)$：<br>$$<br>\begin{aligned}<br>I(X;Y) &amp;&#x3D; H(Y) - H(p)\<br>&amp;&#x3D; H((\pi(1-p),p,(1-\pi)(1-p)))\<br>&amp;&#x3D; (1-p)H(\pi) + H(p) - H(p)\<br>&amp;&#x3D; (1-p)H(\pi)<br>\end{aligned}<br>$$</p>
+<p>上式中用到了熵的可加性。这时候我们可以取到$H(\pi)&#x3D;1$，因此得到$C &#x3D; 1-p$.</p>
+<h3 id="离散无记忆对称信道容量"><a href="#离散无记忆对称信道容量" class="headerlink" title="离散无记忆对称信道容量"></a>离散无记忆对称信道容量</h3><p>实际上，上面的几个信道有很多都属于离散无记忆对称信道。他们的特点是概率转移矩阵$Q$为对称矩阵，使得$H(Y|X)$可以由信道性质确定，大大简化了我们要思考的问题。</p>
+<p>离散无记忆对称信道的定义：<br>若信道的概率转移矩阵的行互为置换，列互为置换，则该信道对称，如果行互为置换，各列之和相等，则该信道弱对称。</p>
+<p>强对称：<br>$$<br>\begin{bmatrix}<br>\frac 1 2&amp;\frac 1 3&amp; \frac 1 6\<br>\frac 1 6&amp;\frac 1 2&amp;\frac 1 3\<br>\frac 1 3&amp;\frac 1 6&amp;\frac 1 2<br>\end{bmatrix}<br>$$</p>
+<p>弱对称：<br>$$<br>\begin{bmatrix}<br>\frac 1 3 &amp; \frac 1 6 &amp;\frac 1 2\<br>\frac 1 3 &amp; \frac 1 2 &amp; \frac 1 6<br>\end{bmatrix}<br>$$</p>
+<p>不管是强对称还是弱对称，他们都有一个好处，那就是$H(Y|X)$不会随着信源的概率分布而改变，是一个常数。</p>
+<p>弱对称信道Q的容量为：$C&#x3D;\log \vert Y\vert - H(Q的行向量对应的分布)$,容量在输入为等概分布时候取得。</p>
+<p>而EC不是一个对称信道：<br>$$<br>Q &#x3D; \begin{bmatrix}<br>1-p &amp; p &amp; 0\<br>0 &amp; p &amp; 1-p<br>\end{bmatrix}<br>$$</p>
+<h3 id="一般离散无记忆信道的容量"><a href="#一般离散无记忆信道的容量" class="headerlink" title="一般离散无记忆信道的容量"></a>一般离散无记忆信道的容量</h3><p>由于$I(p,Q)$是$p$的上凸函数，因此求信道容量实际上可以表述为一个约束的极值问题：<br>$$<br>\max <em>{p} I(p,Q)\<br>s.t. \sum</em>{x}p(x)&#x3D;1;p(x)\ge 0<br>$$</p>
+<h4 id="kkt-condition"><a href="#kkt-condition" class="headerlink" title="kkt condition"></a>kkt condition</h4><p>设$f(x)$为定义在Ｎ维无穷凸集$S$,<br>$S&#x3D;{x &#x3D; (x_1,x_2,…,x_N):x_i \ge 0,i&#x3D;1,…,N}$上的可微上凸函数，设$x^* &#x3D; {x_1^*,…,x_N^*} \in S$，则$f(x)$在$x &#x3D; x^*$达到$S$上的极大值的充要条件为：<br>$$<br>\frac{\partial f(x)}{\partial x_n}\lvert_{x &#x3D; x^*} &#x3D; 0,x_n^* &gt; 0\<br>\frac{\partial f(x)}{\partial x_n}\lvert_{x &#x3D; x^*} \leq 0,<br>x_n^* &#x3D; 0<br>$$</p>
+<p>我们称$x^*(x^*&#x3D;(x_1^*,…,x_N^*),x_n^* &gt; 0)$为$S$的内点，而$\exists x_n^* &#x3D; 0$时，$x^*$为$S$的边界点。</p>
+<p>用图像来看的话会更容易理解：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0794.PNG"></p>
+<p>上图为：</p>
+<p>$$\min f(x,y)&#x3D;ax^2-b\log y,0&lt; x &lt;100,0&lt; y &lt;100$$</p>
+<p>实际上的kkt条件比这个更严谨，可以参考：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/12/07/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94KKT-condition/">kkt condition</a></p>
+<p>由于它是一个凸函数下的充要条件，因此只要我们找到了一个点符合KKT条件，我们就可以称他为全局极值。</p>
+<p>由KKT条件可以得到下面的关于信道容量的定理：</p>
+<p>对于信道矩阵为$Q$的离散无记忆信道，其输入分布$p^*$能使互信息$I(p,Q)$取得最大值的充要条件是：<br>$$<br>I(X&#x3D;x_k;Y) &#x3D; C,p^*(x_k) &gt; 0\<br>I(X&#x3D;x_k;Y) \leq C,p^*(x_k)&#x3D;0\<br>k \in {1,2,…,K}<br>$$<br>其中$I(X&#x3D;x_k;Y) &#x3D; \sum_{j&#x3D;1}^J q(y_j|x_k) \log \frac{q(y_j|x_k)}{p(y_j)}$,表示的是信源字母$x_k$传送的平均互信息。</p>
+<p>当然我们拿到一个信道以后，不一定一定要通过这样的方法来求得信道容量，很多时候我们可以联系物理猜到最好的哪个情况。如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int6.png"></p>
+<p>我们可以很容易看出来1是最差的情况，因为它可能映射到三种结果，而0,２一样好，因此我们猜测：$p(x_1) &#x3D; 0,p(x_2)&#x3D;p(x_0)&#x3D;0.5$，计算得到：<br>$$<br>I(X&#x3D;x_0;Y) &#x3D; I(X&#x3D;x_2;Y)&#x3D;0.75, I(X&#x3D;x_1;Y) &#x3D; 0.0251&lt;0.75<br>$$<br>符合kkt条件，因此它的容量就是0.75.</p>
+<h2 id="信道的组合"><a href="#信道的组合" class="headerlink" title="信道的组合"></a>信道的组合</h2><p>现在我们尝试将信道组合起来。</p>
+<h3 id="级联的独立信道"><a href="#级联的独立信道" class="headerlink" title="级联的独立信道"></a>级联的独立信道</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0008it.jpg"></p>
+<p>如上图，我们可以得到：</p>
+<ul>
+<li>由数据处理定理可以得到：$I(Y;Z) \ge I(X;Z)$</li>
+<li>随着串联信道数目的增多，整个信道容量趋近于0</li>
+<li>将级联信道的$Q_i$乘起来，得到整个级联信道的Q，可求解级联信道的容量</li>
+<li>Vision：从统计的角度来看，数据处理不会带来信息增益，反而会损失信息</li>
+</ul>
+<h3 id="输入并联信道"><a href="#输入并联信道" class="headerlink" title="输入并联信道"></a>输入并联信道</h3><p>这个信道的特点是，输入相同的X，输出不同的$Y_1,Y_2,…,$构成随机矢量Y。也就是我们将输入X同时送到N个信道中，如图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg"></p>
+<ul>
+<li>输入并联信道的容量大于任何一个单独的信道，小于$\max H(X)$.</li>
+<li>N个二元对称信道输入并联之后的信道容量，一般来说$N$越大，$C_N$越大，越接近于$H(X)$。</li>
+<li>Vision:通信中的分集，就是典型的输入并联信道（我并不懂通信）</li>
+</ul>
+<h3 id="并用信道"><a href="#并用信道" class="headerlink" title="并用信道"></a>并用信道</h3><p>并用信道的图和并联信道非常像，不过它的输入不是相同的$X$了，而是将$X$费解成了$X_1,X_2,…,X_N$。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg"></p>
+<ul>
+<li>多输入，多输出。$X$和$Y$是由比侧独立的N个信道传输</li>
+<li>并用信道的容量：$C &#x3D; \sum_{n&#x3D;1}^N C_n$</li>
+<li>Vision:通信中的复用，就是典型的并用信道</li>
+</ul>
+<p>虽然并用信道的容量结论很简单，但是在实际中的操作没那么容易。我们不能简单的将信源随意划分，而是让这个划分符合各个信道容量的噪声特性，以达到最好的传输效果。</p>
+<h3 id="和信道"><a href="#和信道" class="headerlink" title="和信道"></a>和信道</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0011it.jpg"></p>
+<p>和信道和并联信道并用信道不同的是，虽然它有多个信道，但是它并不是同时使用多个，而是每次只使用一个。</p>
+<ul>
+<li>随机应用$N$个信道中的一个，构成一个输入输出信道。</li>
+<li>和信道的容量：$C &#x3D; \log \sum_{n&#x3D;1}^N 2^{C_n}$，信道的使用概率$p_n(C) &#x3D; 2^{C_n - C}$</li>
+<li>Vision: 新型通信技术——机会通信<br>要注意这个结论有点反直觉。我们可能会想，如果某个信道的容量大，一直使用它不就行了吗？但是这样并不会得到最大的信道容量。</li>
+</ul>
+<p>举个例子，如果一个信道的转移矩阵为$Q$:<br>$$<br>Q &#x3D; \begin{bmatrix}<br>1 - \epsilon_1&amp;\epsilon_1&amp;0&amp;0\<br>\epsilon_1&amp;1 - \epsilon_1 &amp; 0 &amp; 0 \<br>0&amp;0&amp;\epsilon_2 &amp;1 - \epsilon_2\<br>0&amp;0&amp;1-\epsilon_2&amp;\epsilon_2<br>end{bmatrix}<br>$$</p>
+<p>那么这个信道的容量为多大？</p>
+<p>如果仔细观察，可以发现这个信道实际上是一个和信道。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it1.png"></p>
+<p>$$<br>C &#x3D; \log(2^{C_1} + 2^{C_2})<br>$$<br>如果：<br>$\epsilon_1 &#x3D; 0,C_1 &#x3D; 1;\epsilon_2 &#x3D; 0,C_2 &#x3D; 0$;</p>
+<p>可以发现，这两个信道一个容量为0,另一个为1,而它们的和信道容量为$\log3&gt;1$。这是因为在选择使用哪个信道的时候，也包含了一定的信息。</p>
+<h2 id="连续信道的容量"><a href="#连续信道的容量" class="headerlink" title="连续信道的容量"></a>连续信道的容量</h2><p><strong>连续信道</strong>时间依旧离散，取值是连续的。这就引发了一个问题：连续随机变量互信息非负但是不一定有限，如果输入输出相等，则此时互信息是无穷的。<br>这样，互信息最大值为信道容量的定义就失去了意义。</p>
+<h3 id="容量费用函数"><a href="#容量费用函数" class="headerlink" title="容量费用函数"></a>容量费用函数</h3><p>首先说明一下，连续信道输入连续，输出连续，而信道特性不能再用一个概率转移矩阵来表示，而是一个概率密度函数。所以我们用三元组${X,q(y|x),Y}$来表示一个连续信道。</p>
+<p><strong>费用函数</strong>: 设对于连续无记忆信道${X,q(y|x),Y}$，有一个函数$b(.)$，对于每一个输入序列$X &#x3D; x_1x_2…x_n$，$b(x)&gt;0$。称$b$为$X$的费用。设随机矢量$X &#x3D; X_1X_2…X_n$的联合分布为$p(x)$，则平均费用为：<br>$$<br>\mathbb{E}[b(X)] \triangleq \sum_{x}p(x)b(x)<br>$$</p>
+<p>在费用约束的前提下，求输入输出互信息的最大值，得到<strong>容量费用函数</strong>：<br>设连续信道的$N$维联合输入输出分别为$X,Y$，则其容量－费用函数定义为：<br>$$<br>C(\beta) &#x3D; \lim_{N\rightarrow \infty} \frac{1}{N} \max_{p(x)}{I(X;Y):\mathbb{E}[b(X)]\leq N \beta }<br>$$</p>
+<h3 id="连续无记忆加性噪声信道的容量"><a href="#连续无记忆加性噪声信道的容量" class="headerlink" title="连续无记忆加性噪声信道的容量"></a>连续无记忆加性噪声信道的容量</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it3.png"></p>
+<p>这里我们来看一个最简单的连续信道的容量费用函数。这个信道为加性噪声信道。也就输入$X$加上某个$Z$得到$Y$。</p>
+<p>在这种情况下：$$q(y|x) &#x3D; P_Z(y-x) &#x3D; P_Z(z).$$</p>
+<p>我们希望求得的是：<br>$$<br>C(P_S) &#x3D; \max_{p(x):\mathbb{E}<em>X[X^2] \leq P_S} I(X;Y) &#x3D; \max</em>{p(x):\mathbb{E}<em>X[X^2] \leq P_S} [h(Y) - h(Z)].<br>$$<br>（这里的$\mathbb{E}<em>X[X^2]$实际上是物理意义上均值为0的X的功率，因此这个约束是功率的约束）<br>之所以能得到上面的结论，因为：<br>$$<br>\begin{aligned}<br>h(Y|X) &amp;&#x3D; -\iint</em>{XY}P_X(x)q(y|x) \log q(y|x) dxdy\<br>&amp;&#x3D;-\iint</em>{XZ}P_X(x)P_Z(z) \log P_Z(z) dxdz\<br>&amp;&#x3D; -\int_z P(z) \log P(z)dz \<br>&amp;&#x3D; h(Z)<br>\end{aligned}<br>$$<br>因此在这个情况下：$h(Y|X) &#x3D; h(Z)$</p>
+<h4 id="高斯噪声"><a href="#高斯噪声" class="headerlink" title="高斯噪声"></a>高斯噪声</h4><p>现在我们假设这个噪声为高斯噪声。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it2.png"></p>
+<p>则：<br>$$<br>\mathbb{E}[Y^2] &#x3D; \mathbb{E}[(X+Z)^2] &#x3D; \mathbb{E}[X^2]+\mathbb{E}[Z^2] &#x3D; P_S+P_Z<br>$$<br>如果回顾<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/">连续随机变量的熵和互信息</a>，我们可以得到：<br>$$<br>\max_{p(x):\mathbb{E}[x^2]\leq P_S}h(Y) &#x3D; \frac 1 2 \log 2\pi e(P_S+P_Z)<br>$$<br>而$h(Z) &#x3D; \frac 1 2 \log 2 \pi e P_Z$<br>而这时候，我们可以得到：<br>$$<br>\begin{aligned}<br>C(P_S) &amp;&#x3D; \max(h(Y) - h(Z)) &#x3D; \frac 1 2 \log \frac{P_S+P_Z}{P_Z} \<br>&amp;&#x3D;\frac 1 2 \log(1+\frac{P_S}{P_Z})<br>\end{aligned}<br>$$</p>
+<p>上式中，$\frac{P_S}{P_Z}$也就是常说的信噪比。可以看到，如果想要增加容量，我们可以想方设法提高信源功率，或者减少噪声。这是一个非常重要的公式，拓展到模拟信道的情况上，我们就可以得到著名的香农公式。</p>
+<p>实际上，对于高斯分布的输入，高斯噪声具有最大的破坏力。即，在同样的功率约束条件下，加性高斯噪声使得信道的容量最小。</p>
+<p>对于无记忆加性噪声信道，若输入信号$X$具有高斯分布，加性噪声的功率为$P_N$，则当噪声具有高斯分布的时候，输入输出的互信息达到最小。</p>
+<p>这一点并不难理解，因为噪声带来的影响在最终是要被去除的，而高斯情况下熵最大，去除的越多，留下的越少，所以使得信道容量最小。</p>
+<h4 id="一般的无记忆加性噪声信道容量"><a href="#一般的无记忆加性噪声信道容量" class="headerlink" title="一般的无记忆加性噪声信道容量"></a>一般的无记忆加性噪声信道容量</h4><p>现在我们来看看一般的无记忆加性噪声的信道容量。</p>
+<p>首先，我们必须明确，如果噪声是任意分布的，我们无法获得信道容量的解析解，但是我们可以给出其上界和下界。</p>
+<ul>
+<li>下界：<br>$$<br>\begin{aligned}<br>C(P_S) &amp;&#x3D; \max_{P(X)} {I(X;Y):\mathbb{E}[X^2] &#x3D; P_S}\<br>\ge I(X_G;Y)\ge I(X_G;Y_G) &#x3D; \frac 1 2 \log(1 + \frac{P_S}{P_Z})<br>\end{aligned}<br>$$</li>
+</ul>
+<p>因为上面我们已经得到了。高斯噪声的破坏力是最大的。</p>
+<ul>
+<li>上界：<br>$$<br>\mathbb{E}[Z^2] &#x3D; P_N,\mathbb{E}[X^2] &#x3D; P_S,\mathbb{E}[Y^2] &#x3D; P_S+P_N\<br>h(Y)\leq \frac{1}{2}\log [2\pi e (P_s +P_N)]\<br>C_(P_S) \leq h(Y) - h(Z) &#x3D; \frac 1 2 \log[2\pi e \frac{P_S+P_N}{P_e}]\<br>$$<br>上式中：<br>$$<br>P_e \triangleq \frac 1 {2\pi e} \exp[2h(Z)]<br>$$</li>
+</ul>
+<p>说实话，我并不知道这个定义是从何而来。而且$P_e$中还包含着$h(Z)$，又怎么能说是个上界呢？</p>
+<h3 id="并联连续高斯信道"><a href="#并联连续高斯信道" class="headerlink" title="并联连续高斯信道"></a>并联连续高斯信道</h3><p>输入$X_n,P_{S_n}$，信道噪声$Z_n,P_{N_n}$.</p>
+<p>在总功率限定的情况下，求信道容量-费用函数：<br>$$<br>C(P_S) &#x3D; \sup_{P(X)}{I(X;Y):\sum_{n&#x3D;1}^N P_{S_n} &#x3D; P_S}<br>$$<br>（这里的sup指的是Supremum，上确界）。</p>
+<p>现在我们面临一个优化问题：<br>$$<br>\max I(X^n;Y^n) &#x3D; \sum_i \frac{1}{2} \log (1+\frac{P_{S_i} }{P_{N_i} })<br>$$<br>s.t. $\sum_{i&#x3D;1}^n P_{S_i} &#x3D; P_S,P_{S_i} \ge 0$</p>
+<p>这个优化问题解决如下：<br>$$<br>\frac{\partial }{\partial P_{S_i} } \left[\sum_{i&#x3D;1}^n \frac{1}{2} \log(1+\frac{P_{S_i} }{P_{N_i} })  - \lambda (\sum_{i&#x3D;1}^n P_{S_i} - P_S)\right] &#x3D; 0\<br>\frac{1}{2} \frac{P_{N_i} }{P_{S_i}+P_{N_i} } \frac{1}{P_{N_i} } - \lambda &#x3D; 0, \text{for }1 \leq i \leq n\<br>P_{S_i} + P_{N_i} &#x3D; \frac{1}{2\lambda_i}, \lambda &#x3D; \frac{n}{2(P_S+P_N)}\<br>P_{S_i} &#x3D; \frac{P_S+P_N}{n} - P_{N_i},<br>$$</p>
+<p>要注意，这里我们将信道个数总数写成了$n$，而$P_N$表示的是噪声功率。</p>
+<p>有时候，我们发现，求得的$P_{S_i}$，也就是给该信道分配的功率是小于0的，这时候应该怎么办？</p>
+<h4 id="注水功率"><a href="#注水功率" class="headerlink" title="注水功率"></a>注水功率</h4><p>下面介绍一个很形象的概念，叫注水功率。如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0013it.jpg"><br>可以看到的是，有的时候水是无法覆盖住某些地方的。这说明的是这个信道的噪声太大了，所以我们应该将其弃用。然后再重新计算这个功率的分配，直到没有负值。</p>
+<h2 id="模拟信道容量"><a href="#模拟信道容量" class="headerlink" title="模拟信道容量"></a>模拟信道容量</h2><p><strong>模拟信道</strong>在时间和取值上都是连续的信道。是自然界最自然的一种信道，如电磁波，光纤，电缆等传播。</p>
+<p>然而实际中模拟信道在数学上的研究是难以进行的。我们只研究最简单的一类模拟信道：AWGN信道。</p>
+<h3 id="AWGN信道"><a href="#AWGN信道" class="headerlink" title="AWGN信道"></a>AWGN信道</h3><p>AWGN（Additive White Gaussian Noise）信道有下面几个特点：</p>
+<ul>
+<li>带宽有限：$W$</li>
+<li>加性噪声：$y(t) &#x3D; x(t) + z(t)$</li>
+<li>白色噪声：平稳遍历随机过程，功率谱密度均匀分布于整个频域，即功率谱密度（单位带宽噪声功率）为一常数</li>
+<li>高斯噪声：平稳遍历随机过程，瞬时值的概率密度函数服从高斯分布</li>
+</ul>
+<p>这个信道描述如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it4.png"></p>
+<p>输入信号：$x(t)$</p>
+<ul>
+<li>带宽有限：输入信号带宽限制在$[-W,W]内$</li>
+<li>时间有限：T</li>
+</ul>
+<p>输出信号：$y(t)$</p>
+<p>噪声信号：$z(t)$</p>
+<ul>
+<li>加性白色高斯噪声</li>
+<li>零均值</li>
+<li>双边功率谱密度：$N(f) &#x3D; \left { \begin{matrix}<br>\frac{N_0}{2} &amp; \vert f\vert \leq W\<br>0&amp;\vert \vert &gt; w<br>\end{matrix}<br>\right .<br>$</li>
+</ul>
+<p>信道费用：输入信号的功率</p>
+<h4 id="信号的正交分解"><a href="#信号的正交分解" class="headerlink" title="信号的正交分解"></a>信号的正交分解</h4><ul>
+<li>由于信道频带受限，信号时长受限，所以仅需要$N &#x3D; 2WT$个采样点就可以表示</li>
+<li>因此信道在时间上可以被离散化为$2WT$个点，在每个点上取值连续</li>
+<li>这样变成了并联的连续信道<br>实际上，上面的采样就是著名的<strong>奈奎斯特</strong>采样。</li>
+</ul>
+<p>之前我们说明了并联的连续信道的容量求法，但是前提是各个信道是独立的。现在我们必须要明白，经过采样的这$N &#x3D; 2WT$个信道是否互相独立？</p>
+<p>答案是独立的。为了验证他们的独立性，我们只需要验证它们不相关即可，因为在高斯分布下，不相关就意味着独立。证明如下：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0014it.jpg"><br>(额，这里也不是很懂。对于信号处理和通信方面的知识已经忘的差不多了)</p>
+<p>对于$N$个信道，两两独立，每个噪声功率为$\frac{N_0}{2}$.</p>
+<p>所以利用时域上采样定理将信号变成离散序列后，模拟信道可看成加性白色高斯噪声无记忆连续信道，相当于$N$个高斯加性信道的并联信道。这时候我们可以用注水功率来分配这个功率。</p>
+<p>并联信道总容量费用函数$C_T(P_S) &#x3D; \frac{1}{2} \sum_{n&#x3D;1}^{2WT} \log (1+ \frac{P_{S_n} }{P_{N_n} })$</p>
+<p>噪声约束：$P_{N_n} &#x3D; \frac{N_0}{2} \rightarrow P_N &#x3D; NP_{N_n} &#x3D; 2WT\frac{N_0}{2} &#x3D; WTN_0$</p>
+<p>功率约束：（类似于注水功率分配）<br>$$<br>P_{S_n} &#x3D; \frac{P_ST+P_N}{N} - P_{N_n} &#x3D; \frac{P_ST+2WT\frac{N_0}{2} }{2WT}-\frac{N_0}{2} &#x3D; \frac{P_S}{2W}<br>$$</p>
+<p>这时候，我们就得到了香农公式，AWGN信道的容量为：<br>$$<br>C &#x3D; W \log (1+\frac{P_S}{N_0W})<br>$$<br>上式中，各个量的单位为$C-bps,W-Hz$或者$s^{-1}$,$P_S-Watt,N_0-Watt&#x2F;Hz$</p>
+<h4 id="Vision-提升容量的各种手段"><a href="#Vision-提升容量的各种手段" class="headerlink" title="Vision:提升容量的各种手段"></a>Vision:提升容量的各种手段</h4><ul>
+<li><p>增加带宽<br>$$<br>\lim_{W\rightarrow \infty}C(P_S) &#x3D; \lim_{W\rightarrow \infty} \frac{P_S}{N_0}\log\left(1+\frac{P_S}{N_0W}\right)^{\frac{N_0W}{P_S} } &#x3D; \frac{P_S}{N_0} \log e \approx 1.44\frac{P_S}{N_0}<br>$$</p>
+</li>
+<li><p>增加带宽<br>$$<br>\lim_{P_S \rightarrow \infty} C(P_S) \approx \ln\left(\frac{P_S}{N_0W} \right)<br>$$</p>
+</li>
+</ul>
+<p>因此，对于同样容量的传输要求，可以采用两种方式：减少带宽，发送较大功率的信号，或者增加带宽，用较小功率的信号传输。</p>
+<p>可以看到的是，我们可以不断增加带宽来增加信道容量，不过这个性价比会越来越低，因为这是一个log函数。</p>
+<h4 id="Vision-信息与热力学的联系"><a href="#Vision-信息与热力学的联系" class="headerlink" title="Vision:信息与热力学的联系"></a>Vision:信息与热力学的联系</h4><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0005it.jpg"></p>
+<p>这里有一个有意思的信息论角度对阿波罗登月的证伪，大家图一个乐，里面有很多假设和实际不符。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0006it.jpg"><br>到目前为止，我们都只算出来了信道容量，没有讲过怎么编码能得到这些容量。接下来要做的就是说明，所有上面算出来的容量，都是可以实现的。</p>
+<h2 id="信道编码"><a href="#信道编码" class="headerlink" title="信道编码"></a>信道编码</h2><p>这里我们先回忆一下之前的混乱打字机。之前说过，世界上任何一个数字信道，都可以直接或者间接地看作是混乱打字机模型。</p>
+<p>对于信道${X,q(y|x),Y}$的信道编码包含以下要素：</p>
+<ul>
+<li>输入符号集合${1,2,…,2^{nR} }$</li>
+<li>编码函数$X^n$:${1,2,…,2^{nR} }\rightarrow X^n$，该函数为每一个输入符号产生了相应的信道编码码字$X^n(1),X^n(2),…,X^n(m)$，这些码字构成的集合称为“码本”。</li>
+<li>解码函数$g$:$Y^n \rightarrow {1,2,…,2^{nR} }$，该函数为一个确定性判决函数，将每一个可能的接受向量映射到一个输入符号。</li>
+</ul>
+<p>意思也就是，对于符号个数为$2^{nR}$的符号集，我们把它映射到一个长度为n的序列上,分n次传输。</p>
+<h3 id="信道编码的码率"><a href="#信道编码的码率" class="headerlink" title="信道编码的码率"></a>信道编码的码率</h3><p>$(M,n)$码的码率Ｒ定义为：<br>$$<br>R &#x3D; \frac{\log M}{n} ,<br>$$<br>单位为比特&#x2F;传输。这是信道码的每个码字母所能携带的最大的信息量。</p>
+<p>如何理解？对于输入集合如果取等概分布，则它的信息量为$M$，这时候呢，$n$次传输才能传达这么多的信息量，所以每个传输的量就是$\frac{\log M}{n} &#x3D; R$，则$M &#x3D; 2^{nR}$。称这样的码为$(2^{nR},n)$码。</p>
+<h4 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h4><p><strong>重复码</strong>，输入字母数$M &#x3D; 2$:${0,1}$，重复n次，这个码率为$1&#x2F;n$。</p>
+<p><strong>二进制奇偶校验码</strong>，输入字母数$M &#x3D; 2^{n-1}:{x_1,x_2,…,x_{n-1} }$，信道编码方案为$C &#x3D; x_1,x_2,…,x_{n-1}x_{\text{parity} }$，其中$x_{\textP{parity} }$用于辨识码字中$1$的个数为奇数还是偶数，这个码率为：$\frac{n-1}{n}$。</p>
+<h3 id="信道编码的错误概率"><a href="#信道编码的错误概率" class="headerlink" title="信道编码的错误概率"></a>信道编码的错误概率</h3><p>输入为符号$i$时的条件错误概率为：<br>$$<br>\begin{aligned}<br>\lambda_i &amp;&#x3D; Pr{g(Y^n) \ne i \vert X^n &#x3D; x^n(i)}\<br>&amp;&#x3D; \sum_{y^n} q(y^n\vert x^n(i))I(g(y^n) \ne i)<br>\end{aligned}<br>$$<br>其中$I(\cdot)$为指示函数。</p>
+<p>$(M,n)$码的最大错误概率为：<br>$$<br>\lambda^{(n)} &#x3D; \max_{i \in 1,2,…M} \lambda_i<br>$$</p>
+<p>$(M,n)$码的算术平均错误概率为：<br>$$<br>P_e^{(n)} &#x3D; \frac{1}{M} \sum_{i&#x3D;1}^M\lambda_i<br>$$</p>
+<p>我们称一个码率$R$是可达的，若存在一个信道编码$(\lceil 2^{nR}\rceil,n )$，其最大差错概率在$n\rightarrow \infty$时趋于0。可以看出来可达要求无差错，而且是渐进的。</p>
+<p>这时候我们得到信道容量的另外一个定义：一个信道的容量是该信道上所有可达码率的上确界，即$C &#x3D; \text{sup }R$，这意味着$C$一定对应着一种信道编码方案。</p>
+<h3 id="经验主义式的设计"><a href="#经验主义式的设计" class="headerlink" title="经验主义式的设计"></a>经验主义式的设计</h3><p>在信道传输中如何减少差错？由香农公式：<br>$$<br>C_T(\beta) &#x3D; WT \log(1+\frac{P_S}{N_0W})<br>$$<br>可以得到，提高抗干扰能力的方法如下：</p>
+<ol>
+<li>增加功率(提高信噪比)</li>
+<li>加大带宽(信号变化剧烈)</li>
+<li>延长时间(降低速率)</li>
+</ol>
+<p>$C &#x3D; max_{p(x),功率约束}{I(X;Y)}$</p>
+<p>而降低重复速率，实际上就是重复，增加冗余。</p>
+<h3 id="重复码"><a href="#重复码" class="headerlink" title="重复码"></a>重复码</h3><p>最直观的纠错方法就是：重复，增加冗余。</p>
+<ul>
+<li>编码１：将每个输入元重复三次<ul>
+<li>纠正任一位上的错误</li>
+<li>设码字记为$(c_8,c_7,…,c_0)$</li>
+<li>由编码方法可知，信道无误时：<br>  $$<br>  c_8 &#x3D; c_7 &#x3D; c_6\<br>  c_5 &#x3D; c_4 &#x3D; c_3\<br>  c_2 &#x3D; c_1 &#x3D; c_0<br>  $$</li>
+<li>解码时，若$c_8 &#x3D; c_6 \ne c_7$，则判定$c_7$位出错，采用简单多数法进行判定</li>
+<li>依据是：连续出现两个错误的概率远远小于出现一个错误的概率<br>如下图，如果我们将上述编码放进二进制对称信道，则想要得到无差错编码，$n \rightarrow 0$，而码率也趋近于0，这不是一个好消息。</li>
+</ul>
+</li>
+</ul>
+<p>但是，是否对于信息的无差错传输，就意味着码率为0呢？答案是否定的。</p>
+<p>现在我们考虑BSC信道，$W&#x3D; {1,2,…,2^k}$,如图：<br><img src="/"></p>
+<p>我们可以得到：<br>$$<br>\begin{aligned}<br>nC \ge nI(X;Y)\<br>\ge I(X^n;Y^n)\<br>\ge I(W,\hat W)\<br>&#x3D;H(W) - H(W\vert \hat W)\<br>\ge k - k H(P_e)<br>\end{aligned}<br>$$<br>上式中最后一步是有Fano不等式得到的。</p>
+<p>则：$$k \leq  \frac{nC}{1 - H(P_e)}$$</p>
+<p>而由于BSC信道的容量可以得到：$C &#x3D; 1 - H(P)$，所以我们得到一个R的上界：<br>$$<br>R &#x3D; \frac{k}{n} \ge \frac{1 - H(P)}{1 - H(P_e)}<br>$$</p>
+<p>通过变形，我们可以得到：<br>$$<br>H(P_e) \ge 1 - \frac C R \rightarrow P_e \ge H^{-1}\left(1 - \frac C R\right)<br>$$</p>
+<p>这意味着，如果想要让$P_e\leq 0$，则$R \leq C$，如果$R &gt; C$，则$H(P_e)&gt;0$，所以我们一定可以得到$P_e&gt;0$，不可能进行可靠通信。</p>
+<p>那么无差错传输的情况下，码率最大能有多少？先给你看一个preview，很直白的内容，不过它被证明确实是正确的：</p>
+<p><img src="/"></p>
+<p>想象信道将信源映射到一个球体里，而对每个输入符号也对应一个球。而这个球的体积就意味着噪声带来的体积，而大球中能容纳多少小球，正是这个信道编码在无错的情况下可以映射的符号数M。因为这个球的维度是n维的，我么可以得到：<br>$$<br>M &#x3D; \frac{\left[\sqrt{P_S +P_N}\right]^n}{\left[\sqrt{P_N}\right]^n} &#x3D; (1 + \frac{P_S}{P_N})^{\frac n 2}<br>$$</p>
+<p>由上式，可以计算得出：<br>$$<br>R &#x3D; \frac 1 2 \log (1 + \frac{P_S}{P_N})<br>$$</p>
+<p>而这个值，正好与连续无记忆加性高斯噪声信道的容量一致。</p>
+<p>当然，这个只是preview，不是严格的证明过程。下面对这个证明进行稍微严谨地推导，说明大多数噪声信道都有这样地特性。</p>
+<p>为了证明这个东西，我们需要介绍一些别的定义。之前证明信源无失真压缩定理地时候，用到了典型序列，而这次我们在典型序列地基础上，重新介绍一个新的内容。</p>
+<h3 id="证明香农第二定理"><a href="#证明香农第二定理" class="headerlink" title="证明香农第二定理"></a>证明香农第二定理</h3><h4 id="联合典型序列"><a href="#联合典型序列" class="headerlink" title="联合典型序列"></a>联合典型序列</h4><p>设$(X^n,Y^n)$是长为$n$的随机序列对，其概率分布满足<br>$$<br>p(x^n,y^n) &#x3D; \prod_{i&#x3D;1}^n p(x_i,y_i)<br>$$<br>若$(X^n,Y^n)$满足以下条件，则称其为联合典型序列：</p>
+<ul>
+<li>$\lvert -\frac 1 n \log p(x^n) - H(X) \rvert &lt; \epsilon$</li>
+<li>$\lvert -\frac 1 n \log p(y^n) - H(Y) \rvert &lt; \epsilon$</li>
+<li>$\lvert -\frac 1 n \log p(x^n,y^n) - H(X,Y)\rvert &lt; \epsilon$<br>联合典型序列构成的集合为$A_\epsilon^{(n)}$。</li>
+</ul>
+<p>联合典型序列与之前典型序列定义是有很大地相似性：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/">信息论——Lossless-Encoding</a>.我们首先要看看联合典型序列的性质，才能用它来证明。</p>
+<h4 id="联合渐进等同分割定理（Joint-AEP）"><a href="#联合渐进等同分割定理（Joint-AEP）" class="headerlink" title="联合渐进等同分割定理（Joint AEP）"></a>联合渐进等同分割定理（Joint AEP）</h4><p>设$(X^n,Y^n)$是长度为$n$的随机序列对，其分布满足：<br>$$<br>p(x^n,y^n) &#x3D; \prod_{i&#x3D;1}^n p(x_i,y_i)<br>$$<br>则以下性质成立：</p>
+<ul>
+<li>当$n \rightarrow \infty$时，$Pr((X^n,Y^n) \in A_\epsilon ^{(n)}) \rightarrow 1$</li>
+<li>$(1 - \epsilon)2^{n(H(X,Y) - \epsilon)} \leq \vert A_\epsilon ^{(n)} \vert\leq 2^{n(H(X,Y)+\epsilon)}$</li>
+<li>设$(\tilde{X^n},\tilde{Y^n})\sim p(x^n)p(y^n) $,即$\tilde{X^n},\tilde{Y^n}$统计独立，且具有与$p(x^n,y^n)$一致的边缘分布，则：<br>$$<br>Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \leq 2^{-n(I(X,Y) - 3\epsilon)}<br>$$<br>若$n$足够大，则：<br>$$<br>Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \ge (1 - \epsilon)2^{-n(I(X,Y) + 3\epsilon)}<br>$$</li>
+</ul>
+<p>前两点都比较好理解，第三点中，$(\tilde{X^n},\tilde{Y^n})$是由$(X^n,Y^n)$的边缘分布依照$X^n,Y^n$独立形成的另一个联合分布，而这个分布属于典型序列的概率约等于$2^{-nI(X,Y)}$。</p>
+<p>在这里我们证明以下第三条的前半部分：<br>$$<br>\tilde{X^n},\tilde{Y^n}\text{ are independent. }\tilde{X^n}\sim P_X(x^n),\tilde{Y^n}\sim P_Y(y^n)\<br>\begin{aligned}<br>Pr{(\tilde{X^n},\tilde{Y^n}) \in A_\epsilon^{(n)} } &amp;&#x3D; \sum_{(\tilde{x^n},\tilde{y^n}) \in A_\epsilon^{(n)} } P(x^n)P(y^n)\<br>&amp;\leq 2^{b(H(X,Y) + \epsilon)}\cdot 2^{-n(H(X) - \epsilon)} \cdot 2^{-n(H(Y) - \epsilon)}\<br>&amp;&#x3D; 2^{-n(I(X,Y) - 3\epsilon)}<br>\end{aligned}<br>$$</p>
+<p>下图可以帮助我们更好地理解这些性质：<br><img src="/"></p>
+<ul>
+<li>联合分布中，大约有$2^{nH(X)}$个典型X序列和$2^{nH(Y)}$个典型Y序列</li>
+<li>其组合共有$2^{nH(X) + nH(Y)}$个，但是其中联合典型的只有$2^{nH(X,Y)}$个</li>
+<li>随机选择而出现联合典型序列的概率为$2^{-nI(X,Y)}$</li>
+</ul>
+<p>现在来看一下联合典型序列的另一个解释：</p>
+<ul>
+<li>对于典型输入序列$x^n$，存在大约$2^{nH(Y|X)}$个可能的输出，且它们等概</li>
+<li>所有可能的典型输出序列大约有$2^{nH(Y)}$个，这些序列被分成若干个不相交的子集</li>
+<li>子集个数为$2^{n(H(Y) - H(Y|X))} &#x3D; 2^{nI(X;Y)}$，表示信道可以无错误传递的最大字母序列个数<br><img src="/"></li>
+</ul>
+<h4 id="可达性的证明"><a href="#可达性的证明" class="headerlink" title="可达性的证明"></a>可达性的证明</h4><p>可达性的证明也就是我们可以找到一个编码函数和解码函数，使得信道带到容量C，而且是无差错地传输。<br>$$<br>W \in [1:2^{nR}] \rightarrow X^n \sim P_X(x) \rightarrow q(y|X)\rightarrow Y^n \hat W<br>$$</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/27/Learning-From-Data%E2%80%94%E2%80%94Info-between-X-and-Y-SVD/" rel="prev" title="Learning From Data——Info between X and Y/SVD">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Info between X and Y/SVD
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/" rel="next" title="数学——EVD与SVD">
+                  数学——EVD与SVD <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="信息论算是应用数学，因此我们希望用熵，互信息这些东西来解决一些实际的问题。首先介绍下无失真编码定理，它早已经被广泛用在我们生活当中了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——Lossless Encoding">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="信息论算是应用数学，因此我们希望用熵，互信息这些东西来解决一些实际的问题。首先介绍下无失真编码定理，它早已经被广泛用在我们生活当中了。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-02T06:11:05.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:34:00.360Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta property="article:tag" content="lossless encoding">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/","path":"2018/11/02/信息论——Lossless-Encoding/","title":"信息论——Lossless Encoding"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——Lossless Encoding | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%90%E8%BF%9B%E7%AD%89%E5%90%8C%E5%88%86%E5%89%B2%E6%80%A7%E8%B4%A8%EF%BC%88Asymptotic-Equipartition-Property%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">渐进等同分割性质（Asymptotic Equipartition Property）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E6%95%B0%E5%AE%9A%E5%BE%8B%EF%BC%88Law-of-Large-Number%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">大数定律（Law of Large Number）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E5%BC%B1%EF%BC%89%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97%EF%BC%88Typical-Sequence%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">（弱）典型序列（Typical Sequence）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86-%E9%A6%99%E5%86%9C%E7%AC%AC%E4%B8%80%E5%AE%9A%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">定长编码定理(香农第一定理)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%81%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">码的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%A5%87%E5%BC%82%E7%A0%81"><span class="nav-number">4.1.</span> <span class="nav-text">非奇异码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%94%AF%E4%B8%80%E5%8F%AF%E8%AF%91%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">唯一可译码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%B3%E6%97%B6%E7%A0%81%EF%BC%88%E5%89%8D%E7%BC%80%E7%A0%81%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">即时码（前缀码）</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——Lossless Encoding | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——Lossless Encoding
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-02 14:11:05" itemprop="dateCreated datePublished" datetime="2018-11-02T14:11:05+08:00">2018-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:34:00" itemprop="dateModified" datetime="2023-10-21T03:34:00+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>信息论算是应用数学，因此我们希望用熵，互信息这些东西来解决一些实际的问题。首先介绍下无失真编码定理，它早已经被广泛用在我们生活当中了。</p>
+<span id="more"></span>
+
+<p>首先，说到无失真编码，我们首先想到的是无损压缩了。无损压缩实际上是一个最大熵的问题。这样的情况下，能包含最多的信息，如果信息量一定，也就是最大熵的情况下需要平均较小的比特数（比如一个均匀分布随机变量X的熵为3,另一个非均匀分布随机变量熵Y也为3，那么|Y|&gt;|X|,如果普通编码的话，Y的编码更长，但是它们包含的信息量却是一样的）。我们都知道的是，在均匀分布的时候熵是最大的。但是我们不能选择信源的分布，因为信源就在那里已经确定了。我们能否通过一个映射，一一对应的映射，使得一个非等概分布逐渐走向等概呢？答案是，可以，但是这太反直觉了。是啊虽然反直觉，但是它不反数学，所以它就是对的。</p>
+<h2 id="渐进等同分割性质（Asymptotic-Equipartition-Property）"><a href="#渐进等同分割性质（Asymptotic-Equipartition-Property）" class="headerlink" title="渐进等同分割性质（Asymptotic Equipartition Property）"></a>渐进等同分割性质（Asymptotic Equipartition Property）</h2><h3 id="大数定律（Law-of-Large-Number）"><a href="#大数定律（Law-of-Large-Number）" class="headerlink" title="大数定律（Law of Large Number）"></a>大数定律（Law of Large Number）</h3><p>这里先伯奴利大数定律(属于弱大数定律)。实际上所有的大数定律都在说一件事：当实验次数非常大的时候，频率趋向于概率（经验分布逼近于统计分布）。</p>
+<p>$$<br>\frac{S_n}{n} \underrightarrow{p} p<br>$$</p>
+<p>更精确一点的说法：</p>
+<p>$$<br>\forall N, \exists \epsilon &gt;0,\sigma&gt;0, \text{where }n &gt; N,p(\vert \frac{s_n}{n} - p\vert \geq \epsilon) &lt;\sigma.<br>$$<br>另外一个大数定理（辛钦大数定律）：<br>$$<br>\begin{align}<br>\frac 1 n \sum_{i&#x3D;1}^n X_i\underrightarrow{p} EX<br>\end{align}<br>$$<br>渐进等同分割性质定义如下：</p>
+<p>如果$X_1,X_2,…$是独立同分布的离散随机变量，分布服从$p(x)$,则</p>
+<p>$-\frac 1 n \log p(X_1,X_2,…,X_n) \underrightarrow{p} H(X)$</p>
+<p>使用上面的更准确的写法如下：</p>
+<p>$$<br>\forall N, \exists \epsilon&gt;0, \sigma &gt;0, \text{where }n &gt; N,p(\vert - \frac 1 n \log p(X_1,X_2,…,X_n) - H(X)\vert \geq \epsilon) &lt;\sigma.<br>$$</p>
+<p>即$p(X_1,X_2,…,X_n)\approx 2^{-nH(X)}$.</p>
+<p>这个定理可以使用弱大数定理地证明：</p>
+<p>$$<br>\begin{aligned}<br>&amp;-\frac 1 n \log p(X_1,X_2,…,X_n)\<br>&amp; &#x3D; -\frac 1 n \log p(X_1)p(X_2)…p(X_n)\<br>&amp;&#x3D;-\frac 1 n \sum_{i&#x3D;1}^n \log p(X_i)<br>\end{aligned}<br>$$</p>
+<p>因为我们知道，$X_1,X_2,…,X_n$是互相独立的，因此，$\log X_1,\log X_2,…,\log X_n$也是互相独立同分布的。利用(1)：<br>$$<br>\begin{aligned}<br>-\frac 1 n \sum_{i&#x3D;1}^n \log p(X_i) &amp;&#x3D; -E(\log p(X))\<br>&amp;&#x3D; \sum_{x \in \mathcal{X} } (-p(x)\log p(x)) \<br>&amp;&#x3D; H(X)<br>\end{aligned}<br>$$</p>
+<p>这意味着，当n很大的时候，一个序列出现的概率是几乎相等的，这个概率为$2^{-nH(X)}$.</p>
+<h2 id="（弱）典型序列（Typical-Sequence）"><a href="#（弱）典型序列（Typical-Sequence）" class="headerlink" title="（弱）典型序列（Typical Sequence）"></a>（弱）典型序列（Typical Sequence）</h2><p>典型序列定义如下：<br>相对于分布$p(x)$和序列$(x_1,x_2,…,x_n) \in X_n$,典型序列集合$A_\epsilon ^ {(n)}$定义为满足下列不等式约束的所有序列$\mathbf{x}$的集合：<br>$$<br>2^{-n(H(X)+\epsilon) \leq p(\mathbf{x}) &#x3D; p(x_1,x_2,…,x_n) \leq 2^{-n(H(X)-\epsilon)} }<br>$$</p>
+<p>所以典型序列具有以下性质：</p>
+<ol>
+<li>若$\mathbf{x} \in A_\epsilon ^ {(n)}$,则$H(X)-\epsilon \leq -\frac 1 n \log p(\mathbf{x}) \leq H(X) + \epsilon$.</li>
+<li>若$n$足够大，$Pr(A_\epsilon ^{(n)}) \geq 1 - \epsilon $</li>
+<li>$\vert A_\epsilon ^{(n)}\vert \leq 2^{n(H(X)+\epsilon)}$</li>
+<li>$\vert A_\epsilon ^{(n)}\vert \geq (1-\epsilon)2^{n(H(X)-\epsilon)}$</li>
+</ol>
+<p>性质1,2可以用定义得到。因此这里证明3和4.</p>
+<ol start="3">
+<li>$$<br>\begin{aligned}<br>1 &amp;&#x3D; \sum_{x^n \in \mathcal{X} }P(x^n)\<br>&amp;\geq \sum_{x^n \in A_\epsilon ^{(n)} } p(x^n)\<br>&amp;\geq \sum_{x^n \in A_\epsilon ^{(n)} } 2^{-n(H(x)+\epsilon)}\<br>&amp;&#x3D; 2^{-n(H(x)+\epsilon)}\vert A_\epsilon ^{(n)} \vert<br>\end{aligned}<br>$$</li>
+</ol>
+<p>4的证明首先要使用性质2。<br>$$<br>\begin{aligned}<br>1 - \epsilon &amp;\leq Pr{A_\epsilon ^{(n)} }\<br>&amp;\leq \sum_{x^n \in A_\epsilon ^{(n)} } 2 ^{-n(H(X) - \epsilon)}\<br>&amp;&#x3D; 2 ^{-n(H(X) - \epsilon)} \vert A_\epsilon ^{(n)}\vert<br>\end{aligned}<br>$$</p>
+<p>所有可能出现的序列一共有$|X|^n$种，大多数情况下，$ 2^{m(H(X)+\epsilon)} &lt;&lt; |X|^n$.所以典型序列集合只是所有可能集合的一个很小（尤其是原来分布远离均匀分布的时候）的子集。但是它几乎一定会出现，而且每个典型序列出现的概率几乎一样。这是很好的消息，为我们刚开始提出来的映射提供了很好的思路。</p>
+<h2 id="定长编码定理-香农第一定理"><a href="#定长编码定理-香农第一定理" class="headerlink" title="定长编码定理(香农第一定理)"></a>定长编码定理(香农第一定理)</h2><p>假设$X^n$是由独立同分布离散随机变量$X\tilde{}p(X)$构成的序列。对于任意正数$\epsilon$，总有足够大的n，可以找到一个一一映射，将$X^n$映射到二进制序列，且满足:<br>$$<br>E\left[\frac 1 n l(X^n) \right] \leq H(X)+\epsilon<br>$$</p>
+<p>上式中，$l(X^n)$表示的是编码需要的bit数。</p>
+<p>接下来提供证明：</p>
+<p>$$<br>\begin{aligned}<br>E(l(X^n)) &amp;&#x3D; \sum_{x \in \mathcal{X} } p(x) l(x)\<br>&amp;&#x3D; \sum_{x \in A_\epsilon ^{(n)} } p(x) l(x) + \sum_{x \in \overline{A_\epsilon ^{(n)} } } p(x) l(x)\<br>&amp; \leq \sum_{x \in A_\epsilon ^{(n)} } p(x) [ n(H(X)+\epsilon)+1+1 ] + \sum_{x \in \overline{A_\epsilon ^{(n)} } } p(x) [ n\log \vert X\vert +2 ]\<br>&amp;&#x3D;[ n(H(X)+\epsilon)+1+1 ] Pr{ A_\epsilon ^{(n)} } +  [ n\log \vert X\vert +2] Pr{\overline{A_\epsilon ^{(n)} } } \<br>&amp;\leq n(H(X)+\epsilon)+2 +  n\epsilon \log\vert X\vert+2\epsilon<br>&#x3D; n(H(X) + \epsilon ‘)<br>\end{aligned}<br>$$<br>其中 $\epsilon’ &#x3D; \epsilon + \epsilon \log \vert X \vert +\frac 2 n + \frac {2\epsilon}{n}$,可以看到的是$n \rightarrow \infty,\epsilon’ \rightarrow 0$.</p>
+<p>上面证明过程中值得注意的事情是，为什么要加2？第一个加一是为了处理log后为非整数的情况，第二个+1是留一个比特位置来区分典型序列与非典型序列的编码。</p>
+<p>但是，定长编码定理是无法应用到工业界的。因为它需要对序列长度为n来进行编码，由于精确度的要求，这个n往往很大（上亿），这在现实中是无法实现的。</p>
+<p>顺便我们证明一下，平均每个字符编码所需要的bit数一定是大于等于$H(X)$.</p>
+<p>假设$X^n \rightarrow M \in C &#x3D; \underbrace{ {1,2,3,…,2^{nR} } }_{need <del>nR</del> bits} \rightarrow \hat{X}^n$.</p>
+<p>意思就是，M为X^n编码后的结果，它一定是属于后面的某个数字。</p>
+<p>如果我们想要$P_e &#x3D; 0$,也就是无失真编码，那么根据Fano不等式：<br>$$<br>H(X^n|M) &#x3D; 0<br>$$</p>
+<p>因此：<br>$$<br>\begin{aligned}<br>nH(X) &amp;&#x3D; H(X^n)…(Why?)\<br>&amp;&#x3D;H(X^n) - H(X^n|M)\<br>&amp;&#x3D;I(X^n,M)\<br>&amp;&#x3D;H(M) - H(M|X^n)\<br>&amp;\leq H(M) \leq nR<br>\end{aligned}<br>$$</p>
+<p>所以可以得到：$R\ge H(X)$.</p>
+<p>可见，熵是平均码长的下界。</p>
+<h2 id="码的类型"><a href="#码的类型" class="headerlink" title="码的类型"></a>码的类型</h2><h3 id="非奇异码"><a href="#非奇异码" class="headerlink" title="非奇异码"></a>非奇异码</h3><p>若一个码C可以将不同的x映射为不同的$D^*$中 的序列，即：<br>$$<br>x \ne x’ \rightarrow C(x) \ne C(x’)<br>$$<br>则该码为非奇异码。</p>
+<p>但是仅仅是非奇异码的序列可能会有歧义（很好笑）。$x_1 \rightarrow 0,x_2 \rightarrow 1,x_3 \rightarrow 01$，那么我收到$01$就不知道该如何介绍它了。</p>
+<h3 id="唯一可译码"><a href="#唯一可译码" class="headerlink" title="唯一可译码"></a>唯一可译码</h3><p>唯一可译码是非奇异码的子集。称码$C^*$为码$C$的扩展，当$C^*$是有限长X的序列到有限长D序列的映射，且满足：<br>$$<br>C(x_1,x_2,…,x_n) &#x3D; C(x_1)C(x_2)…C(x_n)<br>$$<br>则该码为唯一可译码。</p>
+<p>从另一方面来说，如果码的扩展为非奇异码，则该码为唯一可译码。</p>
+<p>换句话说，没有码字是码字的组合。</p>
+<p>这样的也是有缺点的，因为解码器复杂度要求较高。如$x_1 &#x3D; 01,x_2 &#x3D; 10,x_3 &#x3D; 0111$,当收到0110的时候，在前三个的时候解码器预测可能是个$x_3$,但是最后一个不满足，因此就需要回退。</p>
+<h3 id="即时码（前缀码）"><a href="#即时码（前缀码）" class="headerlink" title="即时码（前缀码）"></a>即时码（前缀码）</h3><p>前缀码大家就比较熟悉了。前缀码是唯一可译码的子集。如常用的霍夫曼编码。它的意思是没有什么码字是另一个码字的前缀。所以解码器只要发现有认识的，立马就可以解码了，所以叫即时码。</p>
+<p>莫尔斯电码是非奇异码，但不是唯一可译码。汉语也不是唯一可译码，因为断句不对就会引起歧义。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+              <a href="/tags/lossless-encoding/" rel="tag"># lossless encoding</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/" rel="prev" title="信息论——连续随机变量的熵和互信息">
+                  <i class="fa fa-angle-left"></i> 信息论——连续随机变量的熵和互信息
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/" rel="next" title="机器学习——Kernel Logistic Regression">
+                  机器学习——Kernel Logistic Regression <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

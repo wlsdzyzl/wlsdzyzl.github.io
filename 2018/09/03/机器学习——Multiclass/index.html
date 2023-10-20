@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="目前，我们对二元分类已经有了不少的了解，可以用多个线性模型去实现二元分类。但是生活中遇到的往往不是是非题，而是选择题，尤其是图像识别问题中，我们往往需要识别多个物体。如何通过之前实现的二元分类，来实现多元分类呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Multiclass（OVA and OVO）">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="目前，我们对二元分类已经有了不少的了解，可以用多个线性模型去实现二元分类。但是生活中遇到的往往不是是非题，而是选择题，尤其是图像识别问题中，我们往往需要识别多个物体。如何通过之前实现的二元分类，来实现多元分类呢？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%7ES9ZBTNV%25J%40NFF1X9ER%29%24Y.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/K%240%7E%29%7E_4A%25I%60_5B%29B4KOG1X.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/56XK%28P%242S%29VUE%7B47%24WLLDH3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/S%402ZQSW29UEE%7D3X%7B9I0P%60%7ET.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/A%28PYVE%60M%404EFA73%25S531CMM.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7%28CYH%24KM%5BVTG%7EM%25UL3R%7D28F.png">
+<meta property="article:published_time" content="2018-09-03T14:20:13.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:22:35.335Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="classification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%7ES9ZBTNV%25J%40NFF1X9ER%29%24Y.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/","path":"2018/09/03/机器学习——Multiclass/","title":"机器学习——Multiclass（OVA and OVO）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Multiclass（OVA and OVO） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#OVA-via-Logistic-Regression"><span class="nav-number">1.</span> <span class="nav-text">OVA(via Logistic Regression)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OVO-via-Binary-Classification"><span class="nav-number">2.</span> <span class="nav-text">OVO(via Binary Classification)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Multiclass（OVA and OVO） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Multiclass（OVA and OVO）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-03 22:20:13" itemprop="dateCreated datePublished" datetime="2018-09-03T22:20:13+08:00">2018-09-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:22:35" itemprop="dateModified" datetime="2023-10-21T04:22:35+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>目前，我们对二元分类已经有了不少的了解，可以用多个线性模型去实现二元分类。但是生活中遇到的往往不是是非题，而是选择题，尤其是图像识别问题中，我们往往需要识别多个物体。如何通过之前实现的二元分类，来实现多元分类呢？</p>
+<span id="more"></span>
+<p>这里介绍两种思路，一个是OVA（One Vesus All），另一个是OVO（One Vesus One）。</p>
+<h2 id="OVA-via-Logistic-Regression"><a href="#OVA-via-Logistic-Regression" class="headerlink" title="OVA(via Logistic Regression)"></a>OVA(via Logistic Regression)</h2><p>要想进行多元分类，我们首先想到的是对每一种类型进行是非判断。理想中，这样似乎不错，找个物体，哪一种类型的判断说是，就是该类型，但是现实往往不尽人意。</p>
+<p>假如有下图所示的一个样本集：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%7ES9ZBTNV%25J%40NFF1X9ER%29%24Y.png"></p>
+<p>可以看到一共有四类，分别对每个类型进行是非判断，可以得到下面的4条线来分类：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/K%240%7E%29%7E_4A%25I%60_5B%29B4KOG1X.png"></p>
+<p>从左至右分别是正方体，菱形，三角形，五角星得到的线。</p>
+<p>融合到原来的图形上：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/56XK%28P%242S%29VUE%7B47%24WLLDH3.png"></p>
+<p>对于上图中，有几个部分区域的样本可以很明确的判断出来是什么类型，但是其他部分区域，要么是多个类型都说是，要么没有一个类型说是，这就让我们无法进行判断。</p>
+<p>我们很容易想到既然用明确的是非无法进行判断，如果使用概率会不会好一点。因此要使用logistic regression。</p>
+<p>使用logistic regression进行的还是上面的步骤，得到的是是各个类型的概率。选择概率最高的，就可进行分类。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/S%402ZQSW29UEE%7D3X%7B9I0P%60%7ET.png"></p>
+<p>下面的分类图是利用上述方法进行分类得到的结果，可以看到对每个区域，都能为它制定一个类别。值得注意的是logistic function是单调增函数，因此比较概率的时候我们并不用真的求出来大小，而只用比较$s(X)$的大小即可。</p>
+<p>具体步骤如下：</p>
+<p>(1) for $k \in Y$, obtain W_{[k]} by running logistic regression on $D_{[k]} &#x3D; \left { (X_n,y’<em>n &#x3D; 2[y_n &#x3D; k] - 1) \right}</em>{n&#x3D;1}^N$.<br>(2) return $g(X) &#x3D; argmax_{k \in y}(W_{[k]}^TX) $</p>
+<p>***注：argmax是一种函数，函数y&#x3D;f(x)，x0&#x3D; argmax(f(x)) 的意思就是参数x0满足f(x0)为f(x)的最大值；换句话说就是 argmax(f(x))是使得 f(x)取得最大值所对应的变量x。arg即argument，此处意为“自变量”。在上式中为结果为某个k$(k \in y)$。</p>
+<hr>
+<p>上面的方法很简单的就可以实现了多元分类。但是上面的算法有个缺点，一对多，当种类k特别多时候，很容易造成不平衡的情况，一个不好的算法但是却得到了很好的$E_{in}$，影响最后的分类结果。因此希望可以找到一种方法来解决这个问题。</p>
+<h2 id="OVO-via-Binary-Classification"><a href="#OVO-via-Binary-Classification" class="headerlink" title="OVO(via Binary Classification)"></a>OVO(via Binary Classification)</h2><p>OVO是一对一的算法，可以很好的解决上面最后留下来的问题。它的思想是这样的，从k个类别中挑出两种类别来进行学习，每次学习都可以得到一个用来区分的$W$，一共可以得到$C_k^2$种。</p>
+<p>这里得到的$W_i$与上面的办法用途是不一样的，它直接用来做二元分类（+1 or -1），而不是得到一个概率。通过两两组合进行二元分类的学习，我们得到了$C_k^2$个分类器，每个分类器都会对放入的样本进行一个明确的分类。下图是上面的样本集得到的几个分类器：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/A%28PYVE%60M%404EFA73%25S531CMM.png"></p>
+<p>从左到右，分别是对[菱形，方块]，[三角形，方块],[五角星，方块]，[菱形，三角形]，[菱形，五角星]，[三角形，五角星]进行二元分类。</p>
+<p>进行预测时候，取一个样本，经过6个分类器来预测，6个分类器得到不同的结果，但是每个都会对该样本的类别进行明确的预测，类似于投票，最后我们选择得票最多的类别。</p>
+<p>下图为用OVO分类得到的结果：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7%28CYH%24KM%5BVTG%7EM%25UL3R%7D28F.png"></p>
+<p>OVO算法的主要过程如下：</p>
+<p>(1) for ($k,\zeta$) $\in Y \times Y$, obtain $W_{[k,\zeta]}$ by running linear binary classification on $D_{[k,\zeta]} &#x3D; \left { (X_n,y’_n &#x3D; 2[y_n &#x3D; k] - 1):y_n &#x3D; k or y_n &#x3D; \zeta \right }$ </p>
+<p>(2) return $g(X) &#x3D;$ $tournament$ $champion$ $\left {W^T_{[k,\zeta]}\right }$</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面就是两种用在多元分类上的算法，他们都是很简单并且非常常见的算法。两个算法运行速度都很快（OVO虽然增加了分类器的个数，但是用来学习的样本量会减少很多）。OVO的缺点是如果类别真的非常大，那么分类器个数可能过多，会占用较大的空间，一定程度上也会影响速度，但是它有较高的稳定性，减少出现不平衡的情况。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/classification/" rel="tag"># classification</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-model-for-classification/" rel="prev" title="机器学习——linear model for classification">
+                  <i class="fa fa-angle-left"></i> 机器学习——linear model for classification
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/" rel="next" title="机器学习——Nonlinear Transformation">
+                  机器学习——Nonlinear Transformation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

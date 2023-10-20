@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Overfitting（过拟合）是机器学习中可能最让人头疼的问题了。对应Overfitting的是Underfitting（欠拟合），相比之下戏份就少了很多。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Overfitting">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="Overfitting（过拟合）是机器学习中可能最让人头疼的问题了。对应Overfitting的是Underfitting（欠拟合），相比之下戏份就少了很多。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/RPA%5DK%7D%5DD%5BU%251EL%7B1EM%29I%24W4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%29L%29Y%40YB1U%7DTN%5BLRL%7BJ%7E_N%7E9.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/Z%7DIA11%7BHHKFR%7EOFL6VV%60YH3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9RVH8F%297JG%40RGRIUHHFJ%7EV2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/UTID8V4V%28O3TP%5BTE%24J%5BT_%24U.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/T%7EY9M6%24%605S_DUHD8CPA0B9X.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%28%25V%25Z8QJM%29V8%5D2NS%240%254IZK.png">
+<meta property="article:published_time" content="2018-09-22T06:19:54.000Z">
+<meta property="article:modified_time" content="2018-09-29T07:15:00.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="overfitting">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/RPA%5DK%7D%5DD%5BU%251EL%7B1EM%29I%24W4.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/","path":"2018/09/22/机器学习——Overfitting/","title":"机器学习——Overfitting"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Overfitting | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Overfitting | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Overfitting
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-22 14:19:54" itemprop="dateCreated datePublished" datetime="2018-09-22T14:19:54+08:00">2018-09-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-09-29 15:15:00" itemprop="dateModified" datetime="2018-09-29T15:15:00+08:00">2018-09-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Overfitting（过拟合）是机器学习中可能最让人头疼的问题了。对应Overfitting的是Underfitting（欠拟合），相比之下戏份就少了很多。<span id="more"></span></p>
+<p>简单来说，Underfitting，是$E_{in}$高，$E_{out}$也很高。于是人们会想方设法地减少$E_{in}$，认为这样就可以得到较好地结果。但是不幸的是，有时候$E_{in}$已经很低了，这个模型依然有很高的$E_{out}$.这就很让人头疼。这就是overfitting。想要更好的解决Overfitting，理解一些数学理论如VC dimension是很有帮助的，给我们提供了更多出现这种情况的原因和解决的思路。</p>
+<p>其实Overfitting我们之前也早有提及过。</p>
+<p>首先来看一下overfitting的简单的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/RPA%5DK%7D%5DD%5BU%251EL%7B1EM%29I%24W4.png"></p>
+<p>对于目标函数产生的资料，加上了一点noise，在训练集样本很少的情况下，出现了上面的情况：目标函数的$E_{in}$，比我们得到的这个与目标函数差了十万八千里的函数的$E_{in}$更大。我们的算法选择的是$E_{in}$最小的，因此就选择了表现很差的模型。</p>
+<p>从上面的样例我们想到了nonlinear transform，当我们进行特征转换的时候，vc dimension大大增加，使得付出的代价变得很高，在样本不够的情况下，很容易得到很差的$E_{out}$，这就是一种overfitting.于是又一次看到了这张图。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png"></p>
+<p>当然，造成上面的结果有一点原因是噪声，但是即使没有噪声，最多最多，他们的$E_{in}$也是一样的，而且实际中，没有噪声的情况是很少出现的。这说明了造成overfitting的两个原因：1.noise过多。很好理解，更好的适应了noise，它的泛化能力当然不行；2.使用过于复杂的模型，去估计较为简单的目标函数。一般来说，简单的函数只是复杂模型的特例，而且因为噪声的原因往往目标函数不能完美拟合，但是复杂的模型就能做的非常完美。但是另一方面，它的泛化能力也大大下降了。</p>
+<p>如果我们采用复杂的模型估计复杂的函数呢？在我们心里可能会想，这下总会好点了吧。因为复杂的目标函数，你不用复杂的模型，根本就不可能完美地估计出来。似乎有点道理，我们来看下面地例子：</p>
+<p>用10次的多项式产生一些数据，加上噪声。我们分布用10次的$H$与2次的$H$来对它进行拟合：</p>
+<p>目标函数：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%29L%29Y%40YB1U%7DTN%5BLRL%7BJ%7E_N%7E9.png"></p>
+<p>拟合结果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/Z%7DIA11%7BHHKFR%7EOFL6VV%60YH3.png"></p>
+<p>通过对比，我们惊奇地发现，二次的拟合结果，虽然$E_{in}$做得不如，但是$E_{out}$比10次的更好！</p>
+<p>如果我们使用二次的多项式，那首先我们不可能做到完美，但是我们发现，有时候它的表现比更复杂地模型模拟的更好，尽管原来的模型非常地复杂。</p>
+<p>想要了解这其中的原因，我们来观察一下两个$H$的learning curve：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9RVH8F%297JG%40RGRIUHHFJ%7EV2.png"></p>
+<p>对于右侧的我们是熟悉的，观察右侧的$H_{10}$的学习曲线，我们发现，虽然当N区域无穷的时候，它有更好的性能，但是在灰色区域里，它是Overfitting的。因此，overfitting的最关键的原因：数据量不够多。</p>
+<p>因为模型越复杂，可以走的路就越多，在资料量小的时候，可能很多条路都会完美走过这条道，而其他的部分可能差的很远。这依然可以用VC dimension来解释，代价太大了，为了降低代价，必须需要更大的N.</p>
+<p>当然，上面的例子中依然有noise的存在。Noise或多或少影响了复杂模型的性能，而且越复杂模型它的影响可能越大。对于没有noise的模型，是否还有上面的结果？</p>
+<p>利用50次目标函数产生的数据，依然用$H_2$与$H_{10}$去模拟：</p>
+<p>目标函数：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/UTID8V4V%28O3TP%5BTE%24J%5BT_%24U.png"></p>
+<p>拟合结果：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/T%7EY9M6%24%605S_DUHD8CPA0B9X.png"></p>
+<p>可以看到二次函数依然比10次函数表现得更好。原因和上面一样。所以没有很多数据量的支撑，使用较为简单的模型往往效果更好。</p>
+<p>这时候我们会纳闷，这明明没有noise啊，为什么会这样？过于复杂的模型与简单的假设似乎带来了和noise类似的结果。</p>
+<p>在机器学习领域中，对于过于复杂的模型本身带来的类似于noise的效果，被称为Deterministic Noise.</p>
+<p>对于普通的noise，我们假设为高斯噪声（Gaussian Noise）。对于Gaussian Noise与Deterministic Noise对于模型的影响，$Q_f$为目标函数的次数，那么可以用下面的图来形象展示出来：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%28%25V%25Z8QJM%29V8%5D2NS%240%254IZK.png"></p>
+<p>可以看出来，两种噪声带来的效果相近，可以通过增加N来避免过拟合的情况。</p>
+<p>值得注意的是，右侧图中，左下角依然有一块会过拟合。需要注意，上述图中$H$的次数是不变的，因此，如果$Q_f$小于$H$的次数，会出现第一种情况，power过强的情况.</p>
+<p>实际上，deterministic noise与电脑产生伪随机数的原理很相似，过于复杂的模型，造成了随机噪声的效果。</p>
+<p>总结一下，Overfitting出现的原因：<br>1.N太小<br>2.Stochastic(Gaussian) Noise<br>3.Deterministic Noise<br>4.Too Much Power</p>
+<p>如何对付overfitting是个很复杂的话题。首先直观来说，降噪，增加样本。降噪，可以通过修正label与去除错误的样本来实现，而增加样本往往没有那么容易，某些情况下我们可以自己创造data.另外还有两种比较复杂的做法，也有很好的效果：Regularization 与 Validation.以后会专门写博客来介绍。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/overfitting/" rel="tag"># overfitting</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/" rel="prev" title="机器学习——（基石）作业3">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）作业3
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Regularization/" rel="next" title="机器学习——Regularization">
+                  机器学习——Regularization <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

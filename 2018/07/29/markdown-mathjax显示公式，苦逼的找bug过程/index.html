@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在记录自己学习过程中，难免会遇到公式，截图的办法不是长久之计。于是我给它加上了渲染公式的过程。 整个过程非常崎岖。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="markdown+mathjax显示公式，苦逼的找bug过程 ">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="在记录自己学习过程中，难免会遇到公式，截图的办法不是长久之计。于是我给它加上了渲染公式的过程。 整个过程非常崎岖。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_8234.PNG">
+<meta property="article:published_time" content="2018-07-29T07:45:35.000Z">
+<meta property="article:modified_time" content="2018-08-28T06:44:24.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="markdown">
+<meta property="article:tag" content="LaTex">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_8234.PNG">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/","path":"2018/07/29/markdown-mathjax显示公式，苦逼的找bug过程/","title":"markdown+mathjax显示公式，苦逼的找bug过程 "}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>markdown+mathjax显示公式，苦逼的找bug过程  | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#P-S-Markdown%E4%B8%8Elatex%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">P.S. Markdown与latex常用语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#markdown%E8%AF%AD%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">markdown语法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E5%8F%B7%E5%AD%97%E4%BD%93"><span class="nav-number"></span> <span class="nav-text">一号字体</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%8F%B7%E5%AD%97%E4%BD%93"><span class="nav-number">1.</span> <span class="nav-text">二号字体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%8F%B7%E5%AD%97%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">三号字体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Latex%E8%AF%AD%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">Latex语法</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="markdown+mathjax显示公式，苦逼的找bug过程  | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          markdown+mathjax显示公式，苦逼的找bug过程 
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-07-29 15:45:35" itemprop="dateCreated datePublished" datetime="2018-07-29T15:45:35+08:00">2018-07-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-08-28 14:44:24" itemprop="dateModified" datetime="2018-08-28T14:44:24+08:00">2018-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%8D%9A%E5%AE%A2%E5%BB%BA%E8%AE%BE/" itemprop="url" rel="index"><span itemprop="name">博客建设</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在记录自己学习过程中，难免会遇到公式，截图的办法不是长久之计。于是我给它加上了渲染公式的过程。</p>
+<p>整个过程非常崎岖。</p>
+<span id="more"></span>
+
+<p>其实很简单，在普通的页面上引入一个js文件，就可以将latex代码渲染成公式。为了方便编写，我直接在文章中引入了这个js，在vs code上渲染是非常成功的。但是在博客上怎么弄也没法成功。百度的话有很多相关的博客来介绍怎么去做，主要是因为hexo的渲染器与mathjax中部分语法有冲突。我也天真的相信我的问题就是这些构成的，后来我发现即使是最简单的公式（没有下标）也无法渲染成功，此时我的blog里已经加了很多别的没用包了，也删除了很多可能有用的包，怎么设置也没办法。</p>
+<p>昨晚就纠结了很久，今天没办法了重新装了下blog，先解决最简单公式显示的问题（直接打开next主题中的mathjax开关），成功了，然后我遇到的问题，才是别人遇到的那些问题。慢慢解决，后来发现还是有部分错误，有两处问题：</p>
+<p>1.这次是latex与markdown的冲突：markdown中的*是斜体，因此尽量乘法不要使用它，可以使用{a \times b}（$a \times b$）来代替来代替 a*b,或者就是对*进行转义，或者直接省略。</p>
+<p>2.在使用范式时||a||，似乎直接使用‘|’这个符号也会出错，总之有范式的地方的公式显示是很混乱的，可能也有冲突（在latex是可以直接使用这个符号的），因此使用{\Vert a \Vert}（${\Vert a \Vert}$）来代替。</p>
+<p>最后，浏览器响应github page的速度不快，可能已经deploy了但是依然没有体现出更新的结果。</p>
+<p>哎，折腾了一天，感觉收获远远不够花费的时间，不过我经常遇到这样的问题，找bug的能力还有待提高。</p>
+<h2 id="P-S-Markdown与latex常用语法"><a href="#P-S-Markdown与latex常用语法" class="headerlink" title="P.S. Markdown与latex常用语法"></a>P.S. Markdown与latex常用语法</h2><h3 id="markdown语法"><a href="#markdown语法" class="headerlink" title="markdown语法"></a>markdown语法</h3><ul>
+<li>标题：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 一号字体 #</span><br><span class="line">## 二号字体 ## </span><br><span class="line">### 三号字体 ### </span><br></pre></td></tr></table></figure>
+
+<h1 id="一号字体"><a href="#一号字体" class="headerlink" title="一号字体"></a>一号字体</h1><h2 id="二号字体"><a href="#二号字体" class="headerlink" title="二号字体"></a>二号字体</h2><h3 id="三号字体"><a href="#三号字体" class="headerlink" title="三号字体"></a>三号字体</h3><ul>
+<li>加粗：</li>
+</ul>
+<p>要加粗的文字左右分别用两个*号包起来</p>
+<ul>
+<li>斜体：</li>
+</ul>
+<p>要倾斜的文字左右分别用一个*号包起来</p>
+<ul>
+<li>斜体加粗：</li>
+</ul>
+<p>要倾斜和加粗的文字左右分别用三个*号包起来</p>
+<ul>
+<li>删除线：</li>
+</ul>
+<p>要加删除线的文字左右分别用两个~~号包起来</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">**这是加粗的文字**</span><br><span class="line">*这是倾斜的文字*`</span><br><span class="line">***这是斜体加粗的文字***</span><br><span class="line">~~这是加删除线的文字~~</span><br></pre></td></tr></table></figure>
+
+<p><strong>这是加粗的文字</strong></p>
+<p><em>这是倾斜的文字</em></p>
+<p><em><strong>这是斜体加粗的文字</strong></em></p>
+<p><del>这是加删除线的文字</del></p>
+<ul>
+<li>引用：</li>
+</ul>
+<p>在引用的文字前加&gt;即可</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 引用的内容 </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>引用的内容</p>
+</blockquote>
+<ul>
+<li>分割线：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">***</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<hr>
+<ul>
+<li>超链接：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[name](url)</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://www.google.com/">Google</a></p>
+<ul>
+<li>图片：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![name](imgurl)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_8234.PNG" alt="name"></p>
+<ul>
+<li>列表：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 列表内容</span><br><span class="line">+ 列表内容</span><br><span class="line">* 列表内容</span><br></pre></td></tr></table></figure>
+
+<pre><code>注意：- + * 跟内容之间都要有一个空格
+</code></pre>
+<ul>
+<li>列表内容</li>
+</ul>
+<ul>
+<li>列表内容</li>
+</ul>
+<ul>
+<li><p>列表内容</p>
+</li>
+<li><p>表格：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">表头|表头|表头</span><br><span class="line">---|:--:|---:</span><br><span class="line">内容|内容2|内容</span><br><span class="line">内容|内容100|内容</span><br></pre></td></tr></table></figure>
+
+<p>第二行分割表头和内容。<br>文字默认居左<br>-两边加：表示文字居中<br>-右边加：表示文字居右<br>注：原生的语法两边都要用 | 包起来。此处省略</p>
+<table>
+<thead>
+<tr>
+<th>表头</th>
+<th align="center">表头</th>
+<th align="right">表头</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内容</td>
+<td align="center">内容2</td>
+<td align="right">内容</td>
+</tr>
+<tr>
+<td>内容</td>
+<td align="center">内容100</td>
+<td align="right">内容</td>
+</tr>
+</tbody></table>
+<ul>
+<li>代码：</li>
+</ul>
+<p><code>单行代码</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">多行代码</span><br></pre></td></tr></table></figure>
+
+<p>vscode中前面加制表符自动为代码格式。<br>可以在标记后标记出代码语言，用来高亮：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Latex语法"><a href="#Latex语法" class="headerlink" title="Latex语法"></a>Latex语法</h3><ul>
+<li>希腊字母：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>显示</th>
+<th>命令</th>
+<th>显示</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>α</td>
+<td>\alpha</td>
+<td>β</td>
+<td>\beta</td>
+</tr>
+<tr>
+<td>γ</td>
+<td>\gamma</td>
+<td>δ</td>
+<td>\delta</td>
+</tr>
+<tr>
+<td>ε</td>
+<td>\epsilon</td>
+<td>ζ</td>
+<td>\zeta</td>
+</tr>
+<tr>
+<td>η</td>
+<td>\eta</td>
+<td>θ</td>
+<td>\theta</td>
+</tr>
+<tr>
+<td>ι</td>
+<td>\iota</td>
+<td>κ</td>
+<td>\kappa</td>
+</tr>
+<tr>
+<td>λ</td>
+<td>\lambda</td>
+<td>μ</td>
+<td>\mu</td>
+</tr>
+<tr>
+<td>ν</td>
+<td>\nu</td>
+<td>ξ</td>
+<td>\xi</td>
+</tr>
+<tr>
+<td>π</td>
+<td>\pi</td>
+<td>ρ</td>
+<td>\rho</td>
+</tr>
+<tr>
+<td>σ</td>
+<td>\sigma</td>
+<td>τ</td>
+<td>\tau</td>
+</tr>
+<tr>
+<td>υ</td>
+<td>\upsilon</td>
+<td>φ</td>
+<td>\phi</td>
+</tr>
+<tr>
+<td>χ</td>
+<td>\chi</td>
+<td>ψ</td>
+<td>\psi</td>
+</tr>
+<tr>
+<td>ω</td>
+<td>\omega</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>命令首字母大写则为显示为大写。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<ul>
+<li>字母修饰：</li>
+</ul>
+<p>上标：^</p>
+<p>下标：_</p>
+<p>举例：C_n^2 呈现为 $C_n^2$</p>
+<p>矢量：</p>
+<p>\vec a呈现为 $\vec a$</p>
+<p>\overrightarrow{xy}呈现为$\overrightarrow{xy}$</p>
+<ul>
+<li>分组:</li>
+</ul>
+<p>使用{}将具有相同等级的内容扩入其中，成组处理</p>
+<p> 举例：10^{10}呈现为$10^{10}$，而10^10呈现为$10^10$</p>
+<ul>
+<li>括号：<br>小括号：()呈现为()<br>中括号：[]呈现为[]<br>尖括号：\langle,\rangle呈现为$\langle,\rangle$</li>
+</ul>
+<p>大括号为与分组符号{}相区别，使用转义字符\</p>
+<p>使用\left(或\right)使符号大小与邻近的公式相适应；该语句适用于所有括号类型</p>
+<p>(\frac{x}{y})呈现为$(\frac{x}{y})$</p>
+<p>而\left(\frac{x}{y}\right)呈现为$\left(\frac{x}{y}\right)$</p>
+<ul>
+<li>求和：</li>
+</ul>
+<p>求和符号\sum显示为$∑$</p>
+<p>举例:\sum_{i&#x3D;0}^n 显示为 $\sum_{i&#x3D;0}^n$</p>
+<ul>
+<li>极限：</li>
+</ul>
+<p>极限符号\lim显示为$lim$</p>
+<p>举例:\lim_{x\to\infty} </p>
+<p>$<br>\lim_{x\to\infty}<br>$</p>
+<ul>
+<li>积分：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>显示</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>\int</td>
+<td>∫</td>
+</tr>
+<tr>
+<td>\iint</td>
+<td>∬</td>
+</tr>
+<tr>
+<td>\iiint</td>
+<td>∭</td>
+</tr>
+<tr>
+<td>\iiiint</td>
+<td>∬∬</td>
+</tr>
+<tr>
+<td>\oint</td>
+<td>∮</td>
+</tr>
+</tbody></table>
+<p>举例：\int_0^\infty{fxdx} 显示为$$\int_0^\infty{f(x)dx}$$</p>
+<ul>
+<li>分式：</li>
+</ul>
+<p>\frac{公式1}{公式2}显示为$\frac{公式1}{公式2}$</p>
+<p>举例:\frac a b $\frac a b$</p>
+<ul>
+<li><p>根号：<br>\sqrt[x]{y}显示为$\sqrt[x]{y}$</p>
+</li>
+<li><p>常见函数：</p>
+</li>
+</ul>
+<p>\函数名</p>
+<p>举例:\sin x,\ln x,\log_n^2 5,\max(A,B,C)显示为<br>$$ \sin x,\ln x,\log_n^2,\max(A,B,C) $$</p>
+<p>暂时写这么些，还有很多其他用法，需要平时的积累。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/markdown/" rel="tag"># markdown</a>
+              <a href="/tags/LaTex/" rel="tag"># LaTex</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/07/28/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA/" rel="prev" title="机器学习——PLA">
+                  <i class="fa fa-angle-left"></i> 机器学习——PLA
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/" rel="next" title="机器学习——PLA算法实现与可视化">
+                  机器学习——PLA算法实现与可视化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

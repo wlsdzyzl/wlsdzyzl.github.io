@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="完成第一个作业（实际上是第二个）。这个作业还是比较费劲的，一个原因是对OpenGL十分不熟悉。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——Homework1">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="完成第一个作业（实际上是第二个）。这个作业还是比较费劲的，一个原因是对OpenGL十分不熟悉。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0296.GIF">
+<meta property="article:published_time" content="2018-10-26T15:58:25.000Z">
+<meta property="article:modified_time" content="2018-10-28T03:48:00.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="homework">
+<meta property="article:tag" content="computer graphics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0296.GIF">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/","path":"2018/10/26/图形学——Homework1/","title":"图形学——Homework1"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——Homework1 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/26/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Homework1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——Homework1 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——Homework1
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-26 23:58:25" itemprop="dateCreated datePublished" datetime="2018-10-26T23:58:25+08:00">2018-10-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-10-28 11:48:00" itemprop="dateModified" datetime="2018-10-28T11:48:00+08:00">2018-10-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>完成第一个作业（实际上是第二个）。这个作业还是比较费劲的，一个原因是对OpenGL十分不熟悉。</p>
+<span id="more"></span>
+
+<p>首先，openGL中，Z轴指向屏幕外，Y轴指向上侧，X轴指向右侧。这是一个需要注意的地方。</p>
+<p>其次，openGL中3D的呈现，实际上是模拟一个相机再看这个物品。在作业中，可以知道的是茶壶放在世界坐标的原点，而刚开始的视点是(0,0,5).</p>
+<p>作业要完成左右旋转，而实际上就是视点相对于视点相对于世界坐标要转动。在这里，我规定的转动方向是向左的话，看到茶壶的左侧，也就是视点向左侧转动，而不是让茶壶向左侧转动（那样的话我们能看到的实际上变成了右侧）。其他方向也是一样的道理。</p>
+<p>为了让视点的坐标转动，首先要完成rotate函数的定义，这个函数直接使用Rodrigues公式就可以求得旋转矩阵。代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">mat3 <span class="title">Transform::rotate</span><span class="params">(<span class="type">const</span> <span class="type">float</span> degrees, <span class="type">const</span> vec3&amp; axis)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE</span></span><br><span class="line">  <span class="comment">// You will change this return call</span></span><br><span class="line">	vec3 _axis = glm::<span class="built_in">normalize</span>(axis);</span><br><span class="line">	<span class="type">float</span> theta = degrees/<span class="number">360</span>* pi;</span><br><span class="line">	mat3 a_ta = <span class="built_in">mat3</span>(_axis.x*_axis.x, _axis.x*_axis.y, _axis.x*_axis.z, _axis.y*_axis.x, _axis.y*_axis.y, _axis.y*_axis.z, _axis.z*_axis.x, _axis.z*_axis.y, _axis.z*_axis.z);</span><br><span class="line">	mat3 I = <span class="built_in">mat3</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">	mat3 Astar = <span class="built_in">mat3</span>(<span class="number">0</span>, -_axis.z, _axis.y, _axis.z, <span class="number">0</span>, -_axis.x, -_axis.y, _axis.x, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> a_ta + (I - a_ta)*<span class="built_in">cos</span>(theta) + Astar * <span class="built_in">sin</span>(theta);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很尴尬的是我不知道OpenGL中有什么简洁的办法计算$\mathbf{a}\mathbf{a}^T$，因此用手把它敲出来了。</p>
+<p>第二个就是定义向左的函数。OpenGL中，除了视点坐标以外还有一个up向量，表示视点坐标向上的方向，也就是我们头发所指的方向。因为我们需要用两个向量来确定视点坐标系（这个后面再说）。所以我们在移动视点的时候也要移动up向量。</p>
+<p>左右转的时候，很容易，我们不需要改变up向量，因为我们就是绕着up向量转的。所以这个很简单就可以写出来（需要注意的是转动角度的方向和转动轴向量也是符合右手定则的，这是之前推公式的结果。向左转的话，$\theta$应该取负，然而代码中<strong>我并没有取负，依然得到想要的结果</strong>）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Transform::left</span><span class="params">(<span class="type">float</span> degrees, vec3&amp; eye, vec3&amp; up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE	</span></span><br><span class="line">	mat3 r = <span class="built_in">rotate</span>(degrees,up);</span><br><span class="line">	eye = r * eye;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而上下转的时候就需要注意了，我们绕的轴就变了，实际上上下转的时候我们绕的轴是up向量与视点向量叉乘的结果，而up向量转动后也要作相应的转变。还记得up向量与eye始终垂直，那么可以看作是它的法向量。因此，法向转换就用到了:$(M^{-1})^T$.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Transform::up</span><span class="params">(<span class="type">float</span> degrees, vec3&amp; eye, vec3&amp; up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE </span></span><br><span class="line">	mat3 r = <span class="built_in">rotate</span>(degrees, -glm::<span class="built_in">cross</span>(eye, up));</span><br><span class="line">	up = glm::<span class="built_in">transpose</span>(glm::<span class="built_in">inverse</span>(r))*up;<span class="comment">//up vector is not easy to compute</span></span><br><span class="line">	eye = r * eye;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后一个就是lookAt函数。要想写出来lookAt函数，首先要知道lookAt在做什么。lookAt函数是做的事情，是把茶壶投影到视点坐标当中。如果lookAt返回的是0向量，那么我们看到的茶壶的内部。</p>
+<p>这就要求我们要建立一个坐标系出来了。之前讲过建坐标的方法，但是u,v,w只要符合右手定则就好，其他的不做要求。但是OpenGL中，z轴是朝着平面外的，因此我们就必须规定视点的向量就是z轴的方向，对应着w。接着用叉乘（up与eye向量）做出u轴，朝右的向量，最后求得v轴即可。这就建立了视点坐标。</p>
+<p>建立视点坐标后又如何得到原来的点在该坐标系下的坐标呢？我们可以看出来这需要两步：旋转和平移。旋转和平移是不可逆的，因此我们首先要注意顺序。这个问题有点棘手。在lookAt函数中，我们需要做的是先平移再旋转（为毛我觉得是先旋转后平移？可能我对OpenGL又有什么误解。如果是移动坐标系的话是先平移后旋转的）。</p>
+<p>（好吧，经过实际计算了之后我明白了。其实想象移动点的话是比较抽象的，但是点的移动实际上就是坐标系的相对运动。因此lookAt函数可以看作将世界坐标系移动到相机坐标系。而这个时候的移动比较容易理解的是先平移后旋转，因为如果先旋转了，平移时候加上相机坐标得到的并不是原相机的位置，因为坐标轴方向变了。而对应到点，一样也是先平移后旋转的。</p>
+<p>至于为什么gluLookAt需要物体的中心坐标，我是因为物体本身也有一个自己的局部坐标系，需要用中心坐标（世界坐标），才能通过将局部坐标进行一个偏移，得到世界坐标后，继续上面的平移旋转操作，本题中中心坐标为(0,0,0)，所以没有便宜，局部坐标就是世界坐标）</p>
+<p>如果理解了之前的旋转矩阵，我们就知道旋转矩阵实际上就是坐标系的三个单位向量，而旋转后的结果就是该点在该坐标系的坐标值，因此很容易得到：<br>$r &#x3D; \begin{bmatrix}<br>\mathbf{u}\<br>\mathbf{v}\<br>\mathbf{w}<br>\end{bmatrix}$.</p>
+<p>而平移的量实际上就是当前$eye$取负。这个也很好理解。然后得到了平移旋转矩阵：<br>$\begin{bmatrix}<br>R_{3 \times 3}&amp; R_{3 \times 3}\mathbf{eye}<em>{3 \times 1}\<br>0</em>{1\times 3}&amp;1<br>\end{bmatrix}$</p>
+<p>这就得到了最后的lookAt函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">mat4 <span class="title">Transform::lookAt</span><span class="params">(vec3 eye, vec3 up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE</span></span><br><span class="line">	vec3 w = glm::<span class="built_in">normalize</span>(eye);</span><br><span class="line">	vec3 u = glm::<span class="built_in">normalize</span>(glm::<span class="built_in">cross</span>(up, eye)) ;</span><br><span class="line">	vec3 v = glm::<span class="built_in">normalize</span>(glm::<span class="built_in">cross</span>(w, u));</span><br><span class="line">	mat3 r = <span class="built_in">mat3</span>(u,v,w );</span><br><span class="line">	vec3 t = <span class="built_in">vec3</span>(-glm::<span class="built_in">dot</span>(u,eye), -glm::<span class="built_in">dot</span>(v,eye), -glm::<span class="built_in">dot</span>(w,eye));</span><br><span class="line">	cout &lt;&lt; t.x &lt;&lt; t.y &lt;&lt; t.z &lt;&lt; endl;</span><br><span class="line">	mat4 result = <span class="built_in">mat4</span>(r[<span class="number">0</span>][<span class="number">0</span>], r[<span class="number">0</span>][<span class="number">1</span>], r[<span class="number">0</span>][<span class="number">2</span>], t.x, r[<span class="number">1</span>][<span class="number">0</span>], r[<span class="number">1</span>][<span class="number">1</span>], r[<span class="number">1</span>][<span class="number">2</span>], t.y, r[<span class="number">2</span>][<span class="number">0</span>], r[<span class="number">2</span>][<span class="number">1</span>], r[<span class="number">2</span>][<span class="number">2</span>], t.z, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">	<span class="keyword">return</span> glm::<span class="built_in">transpose</span>(result);</span><br><span class="line">  <span class="comment">// You will change this return call</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我一直不明白为什么最后要加一个transpose.</p>
+<p>现在我知道了OpenGL（glm）中矩阵构造时候是列优先的，如m[0][1],指的是第0列第1行。所以我构造出来的所有矩阵都应该加个转置，这也解释了为什么上面代码degree没有取负依然得到了正确的结果。正确代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">mat3 <span class="title">Transform::rotate</span><span class="params">(<span class="type">const</span> <span class="type">float</span> degrees, <span class="type">const</span> vec3&amp; axis)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE</span></span><br><span class="line">  <span class="comment">// You will change this return call</span></span><br><span class="line">	vec3 _axis = glm::<span class="built_in">normalize</span>(axis);</span><br><span class="line">	<span class="type">float</span> theta = degrees/<span class="number">180</span>* pi;</span><br><span class="line">	mat3 a_ta = <span class="built_in">mat3</span>(_axis.x*_axis.x, _axis.x*_axis.y, _axis.x*_axis.z, _axis.y*_axis.x, _axis.y*_axis.y, _axis.y*_axis.z, _axis.z*_axis.x, _axis.z*_axis.y, _axis.z*_axis.z);</span><br><span class="line">	mat3 I = <span class="built_in">mat3</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">	mat3 Astar = <span class="built_in">mat3</span>(<span class="number">0</span>, -_axis.z, _axis.y, _axis.z, <span class="number">0</span>, -_axis.x, -_axis.y, _axis.x, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> glm::<span class="built_in">transpose</span>(a_ta + (I - a_ta)*<span class="built_in">cos</span>(theta) + Astar * <span class="built_in">sin</span>(theta));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Transforms the camera left around the &quot;crystal ball&quot; interface</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Transform::left</span><span class="params">(<span class="type">float</span> degrees, vec3&amp; eye, vec3&amp; up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE</span></span><br><span class="line"></span><br><span class="line">	mat3 r = <span class="built_in">rotate</span>(-degrees,up);</span><br><span class="line"></span><br><span class="line">	eye = r * eye;</span><br><span class="line">	cout &lt;&lt; eye.x &lt;&lt; eye.y &lt;&lt; eye.z &lt;&lt; endl;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Transforms the camera up around the &quot;crystal ball&quot; interface</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Transform::up</span><span class="params">(<span class="type">float</span> degrees, vec3&amp; eye, vec3&amp; up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE </span></span><br><span class="line">	mat3 r = <span class="built_in">rotate</span>(-degrees, -glm::<span class="built_in">cross</span>(eye, up));</span><br><span class="line">	up = glm::<span class="built_in">transpose</span>(glm::<span class="built_in">inverse</span>(r))*up;<span class="comment">//up vector is not easy to compute</span></span><br><span class="line">	eye = r * eye;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Your implementation of the glm::lookAt matrix</span></span><br><span class="line"><span class="function">mat4 <span class="title">Transform::lookAt</span><span class="params">(vec3 eye, vec3 up)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE FOR HW1 HERE</span></span><br><span class="line">	vec3 w = glm::<span class="built_in">normalize</span>(eye);</span><br><span class="line">	vec3 u = glm::<span class="built_in">normalize</span>(glm::<span class="built_in">cross</span>(up, eye)) ;</span><br><span class="line">	vec3 v = glm::<span class="built_in">normalize</span>(glm::<span class="built_in">cross</span>(w, u));</span><br><span class="line">	mat3 r = <span class="built_in">mat3</span>(u,v,w );</span><br><span class="line">	vec3 t = <span class="built_in">vec3</span>(-glm::<span class="built_in">dot</span>(u,eye), -glm::<span class="built_in">dot</span>(v,eye), -glm::<span class="built_in">dot</span>(w,eye));<span class="comment">//-r * eye;</span></span><br><span class="line">	mat4 result = <span class="built_in">mat4</span>(r[<span class="number">0</span>][<span class="number">0</span>], r[<span class="number">0</span>][<span class="number">1</span>], r[<span class="number">0</span>][<span class="number">2</span>], t.x, r[<span class="number">1</span>][<span class="number">0</span>], r[<span class="number">1</span>][<span class="number">1</span>], r[<span class="number">1</span>][<span class="number">2</span>], t.y, r[<span class="number">2</span>][<span class="number">0</span>], r[<span class="number">2</span>][<span class="number">1</span>], r[<span class="number">2</span>][<span class="number">2</span>], t.z, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</span><br><span class="line">	<span class="keyword">return</span> glm::<span class="built_in">transpose</span>(result);</span><br><span class="line">  <span class="comment">// You will change this return call</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后结果：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0296.GIF"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/homework/" rel="tag"># homework</a>
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Transformation/" rel="prev" title="图形学——Transformation">
+                  <i class="fa fa-angle-left"></i> 图形学——Transformation
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/" rel="next" title="信息论——Basic Conception">
+                  信息论——Basic Conception <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

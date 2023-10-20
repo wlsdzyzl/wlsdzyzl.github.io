@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前我们学习的所有模型，都是linear model。我们做的都是用一条直线（或者平面等）来分类，或者拟合，或者是通过该直线来预测概率。但是现实中很多时候线性不一定能做得很好。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Nonlinear Transformation">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前我们学习的所有模型，都是linear model。我们做的都是用一条直线（或者平面等）来分类，或者拟合，或者是通过该直线来预测概率。但是现实中很多时候线性不一定能做得很好。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%4014N%288G7K0JNSKXZF%29DU_7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png">
+<meta property="article:published_time" content="2018-09-05T10:01:45.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:22:39.594Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="polynomial">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%4014N%288G7K0JNSKXZF%29DU_7.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/","path":"2018/09/05/机器学习——Nonlinear-Transformation/","title":"机器学习——Nonlinear Transformation"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Nonlinear Transformation | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Nonlinear Transformation | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Nonlinear Transformation
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-05 18:01:45" itemprop="dateCreated datePublished" datetime="2018-09-05T18:01:45+08:00">2018-09-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:22:39" itemprop="dateModified" datetime="2023-10-21T04:22:39+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们学习的所有模型，都是linear model。我们做的都是用一条直线（或者平面等）来分类，或者拟合，或者是通过该直线来预测概率。但是现实中很多时候线性不一定能做得很好。<span id="more"></span>如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/5%4014N%288G7K0JNSKXZF%29DU_7.png"></p>
+<p>似乎用一个圆，能更好地对这些样本进行分类。实际上，上图的分类的依据是：<br>$$<br>h(X) &#x3D; sign(0.6-x_1^2-x_2^2)<br>$$</p>
+<p>因此，这样我们就引入了二次假设（quadratic）。<br>在上式中，如果我们令$z_0 &#x3D; x_0 &#x3D; 1, z_1 &#x3D; x_1^2 ,z_2 &#x3D; x_2^2$，那么就发现，实际上上面中对于$x$的二次假设实际上转换为了对$Z$的线性假设。一个样本在x空间上是很难线性分割的，无论怎样都不能得到较好的$E_{in}$，但是展开到z空间上也许就是线性可分的了。</p>
+<p>因此怎么做实际上很简单，之前的训练集是$D$，我们通过展开到z空间来得到训练集$D’$，用训练集来进行之前的用于线性模型的训练。</p>
+<p>通过这个，我们仿佛进入了新世界：我们可以任意来构建多项式(特征转换)，达到非线性学习的结果。</p>
+<p>但是世界上不会天上掉馅饼。我们知道不会有这么白白的好事发生。既然多项式这么强大，它必然会付出更多的代价，下面我们来简单说明下它的price。</p>
+<p>假如原始特征有d个，我们构建的是最高次为Q的Q次多项式($Q \leq d$)。那么，构造的新的样本集会有多少个维度？</p>
+<p>$$<br>\Phi _Q(X) &#x3D; \left ( \begin{matrix}<br>    1,\<br>    x_1,x_2,…,x_d,\<br>    x_1^2,x_1x_2,…,x_d^2,\<br>    …,\<br>    x_1^Q,x_1^{Q-1}x_2,…,x_d^Q\<br>       \end{matrix}   \right )<br>$$</p>
+<p>假如我们乘转换后的维度是$\overline d$，则 $\overline d &#x3D; C_{Q+d}^d-1 &#x3D;&gt;O(Q^d)$(如何得到这个值需要排列组合知识，在此处知道即可).</p>
+<p>这意味着$\overline W$是（$1+\overline d$）维的向量，而转换后的$vc dimension \leq \overline d+1$(之前的VC bound中证明过了二元分类维度为d的时候，vc dimension为d+1).vc dimension可能会增加很多，也就意味着我们需要非常多的资料可能才能得到较好的准确度，同时也会极大地增加存储空间，以及算法的学习速度。</p>
+<p>我们列出次数为1-Q时候的维度如下：<br>$$<br>\Phi _0(x) &#x3D; (1)<br>$$</p>
+<p>$$<br>\Phi _1(x) &#x3D; (\Phi _0(x) , x_1,x_2,…,x_d)<br>$$</p>
+<p>$$<br>\Phi _2(x) &#x3D; (\Phi _1(x) , x_1^2,x_1x_2,…,x_d^2)<br>$$</p>
+<p>…</p>
+<p>$$<br>\Phi _Q(x) &#x3D; (\Phi _{Q-1}(x),x_1^Q,x_1^{Q-1}x_2,…,x_d^Q)<br>$$</p>
+<p>因此：我们可以得到：</p>
+<p>$H_0 \subset H_1 \subset H_2 \subset H_3 \subset … \subset H_Q$;</p>
+<p>从而得到：</p>
+<p>$ d_{vc}(H_0) \leq d_{vc}(H_1) \leq d_{vc}(H_2) \leq … \leq d_{vc}(H_Q)$;</p>
+<p>而对于$E_in$来说，不错的消息是$E_{in}$是在不会变大的。因为它最多最好的线与之前一样：</p>
+<p>$ E_{in} (g_0) \geq  E_{in} (g_1) \geq E_{in} (g_2) \geq … \geq E_{in}(g_Q)$;</p>
+<p>更重要的一件事，不知道你是否还记得这个学习曲线：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/M%29P32DW%29EE9%7BWB%246A08T8%29X.png"></p>
+<p>从上面可以看出来，维度个数增加，$E_{out}$并不是一直下降的，最好的维度个数是在中间某个地方。而$E_{in}$从来就不是我们关注的重点，我们尽可能减少他，是为了得到更好的$E_{out}$,而过分增加维度个数，可能会本末倒置。$E_{out}$才是我们想要的。</p>
+<p>实际中，我们在学习时候应该先从低的维度开始，再慢慢向上增加，直到得到想要的$E_{in}$，往往线性的学习并不像人们想象中的那样效果很差，可能从较低的维度就可以得到较好的结果。如果一开始就用很多的维度，可能直接得到了很好的$E_{in}$，但是泛化能力却很差。</p>
+<p>最后，要注意，有的人说，刚开始举得例子中，如果通过可视化，我们直接用 $s(X) &#x3D; w_0 + W_1 x_1^2 + W_2x_2 ^2$，这样看起来，似乎维度只有3个，实际上类似的还有$s(x) &#x3D; w_0 + W_1( x_1^2 + x_2 ^2)$,似乎维度只有两个，甚至是可以降到0个。但是这实际上是人脑学习的过程，我们已经替机器学习了不少，因此最后的泛化结果可能并不是我们想象的那么好，因为真实的代价还是存在的。而且，高纬度的可视化是很难做到的。</p>
+<p>因此，使用多项式并不见得就是好的，我们要结合实际情况来进行学习。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/polynomial/" rel="tag"># polynomial</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Multiclass/" rel="prev" title="机器学习——Multiclass（OVA and OVO）">
+                  <i class="fa fa-angle-left"></i> 机器学习——Multiclass（OVA and OVO）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/" rel="next" title="机器学习——（基石）作业3">
+                  机器学习——（基石）作业3 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

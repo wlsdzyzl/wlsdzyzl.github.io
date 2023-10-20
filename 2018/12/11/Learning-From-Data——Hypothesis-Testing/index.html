@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上周讲的内容，和之前一样，从无到有推出来一堆东西。老师在白板上写Statistical Learning, Hypothesis Testing，当然是有关系的，但是这届课讲得内容应该只是上述二者的一小部分。比较神奇的是，最后竟然推到了VC Divergence。Amazing!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Hypothesis Testing">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/11/Learning-From-Data%E2%80%94%E2%80%94Hypothesis-Testing/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上周讲的内容，和之前一样，从无到有推出来一堆东西。老师在白板上写Statistical Learning, Hypothesis Testing，当然是有关系的，但是这届课讲得内容应该只是上述二者的一小部分。比较神奇的是，最后竟然推到了VC Divergence。Amazing!">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-12-11T12:01:16.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:34:00.420Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="statistical learning">
+<meta property="article:tag" content="hypothesis testing">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/11/Learning-From-Data%E2%80%94%E2%80%94Hypothesis-Testing/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/11/Learning-From-Data%E2%80%94%E2%80%94Hypothesis-Testing/","path":"2018/12/11/Learning-From-Data——Hypothesis-Testing/","title":"Learning From Data——Hypothesis Testing"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Hypothesis Testing | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Hypothesis-Testing"><span class="nav-number">1.</span> <span class="nav-text">Binary Hypothesis Testing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#M-Hypothesis-Testing"><span class="nav-number">2.</span> <span class="nav-text">M-Hypothesis Testing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Error-Probability-Of-Optimal-Decision"><span class="nav-number">3.</span> <span class="nav-text">Error Probability Of Optimal Decision</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/11/Learning-From-Data%E2%80%94%E2%80%94Hypothesis-Testing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Hypothesis Testing | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Hypothesis Testing
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-11 20:01:16" itemprop="dateCreated datePublished" datetime="2018-12-11T20:01:16+08:00">2018-12-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:34:00" itemprop="dateModified" datetime="2023-10-21T03:34:00+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上周讲的内容，和之前一样，从无到有推出来一堆东西。老师在白板上写Statistical Learning, Hypothesis Testing，当然是有关系的，但是这届课讲得内容应该只是上述二者的一小部分。比较神奇的是，最后竟然推到了VC Divergence。Amazing!</p>
+<span id="more"></span>
+<h2 id="Binary-Hypothesis-Testing"><a href="#Binary-Hypothesis-Testing" class="headerlink" title="Binary Hypothesis Testing"></a>Binary Hypothesis Testing</h2><p>假设$Y &#x3D; {0,1}$，数据是以$P(X|Y&#x3D;0)$或者$P(X|Y&#x3D;1)$生成（iid）出来。</p>
+<p>定义下面的表示：<br>$$P_X(X) &#x3D; P(X|Y&#x3D;0),Q_X(X) &#x3D; P(X|Y&#x3D;1)$$</p>
+<p>我们观察的是一个数据序列$X&#x3D;{x_1,x_2,…,x_n} \in X^n$，长度为n的序列，判断它是以哪个hypothesis生成的($H_0$或者$H_1$).其中：<br>$$<br>H_0: X<del>iid,P_X(X) &#x3D; P(X|Y&#x3D;0),P_0 &#x3D; P(Y&#x3D;0);\<br>H_1: X</del>iid,Q_X(X) &#x3D; P(X|Y&#x3D;1),P_1 &#x3D; P(Y&#x3D;1).<br>$$<br>上式中，$P_０,P_1$为先验分布(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Prior_probability">Prior Distribution</a>)。</p>
+<p>要做到这件事，我们需要做的就是最小化做出错误决定（decision error probability）的概率。</p>
+<p>如何做出决定其实不难理解，由下面的式子：<br>$$<br>P[H_0|(x_1,…,x_n)]  &gt; P[H_1|(x_1,…,x_n)] \rightarrow H_0;\<br>P[H_0|(x_1,…,x_n)]  &lt; P[H_1|(x_1,…,x_n)] \rightarrow H_1.\<br>$$<br>不过这个想要从数据中计算出这个值并不容易，而想要计算出$P[(x_1,…,x_n)|H_0]$是很容易的。还好我们有贝叶斯公式（Bayes’s Rule）:<br>$$<br>P[H_0|(x_1,…,x_n)] &#x3D; \frac{P_X(x_1)…P_X(x_n)P_0}{P(x_1,…,x_n)}<br>$$<br>同理我们可以得到：<br>$$<br>P[H_1|(x_1,…,x_n)] &#x3D; \frac{Q_X(x_1)…Q_X(x_n)P_1}{P(x_1,…,x_n)}<br>$$</p>
+<p>根据这个来决定哪个Hypothesis，称为MAP Decision Rule。最后我们整理一下得到：<br>$$<br>\frac{P_X(x_1)}{Q_X(x_1)}…\frac{P_X(x_n)}{Q_X(x_n)} &gt; \frac{P_1}{P_0} \rightarrow H_0;\<br>\frac{P_X(x_1)}{Q_X(x_1)}…\frac{P_X(x_n)}{Q_X(x_n)} &lt; \frac{P_1}{P_0} \rightarrow H_1.<br>$$<br>为了简化，我把上面两行写成一行，大于或者小于写成$?$.</p>
+<p>学习机器学习到现在，对于上面的式子第一个反应当然是加$\log$，得到log-likelihood function：<br>$$<br>\sum_{i&#x3D;1}^n \log \frac{P_X(x_i)}{Q_X(x_i)} ? \log \frac{P_1}{P_0}<br>$$</p>
+<p>这时候我们得到一个minimal <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Sufficient_statistic">sufficient statistic</a>.</p>
+<p>所以在已知$P_X(X),Q_X(X),P_0,P_1$的情况下，这个问题是很好解决的。</p>
+<h2 id="M-Hypothesis-Testing"><a href="#M-Hypothesis-Testing" class="headerlink" title="M-Hypothesis Testing"></a>M-Hypothesis Testing</h2><p>我们将上面的２元情况拓展到$M$元，实际上这个结果并没有什么改变。</p>
+<p>现在假设$Y &#x3D; {1,…,M}$，我们有下面的Hypothesis:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Hypothesis</th>
+<th align="center">x</th>
+<th align="center">$P_{X\vert Y}(X\vert Y&#x3D;?)$</th>
+<th align="center">$P(Y&#x3D;?)$</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">$H_1$</td>
+<td align="center">$x\tilde{} iid$</td>
+<td align="center">$P_1(X)$</td>
+<td align="center">$ P_1$</td>
+</tr>
+<tr>
+<td align="center">$\vdots$</td>
+<td align="center">$\vdots$</td>
+<td align="center">$\vdots$</td>
+<td align="center">$\vdots$</td>
+</tr>
+<tr>
+<td align="center">$H_M$</td>
+<td align="center">$x\tilde{} iid$</td>
+<td align="center">$P_M(X)$</td>
+<td align="center">$ P_M$</td>
+</tr>
+</tbody></table>
+<p>计算$P[H_i|(x_1,…,x_n)]$，而实际上：<br>$$<br>P[H_i|(x_1,…,x_n)] &#x3D; \frac{P_i(x_i)…P_i(x_n)P(Y&#x3D;i)}{P(x_1…x_n)}<br>$$</p>
+<p>接下来的步骤和之前一样，注意在做决定的时候选择的策略一样有OVA,OVO两种。上面介绍的这种算是OVA。</p>
+<h2 id="Error-Probability-Of-Optimal-Decision"><a href="#Error-Probability-Of-Optimal-Decision" class="headerlink" title="Error Probability Of Optimal Decision"></a>Error Probability Of Optimal Decision</h2><p>就二元的情况来说，发生的错误可能有两种：</p>
+<ul>
+<li>Type 1: $H_0$是对的，选择了$H_1$</li>
+<li>Type 2: $H_1$是对的，选择了$H_0$</li>
+</ul>
+<p>这两种不同类型的错误在不同的场景下有不同的名字。</p>
+<p>为什么会选错？实际上选错是因为，它是由$H_0$生成的，但是它却更像$H_1$生成的，也就是经验分布是$Q_x(X)$，而实际分布是$P_X(X)$。因此出现错误Type 1的概率为：<br>$$<br>P(\text{empirical distribution of }(x_1,…,x_n)\text{ is }Q_x|{x_1,…,x_n}\tilde~P_x)<br>$$</p>
+<p>如何计算上面的概率？我们考虑的是当$n$非常大的时候比较理想的情况。这时候，如果Hypothesis 1是正确的，假如$X$有ｋ个取值分布为1到k，定义$q_i &#x3D; Q_X(i)$，则序列中出现i的个数的期望值为$nq_i$，而Hypothesis 2滋生出这样序列的概率为：<br>$$<br>P &#x3D; \prod_{i&#x3D;1}^kP_x^{nq_i}(i) &#x3D; e^{\sum_{i&#x3D;1}^k nq_i \log P_x(i)}<br>$$</p>
+<p>一共又有多少种这样可能的序列？答案是：<br>$$<br>\begin{align}<br>C_n^{nq_1}C_{n-nq_1}^{nq_2}…C_{n-nq_1-…-nq_{k-1} }^{nq_k}<br>&amp;&#x3D; \frac{n!}{(nq_1)!…(nq_k)!}\<br>&amp;\approx \underbrace{\frac{\sqrt{2\pi n} }{\prod_{i&#x3D;1}^k \sqrt{2\pi n q_i} } }<em>{\alpha}\cdot \underbrace{\frac{n^n}{(nq_1)^{nq_1}…(nq_k)^{nq_k} } }</em>{\beta}<br>\end{align}<br>$$</p>
+<p>从(1)到(2)，是使用了<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Stirling%27s_approximation">Stirling’s Formula</a>:<br>$$<br>n! \approx \sqrt{2\pi n} (\frac{n}{e})^n.<br>$$</p>
+<p>在(2)中，由于$\alpha$与$\beta$相比之下几乎是可以忽略的，因此我们专注于后者：<br>$$<br>\begin{aligned}<br>\beta &amp;&#x3D; \frac{n^n}{(nq_1)^{nq_1}…(nq_k)^{nq_k} }\<br>&amp;&#x3D; \frac{1}{q_1^{nq_1}…q_k^{nq_k} }\<br>&amp;&#x3D; \exp(-\sum_{i&#x3D;1}^k nq_i\log q_i)\<br>&amp;&#x3D; e^{nH(Q)}<br>\end{aligned}<br>$$</p>
+<p>非常神奇，一个熵出现了。</p>
+<p>因此我们可以得到：<br>$$<br>\begin{aligned}<br>&amp;P(\text{empirical distribution of }(x_1,…,x_n)\text{ is }Q_x|{x_1,…,x_n}\tilde~P_x)\<br>&amp;&#x3D; \beta \times P\<br>&amp;&#x3D; \exp(-\sum_{i&#x3D;1}^k nq_i\log q_i) \cdot \exp(\sum_{i&#x3D;1}^k nq_i \log P_x(i))\<br>&amp;&#x3D; \exp(-n\sum_{i&#x3D;1}^k q_i\log q_i + n\sum_{i&#x3D;1}^k q_i \log P_x(i))\<br>&amp;&#x3D; \exp(-n\sum_{i&#x3D;1}^k q_i\log \frac{q_i}{P_x(i)})\<br>&amp;&#x3D; \exp(-n D(Q_x\Vert P_x))<br>\end{aligned}<br>$$</p>
+<p>KL-Divergence出现了！这个就是Chernoff Stein Lemma:<br>给定错误2$\leq \alpha$，则错误1~$ \exp(-n D(Q_x\Vert P_x))$. 实际的数学推导是非常复杂的，这里只是大概给个直观的解释。详细请参考：<br><a target="_blank" rel="noopener" href="https://www.icg.isy.liu.se/courses/infotheory/lect7-3.pdf">Chernoff-Stein Lemma</a></p>
+<p>这更像是一节信息论的课。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/statistical-learning/" rel="tag"># statistical learning</a>
+              <a href="/tags/hypothesis-testing/" rel="tag"># hypothesis testing</a>
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/12/07/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94KKT-condition/" rel="prev" title="数学——KKT condition">
+                  <i class="fa fa-angle-left"></i> 数学——KKT condition
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/" rel="next" title="SLAM——视觉里程计（一）feature">
+                  SLAM——视觉里程计（一）feature <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

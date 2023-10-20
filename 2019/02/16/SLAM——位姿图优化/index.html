@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="SLAM中另外一个用到的最多的后端优化方法叫做位姿图（Pose Graph）优化。想象一下，对于路标的优化，可能进行几次之后就已经收敛了，这时候每次插入一个帧都再次进行一次BA仿佛有点用力过猛。而且实际中，路标的数量远远大于位姿数量，因此BA在大规模建图时，它的计算量可能会越来越大，使得实时计算变得困难。这里我们介绍的位姿图优化，就是省去了对路标的优化，仅仅调整位姿的一种做法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——位姿图优化">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/02/16/SLAM%E2%80%94%E2%80%94%E4%BD%8D%E5%A7%BF%E5%9B%BE%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="SLAM中另外一个用到的最多的后端优化方法叫做位姿图（Pose Graph）优化。想象一下，对于路标的优化，可能进行几次之后就已经收敛了，这时候每次插入一个帧都再次进行一次BA仿佛有点用力过猛。而且实际中，路标的数量远远大于位姿数量，因此BA在大规模建图时，它的计算量可能会越来越大，使得实时计算变得困难。这里我们介绍的位姿图优化，就是省去了对路标的优化，仅仅调整位姿的一种做法。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-02-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:27:40.073Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/02/16/SLAM%E2%80%94%E2%80%94%E4%BD%8D%E5%A7%BF%E5%9B%BE%E4%BC%98%E5%8C%96/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/02/16/SLAM%E2%80%94%E2%80%94%E4%BD%8D%E5%A7%BF%E5%9B%BE%E4%BC%98%E5%8C%96/","path":"2019/02/16/SLAM——位姿图优化/","title":"SLAM——位姿图优化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——位姿图优化 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Note"><span class="nav-number">1.</span> <span class="nav-text">Note</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/02/16/SLAM%E2%80%94%E2%80%94%E4%BD%8D%E5%A7%BF%E5%9B%BE%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——位姿图优化 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——位姿图优化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-02-16 00:00:00" itemprop="dateCreated datePublished" datetime="2019-02-16T00:00:00+08:00">2019-02-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:27:40" itemprop="dateModified" datetime="2023-10-21T04:27:40+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>SLAM中另外一个用到的最多的后端优化方法叫做位姿图（Pose Graph）优化。想象一下，对于路标的优化，可能进行几次之后就已经收敛了，这时候每次插入一个帧都再次进行一次BA仿佛有点用力过猛。而且实际中，路标的数量远远大于位姿数量，因此BA在大规模建图时，它的计算量可能会越来越大，使得实时计算变得困难。这里我们介绍的位姿图优化，就是省去了对路标的优化，仅仅调整位姿的一种做法。  </p>
+<span id="more"></span>
+
+
+
+<p>我们将pose graph的优化转换成图的问题，那么图的节点就是一个个位姿，用$\xi_1,…,\xi_n$来表示，而边则是两个位姿之间相对运动的估计，这个估计可能来自与特征点法或者是直接法。比如$\xi_i,\xi_j$之间一个相对运动$\Delta \xi_{ij}$，则：</p>
+<p>\Delta \xi_{ij} &#x3D; \xi_i^{-1}\circ \xi_j &#x3D; \ln(\exp((-\xi_i)^{\hat{} }) \exp (\xi_j^{\hat{} }))^{\hat{} }</p>
+<p>或者按照李群的写法：</p>
+<p>T_{ij} &#x3D; T_{i}^{-1} T_j.</p>
+<p>我们知道，实际中上式不会精确成立，因此我们需要设立最小二乘误差，然后讨论关于优化变量的导数。这里我们将上式的$T_{ij}$移到右侧，为了让其满足误差最小为0的设定，加上一个$\ln$:</p>
+<p>e_{ij} &#x3D; \ln(T_{ij}^{-1}T_i^{-1}T_j)^{\hat{} } &#x3D; \ln(\exp((-\xi_{ij})^{\hat{} })\exp((-\xi_{i})^{\hat{} })\exp(\xi_j^{\hat{} }))^{\hat {} }</p>
+<p>值得注意的是这里的优化变量有两个：$\xi_i,\xi_j$，因此我们需要求$e_{ij}$关于这两个变量的导数。按照李代数的求导方式，给$\xi_i,\xi_j$各一个左扰动$\delta \xi_i,\delta \xi_j$，于是误差变为：</p>
+<p>\hat e_{ij} &#x3D; \ln(T_{ij}^{-1}T_i^{-1}\exp((-\delta \xi_i)^{\hat{} })\exp(\delta\xi_j)^{\hat{} }T_j)^{\hat{} }</p>
+<p>我们希望将扰动项移到左侧或者右侧，需要利用到一个伴随性质：</p>
+<p>\exp((Ad(T)\xi)^{\hat{} }) &#x3D; T\exp(\xi^{\hat{} })T^{-1}.</p>
+<p>稍加改变，得到：</p>
+<p>\exp(\xi^{\hat{} })T &#x3D; T\exp((Ad(T^{-1})\xi)^{\hat{} }).</p>
+<p>这说明通过引入一个伴随项，我们能够交换扰动项左右侧的$T$，利用它可以将扰动项移到最右，导出右乘形式的雅科比矩阵：</p>
+<p>\begin{aligned} \hat e_{ij} &amp;&#x3D;\ln\left (T_{ij}^{-1}T_i^{-1}\exp((-\delta\xi_i)^{\hat{} })\exp(\delta\xi_j^{\hat{} })T_j\right)^{\hat{} }\\ &amp;&#x3D;\ln\left(T_{ij}^{-1}T_i^{-1}T_j \exp\left((-Ad(A_j^{-1})\delta\xi_i)^{\hat{} }\right)\exp\left((Ad(T_j^{-1})\delta \xi_j)^{\hat{} }\right)\right)\\ &amp;\approx \ln(T_{ij}^{-1}T_i^{-1}T_j[I - (Ad(T_j^{-1})\delta \xi_i)^{\hat{} } + (Ad(T_j^{-1})\delta\xi_j)^{\hat{} }])^{\hat{} }\\ &amp;\approx e_{ij}+\frac{\partial e_{ij} }{\partial \delta \xi_i}\delta \xi_i + \frac{\partial e_{ij} }{\partial \delta \xi_j}\delta \xi_j \end{aligned}</p>
+<p>因此，按照李代数上的求导规则，我们求出了误差关于两个位姿的雅科比矩阵。关于$T_i$的：</p>
+<p>\frac{\partial e_{ij} }{\partial \delta \xi_i} &#x3D; -\mathcal{J}_r^{-1}(e_{ij})Ad(T_j^{-1}).</p>
+<p>关于$T_j$的：</p>
+<p>\frac{\partial e_{ij} }{\partial \delta \xi_i} &#x3D; \mathcal{J}_r^{-1}(e_{ij})Ad(T_j^{-1}).</p>
+<p>这部分的理解有点困难，可以回顾之前的<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">李群李代数</a>。之前也说过，由于李群（se(3)）上的雅科比矩阵形式过于复杂，我们通常取近似。如果误差接近于0，可以取近似：</p>
+<p>\mathcal{J}_r^{-1}(e_{ij}) \approx I + \frac 1 2 \begin{bmatrix} \phi _e ^{\hat{} } &amp; \rho _e^{\hat{} }\\ 0 &amp; \phi _e ^{\hat{} } \end{bmatrix}.</p>
+<p>了解了雅科比计算之后，其余的部分就是普通的图优化了。记$\varepsilon$为所有边的集合，总体的目标函数为：</p>
+<p>\min_\xi \frac{1}{2} \sum_{i,j \in \varepsilon} e_{ij}^T\Sigma_{ij}^{-1}e_{ij}.</p>
+<p>我们依然可以利用列文伯格或者高斯牛顿法来解决这个问题。</p>
+<h3 id="Note"><a href="#Note" class="headerlink" title="Note"></a><a href="about:blank#Note" title="Note"></a>Note</h3><p>伴随性质：</p>
+<ul>
+<li>SO(3) R \exp(p^{\hat{} })R^T &#x3D; \exp((Rp)^{\hat{} }).</li>
+<li>SE(3) T\exp(\xi^{\hat{} })T^{-1} &#x3D; \exp((Ad(T)\xi)^{\hat{} }).其中： Ad(T) &#x3D; \begin{bmatrix} R &amp; t^{\hat{} }R\\ 0 &amp; R \end{bmatrix}.</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/02/16/SLAM%E2%80%94%E2%80%94%E5%9B%9E%E7%8E%AF%E6%A3%80%E6%B5%8B/" rel="prev" title="SLAM——回环检测">
+                  <i class="fa fa-angle-left"></i> SLAM——回环检测
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/02/21/Paper%E2%80%94%E2%80%94Real-time%20Large-Scale%20Dense%203D%20Reconstruction%20with%20Loop%20Closure/" rel="next" title="Paper——Real-time Large-Scale Dense 3D Reconstruction with Loop Closure">
+                  Paper——Real-time Large-Scale Dense 3D Reconstruction with Loop Closure <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这个博客介绍特征值分解（Eigen Value Decomposition,EVD）和奇异值分解(Singular Value Decomposition),　可以当作机器学习的补充材料。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数学——EVD与SVD">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这个博客介绍特征值分解（Eigen Value Decomposition,EVD）和奇异值分解(Singular Value Decomposition),　可以当作机器学习的补充材料。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/G6T%7DO%5B7%5BIW70%5DP0VF2D%5DR89.png">
+<meta property="article:published_time" content="2018-11-28T12:59:54.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.774Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SVD">
+<meta property="article:tag" content="mathmatics">
+<meta property="article:tag" content="algebra">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/G6T%7DO%5B7%5BIW70%5DP0VF2D%5DR89.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/","path":"2018/11/28/数学——EVD与SVD/","title":"数学——EVD与SVD"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数学——EVD与SVD | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Theory"><span class="nav-number">1.</span> <span class="nav-text">Theory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EVD"><span class="nav-number">1.1.</span> <span class="nav-text">EVD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVD"><span class="nav-number">1.2.</span> <span class="nav-text">SVD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVD%E7%9A%84%E5%87%A0%E4%BD%95%E6%84%8F%E4%B9%89"><span class="nav-number">2.</span> <span class="nav-text">SVD的几何意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVD%E7%9A%84%E5%88%86%E5%9D%97%E7%9F%A9%E9%98%B5%E4%BB%A5%E5%8F%8A%E5%A4%96%E7%A7%AF%E5%BD%A2%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">SVD的分块矩阵以及外积形式</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数学——EVD与SVD | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数学——EVD与SVD
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-28 20:59:54" itemprop="dateCreated datePublished" datetime="2018-11-28T20:59:54+08:00">2018-11-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">数学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这个博客介绍特征值分解（Eigen Value Decomposition,EVD）和奇异值分解(Singular Value Decomposition),　可以当作机器学习的补充材料。</p>
+<span id="more"></span>
+<p>SVD在线性代数中是一个非常重要的东西。Strang曾经说过：它远远没有得到它应该有的名气。在考研的线性代数中也从来没有见过SVD的身影，不过在原来在做一些图像处理相关的程序时候，经常用到OpenCV中的SVD。</p>
+<h2 id="Theory"><a href="#Theory" class="headerlink" title="Theory"></a>Theory</h2><p>SVD和对角化一个矩阵紧密连接在一起，回想一下，如果有一个实对称矩阵$A_{n \times n}$，则有一个正交矩阵$V$和一个对角矩阵$D$，使得$A &#x3D; VDV^T$。这里$V$的每一列对应$A$的特征值，形成一个$\mathbb{R}^n$空间的正交基，而$D$的对角元素是$D$的特征值。这个就是EVD，eigenvalue decomposition。</p>
+<p>对于SVD来说，我们有一个任意的实矩阵$A_{m \times n}$，有两个正交矩阵：$U$和$V$以及一个对角矩阵$\Sigma$，使得$A &#x3D; U \Sigma V^T$。这种情况下，$U$是$m\times m$矩阵，而$V$是$n \times n$矩阵，因此$\Sigma$和$A$的形状一样，是$m\times n$，不过它只有对角元素非零。$\Sigma$的对角元素，$\Sigma_{ii} &#x3D; \sigma_i$，可以被安排成非负以及递减的顺序，其中如果$\sigma_i&gt;0$，它是$A$的奇异值，而$U,V$的列向量分别是$A$的左右奇异向量。</p>
+<p>我们可以把矩阵看作一个线性转换，通过这个想法来进一步发现EVD和SVD之间的相似之处。</p>
+<h3 id="EVD"><a href="#EVD" class="headerlink" title="EVD"></a>EVD</h3><p>对于一个实对称矩阵$A$，这个转换把一个$\mathbb{R}^n$向量依然转换成$\mathbb{R}^n$为向量，也就是domain和codomain都是$\mathbb{R}^n$。另外提一下，假如转换后对应的元素为$T(x)$，则成$T(x)$为一个image，而所有image的集合称为$range$。$V$题提供了一个非常好的正交基，如果一个$\mathbb{R}^n$向量被这个正交基来表示，我们也可以看到，这个转换扩大了一些这个单位正交基中的成分，对应的就是较大的特征值$\sigma_i$。<br>我希望可以举个例子来帮助理解，假如向量$x \in \mathbb{R}^n$:<br>$$<br>\begin{aligned}<br>Ax &amp;&#x3D; V \Sigma V^Tx\<br>&amp;&#x3D; \begin{bmatrix}<br>v_1 &amp; \cdots &amp; v^n\<br>\end{bmatrix}\begin{bmatrix}<br>\sigma_1 &amp;\cdots&amp; 0\<br>\vdots &amp; \ddots &amp; \vdots\<br>0 &amp; \cdots &amp; \sigma_n<br>\end{bmatrix}\begin{bmatrix}<br>v_1^T\<br>\vdots\<br>v_n^T<br>\end{bmatrix}x \<br>&amp;&#x3D; \begin{bmatrix}<br>\sigma_1v_1&amp;\cdots&amp;\sigma_nv_n<br>\end{bmatrix}<br>\begin{bmatrix}<br>v_1^Tx\<br>\vdots\<br>v_n^Tx<br>\end{bmatrix}\<br>&amp;&#x3D;\sigma_1v_1v_1^Tx + …+ \sigma_nv_nv_n^Tx<br>\end{aligned}<br>$$</p>
+<p>观察上面的展开，实际上我们可以发现的是，$V^TX$得到的，实际上是在$V$这个正交基下，$x$的“坐标值”，而$V\Sigma$实际上是经过转换后的坐标轴，放大了对应特征值的倍数。从这里，我们就可以很清楚得看到A这个转换在做什么。</p>
+<h3 id="SVD"><a href="#SVD" class="headerlink" title="SVD"></a>SVD</h3><p>现在我们来看看，SVD的解释。同样我们把任意一个实矩阵$A$看作转换,它把$\mathbb{R}^n$向量，转化为$\mathbb{R}^m$，这意味着这个转换$domain$是$\mathbb{R}^n$，而$codomain$是$\mathbb{R}^m$，而image ∈ range ∈ $\mathbb{R}^m$。因此对于domain和range都搞一个单位正交基才是比较合理的，而$U,V$恰好提供了这样的基，分别用来表示domain的向量和range的向量。那么这个转换就和上面一样，变得比较容易理解了，它同样放大了一些成分，对应的是singular value的大小，同时抛弃了一些成分，对应的是singular value为0的方向。SVD告诉我们怎样选择正交基，使得转换被表示成最简单的方式————对角的形式。</p>
+<p>那么我们如何选择得到这些基？想要使中间矩阵的形式是对角的，很容易，只要让$Av_i &#x3D; \sigma_iu_i$即可。</p>
+<p>为了理解这个，我们假设$m \geq n$，那么如果$A v_i &#x3D; \sigma_i u_i$，则：<br>$$<br>\begin{aligned}<br>AV &amp;&#x3D; A\begin{bmatrix}<br>v_1&amp;\cdots v_n<br> \end{bmatrix}\<br>&amp;&#x3D; \begin{bmatrix}<br>Av_1 &amp; \cdots &amp;Av_n<br>\end{bmatrix}\<br>&amp;&#x3D; \begin{bmatrix}<br>\sigma_1 u_1 &amp; \cdots &amp; \sigma_n u_n<br>\end{bmatrix}\<br>&amp;&#x3D; U_{m\times n}\Sigma_{n\times_n}<br>\end{aligned}<br>$$</p>
+<p>这保证了$\Sigma$的对角化，不过我们很容易发现的是上面的系数不对，$\mu$并不满足基的定义，它没有到达$m$个，而$\Sigma$也随之不是$m\times n$形状的矩阵。</p>
+<p>如果我们先保证$V$是单位正交基了，那么$U_{m\times m}$中很多维度是没有什么意义的，因此将$U$扩充为基，并且将$\Sigma$矩阵也对上，对应的元素置0即可。</p>
+<p>如果$m&lt; n$，则是一样的道理，只不过这个维度被$m$限制住了。而且实际上这个$\Sigma$还被$A$的秩限制住，毕竟$\mathbb{R}(AB)\ge \min (\mathbb{R}(A),\mathbb{R}(B))$，而$\mathbb{R}(U)&#x3D;m,\mathbb{R}(V)&#x3D;n$，这意味着，r如果要求各个$\sigma_i$不同且$U$为一组基，那么$\sigma_i &gt; 0;i &#x3D; 1,…,k;k \ge \mathbb{R}(A)$.</p>
+<p>通过上面的想法，我们很容易将A表示为对角形式。不过实际上，即使保证$V$是正交基，我们也很难保证$U$是正交的。因此使得V的正交性能在A下依然保存是非常关键的。而实际上，$A^TA$的特征矩阵正好满足这个条件。</p>
+<p>$A^TA &#x3D; VDV^T$，也就是对$A^TA$进行EVD。可以得到：<br>$$<br>Av_i \cdot Av_j &#x3D; (Av_i)^T (Av_j) &#x3D; v_i^TA^TA v_j &#x3D; v_i^TA^T \lambda_j v_j &#x3D; \lambda_j v_i v_j &#x3D; 0<br>$$</p>
+<p>可以看到，在这种情况下，${Av_1,Av_2,…,Av_n} &#x3D; {\sigma_1u_1,…,\sigma_nu_n}$是互相是正交的，这正是我们想要的。而这个集合中的非零向量，形成了一个$A$的range的正交基。因此，$A^TA$的特征向量和它们与A得到的image，使得$A$可以被表示成对角形式。</p>
+<p>我们继续把上面的分解补全。注意，如果$i &#x3D; j$，那么$Av_i \cdot Av_j \Vert Av_i \Vert^2&#x3D; \lambda_i$. 为了让$u_i$是单位向量，我们对其进行标准化：<br>$$<br>u_i &#x3D; \frac{Av_i}{\Vert Av_i\Vert} &#x3D; \frac{1}{ \sqrt{\lambda_i} } Av_i\<br>\sigma_i &#x3D; \sqrt{\lambda_i}<br>$$</p>
+<p>我们也很容易推导，$\lambda_i \ge 0$的个数是$k$个，可以由秩得到。而$D$中特征值的顺序如果是按照从大到小的顺序排列，那么$\Sigma$中也是一样的递减顺序。</p>
+<p>如果$k&lt; m$，那么将$U$扩展到正交基即可。这样我们就得到了想要的SVD。总结一下，V是$A^TA$的特征向量组成，被称为右侧的奇异向量，$\Sigma$由特征值组成，其中$\sigma_i &#x3D; \sqrt{\lambda_i}$，而$U$是正交化$Av_i$的结果，有必要的话再进行拓展，使其成为一个正交基。</p>
+<p>需要注意的一点是，我们在这里计算SVD是通过计算$A^TA$的特征值和特征矩阵，但是实际上还有其他的办法，在很多应用中SVD的实际用途是计算出$A^TA$的特征值和特征矩阵。</p>
+<p>在我们的构造方法中，我们从$A^TA$的EVD来得到SVD，而实际上从SVD的角度出发，我们也很容易得到EVD，如果$A &#x3D; U\Sigma V^T$：<br>$$<br>A^TA &#x3D; V\Sigma^T U^T U \Sigma V^T &#x3D; V \Sigma^T\Sigma V^T<br>$$</p>
+<p>可以很容易看到上面正是$A^TA$的EVD，同理也很容易得到：<br>$$<br>AA^T &#x3D; U\Sigma V^TV \Sigma^T U^T &#x3D; U \Sigma \Sigma^T U^T<br>$$</p>
+<p>这意味着实际上$U$正是由$AA^T$的特征向量组成的。值得一提的是，如果$A$是是对成矩阵，那么$A^2&#x3D;A^TA&#x3D;AA^T$，它们的EVD也是相同的，特征值为$\lambda^2$，其中$\lambda$为A的特征值，而且此时的SVD与EVD是等价的。</p>
+<h2 id="SVD的几何意义"><a href="#SVD的几何意义" class="headerlink" title="SVD的几何意义"></a>SVD的几何意义</h2><p>我们可以通过对单位圆上的点利用A矩阵进行转换，来明白$A$是如何扭曲$\mathbb{R}^n$空间的。假如点x在单位圆(球)上，意味着$x &#x3D; v_1x_1 + v_2x_2+…+v_nx_n$，其中$\sum_{i&#x3D;1}^nx_i^2 &#x3D; 1$，则:<br>$$<br>Ax &#x3D; U\Sigma Vx &#x3D; x_1\sigma_1u_1 + …+ x_k\sigma_ku_k.<br>$$</p>
+<p>假设$y_i &#x3D; \sigma_ix_i$，则单位球体的image也等于$\sum_{i&#x3D;1}^k y_iu_i$，其中：<br>$$<br>\sum_{i&#x3D;1}^k \frac{y_i^2}{\sigma_i^2} &#x3D; \sum_{i&#x3D;1}^k x_i^2 \ge 1.<br>$$</p>
+<p>如果$\mathbb{R}(A)&#x3D; k &#x3D; n$，那么上述不等式是相等的。其他情况下，意味着一些纬度被抛弃了。 所以$A$的转换实际上是先抛弃$n-k$个维度，将其压缩到$k$维，再通过$\Sigma$来对不同维度的权值进行放缩，最后拓展的$m$维空间。下图展示了这个过程(n&#x3D;m&#x3D;3,k&#x3D;2)：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/G6T%7DO%5B7%5BIW70%5DP0VF2D%5DR89.png"></p>
+<p>我们可以很容易得到，$\Vert A \Vert_2$，算子范数，定义为$\frac{\Vert Ax \Vert}{\Vert x \Vert}$的最大值，也就是$\sigma_1$，$A$最大的奇异值。也就是：$\Vert Ax \Vert \leq \sigma\Vert x \Vert,x \in \mathbb{R}^n$，当$x$为$v_1$的整数倍时等号成立。</p>
+<h2 id="SVD的分块矩阵以及外积形式"><a href="#SVD的分块矩阵以及外积形式" class="headerlink" title="SVD的分块矩阵以及外积形式"></a>SVD的分块矩阵以及外积形式</h2><p>实际上，SVD可以写成下面分块矩阵的形式：<br>$$<br>A &#x3D; \left [\begin{array}{ccc|ccc}<br>u_1&amp;\cdots&amp;u_k&amp;u_{k+1}&amp;\cdots&amp;u_n<br>\end{array}\right ]<br>\left [\begin{array}{ccc|c}<br>\sigma_1&amp;\cdots&amp;0&amp;0\<br>\vdots&amp;\ddots&amp;\vdots&amp;\vdots\<br>0&amp;\cdots&amp;\sigma_k&amp;0\<br>\hline<br>0&amp;\cdots&amp;0&amp;0\<br>\vdots&amp;\vdots&amp;\vdots&amp;\vdots<br>\end{array}\right]<br>\begin{bmatrix}<br>v_1^T\<br>\vdots\<br>v_k^T\<br>\hline<br>v_{k+1}^T\<br>\vdots\<br>v_{n}<br>\end{bmatrix}<br>$$</p>
+<p>这个结果可以写成：<br>$$<br>\begin{aligned}<br>A &amp;&#x3D; \begin{bmatrix}<br>u_1&amp;\cdots&amp;u_k<br>\end{bmatrix}<br>\begin{bmatrix}<br>\sigma_1&amp;\cdots&amp;0\<br>\vdots&amp;\ddots&amp;\vdots\<br>0&amp;\cdots&amp;\sigma_k<br>\end{bmatrix}<br>\begin{bmatrix}<br>v_1^T\<br>\vdots\<br>v_k^T<br>\end{bmatrix} + \begin{bmatrix}<br>u_{k+1}&amp;\cdots&amp;u_n<br>\end{bmatrix}<br>\begin{bmatrix}<br>0&amp;\cdots&amp;0\<br>\vdots&amp;\ddots&amp;\vdots\<br>0&amp;\cdots&amp;0<br>\end{bmatrix}<br>\begin{bmatrix}<br>v_{k+1}^T\<br>\vdots\<br>v_n^T<br>\end{bmatrix}\<br>&amp;&#x3D;\begin{bmatrix}<br>u_1&amp;\cdots&amp;u_k<br>\end{bmatrix}<br>\begin{bmatrix}<br>\sigma_1&amp;\cdots&amp;0\<br>\vdots&amp;\ddots&amp;\vdots\<br>0&amp;\cdots&amp;\sigma_k<br>\end{bmatrix}<br>\begin{bmatrix}<br>v_1^T\<br>\vdots\<br>v_k^T<br>\end{bmatrix}<br>\end{aligned}<br>$$</p>
+<p>上述形式是SVD的另一种表示：$A &#x3D; U\Sigma V^T$，其中$U$为$m\times k,U^TU&#x3D;I$，$\Sigma$为$k \times k$对角矩阵，对角元素大于0，$V$为$n \times k,V^TV &#x3D; I$.</p>
+<p>我们在这里的分块矩阵的公式和一般的矩阵乘积有点不一样，一般来说，两个矩阵相乘$XY$，我们关注的是$X$的行和$Y$的列。在这里，我们将用相反的方法表示。如果两个矩阵$X_{m \times k},Y_{k \times n}$,我们用$x_i$表示X中的第i列，用$y_i^T$表示Y中的第i行，那么：<br>$$<br>XY &#x3D; \sum_{i&#x3D;1}^k x_iy_i^T<br>$$</p>
+<p>而$x_i y_i^T$我们称为是这两个向量的外积（Outer Product），也就是矩阵中列乘上行的情况。</p>
+<p>现在回到SVD中，令：<br>$$<br>X &#x3D; \begin{bmatrix}<br>u_1&amp;\cdots&amp;u_k<br>\end{bmatrix}<br>\begin{bmatrix}<br>\sigma_1&amp;\cdots&amp;0\<br>\vdots&amp;\ddots&amp;\vdots\<br>0&amp;\cdots&amp;\sigma_k<br>\end{bmatrix} &#x3D; \begin{bmatrix}<br>\sigma_1u_1&amp;\cdots&amp;\sigma_ku_k<br>\end{bmatrix}<br>$$<br>以及：<br>$$<br>Y &#x3D; \begin{bmatrix}<br>v_1^T\<br>\vdots\<br>v_k^T<br>\end{bmatrix}<br>$$</p>
+<p>可以得到：$$A &#x3D; XY &#x3D; \sum_{i&#x3D;1}^k\sigma_iu_iv_i^T.$$</p>
+<p>这是SVD的另一种形式，它提供了A如何转换任何一个向量$x$的另一种解释。<br>$$<br>Ax &#x3D; \sum_{i&#x3D;1}^k\sigma_iu_iv_i^Tx &#x3D; \sum_{i&#x3D;1}^kv_i^Tx \sigma_iu_i<br>$$<br>因为$v_i^Tx$是一个标量。</p>
+<p>这个时候$Ax$被表达为$u_i$的线性组合。所以通过outer product expansion可以看到，通过A转换将x中每个$v_i$成分转换成$u_i$成分，并且以$\sigma_i$的系数放缩。</p>
+<p>这篇博客基本上是下面文献的部分翻译，更多内容请看：<br><a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/SVD-%5BDan-Kalman%5D.pdf">SVD</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SVD/" rel="tag"># SVD</a>
+              <a href="/tags/mathmatics/" rel="tag"># mathmatics</a>
+              <a href="/tags/algebra/" rel="tag"># algebra</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/" rel="prev" title="信息论——信道及其容量">
+                  <i class="fa fa-angle-left"></i> 信息论——信道及其容量
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/" rel="next" title="Learning From Data——derive something from Softmax">
+                  Learning From Data——derive something from Softmax <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

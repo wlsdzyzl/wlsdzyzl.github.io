@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="ICP（iterative closest point）最广泛的应用应该就是点云的配准了。它的提出也是为了解决这个问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ICP——迭代最近点">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="ICP（iterative closest point）最广泛的应用应该就是点云的配准了。它的提出也是为了解决这个问题。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:25:53.296Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="algorithm">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="icp">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/","path":"2019/01/17/ICP——迭代最近点/","title":"ICP——迭代最近点"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ICP——迭代最近点 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ICP——迭代最近点 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ICP——迭代最近点
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-17T00:00:00+08:00">2019-01-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:25:53" itemprop="dateModified" datetime="2023-10-21T04:25:53+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>ICP（iterative closest point）最广泛的应用应该就是点云的配准了。它的提出也是为了解决这个问题。</p>
+<span id="more"></span>
+
+
+
+<p>假设我们有两个点云，它们应该是一一配对的（或者说在SLAM中两个场景有较大的overlap），但是我们并不知道点的配对关系。现在我们希望根据这两个点云的位置求到相机的位姿变化，也就是旋转矩阵$R$与平移$t$。</p>
+<p>假设这两个点云分别为$p,p’$，那么我们知道$p &#x3D; Rp’ + t $。想要求得$R,t$，首先要做的是配对关系。而ICP非常简单，它选取距离最近（一般来说为欧几里得距离）的点作为配对的点。因此，现在我们有了两组配对点：</p>
+<p>P &#x3D; \{p_1,p_2,…,p_n\}, P’ &#x3D; \{p’_1,p’_2,…,p’_n\}</p>
+<p>我们希望做的是最小化下面这个代价：</p>
+<p>J &#x3D; \sum_{i&#x3D;1}^n\Vert p’_i - (Rp_i+t)\Vert^2</p>
+<p>如何解这其中的$R$和$t$？比较容易想到的就是最小二乘法，下面我们推导介绍一下利用SVD来解决这个最小二乘问题。</p>
+<p>首先定义点云的质心为：</p>
+<p>p &#x3D; \frac 1 n \sum_{i&#x3D;1}^np_i, p’ &#x3D; \frac{1}{n} \sum_{i&#x3D;1}^np’_i</p>
+<p>则:</p>
+<p>\begin{aligned} \sum_{i&#x3D;1}^n\Vert p’_i - (Rp_i + t) \Vert^2 &amp;&#x3D; \sum_{i&#x3D;1}^n\Vert p’_i- Rp_i - t - p’ + Rp + p’ - Rp \Vert^2\\ &amp;&#x3D;\sum_{i&#x3D;1}^n\Vert (p’_i-p’-R(p_i-p)) + (p’-Rp - t) \Vert^2\\ &amp;&#x3D; \sum_{i&#x3D;1}^n(\Vert p’_i-p’-R(p_i-p)\Vert^2 + \Vert p’-Rp - t \Vert^2 + 2(p’_i-p’-R(p_i-p))^T(p’-Rp - t)) \end{aligned}</p>
+<p>值得注意的是：$p’_i-p’-R(p_i-p)$在求和之后为0，这是由质心的定义决定的。</p>
+<p>因此原来的问题就简化为：</p>
+<p>\min_{R,t} J &#x3D; \sum_{i&#x3D;1}^n(\Vert p’_i-p’-R(p_i-p)\Vert^2 + \Vert p’-Rp - t \Vert^2</p>
+<p>观察之后，我们发现第一个式子只和旋转有关，第二个式子和旋转平移都有关，不过另一方面它只和质心相关。如果我们求得了$R$，简单的令第二个式子为0就可以求得对应的$t$。所以现在ICP的算法表述如下：</p>
+<p>令$q_i,q’_i$为原来点的去质心坐标：</p>
+<p>q_i &#x3D; p_i - p,q’_i &#x3D; p’_i - p’</p>
+<p>计算最佳的$R$:</p>
+<p>R^* &#x3D; \arg\min_R \sum_{i&#x3D;1}^n\Vert q’_i - Rq_i\Vert^2</p>
+<p>最后，根据$R^*$计算$t$:</p>
+<p>t^* &#x3D; p’ - R^{*}p</p>
+<p>因此求得$R$之后，$t$是非常容易得到的。</p>
+<p>\sum_{i&#x3D;1}^n\Vert q’_i-Rq_i\Vert^2 &#x3D; \sum_{i&#x3D;1}^n( {q’}_i^Tq’_i + q_i^TR^TRq_i - 2{q’}_i^TRq_i)</p>
+<p>第一项与$R$无关，而$R^TR&#x3D;I$，因此第二项也无所谓。我们重点要做的是$\min_R \sum_{i&#x3D;1}^n -{q’}_i^TRq_i$。</p>
+<p>\sum_{i&#x3D;1}^n -{q’}_i^TRq_i &#x3D; \sum_{i&#x3D;1}^n -\text{tr}(Rq_i{q’}_ i^T) &#x3D; -\text{tr}\left(R\sum_{i&#x3D;1}^nq_i{q’}_i^T\right)</p>
+<p>计算这个$R$可以使用SVD来解决。</p>
+<p>定义$W &#x3D; \sum_{i&#x3D;1}^n q’_iq_i^T$，根据SVD得到：</p>
+<p>W &#x3D; U\Sigma V^T</p>
+<p>则$R^* &#x3D; UV^T$。如果$\text{rank}(W)&#x3D;3$，则$R$是唯一最优解。具体的证明比较复杂。这就求得了从$p$到$p’$的旋转，有了旋转矩阵，平移就非常容易得到了。</p>
+<p>至于迭代的过程，就是我们根据求得的$R,t$进行转换后，重复上述的步骤。</p>
+<p>最早的关于ICP的论文为<a target="_blank" rel="noopener" href="http://www-evasion.inrialpes.fr/people/Franck.Hetroy/Teaching/ProjetsImage/2007/Bib/besl_mckay-pami1992.pdf">A Method for Registration of 3-D Shapes</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/icp/" rel="tag"># icp</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/17/RANSAC%E2%80%94%E2%80%94%E9%9A%8F%E6%9C%BA%E9%87%87%E6%A0%B7%E4%B8%80%E8%87%B4/" rel="prev" title="RANSAC——随机采样一致">
+                  <i class="fa fa-angle-left"></i> RANSAC——随机采样一致
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/" rel="next" title="SLAM——视觉里程计（三）PnP">
+                  SLAM——视觉里程计（三）PnP <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次lfd的博客讲了神经网络的一些基本内容，包括它的起源，前向传播以及后向传播。实际上，对于一个很重要的部分：activation function，只是简单提到。所以这次着重说一下不同的激活函数之间的区别。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Activation Function">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次lfd的博客讲了神经网络的一些基本内容，包括它的起源，前向传播以及后向传播。实际上，对于一个很重要的部分：activation function，只是简单提到。所以这次着重说一下不同的激活函数之间的区别。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/sigmoid.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tanh.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/3.png">
+<meta property="article:published_time" content="2018-11-14T13:28:08.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.776Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="deep learning">
+<meta property="article:tag" content="neural network">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/sigmoid.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/","path":"2018/11/14/Learning-From-Data——Activation-Function/","title":"Learning From Data——Activation Function"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Activation Function | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sigmoid"><span class="nav-number">1.</span> <span class="nav-text">sigmoid</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tanh"><span class="nav-number">2.</span> <span class="nav-text">tanh</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReLU"><span class="nav-number">3.</span> <span class="nav-text">ReLU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#derivative-of-activation-function"><span class="nav-number">4.</span> <span class="nav-text">derivative of activation function</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Activation Function | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Activation Function
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-14 21:28:08" itemprop="dateCreated datePublished" datetime="2018-11-14T21:28:08+08:00">2018-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次lfd的博客讲了神经网络的一些基本内容，包括它的起源，前向传播以及后向传播。实际上，对于一个很重要的部分：activation function，只是简单提到。所以这次着重说一下不同的激活函数之间的区别。</p>
+<span id="more"></span>
+
+<p>你应该还记得有这么一段话：</p>
+<blockquote>
+<blockquote>
+<p>上面的函数中，g为logistic函数，又叫sigmoid函数。当然这个函数不仅仅局限于sigmoid函数，也有relu函数，tanh函数：<br>$$<br>\begin{matrix}<br>g(z) &#x3D; \frac 1 {1+e^{-z} } &amp;(sigmoid)\<br>g(z) &#x3D; \max(z,0) &amp;(ReLU)\<br>g(z) &#x3D; \frac{e^z - e^{-z} }{e^z + e^{-z} }&amp; (tanh)<br>\end{matrix}<br>$$</p>
+</blockquote>
+</blockquote>
+<p>实际上，实际上使用的也多是这三个函数，或者它们其中某个的变种。</p>
+<p>同样，之前博客也说明了，为什么我们一定要在神经网络中使用非线性函数。所以在这里就不多提了。这篇博客，主要就介绍这3个函数的区别以及他们的使用场景。</p>
+<h2 id="sigmoid"><a href="#sigmoid" class="headerlink" title="sigmoid"></a>sigmoid</h2><p>Logistic Regression是一个非常基本的算法。在二元分类时候，它用的非常多。不过很遗憾的是，在neural network中，我们除了输出层几乎不使用这个函数。</p>
+<p>Logistic Function(Sigmoid Function)的图像如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/sigmoid.png"></p>
+<p>它的缺点很明显：</p>
+<ol>
+<li>不是以0为中心的</li>
+<li>当|x|比较大的时候，这个函数的梯度非常小，称为饱和区梯度扼杀。</li>
+<li>指数运算较为复杂</li>
+</ol>
+<p>因为1的存在，使得下一层的输入都是正的，那么下一层的梯度就会受限。此外，饱和区梯度太小，再加上指数运算比较复杂，这些使得sigmoid的梯度下降非常缓慢。</p>
+<p>但是sigmoid函数也有非常大的优势，它一般作为输出层的激活函数，因为它将函数输出控制在0,1之间。实际运用中，除了输出层，几乎不用sigmoid函数。</p>
+<h2 id="tanh"><a href="#tanh" class="headerlink" title="tanh"></a>tanh</h2><p>tanh为双曲正切函数。它的图像如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/tanh.png"></p>
+<p>可以看到它和sigmoid函数非常相似，不过它的优点是以0为中心。不过呢它的缺点也比较明显，除了以0为中心，sigmoid有的缺点它都有。不过也因为这点，一般来说它表现的总是会比sigmoid函数更好。所以除了输出层，想要使用sigmoid的地方不如换成tanh函数。</p>
+<h2 id="ReLU"><a href="#ReLU" class="headerlink" title="ReLU"></a>ReLU</h2><p>ReLU（Rectified Linear Unit）为线性整流函数，又称为修正线性单元。实际上它是目前最常用的激活函数。<br>它的正半轴没有饱和扼杀梯度的影响，而且运算也非常简单，使得它在神经网络中的收敛速度比其他的激活函数要快很多。它的图像如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/3.png"></p>
+<p>不过它也有缺点：输出不是以0为中心。而且当x小于0时候梯度将会被扼杀。</p>
+<p>针对ReLU的不足有很多ReLU的改良版，如Leaky ReLU:g(x) &#x3D; max(0.01z,z)等。这些在实际中比ReLU表现更好，但是使用ReLU依然是最多的选择，实际上ReLU是目前的神经网络的默认激活函数。</p>
+<h2 id="derivative-of-activation-function"><a href="#derivative-of-activation-function" class="headerlink" title="derivative of activation function"></a>derivative of activation function</h2><table>
+<thead>
+<tr>
+<th>function</th>
+<th>derivative</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sigmoid</td>
+<td>$g’(x) &#x3D; g(x)(1 - g(x))$</td>
+</tr>
+<tr>
+<td>tanh</td>
+<td>$g’(x) &#x3D; 1-g^2(x)$</td>
+</tr>
+<tr>
+<td>ReLU</td>
+<td>$g’(x) &#x3D;\left { \begin{matrix}0&amp;x&lt;0\1&amp;x&gt;0\end{matrix}\right .$</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+              <a href="/tags/neural-network/" rel="tag"># neural network</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/" rel="prev" title="信息论——Kraft不等式以及变长编码定理">
+                  <i class="fa fa-angle-left"></i> 信息论——Kraft不等式以及变长编码定理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/16/Learning-From-Data%E2%80%94%E2%80%94%E6%8B%9F%E5%90%88sin%E6%9B%B2%E7%BA%BF/" rel="next" title="Learning From Data——拟合sin曲线">
+                  Learning From Data——拟合sin曲线 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

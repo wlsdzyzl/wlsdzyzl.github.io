@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="算法导论在学习计算机专业的人心中一直是圣经般的存在。虽然我也阅读过一些数据结构与算法相关的书，但是一直没有机会阅读算法导论。这次当当买书半价，我就下单了算法导论。有可能又会放在书架上当作收藏，但是还是开一个坑，希望能抽时间阅读完这本书，并记录自己的学习过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法导论——算法基础">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/08/30/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="算法导论在学习计算机专业的人心中一直是圣经般的存在。虽然我也阅读过一些数据结构与算法相关的书，但是一直没有机会阅读算法导论。这次当当买书半价，我就下单了算法导论。有可能又会放在书架上当作收藏，但是还是开一个坑，希望能抽时间阅读完这本书，并记录自己的学习过程。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-30T15:57:13.000Z">
+<meta property="article:modified_time" content="2019-08-30T17:08:50.734Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="algorithm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/08/30/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/08/30/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80/","path":"2019/08/30/算法导论——算法基础/","title":"算法导论——算法基础"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>算法导论——算法基础 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#NP%E5%AE%8C%E5%85%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">NP完全问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%9D%8F%E6%83%85%E5%86%B5%E4%B8%8E%E5%B9%B3%E5%9D%87%E6%83%85%E5%86%B5"><span class="nav-number">2.</span> <span class="nav-text">最坏情况与平均情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E9%95%BF%E9%87%8F%E7%BA%A7"><span class="nav-number">3.</span> <span class="nav-text">增长量级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%AE%97%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">设计算法</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/08/30/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="算法导论——算法基础 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          算法导论——算法基础
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-08-30 23:57:13" itemprop="dateCreated datePublished" datetime="2019-08-30T23:57:13+08:00">2019-08-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2019-08-31 01:08:50" itemprop="dateModified" datetime="2019-08-31T01:08:50+08:00">2019-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">算法导论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>算法导论在学习计算机专业的人心中一直是圣经般的存在。虽然我也阅读过一些数据结构与算法相关的书，但是一直没有机会阅读算法导论。这次当当买书半价，我就下单了算法导论。有可能又会放在书架上当作收藏，但是还是开一个坑，希望能抽时间阅读完这本书，并记录自己的学习过程。</p>
+<span id="more"></span>
+<p>首先第一篇博客，来简单介绍下前两章的内容。第一章是算法在计算中的应用，第二章是算法基础，这些都属于基础知识。算法在计算中的应用，就不必多提了。实际上我们在计算机上的几乎所有操作都离不开算法。选择低效的算法可能干几十年也完成不了的事情，如果运用高效的算法可能几天就能解决。因此我们想设计的是高效的算法。而一个正确的算法，需要对每个输入实例都给出正确的答案，因此它具有有穷性，不会永无休止的计算。</p>
+<h3 id="NP完全问题"><a href="#NP完全问题" class="headerlink" title="NP完全问题"></a>NP完全问题</h3><p>提到算法，还必须提到的就是一个NP完全问题。NP完全问题是计算领域最重要的难题，也不知道在有生之间能不能看到它的解决。NP完全问题到目前为止，没有给出一个有效的解决算法，但是也没有哪个证明，证明出这个有效算法是不存在的。著名的“旅行商”问题就是NP完全问题。实际上我们在学习过程中也会经常遇到NP完全问题，例如机器学习中对于0范数的优化。很多时候如果我们能证明一个问题是NP完全问题，就可以少花功夫，去漫无目的地寻找绝对有效的算法，而是选择设计一个近似算法。</p>
+<p>NP完全问题集合有一个特点，那就是只要证明一个NP完全问题有有效的解决方法，那么任何NP完全问题都有有效的算法。这使得NP完全问题非常诱人，解决一个就解决无数个问题。</p>
+<p>另外，尽管有很多NP完全问题我们目前还找不到有效地算法，但是近似算法往往不难，可以给出一个距离最优解不远的近似解。例如我们将0范数放宽到1范数，等等。</p>
+<h3 id="最坏情况与平均情况"><a href="#最坏情况与平均情况" class="headerlink" title="最坏情况与平均情况"></a>最坏情况与平均情况</h3><p>下面就要说到对算法的分析了。分析一个算法的复杂度非常重要，我们在知道数据量的情况下，可以大概估算出算法的运行时间。当然这个时间不是绝对精确的，但是依然有很大的帮助。因为有很多低效的算法，如果想要等待一个结果出来，可能需要几个小时甚至几天，而我们可以根据复杂度的分析来选择及时退出，或者在等结果的这段时间内去喝杯咖啡，或者出去游玩等等。</p>
+<p>一般来说，我们分析一个算法的复杂度（主要是时间复杂度），往往是分析它的最坏情况。对算法的分析有最坏情况，平均情况与最好情况。举个例子，比如插入排序算法（从小到大），是一个比较低效的排序算法。对于一个序列$&lt;a_1,…,a_n&gt;$，我们从索引2开始，将它插入到左边已经有序的序列的正确位置。为了找到正确的位置，需要从右往左依次对比，来找到第一个比它更小的数。最好的情况，算法已经有序，每次只要一个比较，也不需要交换操作，最坏的情况，算法是反向排序的，每次都要比较到第一个位置，比较的个数是子数组的全部。而平均情况下，比较次数是子数组的一半。从这里，我们就能看出来为什么分析要分析最坏的情况了：</p>
+<ol>
+<li>最坏的情况是一个底线，分析最坏情况，那么可以保证算法实际效率一定比最坏的要好</li>
+<li>平均情况往往与最坏的情况相差不多，要理解这个，我们需要介绍增长量级的概念。</li>
+<li>还有一个原因就是，最好的情况并不一定会出现，但是最坏的情况可能往往会出现，例如在数据库中查找一个不存在的词条。</li>
+</ol>
+<p>但是对于一些特定的问题，平均情况也并不具备代表性。在学习统计以及概率之后，往往能通过分析，对一些随机化算法，往往能给出一个期望值。如果最坏的情况很少发生，而大多数时候这个问题都可以被快速解决，那也不失为一个很好的算法。这种情况不在我们这里的讨论范围内，但是对于之前压缩感知的内容，用低纬来恢复高维，实际上就是这种概率分析很好的体现。</p>
+<h3 id="增长量级"><a href="#增长量级" class="headerlink" title="增长量级"></a>增长量级</h3><p>增长量级是分析的关键，因为在数据量很小的情况下，例如对10个数字排序，不管是插入排序还是快速排序，都是一眨眼的过程罢了。我们更注重的是在数据量$n$变大的时候，需要时间的增加的幅度有多快。因此我们往往只关心最高次的内容。如插入排序：</p>
+<ol>
+<li>最好情况下，$n$次排序需要$n$次比较，那么比较次数就是$n$</li>
+<li>最坏情况下，需要$1+2+3+…+n-1$次比较，那么比较次数是$\frac{n(n-1)}{2}$</li>
+<li>平均情况下，需要次数是$\frac{1}{2}\cdot\frac{n(n-1)}{2}$</li>
+</ol>
+<p>由于我们更关心增长的速度，因此可以忽略系数以及其他次，只关注最高次，那么最坏情况与平均情况增长量级都是$n^2$，记为$\Theta(n^2)$。这也就解释了上面的第二条，平均情况与最坏情况往往相差不多。</p>
+<h3 id="设计算法"><a href="#设计算法" class="headerlink" title="设计算法"></a>设计算法</h3><p>这里主要说明<strong>增量法</strong>和<strong>分治法</strong>。插入排序就是典型的增量法，它对已经有序的子序列$A_1,…,A_j$进行插入，使得子序列变为$A_1,…,A_{j+1}$。而另外一种非常有效的思想是分治法，将大的问题拆分成小问题，然后合并。</p>
+<p>遵循分治法的算法都有下面3个步骤：分解，解决，合并。基于分治的思想，另外一种排序算法————归并算法就诞生了。归并算法分为自上而下与自下而上，但是本质都是分治的思想。自上而下，将一个大的序列分成两个，再将子序列继续分，直到一个序列元素个数小于等于2，这时候根据大小交换次序后，开始合并。对两个有序序列的合并是非常快速地，时间复杂度为$n$，而基于这种分治策略，对所有元素进行合并需要$\log _2 ^n$次，因此归并算法的复杂度为$\Theta(n\log n)$。而自下而上也基本一样，只不过一开始就将序列两两分组，之后在合并罢了。因此自上而下更容易写成递归的形式。</p>
+<p>分治法是一个非常重要的思想，实际上我们在生活中的很多问题，都可以使用分治法解决。</p>
+<p>上述就是阅读前两章后记录的内容。实际上大多数都很简单，因为真正难得部分还在后面，以及各种数学分析。这两章的课后题我也没有多看，对于课后的内容有时间的话我会认真分析。虽然数学太重要了，分析得到一个正确结果往往是人生非常美妙的过程，但是往往一个数学分析需要消耗比较长的时间，因此这系列内容主要还是理解使用各类算法，而对于数学的证明分析优先级次之。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/29/CPP%E2%80%94%E2%80%94%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="ROS——基本介绍">
+                  <i class="fa fa-angle-left"></i> ROS——基本介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/08/31/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E2%80%94%E2%80%94%E5%87%BD%E6%95%B0%E7%9A%84%E5%A2%9E%E9%95%BF/" rel="next" title="算法导论——函数的增长">
+                  算法导论——函数的增长 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

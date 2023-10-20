@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次主要是证明了PLA算法的可行性，这次用来实现PLA算法，并且实现可视化。这个算法的实现是比较简单的，比较难的部分在于要考虑可视化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——PLA算法实现与可视化">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次主要是证明了PLA算法的可行性，这次用来实现PLA算法，并且实现可视化。这个算法的实现是比较简单的，比较难的部分在于要考虑可视化。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%5BNJ07J%7E9%29%286ZV0%2846%28S%40%29LN.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/NLYU%7EZSV%609S%29557%602RBG8%409.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/71K%251Y%7B%7D3K1HMRY%5DR%60K%29%25E8.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EQPB1J%7B5LY%7B%5B4V%24%7BK0N6%29CU.png">
+<meta property="article:published_time" content="2018-07-30T15:58:43.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:07:54.291Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="code">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="visualization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%5BNJ07J%7E9%29%286ZV0%2846%28S%40%29LN.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/","path":"2018/07/30/机器学习——PLA算法实现与可视化/","title":"机器学习——PLA算法实现与可视化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——PLA算法实现与可视化 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE"><span class="nav-number">1.</span> <span class="nav-text">随机生成数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PLA%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">PLA算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">可视化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E7%BB%93%E6%9E%9C"><span class="nav-number">3.1.</span> <span class="nav-text">可视化结果</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/07/30/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PLA%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——PLA算法实现与可视化 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——PLA算法实现与可视化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-07-30 23:58:43" itemprop="dateCreated datePublished" datetime="2018-07-30T23:58:43+08:00">2018-07-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:07:54" itemprop="dateModified" datetime="2023-10-21T04:07:54+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次主要是证明了PLA算法的可行性，这次用来实现PLA算法，并且实现可视化。<br>这个算法的实现是比较简单的，比较难的部分在于要考虑可视化。</p>
+<span id="more"></span>
+<p>我选择python来实现这个算法，同时利用了matplotlib来进行图形的绘制。<br>为了可视化数据，我们需要的就不能是仅仅实现那么简单吗，而且还要考虑到可视化之后的清晰与美观。因此这部分的代码主要分成3个部分：</p>
+<h2 id="随机生成数据"><a href="#随机生成数据" class="headerlink" title="随机生成数据"></a>随机生成数据</h2><p>数据的生成一定是要局限在某个范围内，为了简便我选择的数据特征量范围在0，20之间。而一维数据较为简单，高维数据画不出来，因此生成数据应该是二维或者三维的，以便于可视化。为了简便，我选择生成二维数据。<br>同时还要生成一组参数，作为$W_f$，也就是最初的规则，这里需要注意，随机生成的参数确定的分割线可能不会经过上述范围的数据，这样导致所有的样本都归为一类，这就失去了可视化的意义，因为生成参数时，我选择了在范围内随机生成两个点，用这两个点来确定分割线，再计算出对应的参数出来。</p>
+<h2 id="PLA算法"><a href="#PLA算法" class="headerlink" title="PLA算法"></a>PLA算法</h2><p>pla算法没什么好说的，参数初始设为0，然后每次遇到一个坏点，就开始更正，直到没有坏点。我们需要保证传入的数据是线性可分的。</p>
+<h2 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h2><p>可视化使用matplotlib来实现，使用两种不同的标志（尽量区分颜色，如红x与绿o）来区分正负样本，在坐标轴上标出，并且用实线来绘制实际的规则，用虚线来绘制我们算法得到的规则。最后可以得到很明显的可视化效果。</p>
+<h3 id="可视化结果"><a href="#可视化结果" class="headerlink" title="可视化结果"></a>可视化结果</h3><p>随机样本为20个：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%5BNJ07J%7E9%29%286ZV0%2846%28S%40%29LN.png" alt="20"><br>修正次数： 3209</p>
+<p>随机样本为50个：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/NLYU%7EZSV%609S%29557%602RBG8%409.png" alt="50"></p>
+<p>修正次数： 2268</p>
+<p>随机样本为100个：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/71K%251Y%7B%7D3K1HMRY%5DR%60K%29%25E8.png" alt="100"></p>
+<p>修正次数： 4540</p>
+<p>从图中可以看到虽然红线不一定与蓝线重合，但是依然很好的分割了样本。实际上相重合是很困难的，样本越是多越更有可能相似，如下图，样本次数提高到1000，我们可以说推断的规则与原先的规则已经基本一致了。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EQPB1J%7B5LY%7B%5B4V%24%7BK0N6%29CU.png" alt="1000"></p>
+<p>我们从这里看不到修正次数与样本个数之间的关系，因为本来他们关系就不够大，甚至一定程度上可以说是”运气”，但是算法终究会停止，由上一篇博客的证明也可知道，如果R与P的比值很小，那么就算数据再大，也可以很快的得到想要的规则。</p>
+<p>下面是PLA实现的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">pla</span>(<span class="params">datas</span>):</span><br><span class="line">    size = <span class="built_in">len</span>(datas)</span><br><span class="line">    <span class="keyword">if</span> size&lt;=<span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    err_i = -<span class="number">1</span></span><br><span class="line"></span><br><span class="line">    dms = <span class="built_in">len</span>(datas[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">if</span> dms == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    para = [<span class="number">0</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,dms)]</span><br><span class="line">    run_times = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"></span><br><span class="line">        run_times+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, size):</span><br><span class="line">            p = <span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, dms - <span class="number">1</span>):</span><br><span class="line">                p += para[x] * datas[i][x]</span><br><span class="line">            p += para[-<span class="number">1</span>]</span><br><span class="line">            <span class="keyword">if</span> p &lt;= <span class="number">0</span> <span class="keyword">and</span> datas[i][-<span class="number">1</span>] &gt; <span class="number">0</span> <span class="keyword">or</span> p &gt;= <span class="number">0</span> <span class="keyword">and</span> datas[i][-<span class="number">1</span>] &lt; <span class="number">0</span>:<span class="comment">#ignore datas[i][-1] == 0</span></span><br><span class="line">                err_i = i;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">if</span> err_i != -<span class="number">1</span>:</span><br><span class="line">            <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, dms - <span class="number">1</span>):</span><br><span class="line">                para[x] += datas[err_i][-<span class="number">1</span>] * datas[err_i][x]  <span class="comment"># update the parameters</span></span><br><span class="line">            para[-<span class="number">1</span>] += datas[err_i][-<span class="number">1</span>]</span><br><span class="line">            err_i = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span>:<span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> [para,run_times]</span><br></pre></td></tr></table></figure>
+<p>全部python代码可以在<a target="_blank" rel="noopener" href="https://github.com/wlsdzyzl/PLA">PLA</a>找到。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/code/" rel="tag"># code</a>
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/visualization/" rel="tag"># visualization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/07/29/markdown-mathjax%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F%EF%BC%8C%E8%8B%A6%E9%80%BC%E7%9A%84%E6%89%BEbug%E8%BF%87%E7%A8%8B/" rel="prev" title="markdown+mathjax显示公式，苦逼的找bug过程 ">
+                  <i class="fa fa-angle-left"></i> markdown+mathjax显示公式，苦逼的找bug过程 
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/01/Fibonacci%E6%95%B0%E5%88%97%E2%80%94%E2%80%94%E5%BF%AB%E9%80%9F%E7%9F%A9%E9%98%B5%E5%B9%82/" rel="next" title="Fibonacci数列——快速矩阵幂">
+                  Fibonacci数列——快速矩阵幂 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

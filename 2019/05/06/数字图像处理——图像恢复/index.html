@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前我们介绍了图像增强，图像增强是根据我们的需求对原始图像进行处理，如blur等。图像恢复则像是图像增强的逆，但是也不绝对，主要是我们希望回复图片真实原始的样子。比如deblur，去噪等等。这个待处理的图像不一定是我们增强的结果，也可能是硬件或者拍摄时候引入的噪声，模糊，抖动等等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——图像恢复">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E6%81%A2%E5%A4%8D/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前我们介绍了图像增强，图像增强是根据我们的需求对原始图像进行处理，如blur等。图像恢复则像是图像增强的逆，但是也不绝对，主要是我们希望回复图片真实原始的样子。比如deblur，去噪等等。这个待处理的图像不一定是我们增强的结果，也可能是硬件或者拍摄时候引入的噪声，模糊，抖动等等。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration0.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration7.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration8.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration9.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration10.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration13.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration12.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration14.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration15.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration16.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration17.png">
+<meta property="article:published_time" content="2019-05-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:21.313Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="digital image processing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration0.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E6%81%A2%E5%A4%8D/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E6%81%A2%E5%A4%8D/","path":"2019/05/06/数字图像处理——图像恢复/","title":"数字图像处理——图像恢复"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——图像恢复 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%99%AA%E5%A3%B0"><span class="nav-number">1.</span> <span class="nav-text">噪声</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%EF%BC%8C%E7%A9%BA%E9%97%B4%E4%B8%8D%E5%8F%98%E7%9A%84Degradatioon"><span class="nav-number">2.</span> <span class="nav-text">线性，空间不变的Degradatioon</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——图像恢复 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——图像恢复
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-05-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-05-06T00:00:00+08:00">2019-05-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:21" itemprop="dateModified" datetime="2023-10-21T04:23:21+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们介绍了图像增强，图像增强是根据我们的需求对原始图像进行处理，如blur等。图像恢复则像是图像增强的逆，但是也不绝对，主要是我们希望回复图片真实原始的样子。比如deblur，去噪等等。这个待处理的图像不一定是我们增强的结果，也可能是硬件或者拍摄时候引入的噪声，模糊，抖动等等。</p>
+<span id="more"></span>
+
+
+<p>下面是几个distortion的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration0.png"></p>
+<p>上述中的blur分为optical blur（例如聚焦失败），以及motion blur（因为移动产生的模糊），而移动模糊又分为了全局（相机移动产生的模糊）和局部（拍摄的物体产生了移动，而背景是清晰的）。由于在形成image时候出现的这些噪声，我们拍摄的照片与真实的照片总是有差距的。我们假设真实照片应该是$u(m,n)$，而拿到的照片是$v(m,n)$，那么图像恢复的目标是找到一个操作$H$：</p>
+<p>H[v(m,n) ] \approx u(m,n)</p>
+<p>为了衡量恢复得好坏，我们使用MSE：</p>
+<p>\text{MSE} &#x3D; \frac{1}{N^2} \sum_{m&#x3D;0}^M\sum_{n&#x3D;0}^N [u(m,n) - H[v(m,n) ]]^2</p>
+<p>不过，需要知道的是这个只是在评测一个算法的时候利用实验的数据来做，因此噪声可能是人为模拟实际添加的，然后根据原来的图片与处理之后的图片进行对比。一般来说如果在这些图片上表现良好，现实中也会有不错的表现。毕竟实际上，我们无法得到真正的”True image”。</p>
+<p>一般来说，我们假设图像的distortion由两部分组成：degradation与noise，模型如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration1.png"></p>
+<p>这里degradation一般是某种卷积操作，也就是：</p>
+<p>g(x,y) &#x3D; h(x,y) * f(x,y) + n(x,y)</p>
+<p>对应到频域：</p>
+<p>G(u,v) &#x3D; H(u,v)F(u,v)+N(u,v)</p>
+<p>那么想要做restoration，就是找一条返回去的路。</p>
+<h3 id="噪声"><a href="#噪声" class="headerlink" title="噪声"></a><a href="about:blank#%E5%99%AA%E5%A3%B0" title="噪声"></a>噪声</h3><p>无从下手可以先从简单的开始。比如这里，我们先单独考虑噪声。一般来说噪声有下面几种：</p>
+<p>Gaussian noise:</p>
+<p>p(z)&#x3D;\frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{(z-\mu)^{2} }{2 \sigma^{2} } }</p>
+<p>Rayleigh noise:</p>
+<p>p(z)&#x3D;\left\{\begin{array}{ll}{\frac{2}{b}(z-a) e^{-\frac{(z-a)^{2} }{b} } } &amp; {\text { for } z \geq a} \\ {0} &amp; {\text { for } z&lt; a}\end{array}\right. \mu&#x3D;a+\sqrt{\frac{\pi b}{4} } \quad, \quad \sigma^{2}&#x3D;\frac{b(4-\pi)}{4}</p>
+<p>Erlang (Gamma) noise:</p>
+<p>p(z)&#x3D;\left\{\begin{array}{ll}{\frac{a^{b} z^{b-1} }{(b-1) !} e^{-a z} } &amp; {\text { for } z \geq 0} \\ {0} &amp; {\text { for } z&lt;0}\end{array}\right. \mu&#x3D;\frac{b}{a} \quad, \quad \sigma^{2}&#x3D;\frac{b}{a^{2} }</p>
+<p>Exponential noise:</p>
+<p>p(z)&#x3D;\left\{\begin{array}{ll}{a e^{-a z} } &amp; {\text { for } z \geq 0} \\ {0} &amp; {\text { for } z&lt;0}\end{array}\right. \mu&#x3D;\frac{1}{a} \quad, \quad \sigma^{2}&#x3D;\frac{1}{a^{2} }</p>
+<p>Uniform noise:</p>
+<p>p(z)&#x3D;\left\{\begin{array}{ll}{\frac{1}{b-a} } &amp; {\text { if } a \leq z \leq b} \\ {0} &amp; {\text { otherwise } }\end{array}\right. \mu&#x3D;\frac{a+b}{2} \quad, \quad \sigma^{2}&#x3D;\frac{(b-a)^{2} }{12}</p>
+<p>Impulse (Salt and Pepper) noise(椒盐噪声):</p>
+<p>p(z)&#x3D;\left\{\begin{array}{ll}{P_{a} } &amp; {\text { for } z&#x3D;a} \\ {P_{b} } &amp; {\text { for } z&#x3D;b} \\ {0} &amp; {\text { otherwise } }\end{array}\right.</p>
+<p>他们的图像分别如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration2.png"></p>
+<p>对于一张图片添加不同的噪声，可以得到下面的几种效果：</p>
+<p>原图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration3.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration4.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration5.png"></p>
+<p>那么，如何知道图片$v(m,n)$上的噪声是什么类型？首先，选择一个图片应该比较平滑的区域，画出他的直方图。实际上，我们可以根据直方图的形状来估计噪声的类型，因为理论上平滑区域的直方图是只有一条线，因此直方图的形状实际上是噪声的形状，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration6.png"></p>
+<p>很明显，第一个应该是高斯噪声，而第二个是Rayleigh，第三个是uniform噪声。</p>
+<p>如果我们只考虑噪声，那么这里的Degradation中的$H$就是一个单位矩阵，与$F$相乘后并不改变$F$的值，用公式表示如下：</p>
+<p>g(x,y) &#x3D; f(x,y) + n(x,y)\\ G(u,v) &#x3D; F(u,v) + N(u,v)</p>
+<p>而根据直方图，我们可以估计出噪声的均值，方差等等，从而从源头上实现降噪。这个降噪的过程也就是使用滤波器。对于不同的噪声可以使用不同的滤波器来完成降噪。例如对于椒盐噪声可以使用中值滤波器，或者均值滤波器（会使得图像变得模糊）去除。除此之外我们还有最大最小值滤波，以及频域上带阻，带通等等滤波器。正如之前说的，对于带阻（通）滤波，可以有理想的，高斯的以及在理想与高斯之间的Blutterworth滤波：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration7.png"></p>
+<p>理想带阻滤波：</p>
+<p>H(u, v)&#x3D;\left\{\begin{array}{ll}{1} &amp; {\text { if } D(u, v)&lt;D_{0}-\frac{W}{2} } \\ {0} &amp; {\text { if } D_{0}-\frac{W}{2} \leq D(u, v) \leq D_{0}+\frac{W}{2} } \\ {1} &amp; {\text { if } D(u, v)&gt;D_{0}+\frac{W}{2} }\end{array}\right.</p>
+<p>Blutterworth：</p>
+<p>H(u, v)&#x3D;\frac{1}{1+\left[\frac{D(u, v) W}{D^{2}(u, v)-D_{0}^{2} }\right]^{2 n} }</p>
+<p>高斯带阻滤波：</p>
+<p>H(u, v)&#x3D;1-e^{-\frac{1}{2}\left[\frac{D^{2}(u, v)-D_{0}^{2} }{D(u, v) W}\right]^{2} }</p>
+<p>下面是一个带阻滤波的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration8.png"></p>
+<p>在这里，再介绍一个Notch滤波。它转到空间域下的可视化如图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration9.png"></p>
+<p>数学形式：</p>
+<p>H(u, v)&#x3D;\left\{\begin{array}{ll}{0} &amp; {\text { if } D_{1}(u, v) \leq D_{0} \quad \text { or } \quad D_{2}(u, v) \leq D_{0} } \\ {1} &amp; {\text { otherwise } }\end{array}\right.</p>
+<p>其中：</p>
+<p>\begin{array}{c}{D_{1}(u, v)&#x3D;\left[ \left(u-\frac{M}{2}-u_{0}\right)^{2}+\left(v-\frac{N}{2}-v_{0}\right)^{2}\right]^{\frac{1}{2} } } \\ {D_{2}(u, v)&#x3D;\left[ \left(u-\frac{M}{2}+u_{0}\right)^{2}+\left(v-\frac{N}{2}+v_{0}\right)^{2}\right]^{\frac{1}{2} } } \\ {H(u, v)&#x3D;\frac{1}{1+\left[\frac{D_{0}^{2} }{D_{1}(u, v) D_{2}(u, v)}\right]^{n} } } \\ {H(u, v)&#x3D;1-e^{-\frac{1}{2}\left[\frac{D_{1}(u, v) D_{2}(u, v)}{D_{0}^{2} }\right]^{n} } }\end{array}</p>
+<p>在频域上，它的图像如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration10.png"></p>
+<p>可以看到的是它阻塞了两个特定区域的频率，同样从sharp到smooth，也有理想的North滤波，Blutterworth North滤波，高斯Notch滤波。</p>
+<h3 id="线性，空间不变的Degradatioon"><a href="#线性，空间不变的Degradatioon" class="headerlink" title="线性，空间不变的Degradatioon"></a><a href="about:blank#%E7%BA%BF%E6%80%A7%EF%BC%8C%E7%A9%BA%E9%97%B4%E4%B8%8D%E5%8F%98%E7%9A%84Degradatioon" title="线性，空间不变的Degradatioon"></a>线性，空间不变的Degradatioon</h3><p>下面这张图，是一个经过高斯滤波，然后产生模糊的情况。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration13.png"></p>
+<p>Blur操作，在频域上的表现是一个低通滤波器。假如我们已经知道了这里的$H$的形式，忽略噪声$N(u,v)$，那么对于原始图像$F(u,v)$的估计就是：</p>
+<p>\hat F(u,v) &#x3D; \frac{G(u,v)}{H(u,v)}</p>
+<p>这个过程如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration12.png"></p>
+<p>我们可以看看对于一张图片加上不同的高斯滤波之后产生blur，然后反向来deblur的几个例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration14.png"></p>
+<p>这几张图，原始图是一样的，而加上不同的高斯滤波后造成不同程度的模糊，可以看到模糊程度越高，而deblur的效果越差。Why？</p>
+<p>原因主要是因为我们忽略了这张图片本身具有不可避免的噪声（由于硬件传感器等造成的），而deblur则会放大这个噪声的效果。</p>
+<p>G(u,v) &#x3D; H(u,v)F(u,v) + N(u,v)\\ \hat F(u,v) &#x3D; G(u,v)&#x2F;H(u,v) &#x3D; F(u,v) + N(u,v)&#x2F;H(u,v)</p>
+<p>这个过程用一个直观的解释如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration15.png"></p>
+<p>因此诞生了一个新的<strong>Wiener滤波器</strong>：</p>
+<p>\hat F(u,v) &#x3D; G(u,v)W(u,v),\\ W(u,v) &#x3D; \frac{H^*(u,v)}{\vert H(u,v) \vert^2 + K(u,v)}</p>
+<p>这里的$K(u,v) &#x3D; frac{\vert F(u,v) \vert ^2}{\vert N(u,v) \vert ^2}$。而$F(u,v)$以及$N(u,v)$可以大约估计得到，或者$K$由经验确定一个常量。Wiener Filter在最小化MSE：$$<br>\sum_{x,y}(f(x,y) - \hat f(x,y))^2</p>
+<p>$$</p>
+<p>这其中的推导可以去查阅相关的论文。关于它的直观化理解如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration16.png"></p>
+<p>可以看到，$W(u,v)$的形状到了高频之后形状并不会持续的上升，而会有下降，这样一定程度上即保证了高频区域的恢复也保证了不会放大噪声。</p>
+<p>它的deblur效果如下(这里的高斯滤波$\sigma &#x3D; 1.5\text{ pixel}$,noise $\sigma &#x3D; 0.3\text{ gray level}$ )：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/restoration17.png"></p>
+<p>因此可以看到，了解噪声产生过程是非常重要的，可以帮助我们处理更高的一些算法。</p>
+<p>要注意这里的高斯噪声，和高斯滤波，二者是不同的，第一种是噪声分布是高斯分布，然后直接叠加到像素，而第二种是卷积操作，在频域上的乘积，造成图像的模糊。因此他们的处理方法也是不同的，对于高斯噪声的处理一般采用自适应滤波。</p>
+<p>实际上，关于Deblur有非常多相关的研究。这里有一篇关于夜间图片deblur的文章。夜晚的blur造成主要是因为深夜因为光照不足，所以需要更长的曝光时间，而人的手上细微的抖动就会被叠加出现模糊。而夜晚图片经常会有点光源，这些光源的轨迹实际上就代表了相机运动的轨迹，文章就以这个为先验信息，来进行deblur，这是一个非常新奇的观点：<br><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/7169560">Deblurring Saturated Night Image With Function-Form Kernel</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%9C%E8%89%B2%E5%9B%BE%E5%A4%84%E7%90%86/" rel="prev" title="数字图像处理——颜色图处理">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——颜色图处理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/05/09/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94realsense%E5%AE%89%E8%A3%85/" rel="next" title="踩过的坑——realsense安装">
+                  踩过的坑——realsense安装 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

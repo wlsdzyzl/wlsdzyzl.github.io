@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是一个对于之前介绍的proximal gradient descent，accelerated proximal gradient以及augmented Lagrange multipler算法的实现与对比。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="压缩感知与稀疏模型——PGD,APG,ALM的实现">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/07/22/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94PGD,APG,ALM%E7%9A%84%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这是一个对于之前介绍的proximal gradient descent，accelerated proximal gradient以及augmented Lagrange multipler算法的实现与对比。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare5.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare6.png">
+<meta property="article:published_time" content="2019-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:25:24.734Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="code">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="sparse model">
+<meta property="article:tag" content="convex optimization">
+<meta property="article:tag" content="matlab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/07/22/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94PGD,APG,ALM%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/07/22/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94PGD,APG,ALM%E7%9A%84%E5%AE%9E%E7%8E%B0/","path":"2019/07/22/压缩感知与稀疏模型——PGD,APG,ALM的实现/","title":"压缩感知与稀疏模型——PGD,APG,ALM的实现"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>压缩感知与稀疏模型——PGD,APG,ALM的实现 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#PGD"><span class="nav-number">1.</span> <span class="nav-text">PGD:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#APG"><span class="nav-number">2.</span> <span class="nav-text">APG:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ALM"><span class="nav-number">3.</span> <span class="nav-text">ALM:</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#APG-Lagrange%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">APG_Lagrange：</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/07/22/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94PGD,APG,ALM%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="压缩感知与稀疏模型——PGD,APG,ALM的实现 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          压缩感知与稀疏模型——PGD,APG,ALM的实现
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-07-22 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-22T00:00:00+08:00">2019-07-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:25:24" itemprop="dateModified" datetime="2023-10-21T04:25:24+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">压缩感知与稀疏模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这是一个对于之前介绍的proximal gradient descent，accelerated proximal gradient以及augmented Lagrange multipler算法的实现与对比。</p>
+<span id="more"></span>
+
+
+<p>具体的实现代码将会在文章末尾给出。实现的过程虽然说就是照着算法介绍打出来，但是还是有一些感悟的。</p>
+<ol>
+<li>学习率实际上是非常重要的。之前机器学习课程中，对于学习率只要设一个比较小的值就可以了，而在之前的课程中经过证明（说明），可以知道需要小于$\frac{1}{L}$。我们知道，对于cost function来说，想着重优化哪个term，就需要给它设定更大的权重（比如$\lambda$）。但是在梯度下降以及各个一阶方法中，这个权重重要性主要体现在各个term权重之间的对比，决定了梯度的方向，因此对于过大的权重，要对应较小的学习率（或者进行normalize），否则会让步子迈得太大，得不到更好的优化效果。</li>
+<li>数学真的很神奇。经过理性分析证明，只需要多几行代码，就可以让收敛率大大提高，大大加速算法。这就是数学的魅力。</li>
+</ol>
+<p>这次由于是完成作业，因此使用了不是很熟练的matlab来实现。主要是用这3种算法来恢复稀疏向量，也就是BP（Basic Pursuit）问题。</p>
+<h4 id="PGD"><a href="#PGD" class="headerlink" title="PGD:"></a><a href="about:blank#PGD" title="PGD:"></a>PGD:</h4><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x,difs]</span> = <span class="title">proximal_gradient</span> <span class="params">(x0,A, y,origin)</span></span></span><br><span class="line">L =<span class="built_in">max</span>( eig(A' * A));</span><br><span class="line"></span><br><span class="line">lambda = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">[m,n] = <span class="built_in">size</span>(A);</span><br><span class="line">x = x0;</span><br><span class="line">iteration_times = <span class="number">1000</span>;</span><br><span class="line"><span class="built_in">i</span> = <span class="number">1</span>;</span><br><span class="line">w = <span class="built_in">zeros</span>(n,<span class="number">1</span>);</span><br><span class="line">dif = norm(x - origin,<span class="number">2</span>);</span><br><span class="line">difs = [dif];</span><br><span class="line"><span class="keyword">while</span>(<span class="built_in">i</span>&lt;iteration_times)</span><br><span class="line">w = x - <span class="number">1</span>/L*A' *(A*x - y);</span><br><span class="line">x = soft(w,lambda/L);</span><br><span class="line">dif = norm(x - origin,<span class="number">2</span>);</span><br><span class="line">difs = [difs,dif];</span><br><span class="line"><span class="built_in">i</span>=<span class="built_in">i</span>+<span class="number">1</span>;</span><br><span class="line">endwhile</span><br><span class="line"></span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<h4 id="APG"><a href="#APG" class="headerlink" title="APG:"></a><a href="about:blank#APG" title="APG:"></a>APG:</h4><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x,difs]</span> = <span class="title">accelerated_proximal_gradient</span> <span class="params">(x0,A, y,origin)</span></span></span><br><span class="line">L =<span class="built_in">max</span>( eig(A' * A));</span><br><span class="line">lambda = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">[m,n] = <span class="built_in">size</span>(A);</span><br><span class="line">x = x0;</span><br><span class="line">x_old = x;</span><br><span class="line">x_new = x;</span><br><span class="line">iteration_times = <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line">p = x;</span><br><span class="line">t = <span class="number">1</span>;</span><br><span class="line">t_old = t;</span><br><span class="line"><span class="built_in">beta</span> = t;</span><br><span class="line"><span class="built_in">i</span>=<span class="number">1</span>;</span><br><span class="line">dif = norm(x-origin , <span class="number">2</span>);</span><br><span class="line">difs = [dif];</span><br><span class="line"><span class="keyword">while</span>(<span class="built_in">i</span>&lt;iteration_times )</span><br><span class="line"></span><br><span class="line">t = (<span class="number">1</span> + <span class="built_in">sqrt</span>(<span class="number">1</span> + <span class="number">4</span> *t_old*t_old))/<span class="number">2</span>;</span><br><span class="line"><span class="built_in">beta</span> = (t_old<span class="number">-1</span>)/t;</span><br><span class="line">p = x + <span class="built_in">beta</span>* (x - x_old);</span><br><span class="line">w = p - <span class="number">1</span>/L* A' *(A*p - y);</span><br><span class="line"></span><br><span class="line">x_new = soft(w,lambda/L);</span><br><span class="line">x_old = x;</span><br><span class="line">x = x_new;</span><br><span class="line">t_old = t;</span><br><span class="line">dif = norm(x -origin,<span class="number">2</span>);</span><br><span class="line">difs = [difs,dif];</span><br><span class="line"><span class="built_in">i</span>=<span class="built_in">i</span>+<span class="number">1</span>;</span><br><span class="line">endwhile</span><br><span class="line"></span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<h4 id="ALM"><a href="#ALM" class="headerlink" title="ALM:"></a><a href="about:blank#ALM" title="ALM:"></a>ALM:</h4><p>需要注意的是这里ALM迭代步骤中有一步是需要用APG(或者PGD)来优化得到最小值。由于这里构造的拉格朗日函数与之前的APG的目标函数还是有一点区别，因此需要重新写个APG函数。</p>
+<p>\mathcal{L}_{\mu}(\boldsymbol{x}, \boldsymbol{\lambda}) \doteq g(\boldsymbol{x})+\langle\boldsymbol{\lambda}, \boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\rangle+\frac{\mu}{2}\|\boldsymbol{A} \boldsymbol{x}-\boldsymbol{y}\|_{2}^{2}</p>
+<h5 id="APG-Lagrange："><a href="#APG-Lagrange：" class="headerlink" title="APG_Lagrange："></a><a href="about:blank#APG-Lagrange%EF%BC%9A" title="APG_Lagrange："></a>APG_Lagrange：</h5><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x]</span> = <span class="title">APG_Lagrange</span> <span class="params">(x0,A, y,mu,lambda,L)</span></span></span><br><span class="line"></span><br><span class="line">[m,n] = <span class="built_in">size</span>(A);</span><br><span class="line">x = x0;</span><br><span class="line">x_old = x;</span><br><span class="line">x_new = x;</span><br><span class="line">iteration_times = <span class="number">10</span>;</span><br><span class="line">p = x;</span><br><span class="line">t = <span class="number">1</span>;</span><br><span class="line">t_old = t;</span><br><span class="line"><span class="built_in">beta</span> = t;</span><br><span class="line"><span class="built_in">i</span>=<span class="number">1</span>;</span><br><span class="line">#dif = norm(x - origin,2);</span><br><span class="line">#difs = [dif]</span><br><span class="line"><span class="keyword">while</span>(<span class="built_in">i</span>&lt;iteration_times)</span><br><span class="line">t = (<span class="number">1</span> + <span class="built_in">sqrt</span>(<span class="number">1</span> + <span class="number">4</span> *t_old*t_old))/<span class="number">2</span>;</span><br><span class="line"><span class="built_in">beta</span> = (t_old<span class="number">-1</span>)/t;</span><br><span class="line">p = x + <span class="built_in">beta</span> *(x - x_old);</span><br><span class="line">w = p - <span class="number">1</span>/(L*mu) *(mu * A' *(A*p - y) + A' * lambda);</span><br><span class="line">x_new = soft(w,<span class="number">1</span>/(L*mu));</span><br><span class="line">x_old = x;</span><br><span class="line">x = x_new;</span><br><span class="line">#dif = norm(x - origin,2);</span><br><span class="line">#difs = [difs,dif];</span><br><span class="line">t_old = t; </span><br><span class="line"><span class="built_in">i</span>=<span class="built_in">i</span>+<span class="number">1</span>;</span><br><span class="line">endwhile</span><br><span class="line"></span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<p>接下来是ALM，里面用到了上面的函数:  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x,difs]</span> = <span class="title">augmented_lagrange_multipler</span> <span class="params">(x0,A, y,origin)</span></span></span><br><span class="line">L =<span class="built_in">max</span>( eig(A' * A));</span><br><span class="line"><span class="built_in">beta</span> = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">mu = <span class="number">0.5</span>;</span><br><span class="line">mu_max = <span class="number">1</span>;</span><br><span class="line">[m,n] = <span class="built_in">size</span>(A);</span><br><span class="line">lambda = <span class="built_in">ones</span>(m,<span class="number">1</span>);</span><br><span class="line">x = x0;</span><br><span class="line">iteration_times = <span class="number">1000</span>;</span><br><span class="line">dif = norm(x - origin,<span class="number">2</span>);</span><br><span class="line">difs = [dif];</span><br><span class="line"><span class="built_in">i</span> = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span>( <span class="built_in">i</span>&lt;iteration_times )</span><br><span class="line">x = APG_Lagrange(x0,A,y,mu,lambda,L);</span><br><span class="line">lambda = lambda + mu *(A*x - y);</span><br><span class="line">mu = <span class="built_in">min</span>(<span class="built_in">beta</span>*mu,mu_max);</span><br><span class="line">dif = norm(x- origin,<span class="number">2</span>);</span><br><span class="line">difs = [difs,dif];</span><br><span class="line">x0 = x;</span><br><span class="line"><span class="built_in">i</span>=<span class="built_in">i</span>+<span class="number">1</span>;</span><br><span class="line">endwhile</span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<p>可以看到，每个函数主体都不长，而且还包含了我为了可视化因此记录下来每次迭代的error的代码。所以数学真的很神奇。</p>
+<p>初次之外，还需要一些别的代码，其中generateXAY用来随机生成$x,A,y$，而soft函数是soft thresholding函数:  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x,A,y]</span> = <span class="title">generateXAY</span> <span class="params">(n,r)</span></span></span><br><span class="line">m = <span class="number">0.5</span>*n;</span><br><span class="line">k = r*n</span><br><span class="line">A = <span class="built_in">randn</span>(m,n);</span><br><span class="line">x = <span class="built_in">zeros</span>(n,<span class="number">1</span>);</span><br><span class="line">x(randperm(n,k)) = <span class="built_in">rand</span>(k,<span class="number">1</span>);</span><br><span class="line">y = A*x;</span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[ soft_thresh ]</span> = <span class="title">soft</span><span class="params">( b,lambda )</span></span></span><br><span class="line">    soft_thresh = <span class="built_in">sign</span>(b).*<span class="built_in">max</span>(<span class="built_in">abs</span>(b) - lambda,<span class="number">0</span>);</span><br><span class="line">endfunction</span><br></pre></td></tr></tbody></table>
+
+<p>以及main函数，包含了入口以及画图的程序:  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">n = <span class="number">800</span>;</span><br><span class="line">r = <span class="number">0.2</span>;</span><br><span class="line">[x,A,y] = generateXAY(n,r);</span><br><span class="line">x0 = <span class="built_in">rand</span>(n,<span class="number">1</span>);</span><br><span class="line">[x1,difs1] = proximal_gradient(x0,A,y,x);</span><br><span class="line">[x2,difs2] = accelerated_proximal_gradient(x0,A,y,x);</span><br><span class="line">[x3,difs3]= augmented_lagrange_multipler(x0,A,y,x);</span><br><span class="line"></span><br><span class="line">err0 = norm(x0 - x,<span class="number">2</span>)</span><br><span class="line">err1 = norm(x1 - x,<span class="number">2</span>)</span><br><span class="line">err2 = norm(x2 - x,<span class="number">2</span>)</span><br><span class="line">err3 = norm(x3 - x,<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">index = <span class="number">1</span>:<span class="number">1000</span>;</span><br><span class="line"><span class="built_in">plot</span>(index,difs1,index,difs2,index,difs3);</span><br><span class="line"></span><br><span class="line">title([<span class="string">"m="</span>,num2str(n*<span class="number">0.5</span>),<span class="string">" n="</span>,num2str(n),<span class="string">" k="</span>,num2str(r*n)])</span><br><span class="line">xlabel(<span class="string">"iteration no.k"</span>)</span><br><span class="line">ylabel(<span class="string">"l2 error"</span>)</span><br><span class="line"><span class="built_in">legend</span>(<span class="string">'PGD'</span>,<span class="string">'APG'</span>,<span class="string">'ALM'</span>)</span><br></pre></td></tr></tbody></table>
+
+<p>最后在$m&#x3D;100,200,400，n&#x3D;200,400,800$，以及$k&#x3D;0.1n$的情况下进行了实验，画出了曲线对比图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare1.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare2.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare3.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare4.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare5.png"><br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compare6.png"></p>
+<p>可以看到，对于越稀疏的矩阵，恢复效果越好，而当数据规模增大时，需要更多的迭代次数。</p>
+<p>ALM的效果最好，而APG其次，最后是PGD，当然，由于ALM在迭代过程中已经调用了APG算法，因此它与APG迭代一样的次数的话是不公平的，但是总体表现来说还是ALM会更好一点，而且可以看出，收敛后，ALM的error比APG要低。我猜测这是因为ALM就是奔着恢复稀疏矩阵去的，使用了Lagrange构造对偶问题，对单纯的惩罚做法要更好。其他两个算法在有噪声的情况下会更适合，在没有噪声的时候，相比之下会更差一点。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/code/" rel="tag"># code</a>
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/sparse-model/" rel="tag"># sparse model</a>
+              <a href="/tags/convex-optimization/" rel="tag"># convex optimization</a>
+              <a href="/tags/matlab/" rel="tag"># matlab</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/21/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Augmented%20Lagrange%20Multipler(ALM)/" rel="prev" title="压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)">
+                  <i class="fa fa-angle-left"></i> 压缩感知与稀疏模型——Augmented Lagrange Multipler(ALM)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/07/29/CPP%E2%80%94%E2%80%94%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="ROS——基本介绍">
+                  ROS——基本介绍 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

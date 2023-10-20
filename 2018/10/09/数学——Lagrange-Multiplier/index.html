@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="拉格朗日乘数法，是我们大学或者考研过来的耳熟能详的名词了。我们接触他的时候，应该是在求条件极值的时候。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数学——Lagrange Multiplier">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="拉格朗日乘数法，是我们大学或者考研过来的耳熟能详的名词了。我们接触他的时候，应该是在求条件极值的时候。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2012101621500549.png">
+<meta property="article:published_time" content="2018-10-09T05:09:09.000Z">
+<meta property="article:modified_time" content="2018-12-07T13:56:20.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="mathematics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2012101621500549.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/","path":"2018/10/09/数学——Lagrange-Multiplier/","title":"数学——Lagrange Multiplier"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数学——Lagrange Multiplier | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数学——Lagrange Multiplier | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数学——Lagrange Multiplier
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-09 13:09:09" itemprop="dateCreated datePublished" datetime="2018-10-09T13:09:09+08:00">2018-10-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-12-07 21:56:20" itemprop="dateModified" datetime="2018-12-07T21:56:20+08:00">2018-12-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">数学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>拉格朗日乘数法，是我们大学或者考研过来的耳熟能详的名词了。我们接触他的时候，应该是在求条件极值的时候。</p>
+<span id="more"></span>
+<p>求$f(x,y)$在$g(x,y)&#x3D;0$的条件下的极值。需要利用拉格朗日乘数构造新的式子：</p>
+<p>$w(x,y,\lambda ) &#x3D; f(x,y)+\lambda g(x,y)$</p>
+<p>让$w(x,y,\lambda)$分别对$x,y,\lambda$求偏导，并令其为0：<br>$$<br>\left {<br>\begin{array}{}<br>    w’_x(x,y,\lambda) &#x3D; f’_x(x,y)+\lambda g’_x(x,y) &#x3D; 0\<br>    w’_y(x,y,\lambda) &#x3D; f’_y(x,y)+ \lambda g’<em>y(x,y) &#x3D; 0\<br>    w’</em>{\lambda}(x,y,\lambda) &#x3D; g(x,y) &#x3D; 0<br>\end{array}<br>\right .<br>$$</p>
+<p>不过大学的时候，我虽然会这么计算，但是却不知道原理。现在希望从原理解释一下，为什么要这么算。</p>
+<p>暂时我想到了两种解释办法：</p>
+<p>1.我们首先要知道的一个前提是，$g(x,y) &#x3D; 0$在任意一点$(x_0,y_0)$切线的法向量为$(g’_x(x_0,y_0),g’_y(x_0,y_0))$.想象现在有一个点在约束的这条线上移动，为了找到让$f(x,y)$值最小的点，首先我们求出$f(x,y)$在当前点的梯度，梯度也就是朝着这个方向（或者反方向）前进，$f(x,y)$的值会变大（或者变小）,因此只要梯度与这条线上该点的法向量不平行，我们总是可以将梯度投影到该点的切线上，也就是依然能抄着切线的某个方向运动，让$f(x,y)$的值变小（如果要找到最大值，就是变大）。当梯度与法向量平行的时候，不论朝着哪个方向，都无法让$f(x,y)$的值变小，因此这个点就是一个极值小点。</p>
+<p>而我们知道的，上面的法向量，实际上是$g(x,y)$在该点的梯度，因此我们有在极值点的时候：<br> $$<br> \nabla f(x,y) &#x3D; \lambda \nabla g(x,y)<br> $$<br>上式中，$\lambda$的正负取决于要的是极大值点还是极小值点。而上面的式子，实际上就与方程组的前两个方程一致。</p>
+<p>2.另一个办法，画出等高线图。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2012101621500549.png"></p>
+<p>可以比较清晰地看出来，当$g(x,y)&#x3D;0$与等高线相切的点是极小值。因为你只能在$g(x,y)&#x3D;0$的这条线上移动，那么别的地方总会比它大（或者大）。那怎么求相切的部分的点呢？首先，等高线的方程，实际上是曲线到(x,y)平面的投影，方程为$f(x,y)&#x3D;C$,同样的，既然相切，那么他们在该点的法向量一定是平行的。计算法向量，又回到了前面的内容：<br>$$<br>  \nabla f(x,y) &#x3D; \lambda \nabla g(x,y)<br>$$<br>联立$g(x,y)&#x3D;0$即可得到原来的方程组。</p>
+<p>现在我们知道了条件极值如何解出来，但是这只是拉格朗日乘数法的一部分。拉格朗日乘数法是一种寻找变量受一个或多个条件所限制的多元函数的极值的方法。首先上面的条件限制只有一个，另外上面的条件也很简单，是在$g(x,y)&#x3D;0$，如果我们要的是$g(x,y) \leq 0$的呢？</p>
+<p>如果$f(x,y)$极值点本身就在上面的约束范围内，那么相当于没有约束，也就是$\lambda &#x3D; 0$，否则在边界上，又回到了上面的问题：$g(x,y)&#x3D;0$.总之，$\lambda g(x,y) &#x3D; 0$.因此我们需要改变联立条件即可。</p>
+<p>上面的式子，都是$\lambda$也会变化的情况。但是，在机器学习的正则化中，我们往往给出的式子是形如这样$E_{in} + \frac \lambda N \VertW\Vert^2$.而且这个$\lambda$可能是个定值。如果$\lambda$固定，得到的又是什么值？</p>
+<p>我们可以推断出来的是如果$E_{in}$找到了最小的地方，那么$W$也就为0，否则$\nabla E_{in}$与$W$的比值是一个定值。从这些里得不到很有用的信息。但是从另一个角度来说，它确实限制了$W$的大小，虽然目前不知道具体限定到哪个范围。$\VertW_{reg}\Vert \leq \VertW_{lin}\Vert$是一定的，可以从反证法证明：如果$\VertW_{lin}\Vert&lt;\VertW_{reg}\Vert$,那么$E_{in}$也会小，正则项也更小，所以这时候的$E_{reg}$比使用$W_{reg}$的更佳，也就是前面找到的不可能是最小值。</p>
+<p>另一个拉格朗日乘数法重要的在机器学习中的应用，是在SVM中。 </p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/" rel="prev" title="机器学习——（基石）作业4">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）作业4
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/" rel="next" title="机器学习——Linear Support Vector Machine">
+                  机器学习——Linear Support Vector Machine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

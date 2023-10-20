@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Linear Support Vector Machine">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/JRN%5BZGK%29K_J5YLHU4I3EBGF.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9Y%60%60IZO%7BW%285P%28RI%24KPP14LP.png">
+<meta property="article:published_time" content="2018-10-10T14:39:25.000Z">
+<meta property="article:modified_time" content="2018-11-02T14:36:34.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/JRN%5BZGK%29K_J5YLHU4I3EBGF.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/","path":"2018/10/10/机器学习——Linear-Support-Vector-Machine/","title":"机器学习——Linear Support Vector Machine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Linear Support Vector Machine | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Linear Support Vector Machine | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Linear Support Vector Machine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-10 22:39:25" itemprop="dateCreated datePublished" datetime="2018-10-10T22:39:25+08:00">2018-10-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-11-02 22:36:34" itemprop="dateModified" datetime="2018-11-02T22:36:34+08:00">2018-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。</p>
+<span id="more"></span>
+<p>首先需要回顾的是之前的Perceptron Learning Algorithm。如果这个资料线性可分，使用PLA算法，一定可以找到一个很好的线或者超平面（hyperplane）来将这个资料分开，但是这个线或者是超平面的个数可能是无数个，它们是否是一样好的？如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/JRN%5BZGK%29K_J5YLHU4I3EBGF.png"></p>
+<p>上面3条线，对于PLA算法来说是一样好的，因此运行到哪一条，都是无法预测的。但是从我们的角度来看，我们会选择第三条，因为这条线更robust，可以容忍更多测量误差，如第一条，有一个离红色点很近的样本的话，它更大概率是negative的，但是第一条就会将它归类到positive。因此，选择第三条线，可以更好地避免overfitting。</p>
+<p>为了想解决这个问题，我们需要将问题提炼成数学语言。首先我们想要求的是灰色区域最大的：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9Y%60%60IZO%7BW%285P%28RI%24KPP14LP.png"></p>
+<p>我们称灰色区域为margin。而这个margin，实际上是最近的两个点到中间这条线的距离。</p>
+<p>那么我们就要先想象，点到平面（或者超平面）的距离如何计算？</p>
+<p>如果一个超平面的方程为$W^TX + b &#x3D; 0$,则任意两个在该平面的点$x’$与$x’’$都应该满足上式，也就是<br>$$<br>\left{<br>\begin{array}<br>W^TX’+b &#x3D; 0\<br>W^TX’’+b &#x3D; 0<br>\end{array}<br>\right<br>$$<br>因此可以得到：$W^T(X’-X’’) &#x3D; 0$.<br>而$(X’-X’’)$可以表示平面上的任何一个向量，这说明了，$W$是该平面的法向量。</p>
+<p>而一个点到平面的距离，实际上就是该点到任何平面上一点连接得到的向量对该平面法向量的一个投影。计算投影长度的办法其实很简单,首先我们有$ab &#x3D; |a||b|cos\theta$,因此只要规定a的长度为1，那么这两个向量的数量积的绝对值就是向量的长度。因此我们可以得到：<br>$$<br>d &#x3D; |\frac {W^T }{||W||}(X - X’)| &#x3D; |\frac 1 {||W||}(W^TX + b)|.<br>$$</p>
+<p>这样，我们就得到了一个点到一个超平面的距离。</p>
+<p>实际上一个超平面的表示方法是无穷的，比如$WTX+b &#x3D; 0$与$2W^TX+2b&#x3D; 0$是一个平面，如果我们将经过距离超平面最近的点的与超平面平行的平面表示为:$W^X+b &#x3D; ±1$，那么d的形式就更简单了：$d &#x3D; \frac 1 {||W||}$.</p>
+<p>上面的距离中还是加了绝对值，但是因为这个问题的前提是将所有的点都分类正确，因此$y_i(WX_i+b)\ge 0$.</p>
+<p>所以用数学语言描述我们的问题如下：</p>
+<p>max $\frac 1 {||W||}$</p>
+<p>$s.t. min_{n &#x3D; 1,…,N} y_n(W^TX_n+b) &#x3D; 1$.</p>
+<p>注意的是为什么最小的点$y_n(W^TX_n+b) &#x3D; 1$,因为距离较远的话，根据距离公式$(W^TX+b)$会更大。</p>
+<p>上面的问题依然是很难解决的，我们希望可以继续放松这个约束。如果是所有点$y_n(W^TX_n+b) \ge 1$如何呢？</p>
+<p>这里利用反证法证明，放宽到上面的约束依然没有问题，距离直线最近的点依然是满足$y_n(W^TX_n+b) &#x3D; 1$：</p>
+<p>如果我们找到最近的点$X_n$，它满足的是$y_n(W^TX_n+b) &#x3D;a (a&gt;1)$，而且得到了最大的$\frac 1 {||W||}$，那么对上式左右同时除以a,而$\frac W a$比$W$更小，也就是这个$\frac 1 {||W||}$并不是最大的。这就矛盾了。因此依然只有在$y_n(W^TX_n+b) &#x3D;1$的时候才能取得最大值。所以放大这个约束，我们依然可以得到一样的最终结果。</p>
+<p>之前我们一直在求得是最小值，我们希望在这里也可以转换成为求最小值，同时范数是需要根号的，而因为范数和范数的平方是单调递增的，因此转化为范数的平方不会影响结果，同时再添上一个$\frac 1 2$，为了以后计算的方便。</p>
+<p>因此，最终的用数学语言描述我们的问题的版本如下：</p>
+<p>min  $\frac 1 2W^TW$</p>
+<p>$s.t.  y_n(W^TX_n+b) \ge 1,n &#x3D;1,2,…,N $.</p>
+<p>这个问题实际上是一个QP（二次规划）问题。而二次规划问题，我们可以借助很多工具，提供必要的参数，求得最佳解。</p>
+<p>上术问题就是svm问题。为什么叫support vector machine？我们需要注意的是，实际上决定最终线的，只有可能是最边上的点，而决定最终结果的点，就叫做支持向量。</p>
+<p>当我们面对线性无法可分的情况，就需要使用之前介绍的特征转换（nonlinear transform），将当前的点转换到更高维度的空间中去，使其成为线性可分。</p>
+<p>最后，我们在这里想要简单说明一下这背后的理论基础，为什么寻找最粗的那条线，可以获得更好的robustness？</p>
+<p>这就又回到了vc dimension.假设我们找到的比较粗的线（margin较大），是我们要的标准。那么具有这么大margin的线，能将空间中的N个样本分成的dichotomy的个数就会少很多，也就是有效vc dimension会变低。当然，这个问题无法像PLA时候那样分析，因为具体能分多少，与样本之间的距离也很重要，具体样本得到的结果也不同，但是可以证明的是,如果这些样本在一个半径为R的圆内，margin长度为ρ：</p>
+<p>$$<br>d_{vc}(\mathcal{A}_{\rho}) \leq min(\frac {R^2}{ρ^2} ,d)+1 \leq d+1<br>$$</p>
+<p>之前介绍的feature transform有个问题是太过于复杂导致vc dimension会变得很大，而我们可以看出来通过SVM我们某种程度上可以处理好这种情况。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/" rel="prev" title="数学——Lagrange Multiplier">
+                  <i class="fa fa-angle-left"></i> 数学——Lagrange Multiplier
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/" rel="next" title="机器学习——Dual Support Vector Machine">
+                  机器学习——Dual Support Vector Machine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

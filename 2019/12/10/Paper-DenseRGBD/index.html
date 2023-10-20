@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次带来的一篇文章是一个视觉里程计，针对RGBD的dense Visual Odometry：Real-Time Visual Odometry from Dense RGB-D Images，是一个非常经典的算法，现在依然被广泛使用着。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper——Real-Time Visual Odometry from Dense RGB-D Images">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/12/10/Paper-DenseRGBD/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次带来的一篇文章是一个视觉里程计，针对RGBD的dense Visual Odometry：Real-Time Visual Odometry from Dense RGB-D Images，是一个非常经典的算法，现在依然被广泛使用着。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-12-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:26:32.983Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="mathmetics">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/12/10/Paper-DenseRGBD/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/12/10/Paper-DenseRGBD/","path":"2019/12/10/Paper-DenseRGBD/","title":"Paper——Real-Time Visual Odometry from Dense RGB-D Images"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Paper——Real-Time Visual Odometry from Dense RGB-D Images | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Problem"><span class="nav-number">1.</span> <span class="nav-text">Problem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Solution"><span class="nav-number">2.</span> <span class="nav-text">Solution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximize-Photoconsistency"><span class="nav-number">2.1.</span> <span class="nav-text">Maximize Photoconsistency</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linearization-of-Energy"><span class="nav-number">2.2.</span> <span class="nav-text">Linearization of Energy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E6%B1%82%E5%AF%BC"><span class="nav-number">3.</span> <span class="nav-text">矩阵求导</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/12/10/Paper-DenseRGBD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Paper——Real-Time Visual Odometry from Dense RGB-D Images | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper——Real-Time Visual Odometry from Dense RGB-D Images
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-12-10 00:00:00" itemprop="dateCreated datePublished" datetime="2019-12-10T00:00:00+08:00">2019-12-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:26:32" itemprop="dateModified" datetime="2023-10-21T04:26:32+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次带来的一篇文章是一个视觉里程计，针对RGBD的dense Visual Odometry：<a target="_blank" rel="noopener" href="https://vision.in.tum.de/_media/spezial/bib/steinbruecker_sturm_cremers_iccv11.pdf">Real-Time Visual Odometry from Dense RGB-D Images</a>，是一个非常经典的算法，现在依然被广泛使用着。</p>
+<span id="more"></span>
+
+
+<p>之前SLAM的文章中介绍了视觉里程计的作用，它用来估计两帧之间的位姿，来给后面的优化提供很好的初始值，这样才能使得优化结果走向最优。对于不同的相机类型有不同的方法，今天看的适用于RGBD-SLAM。</p>
+<h2 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a><a href="about:blank#Problem" title="Problem"></a>Problem</h2><p>先定义一下文章中使用的符号，也是对一些基本知识的复习：</p>
+<p>\begin{aligned} &amp;I_{RGB} : \Omega \times \mathbb R_+ \rightarrow [0,1]^3 , (x,t) \mapsto I _{RGB}(x,t)\\ &amp;h: \Omega \times \mathbb R_+ \rightarrow \mathbb R_+, (x,t) \mapsto h(x,t)\\ \end{aligned}</p>
+<p>上面的式子可以大概明白作者的意思：$\Omega$是二维平面，也就是相机的成像平面，$t$是时刻属于正实数$\mathbb R_+$，$I_{RGB}$指的是RGB颜色的信息，也就是$t$时刻捕获的色彩图（$[0,1]^3$指的是一个三维向量，向量的元素范围为0-1，这也是常用的表示颜色的方法，通过乘上scale就可以得到对应的RGB值），$h$指的是捕获的深度图，$x$很明显指的是像素坐标了，是一个二维的点。</p>
+<p>通过针孔相机模型，可以得到表面，也就是空间点：</p>
+<p>\begin{array}{l}{S: \Omega \rightarrow \mathbb{R}^{3}, \quad x \mapsto S(x)} \\ {S(x)&#x3D;\left(\frac{\left(x+o_{x}\right) \cdot h(x)}{f_{x} } \quad, \quad \frac{\left(y+o_{y}\right) \cdot h(x)}{f_{y} } \quad, \quad h(x)\right)^{\top} }\end{array}</p>
+<p>这里的$o_x, o_y$对应的就是相机参数中的$-c_x,-c_y$。</p>
+<p>接下来介绍的是刚体运动到李群李代数，之前的文章也有详细的说明，这里简单提一下：<br>一个刚体运动$g$（$4\times 4矩阵$）属于李群SE(3)，也就对应到一个李代数se(3)的6维向量$\xi&#x3D;\left(\omega_{1} \omega_{2} \omega_{3} v_{1} v_{2} v_{3}\right)^{\top} \in \mathbb{R}^{6}$，它对应一个反对称矩阵：</p>
+<p>\widehat{\xi}&#x3D;\left(\begin{array}{cccc}{0} &amp; {-\omega_{3} } &amp; {\omega_{2} } &amp; {v_{1} } \\ {\omega_{3} } &amp; {0} &amp; {-\omega_{1} } &amp; {v_{2} } \\ {-\omega_{2} } &amp; {\omega_{1} } &amp; {0} &amp; {v_{3} } \\ {0} &amp; {0} &amp; {0} &amp; {0}\end{array}\right)</p>
+<p>李群李代数的意义在于求Rotation以及Transformation的导数，之前我们通过对于矩阵对$t$求导来引出李群李代数，从而得到微分方程：</p>
+<p>\frac{\mathrm{d} g(t)}{\mathrm{d} t}&#x3D;\widehat{\xi}(t) g(t)</p>
+<p>根据求解微分方程有，并且假设在很短的时间间隔内，$\xi(t)$不会改变，写成$\xi$：</p>
+<p>g\left(t_{1}\right)&#x3D;\exp \left(\left(t_{1}-t_{0}\right) \widehat{\xi}\right) g\left(t_{0}\right)</p>
+<p>下面定义符号$G$，表示的是空间点的运动，根据运动矩阵与空间点坐标，有：</p>
+<p>G: S E(3) \times \mathbb{R}^{3} \rightarrow \mathbb{R}^{3}, \quad G(g, P)&#x3D;R P+T</p>
+<p>通过上面的符号我们得到转换后的空间点，再定义一个重投影的过程：</p>
+<p>\pi(G)&#x3D;\left(\frac{G_{1} f_{x} }{G_{3} }-o_{x} \quad, \quad \frac{G_{2} f_{y} }{G_{3} }-o_{y}\right)^{\top}</p>
+<p>也就是，我们根据相机内参相机位姿，将空间点重新投影到成像平面。也就是下式，我们成这个过程为warping：</p>
+<p>\begin{aligned} w_{\xi} &amp;: \Omega \times \mathbb{R}_{+} \rightarrow \Omega, \quad(x, t) \mapsto w_{\xi}(x, t) \\ w_{\xi}(x, t) &amp;&#x3D;\pi\left(G\left(\exp \left(\left(t-t_{0}\right) \widehat{\xi}\right) g\left(t_{0}\right), S(x)\right)\right) \end{aligned}</p>
+<p>可以看到，它是将一个二维的点映射到另外一个二维点，也就是在第二个相机位姿下相同空间点的投影坐标。通过这样，我们可以根据相机位姿的变化，来计算得到一张理论值，通过与实际拍摄的图片对比，就有了residual，也就有了需要优化的cost function。色彩图以及深度图都考虑进来，这样做有个假设，就是表面的颜色不会变化。实际中，静态重建的环境颜色变化也不会很大，我们称保持颜色一致为Photoconsistency。</p>
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a><a href="about:blank#Solution" title="Solution"></a>Solution</h2><h3 id="Maximize-Photoconsistency"><a href="#Maximize-Photoconsistency" class="headerlink" title="Maximize Photoconsistency"></a><a href="about:blank#Maximize-Photoconsistency" title="Maximize Photoconsistency"></a>Maximize Photoconsistency</h3><p>下面要做的就是如何最大化Photoconsistency。现在有两个时刻得到的帧率，很直接的想法就是最小化他们重投影颜色差异：</p>
+<p>E(\xi)&#x3D;\int_{\Omega}\left[I\left(w_{\xi}\left(x, t_{1}\right), t_{1}\right)-I\left(w_{\xi}\left(x, t_{0}\right), t_{0}\right)\right]^{2} \mathrm{d} x</p>
+<p>假设第一帧的位姿为identity，那么可以简化上式：</p>
+<p>I\left(w_{\xi}\left(x, t_{0}\right), t_{0}\right)&#x3D;I\left(x, t_{0}\right)</p>
+<h3 id="Linearization-of-Energy"><a href="#Linearization-of-Energy" class="headerlink" title="Linearization of Energy"></a><a href="about:blank#Linearization-of-Energy" title="Linearization of Energy"></a>Linearization of Energy</h3><p>上述的cost function不是凸函数，实际上对这些函数的形式我们根本不清楚，因此我们需要做Linearization。通过对$t_1$时刻的图像以及对应的warp进行一阶泰勒估计：</p>
+<p>I\left(w_{\xi}\left(x, t_{1}\right), t_{1}\right) \approx I\left(x, t_{1}\right)+\left(w_{\xi}\left(x, t_{1}\right)-x\right) \cdot \nabla I\left(x, t_{1}\right) w_{\xi}\left(x, t_{1}\right) \approx x+\left.\left(t_{1}-t_{0}\right) \cdot \underbrace{\frac{\mathrm{d}(\pi \circ G \circ g)}{\mathrm{d} t} }_{&#x3D;\frac{d w}{d t} }\right|_{\left(x, t_{0}\right)}</p>
+<p>由此，可以将能量函数写为：</p>
+<p>\begin{aligned} E_{l}(\xi)&#x3D;\int_{\Omega}\left(I\left(x, t_{1}\right)-I\left(x, t_{0}\right)\right.&amp;+\left.\nabla I\left(x, t_{1}\right) \cdot\left(t_{1}-t_{0}\right) \cdot \frac{\mathrm{d} w}{\mathrm{d} t}\left(x, t_{0}\right)\right)^{2} \mathrm{d} x \end{aligned}</p>
+<p>由于$t_1 - t_0$只是一个放缩指数，我们可以简单得将其设为1,并且假设在这段时间内$I$的导数数不变，那么可以得到：</p>
+<p>E_{l}(\xi)&#x3D;\int_{\Omega}\left(\frac{\partial I}{\partial t}+\nabla I\left(x, t_{1}\right) \cdot \frac{\mathrm{d} w}{\mathrm{d} t}\left(x, t_{0}\right)\right)^{2} \mathrm{d} x</p>
+<p>接下来，根据链式求导法则，可以得到：</p>
+<p>\frac{\mathrm{d} w}{\mathrm{d} t}&#x3D;\left.\left.\left.\frac{\mathrm{d} \pi}{\mathrm{d} G}\right|_{\pi\left(G\left(g\left(t_{0}\right)\right), S(x)\right)} \cdot \frac{\mathrm{d} G}{\mathrm{d} g}\right|_{\left.G\left(g\left(t_{0}\right)\right), S(x)\right)} \cdot \frac{\mathrm{d} g}{\mathrm{d} t}\right|_{t_{0} }</p>
+<p>由此可以得到：</p>
+<p>E_{l}(\xi)&#x3D;\int_{\Omega}\left(\frac{\partial I}{\partial t}+\nabla I \cdot \frac{\mathrm{d} \pi}{\mathrm{d} G} \cdot \frac{\mathrm{d} G}{\mathrm{d} g} \cdot \frac{\mathrm{d} g}{\mathrm{d} t}\right)^{2} \mathrm{d} x</p>
+<p>这里的$\frac{\mathrm{d} g}{\mathrm{d} t}$正是之前的微分方程，可以得到：</p>
+<p>E_{l}(\xi)&#x3D;\int_{\Omega}\left(\frac{\partial I}{\partial t}+\nabla I \cdot \frac{\mathrm{d} \pi}{\mathrm{d} G} \cdot \frac{\mathrm{d} G}{\mathrm{d} g} \cdot \widehat{\xi} \cdot g(t)\right)^{2} \mathrm{d} x</p>
+<p>在这里，$\widehat{\xi} \cdot g(t)$是一个$4\times 4$矩阵，因此$\frac{\mathrm{d} G}{\mathrm{d} g}$是一个$3\times 4 \times 4$的张量，为了简化标记，作者将$\widehat{\xi} \cdot g(t)$stack在12维向量中，这是因为一个变换矩阵真正有效的信息就是$R$与$t$，自由度为12，stack操作定义为：</p>
+<p>\operatorname{stack}(\widehat{\xi} \cdot g(t))&#x3D;M_{g} \cdot \xi</p>
+<p>通过将$g$写成stacked的版本，我们可以得到最终的cost function的形式：</p>
+<p>E_{l}(\xi)&#x3D;\int_{\Omega}\left(\frac{\partial I}{\partial t}+\left.\underbrace{\left(\nabla I \cdot \frac{\mathrm{d} \pi}{\mathrm{d} G} \cdot \frac{\mathrm{d} G}{\mathrm{d} g} \cdot M_{g}\right)}_{&#x3D;: C\left(x, t_{0}\right)}\right|_{\left(x, t_{0}\right)} \xi\right)^{2} \mathrm{d} x</p>
+<p>对于每个pixel，都有一个6维的约束$C(x,t_{0})$，也就是求解$6 \times 6$的正规方程。到了这里，原来的问题已经转换成一个最小二乘问题了，也就很容易求解得到了。</p>
+<p>实际上，我们最终希望得到的是关于$\xi$，很巧妙的方法是通过对时间求导而推出来的。</p>
+<h2 id="矩阵求导"><a href="#矩阵求导" class="headerlink" title="矩阵求导"></a><a href="about:blank#%E7%9F%A9%E9%98%B5%E6%B1%82%E5%AF%BC" title="矩阵求导"></a>矩阵求导</h2><p>这篇文章看起来很简单，但是实际上如果你要真正一步步自己推导，还是有点难度的。首先，对于上式中的$\nabla I$，因为它是对像素点位置的泰勒展开，因此实际上是一个二元函数的展开：</p>
+<p>\begin{aligned} f(x+\Delta x,y + \Delta y) &amp;&#x3D; f(x,y) + \Delta x \frac{\partial f(x,y)}{\partial x} + \Delta y \frac{\partial f(x,y)}{\partial y}\\ &amp; &#x3D; f(x,y) + [\Delta x, \Delta y] \cdot \left[\frac{\partial f(x,y)}{\partial y},\frac{\partial f(x,y)}{\partial y}\right]^{\top} \end{aligned}</p>
+<p>因此，</p>
+<p>\nabla I &#x3D; [I_{dx},I_{dy}]</p>
+<p>也就是图片的导数，可以使用sobel滤波器得到。</p>
+<p>第二点，就是后面的导数：<br>$\frac{d\pi}{dG}$导数结果是$2\times 3$的矩阵：</p>
+<p>\begin{bmatrix} \pi^\top \\ 1 \end{bmatrix} &#x3D; \frac{1}{G_2} \begin{bmatrix} f_x&amp;0&amp;c_x\\ 0&amp;f_y&amp;c_y\\ 0&amp;0&amp;1 \end{bmatrix} \cdot \begin{bmatrix} G_0\\ G_1\\ G_2\\ \end{bmatrix}</p>
+<p>因此得到：</p>
+<p>\frac{d\pi}{dG} &#x3D; \begin{bmatrix} \frac{f_x}{G_2}&amp;0&amp;-\frac{f_x G_0}{G^2_2}\\ 0&amp;\frac{f_y}{G_2}&amp;-\frac{f_y G_1}{G^2_2} \end{bmatrix}</p>
+<p>第三个，是$\frac{dG}{dg}$，由于$g$是$4 \times 4$矩阵，因此这个求出来很吓人，是$3\times 4 \times 4$的张量。但是$g$的自由度实际上是12，也就有了后面简化为12维度的说话，因为$\hat \xi g$也是只有12个有效的元素。最后$\xi$的大小是$6\times 1$，因此，$M_g$的维度为$12 \times 6$,最后$\hat xi$之前矩阵维度为$(1 \times 2)\cdot (2 \times 3) \cdot (3\times 12) \cdot (12 \times 6) &#x3D; (1 \times 6)$。</p>
+<p>这里给出最后的$C(x,t_{0})$:<br>定义$c_0,c_1,c_2$</p>
+<p>c_0 &#x3D; \frac{I_{dx} f_x}{G_2}\\ c_1 &#x3D; \frac{I_{dy} f_y}{G_2}\\ c_2 &#x3D; -(c_0 G_0 + c_1 G_1 )\frac{1}{G_2}</p>
+<p>则：</p>
+<p>\begin{aligned} &amp;C(x,t_{0})(0) &#x3D; -G_2c_1 + G_1c_2\\ &amp;C(x,t_{0})(1) &#x3D; G_2c_0 - G_0c_2\\ &amp;C(x,t_{0})(2) &#x3D; -G_1 c_0 + G_0 c_1\\ &amp;C(x,t_{0})(3) &#x3D; c_0\\ &amp;C(x,t_{0})(4) &#x3D; c_1\\ &amp;C(x,t_{0})(5) &#x3D; c_2\\ \end{aligned}</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/paper/" rel="tag"># paper</a>
+              <a href="/tags/mathmetics/" rel="tag"># mathmetics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/20/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1%E4%B8%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%91%BD%E5%90%8D/" rel="prev" title="踩过的坑——ROS多机通信与节点重命名">
+                  <i class="fa fa-angle-left"></i> 踩过的坑——ROS多机通信与节点重命名
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/10/21/%E5%A6%82%E4%BD%95%E5%81%9A%E5%87%BA%E8%83%BD%E8%A2%AB%E7%94%A8%E5%88%B0%E7%9A%84%E5%B7%A5%E4%BD%9C%EF%BC%9F/" rel="next" title="如何做出能被用到的工作？">
+                  如何做出能被用到的工作？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

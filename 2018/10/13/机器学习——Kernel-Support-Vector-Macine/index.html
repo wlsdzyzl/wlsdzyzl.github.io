@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次遇到的问题是，Q矩阵的计算，仍然可能需要耗费很大计算量，也就是对于很高维度的特征转换，我们不一定能高效解决，更不用说无限维度。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Kernel Support Vector Macine">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次遇到的问题是，Q矩阵的计算，仍然可能需要耗费很大计算量，也就是对于很高维度的特征转换，我们不一定能高效解决，更不用说无限维度。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/TAE0Z%7D9NZWU7D%291%7EI8C1SLY.png">
+<meta property="article:published_time" content="2018-10-12T16:16:35.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/TAE0Z%7D9NZWU7D%291%7EI8C1SLY.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/","path":"2018/10/13/机器学习——Kernel-Support-Vector-Macine/","title":"机器学习——Kernel Support Vector Macine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Kernel Support Vector Macine | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Polynomial-Kernel"><span class="nav-number">1.</span> <span class="nav-text">Polynomial Kernel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gaussian-Kernel-RBF-Kernel"><span class="nav-number">2.</span> <span class="nav-text">Gaussian Kernel(RBF Kernel)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Comparison"><span class="nav-number">3.</span> <span class="nav-text">Comparison</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Kernel Support Vector Macine | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Kernel Support Vector Macine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-13 00:16:35" itemprop="dateCreated datePublished" datetime="2018-10-13T00:16:35+08:00">2018-10-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次遇到的问题是，Q矩阵的计算，仍然可能需要耗费很大计算量，也就是对于很高维度的特征转换，我们不一定能高效解决，更不用说无限维度。<span id="more"></span></p>
+<p>因此这次引入了核函数，告诉我们如何高效地对待特征转换地问题。</p>
+<h2 id="Polynomial-Kernel"><a href="#Polynomial-Kernel" class="headerlink" title="Polynomial Kernel"></a>Polynomial Kernel</h2><p>为了方便起见，我们希望可以把原来问题描述中的$X$换为$Z$,表示$Z$是$X$经过特征转换之后得到的高维度空间，而假设$X$维度是较低的。因此，现在的问题描述如下：</p>
+<p>$min_{\alpha} \frac 1 2 \sum_{n&#x3D;1}^N \sum_{m&#x3D;1}^N a_na_my_ny_mZ_n^TZ_m - \sum_{n&#x3D;1}^N \alpha_n$</p>
+<p> <strong>subject to</strong> $\sum_{n&#x3D;1}^N y_n\alpha_n &#x3D; 0;a_n \ge 0,n&#x3D;1,…,N$</p>
+<p>上次我们也介绍了Q矩阵的计算，其中$q_{n,m} &#x3D; y_ny_mZ_n^TZ_m$.这其中包含了对$Z$向量的乘积，因此隐含了很大的计算量。</p>
+<p>假设，我们对$X$到$Z$向量的转换表示如下：$Z &#x3D; \phi(X)$,那么上式中$Z_n^TZ_m &#x3D; \phi(X_n)^T\phi(X_m)$.</p>
+<p>我们知道，对于单单$X_n^TX_m$的计算是容易完成的，那么能不能通过什么办法用上面的计算来代替原来的硬算？</p>
+<p>假设如下：$\phi(X) &#x3D; {1,x_1,x_2,x_3…x_d,x_1^2,x_1x_2,…x_2x_1,x_2^2,…,x_dx_1,…x_d^2}$.</p>
+<p>那么$\phi(X_n)^T\phi(X_m) &#x3D; 1 + \sum_{i&#x3D;1}^{d}x_i^nx_i^m + \sum_{i&#x3D;1}^d\sum_{j&#x3D;1}^d x_i^nx_j^nx_i^mx_j^m $</p>
+<p>$\phi(X_n)^T \phi(X_m) &#x3D; 1+X_n^TX_m + \sum_{i&#x3D;1}^{d}x_i^nx_i^m  \sum_{j&#x3D;1}^{d} x_j^n x_j^m &#x3D; 1+X_n^TX_m + (X_n^TX_m)^2 $.</p>
+<p>可以发现，通过这样的变换，我们很轻易地计算出$Z_n^TZ_m$.</p>
+<p>在这里，我们称$k(X,X’) &#x3D; 1+X^TX’ + (X^TX’)^2 $为一种核函数。如果我们对特征转换再进行一些处理，比如：$\phi(X) &#x3D; {1,\sqrt 2 x_1,\sqrt 2 x_2,\sqrt 2 x_3…\sqrt 2 x_d,x_1^2,x_1x_2,…x_2x_1,x_2^2,…,x_dx_1,…x_d^2}$,</p>
+<p>那么最后得到的是$k(x,x’) &#x3D; (1+X^TX’)^2$。实际上，我们也可以转换到更高维的空间，继续推广到更一般的：$K(x,x’) &#x3D; (\zeta + \xi x^Tx’)^d$. 这就是很有名的Polynomial Kernel。</p>
+<p>当然，通过多项式核函数，我们无法实现无限维度的转换。</p>
+<h2 id="Gaussian-Kernel-RBF-Kernel"><a href="#Gaussian-Kernel-RBF-Kernel" class="headerlink" title="Gaussian Kernel(RBF Kernel)"></a>Gaussian Kernel(RBF Kernel)</h2><p>对于高斯Kernel的介绍，我们尝试用另一种办法来推导。为了方便起见，我们假设维度只有一维，即$X &#x3D; {x}$.</p>
+<p>在这里直接给出$K(X,X’)$的定义如下：$K(X,X’) &#x3D; e^{-(x -x’)^2}$.</p>
+<p>然后我们一步步推向前推导，说明它其实是无限维度转换后的$X^TX$.<br>$$<br>\begin{align}<br>K(X,X’) &amp;&#x3D; e^{-(x - x’)^2}\<br>&amp;&#x3D; e^{-x^2} e^{-(x’)^2}e^{2xx’} \<br>&amp;&#x3D;Taylor&#x3D;&gt;e^{-x^2}e^{-(x’)^2}(\sum <em>{i&#x3D;0} ^ {\infty} \frac {(2xx’)^2}{i!})\<br>&amp;&#x3D; \sum</em>{i&#x3D;0}^{\infty} \frac {(\sqrt 2 x)^i}{\sqrt{i!} }e^{-x^2} \frac {(\sqrt 2 x’)^i}{\sqrt{i!} } e^{-(x’)^2}<br>\end{align}<br>$$</p>
+<p>因此，这个转换就是 $\phi(x) &#x3D; exp(-x^2)(1,\sqrt{\frac 2 {1!} }X,\sqrt{\frac {2^2}{2!} }X^2,…)$</p>
+<p>可以证明的是，上升到多维度，Gaussian Kernel：</p>
+<p>$K(X,X’)$ &#x3D; $e^{-\gamma ||X - X’||^2}$ with $\gamma &gt; 0$.</p>
+<p>这就是高斯核函数。但是需要注意的一点，高斯核函数放大无限维度空间，所以如果参数$\gamma$不当，仍然有可能overfitting.如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/TAE0Z%7D9NZWU7D%291%7EI8C1SLY.png"></p>
+<h2 id="Comparison"><a href="#Comparison" class="headerlink" title="Comparison"></a>Comparison</h2><p>还有一个核函数，叫线性核函数：$K(x,x’) &#x3D; x^Tx’$.</p>
+<p>这个核函数，简单，也迅速，但是能力有限。</p>
+<p>多项式核函数：$K(x,x’) &#x3D; (\zeta + \xi x^tx’)^d$.</p>
+<p>相对于线性核函数，它的能力强了很多，但是调参很难，因为有3个参数。相应的它的速度没有线性那么快。而且如果d很大,要么结果很接近0，要么很大，不会取得很好的结果。因此，它一般来说，只在d比较小的时候适用。</p>
+<p>高斯核函数：$K(X,X’)$ &#x3D; $e^{-\gamma ||X - X’||^2}$</p>
+<p>高斯核函数很强大，计算速度比线性的略慢，但是也不差。但是它可能太过强大了，需要慎重适用，因为可能出现过拟合的情况。但是总体来说，一般来说高斯核函数是最常用的。</p>
+<p>当然，还有很多别的核函数，只需要满足Mercer定理即可。</p>
+<blockquote>
+<p>Mercer定理：</p>
+</blockquote>
+<blockquote>
+<p>如果函数K是$\mathcal{R}^n \times \mathcal{R}^n-&gt;\mathcal{R}$上的映射（也就是从两个n维向量映射到实数域）。那么如果K是一个有效核函数（也称为Mercer核函数），那么当且仅当对于训练样例${x_1,x_2,…x_n}$，其相应的核函数矩阵是对称半正定的。</p>
+</blockquote>
+<p>我们可以发现，kernel的区别实际上是特征转换的区别，只不过某些特征转换可以更容易地计算Q矩阵。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/" rel="prev" title="机器学习——Dual Support Vector Machine">
+                  <i class="fa fa-angle-left"></i> 机器学习——Dual Support Vector Machine
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Soft-Margin-Support-Vector-Machine/" rel="next" title="机器学习——Soft-Margin Support Vector Machine">
+                  机器学习——Soft-Margin Support Vector Machine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

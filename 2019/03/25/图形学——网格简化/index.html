@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上一篇博客讲了网格的相关内容，也提到了一些网格简化的算法。但是实际上网格简化是网格中很大的一个块，因此这次单独拿出一篇文章来介绍简化的相关内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——网格简化">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上一篇博客讲了网格的相关内容，也提到了一些网格简化的算法。但是实际上网格简化是网格中很大的一个块，因此这次单独拿出一篇文章来介绍简化的相关内容。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s1.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s2.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s4.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s5.jpg">
+<meta property="article:published_time" content="2019-03-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:05.718Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta property="article:tag" content="mesh">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s1.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96/","path":"2019/03/25/图形学——网格简化/","title":"图形学——网格简化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——网格简化 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%95%BF%E6%96%B9%E4%BD%93%E6%BB%A4%E6%B3%A2%E7%9A%84%E5%A4%9A%E9%9D%A2%E4%BD%93%E7%AE%80%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">基于长方体滤波的多面体简化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E7%9B%B8%E9%82%BB%E9%9D%A2%E7%89%87%E5%92%8C%E8%BE%B9%E7%95%8C%E7%9A%84%E5%B1%80%E9%83%A8%E5%B9%B3%E5%9D%A6%E6%80%A7%E5%8E%9F%E5%88%99"><span class="nav-number">2.</span> <span class="nav-text">基于相邻面片和边界的局部平坦性原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%87%E7%94%A8%E7%AD%89%E8%B7%9D%E9%9D%A2%E6%9D%A5%E9%99%90%E5%AE%9A%E7%AE%80%E5%8C%96%E6%A8%A1%E5%9E%8B%E9%A1%B6%E7%82%B9%E7%9A%84%E5%8F%98%E5%8C%96%E8%8C%83%E5%9B%B4"><span class="nav-number">3.</span> <span class="nav-text">采用等距面来限定简化模型顶点的变化范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hoppe-%E6%B8%90%E8%BF%9B%E7%9A%84%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96%E6%8A%80%E6%9C%AF"><span class="nav-number">4.</span> <span class="nav-text">Hoppe-渐进的网格简化技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E4%BA%8C%E6%AC%A1%E8%AF%AF%E5%B7%AE%E5%BA%A6%E9%87%8F%E7%9A%84%E7%AE%80%E5%8C%96%E6%8A%80%E6%9C%AF"><span class="nav-number">5.</span> <span class="nav-text">基于二次误差度量的简化技术</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/25/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——网格简化 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——网格简化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-25 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-25T00:00:00+08:00">2019-03-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:05" itemprop="dateModified" datetime="2023-10-21T04:24:05+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上一篇博客讲了网格的相关内容，也提到了一些网格简化的算法。但是实际上网格简化是网格中很大的一个块，因此这次单独拿出一篇文章来介绍简化的相关内容。  </p>
+<span id="more"></span>
+
+
+<p>话说到前面，网格简化有很多方法，这里介绍的多种方法，我也不是都明白，以后有机会的话会对其进行各个算法复现。对于一些复杂的算法，可能需要查阅相关论文才能明白其中的数学道理，在本文也会给出一些复杂的简化算法的论文链接。</p>
+<p>网格简化更宽泛，具体的细节一般为层次细节简化（LOD：Level of Details）。它主要用于简化采样密集的多面体网格，以及三维场景的存储，传输和绘制。它主要目标是在不影响画面视觉效果的条件下，通过逐次简化景物的表面细节来减少场景的几何复杂度，从而提高绘制算法的效率。</p>
+<p>在层次细节简化时候，我们会对一个原始的多面体模型建立几个不同逼近程度的几何模型。从近处观察物体，采用精细模型，从远处观察物体，采用较为粗糙的模型，当视点连续变化时，在两个不同层次的模型间会有明显的跳跃，为了追求完美应该要一个平滑的过渡，因此还需要几何形状过渡。</p>
+<p>因此层次细节简化技术的研究主要集中在：</p>
+<ol>
+<li>建立不同层次细节的模型。对任意给定的复杂多边形网格$M$，由精细到粗糙建立一系列模型序列：$M_0,M_1,…,M_n, M_0 &#x3D; M$。</li>
+<li>建立相邻层次的多边形网格$M_i,M_{i+1}$的几何形状过渡：$\Phi: M_i \rightarrow M_{i+1}$。</li>
+</ol>
+<p>层次细节简化第一步说到底就是不同程度的网格简化。下面介绍几个简化的基本操作，和上篇文章相似。</p>
+<ul>
+<li>顶点删除操作L删除网格中的一个顶点，对它的相邻三角形形成的空洞做三角剖分</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s1.jpg"></p>
+<ul>
+<li>边压缩操作：网格上一条边压缩为一个顶点，与该边相邻的两个三角形退化为边</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s2.jpg"></p>
+<ul>
+<li>面片收缩操作：网格上的一个面片收缩为一个顶点，该三角形本身退化为点，其相邻的三个三角形都退化为边</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s3.jpg"></p>
+<p>下面会介绍几个具体的算法，他们策略不同，但是最后都是上面3种操作的组合。</p>
+<h3 id="基于长方体滤波的多面体简化"><a href="#基于长方体滤波的多面体简化" class="headerlink" title="基于长方体滤波的多面体简化"></a><a href="about:blank#%E5%9F%BA%E4%BA%8E%E9%95%BF%E6%96%B9%E4%BD%93%E6%BB%A4%E6%B3%A2%E7%9A%84%E5%A4%9A%E9%9D%A2%E4%BD%93%E7%AE%80%E5%8C%96" title="基于长方体滤波的多面体简化"></a>基于长方体滤波的多面体简化</h3><p>基于长方体滤波的多面体简化是最简单的一种简化方法，它的思想是，将多个聚集在一起的顶点聚合为一个顶点，这个操作实际上是采样的一种。具体步骤如下：</p>
+<ul>
+<li>给定一个多面体$M$，记$K$为其拓扑，假设$M$已三角化。算法首先建立$M$的长方体包围盒，并将该包围盒所包围的空间均匀剖分成一系列的小长方体子空间，然后将各个子空间中的顶点聚合为一个代表顶点，如果子空间中无顶点则不考虑。一般来说聚合的这个顶点位于子空间的中心，子空间也是被均匀分割的。这些代表顶点为原多面体所示景物的重新采样。基于原多面体的拓扑结构和这些采样点可以重新产生多面体，所得多面体即为保持一定层次细节的模型。剖分的子空间越小，得到的层次模型就越逼近原多面体。</li>
+</ul>
+<p>在二维空间中，长方体滤波的示意如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s6.png"></p>
+<p>长方体滤波的主要缺点是会导致一些重要的高频细节的丢失。</p>
+<p><strong>下面两个算法是利用顶点删除技术的代表。顶点删除技术比较难的部分在于，删除哪些顶点？随机采样不能得到很好的效果。在网格中，近似平面的顶点可以删除，而对于尖锐部分的顶点删除后会使得模型大大折扣。因此下面介绍两个局部判别准则，用来决定删除哪些顶点比较合适。</strong></p>
+<h3 id="基于相邻面片和边界的局部平坦性原则"><a href="#基于相邻面片和边界的局部平坦性原则" class="headerlink" title="基于相邻面片和边界的局部平坦性原则"></a><a href="about:blank#%E5%9F%BA%E4%BA%8E%E7%9B%B8%E9%82%BB%E9%9D%A2%E7%89%87%E5%92%8C%E8%BE%B9%E7%95%8C%E7%9A%84%E5%B1%80%E9%83%A8%E5%B9%B3%E5%9D%A6%E6%80%A7%E5%8E%9F%E5%88%99" title="基于相邻面片和边界的局部平坦性原则"></a>基于相邻面片和边界的局部平坦性原则</h3><p>由Schroeder提出。该判别分两种情况：</p>
+<ul>
+<li>对于网格内部顶点$V$，记其周围相邻面片集为$S$，则该点的平坦性标准由下述的距离来描述： d &#x3D; \vert\mathbf N \cdot(v - C) \vert其中$N$为向量$\frac{\sum_{f\in S}\mathbf n (f)A(f)}{\sum_{f\in S} A(f)}$的单位向量，$C &#x3D; \frac{\sum_{f\in S}c(f)A(f)}{A(f)}$,这里$A(f),c(f),\mathbf{n}(f)$分别为三角面片的面积，中心和法向量。<br>这种度量方式某种程度上反映了该顶点的突出程度。</li>
+<li>对于边界顶点$v$，记与它相邻的两个边界顶点为$v_1,v_2$，则其平坦性标准定义为$v$到$v_1v_2$连线的距离。</li>
+</ul>
+<h3 id="采用等距面来限定简化模型顶点的变化范围"><a href="#采用等距面来限定简化模型顶点的变化范围" class="headerlink" title="采用等距面来限定简化模型顶点的变化范围"></a><a href="about:blank#%E9%87%87%E7%94%A8%E7%AD%89%E8%B7%9D%E9%9D%A2%E6%9D%A5%E9%99%90%E5%AE%9A%E7%AE%80%E5%8C%96%E6%A8%A1%E5%9E%8B%E9%A1%B6%E7%82%B9%E7%9A%84%E5%8F%98%E5%8C%96%E8%8C%83%E5%9B%B4" title="采用等距面来限定简化模型顶点的变化范围"></a>采用等距面来限定简化模型顶点的变化范围</h3><p>由Cohen提出，这个算法相对于上述会更复杂一点。</p>
+<p>首先介绍一个概念，叫包络（envelope）。多边形网格表面$P$可以看作一张分片线性参数曲面：</p>
+<p>r(u,v) &#x3D; (r_x(u,v),r_y(u,v),r_z(u,v))</p>
+<p>其单位法向量为：</p>
+<p>\mathbf n(u,v) &#x3D; (n_x(u,v), n_y(u,v),n_z(u,v)).</p>
+<p>对于给定的$\epsilon &gt; 0$，$P$的三维$\epsilon$等距面定义为：</p>
+<p>r^{\epsilon}(u,v) &#x3D; r(u,v) + \epsilon \mathbf{n}(u,v)</p>
+<p>近似定义原始多边形网格$P$沿正负发现的$\epsilon$等距面$P(+\epsilon),P(- \epsilon)$。$\epsilon$等距面$P(+\epsilon)$和$P(-\epsilon)$上对应顶点$v_i^+,v_i^-$及其法向量可表示为：</p>
+<p>v_i^+ &#x3D; v_i + \epsilon\mathbf{n}_i, v_i^- &#x3D; v_i - \epsilon \mathbf{n}_i, \mathbf{n}_i^+ &#x3D; \mathbf{n}_i^- &#x3D; \mathbf{n}</p>
+<p>上述方法产生的$P_{\pm \epsilon}$可能出现自交的现象。</p>
+<p>我们用解析法计算$\epsilon$。现在来考察$P$上任意三角形$\triangle v_1v_2v_3$：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s4.jpg"></p>
+<p>对$P$上每个与三角形$\triangle v_1v_2v_3$不相邻的三角面片$\triangle_j$，判断$\triangle_j$是否与$\triangle v_1v_2v_3$的基本柱体相交。可计算得到$q_j$到$\triangle v_1v_2v_3$的距离$\sigma_j$。</p>
+<p>这两个等距面构成了表面的包络。Cohen顶点删除的过程如下：</p>
+<ul>
+<li>利用贪婪搜索策略，将原表面$P$的所有顶点列入带处理的顶点队列。</li>
+<li>对当前待处理顶点队列中的一顶点，算法尝试从$P$上删除该顶点及该顶点直接相邻的三角面片，并试图用某种类型的三角剖分法来填补顶点删除后在表面$P$上形成的空洞。</li>
+<li>若空洞位于$P$的包络内且能成功地被填补，则从当前队列中删除该顶点，简化表面$P$模型并重构原来与该顶点相连接的各顶点的拓扑关系，否则，该顶点从当前的待处理队列中退出，表面$P$保持不变。上述过程知道待处理顶点队列变空为止。</li>
+</ul>
+<p>这个算法的相关论文为：<a target="_blank" rel="noopener" href="http://gamma.cs.unc.edu/ENVELOPES/ENVELOPES.pdf">envelopes</a>。</p>
+<h3 id="Hoppe-渐进的网格简化技术"><a href="#Hoppe-渐进的网格简化技术" class="headerlink" title="Hoppe-渐进的网格简化技术"></a><a href="about:blank#Hoppe-%E6%B8%90%E8%BF%9B%E7%9A%84%E7%BD%91%E6%A0%BC%E7%AE%80%E5%8C%96%E6%8A%80%E6%9C%AF" title="Hoppe-渐进的网格简化技术"></a>Hoppe-渐进的网格简化技术</h3><p>由Hoppe提出。这个算法比较难以理解，定义了很多新的东西去讲解这个算法。在渐进网格算法中，任一网格$\hat M$可表示为一粗网格以及$n$个逐步细化网格$M^i(i&#x3D;1,…,n)$的变换，且有$\hat M &#x3D; M^n$。一张网格可以定义为一个二元组：$(K,V)$。其中$K$是一个单纯复形（simplicical complex），它表示了$M$的顶点，边和面的邻接关系。</p>
+<p>$V &#x3D; {v_i \in R^3\vert i&#x3D;1,…,m}$是$M$的顶点位置向量集，它定义了网格$M$在$R^3$中的形状。而单纯复形$K$由顶点集以及称之为单形的非空子集组成：</p>
+<p>0-单形$\{i\} \in K$，即为顶点，1-单形$\{i,j\} \in K$是一条边，2-单形$\{i,j,k\}\in K$为一个面。需要注意的是单纯复形$K$并不包含$V$的所有成员，只包含了构造网格$M$所需要的所有面，边和顶点的子集。为了在结构上刻画单纯复形，我们引进<strong>拓扑实现</strong>(topological realization)$\vert K\vert$的概念。</p>
+<p>若将顶点$\{i\}(i&#x3D;1,2,…,m)$看成为$R^m$中的基向量$e_{i} &#x3D; \{0,…,0,i,0,…,0\}$，则定义在$R^m$中的集合$\vert K \vert$为$K$的拓扑实现：</p>
+<p>\vert K \vert &#x3D; \bigcup_{s \ in K}\vert s\vert</p>
+<p>其中$s$为$K$的一个单形，$\vert s \vert$为s在$R^m$空间中的顶点的凸包。</p>
+<p>我们记$\phi_v &#x3D; \phi_{\vert K\vert}$，称为$\triangle v_1v_2v_3$在$R^3$中的<strong>几何实现</strong>（geometric realization）。若$\phi_v(\vert K\vert)$不自交，则$\phi_v$为1-1映射。此时，$\phi_v$为一嵌入映射，即对$\forall p \in \phi_v(\vert K \vert)$，存在唯一$m$维向量$b \in \vert K\vert$，使得$p &#x3D; \phi_v(b)$。我们称$b$为$p$关于单纯复形的重心坐标向量。实际上，$b$可表示为：</p>
+<p>b &#x3D; \sum_{i&#x3D;1}^mb_ie_i</p>
+<p>容易知道，当$M$为一三角网格时，$\phi_v(\vert K\vert)$上任一点的重心坐标向量$b$中至多只有三个分量非零。</p>
+<p>有了上述定义，Hoppe采用<strong>显示能量函数</strong>$E(M)$来度量简化网格与原始网格的逼近度：</p>
+<p>E(M) &#x3D; E_{dist}(M) + E_{spring} (M) + E_{scalar}(M) + E_{disc}(M).</p>
+<p>上式中，$E(M)$为$M$的距离度量，定义为点集$X &#x3D; \{x_1,…,x_n\}$到网格$M$的距离平方：</p>
+<p>E_{dist}(M) &#x3D; \sum_{i&#x3D;1}^n d^2(x_i,\phi_v(\vert K \vert))</p>
+<p>$E_{spring}$为$M$的弹性能量，这相当于在$M$的每条边上均匀放置一条弹性系数为$k$的弹簧，即：</p>
+<p>E_{spring} (M) &#x3D; \sum_{(i,j) \in K}k\Vert v_i,v_j \Vert^2</p>
+<p>$E_{scalar}(M)$度量M的标量属性的精度，而$E_{disc}(M)$则度量了$M$上视觉不连续的特征线（如边界线，侧影轮廓线等）的几何精度。</p>
+<p>Hoppe利用边收缩变换来逐步迭代计算上述能量的优化过程。下面是一个边收缩变换的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/mesh_s5.jpg"></p>
+<p>因此，初始网格$\hat M &#x3D; M^n$可经过$n$组的边收缩变形后简化为$M^0$：</p>
+<p>\hat M &#x3D; M^n\rightarrow … \rightarrow M^0</p>
+<p>边收缩变换的逆变换被称为顶点分裂变换，也就是将顶点分裂成一条边。</p>
+<p>这个简化技术的过程我不是很清楚，而老师上课的时候说的也不清楚，很多符号之前并没有定义。我去查找了这篇文章，把链接放在这里，如果想要详细了解请戳：<a target="_blank" rel="noopener" href="http://hhoppe.com/pm.pdf">Progress Meshes</a></p>
+<h3 id="基于二次误差度量的简化技术"><a href="#基于二次误差度量的简化技术" class="headerlink" title="基于二次误差度量的简化技术"></a><a href="about:blank#%E5%9F%BA%E4%BA%8E%E4%BA%8C%E6%AC%A1%E8%AF%AF%E5%B7%AE%E5%BA%A6%E9%87%8F%E7%9A%84%E7%AE%80%E5%8C%96%E6%8A%80%E6%9C%AF" title="基于二次误差度量的简化技术"></a>基于二次误差度量的简化技术</h3><p>Hoppe的边收缩操作可推广为一般的顶点合并变换来描述$(v_1,v_2)\rightarrow v$。而Garland和Heckbert引进了二次误差度量来刻画每一个顶点移动后引起的误差，对表面上的每一个顶点$v_a$均有许多三角面片与之相邻，记$plane(v_a)$为这些三角形所在平面所构成的集合，即：</p>
+<p>plane(v_a) &#x3D; \left\{(a,b,c,d)\vert ax+by+cz+d &#x3D; 0,(a^2 +b^2 +c^2 &#x3D;1) \text{is the coefficients of the adjacent plane of v_a} \right\}</p>
+<p>我们采用如下的二次函数来度量$v_a$移动$v$时产生的误差:</p>
+<p>\Delta(v_a \rightarrow v) &#x3D; \sum_{p \in plane(v_a)}(pv^T)^2</p>
+<p>其中$v &#x3D; (x,y,z,1)$为齐次坐标，展开上式可以得到：</p>
+<p>\begin{aligned} \Delta(v_a \rightarrow v) &amp;&#x3D; \sum_{p \in plane(v_a)}(pv^T)^2\\ v \left(\sum_{p \in plane(v_a) K_p}\right)v^T &#x3D; vQ(v_a)v^T \end{aligned}</p>
+<p>式中：</p>
+<p>K_p &#x3D; p^Tp \begin{bmatrix} a^2 &amp; ab &amp;ac &amp; ad\\ ab &amp; b^2 &amp;bc &amp; bd\\ ac &amp; bc &amp; c^2 &amp; cd\\ ad&amp; bd &amp; cd &amp; d^2 \end{bmatrix},\\ Q(v_a) &#x3D; \sum_{p \in plane(v_a)} K_p</p>
+<p>这样，每一顶点$v_a$，在预处理时，可以用上述方法计算矩阵$Q(v_a)$，从而计算移动误差。而合并顶点每次需要移动两个顶点，因此需要考虑同时移动后形成的误差。而Garland和Heckbert简单地采用加法来刻画多点移动形成的误差，对于$(v_1,v_2) \rightarrow v$，其误差为：</p>
+<p>\Delta (v) &#x3D; \Delta (v_1 \rightarrow v) + \Delta (v_2 \rightarrow v) &#x3D; v(Q(v_1) + Q(v_2))v^T &#x3D; vQv^T。</p>
+<p>因此应该选取$v$使得误差达到最小。一般想法是采取优化方法如梯度下降等等，但是在这个式子里，一般$v$的值是有解析解的，正如线性回归一样，我们可以得到唯一解，或者伪逆技术(pseudo-inverse)求出解。如果伪逆技术失败，简单选取$v$为$v_1,v_2$或者$\frac{v_1 + v_2}{2}$。</p>
+<p>二次误差度量简化算法的论文是：<a target="_blank" rel="noopener" href="https://www.ri.cmu.edu/pub_files/pub2/garland_michael_1997_1/garland_michael_1997_1.pdf">Surface Simplification Using Quadric Error Metrics</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+              <a href="/tags/mesh/" rel="tag"># mesh</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BD%91%E6%A0%BC/" rel="prev" title="图形学——网格">
+                  <i class="fa fa-angle-left"></i> 图形学——网格
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/27/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%BA%B9%E7%90%86/" rel="next" title="图形学——纹理">
+                  图形学——纹理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

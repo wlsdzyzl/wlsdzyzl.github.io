@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="总共20道题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——（基石）作业1">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="总共20道题目。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/B%247SX%5BIV_SSX4LWNA%5BO7%7EM6.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/22%24ZSJYPDBCLC0U%7EC7%7DP87Q.png">
+<meta property="article:published_time" content="2018-08-06T15:06:03.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:21:49.203Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/B%247SX%5BIV_SSX4LWNA%5BO7%7EM6.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/","path":"2018/08/06/机器学习——（基石）作业1/","title":"机器学习——（基石）作业1"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——（基石）作业1 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Note%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">Note：</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——（基石）作业1 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——（基石）作业1
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-06 23:06:03" itemprop="dateCreated datePublished" datetime="2018-08-06T23:06:03+08:00">2018-08-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:21:49" itemprop="dateModified" datetime="2023-10-21T04:21:49+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>总共20道题目。</p>
+<span id="more"></span>
+
+
+<p><strong>1. Which of the following problems are best suited for machine learning?</strong></p>
+<p>(i) Classifying numbers into primes and non-primes</p>
+<p>(ii) Detecting potential fraud in credit card charges</p>
+<p>(iii) Determining the time it would take a falling object to hit the ground</p>
+<p>(iv) Determining the optimal cycle for traffic lights in a busy intersection</p>
+<p>(v) Determining the age at which a particular medical test is recommended</p>
+<p>这个题目比较简单，其中1和3很明显不是机器学习问题，我们清楚质数与非质数的规则，也知道物体下落公式，不需要机器去学习，其他正确，答案是2，4，5.</p>
+<p>For Questions 2­-5, identify the best type of learning that can be used to solve each task below.</p>
+<p><strong>2. Play chess better by practicing different strategies and receive outcome as feedback.</strong></p>
+<p>reinforcement learning———加强学习，因为需要不断加强，学习过程是连续的。</p>
+<p><strong>3. Categorize books into groups without pre-defined topics.</strong></p>
+<p>unsupervised learning————很明显是无监督学习。</p>
+<p><strong>4. Recognize whether there is a face in the picture by a thousand face pictures and ten thousand non­face pictures.</strong></p>
+<p>supervised learning————数据已经标好标签。</p>
+<p><strong>5. Selectively schedule experiments on mice to quickly evaluate the potential of cancer medicines.</strong></p>
+<p>active learning————实验的次数是有限的，可能无法做出海量次数的实验，因此需要根据少数实验结果（即部分样本有标签），这实际上是半监督学习的一种，当遇到机器无法决断的时候再去人工标签，也就是主动学习。</p>
+<p>Question 6-8 are about Off-Training-Set error.</p>
+<p>6.<img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/B%247SX%5BIV_SSX4LWNA%5BO7%7EM6.png" alt="6"></p>
+<p>这个题目中样本$x_1,…x_n$为训练集，而其余L个为测试集。正确的分类是所有的都是+1，而我们得到的$g(x)$是样本中下标为奇数的是+1，也就是大概会错一半。具体错多少？<br>总体样本错的也就是⌊$\frac {N+L} 2​​$⌋，而除去训练集中会错的⌊$\frac {N} 2​​$⌋答案是第五个。</p>
+<p><strong>7. We say that a target function $f$ can “generate” $\mathcal{D}$ in a noiseless setting if $f(x_n)&#x3D;y_n$​ for all ($x_n$, $y_n$) $\in \mathcal{D}$.<br>For all possible f$ \colon \mathcal{X} \rightarrow \mathcal{Y}$, how many of them can generate $\mathcal{D}$ in a noiseless setting?</strong></p>
+<p>这个题目意思容易让人曲解，实际上问的是外面测试集大小为L，那么有多少种可能的f，f满足D中的样本，但是对于测试集中是无所谓的，因此可能的f有$2^L$个。</p>
+<p>8.<img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/22%24ZSJYPDBCLC0U%7EC7%7DP87Q.png" alt="8"><br>这个题目主要在考察的是NFL定理。如果所有可以generateD的f是等概率的，也就是对于测试集中样本的+1，-1是完全随机的，那么所有学习算法得到的误差期望都是一致的。所以选2.</p>
+<p>For Questions 9-12, consider the bin model introduced in class. </p>
+<p><strong>9. Consider a bin with infinitely many marbles, and let μ be the fraction of orange marbles in the bin, and ν is the fraction of orange marbles in a sample of 10 marbles. If μ&#x3D;0.5, what is the probability of ν&#x3D;μ?</strong></p>
+<p>这是一道比较简单的概率题。u &#x3D; 0.5，求选出10个出来有5个是橘色的概率。因为这个仓库箱子里弹珠的个数是无穷的，所以即使不放回，每次取出来依然近似于独立重复实验。则<br>$p &#x3D; C_{10}^5 {\frac 1 2}^{10} \approx 0.246$.</p>
+<p><strong>10. If μ&#x3D;0.9, what is the probability of ν&#x3D;μ?</strong></p>
+<p>与上面类似：$p &#x3D; C_{10}^9 {0.9}^9 \times 0.1 \approx 0.387$.</p>
+<p><strong>11. If μ&#x3D;0.9, what is the actual probability of ν≤0.1?</strong></p>
+<p>这个问题就上面来说稍微复杂了一点，但是也不难。v≤0.1也就是10个中抽到了1个或者0个。<br>$p &#x3D; C_{10}^9 {0.9}^1 \times 0.1^9 + C_{10}^{10} {0.1}^{10} &#x3D; 9.1 \times 10^{-9}$.</p>
+<p><strong>12. If μ&#x3D;0.9, what is the bound given by Hoeffding’s Inequality for the probability of ν≤0.1?</strong></p>
+<p>由题目可以知道$\epsilon$ &#x3D; 0.8,带入公式可以得到概率上界为$2e^{-12.8} \approx 5.52 \times 10^{-6}$</p>
+<p>Questions 13­-14 illustrate what happens with multiple bins using dice to indicate 6 bins. Please note that the dice is not meant to be thrown for random experiments in this problem. They are just used to bind the six faces together. The probability below only refers to drawing from the bag.</p>
+<p><strong>13. Consider four kinds of dice in a bag, with the same (super large) quantity for each kind.</strong></p>
+<p>A: all even numbers are colored orange, all odd numbers are colored green</p>
+<p>B: all even numbers are colored green, all odd numbers are colored orange</p>
+<p>C: all small (1<del>­3) are colored orange, all large numbers (4­</del>6) are colored green</p>
+<p>D: all small (1­<del>3) are colored green, all large numbers (4</del>­6) are colored orange</p>
+<p>If we pick 5 dice from the bag, what is the probability that we get 5 orange 1’s?</p>
+<p>简单翻译下题目：袋子里有4种骰子，第一种2，4，6面为橘色，第二种1，3，5面为橘色，第三种1，2，3面为橘色，第四种4，5，6面为橘色。4种筛子比例相同，骰子数目很多。第一道题目问到，拿5个骰子出来，5个骰子第一面都是橘色的概率？</p>
+<p>1面是橘色，我们可以将上面4类分成2类了，其中第二与第三合并，每次取出来1面为橘色的概率是0.5，所以5个都是的概率是$\frac 1 {32}$。</p>
+<p><strong>14. If we pick 5 dice from the bag, what is the probability that we get “some number” that is purely orange?</strong></p>
+<p>我们拿出5个骰子，至少有一面全部都是橘色的概率。</p>
+<p>这个就是稍微复杂的一个问题。首先观察骰子种类，我们发现，只要第一种与第二种碰面，或者第三种与第四种碰面，那么就不可能有一面全都是橘色。所以我们要求的就是上面两种情况不发生的概率。</p>
+<p>如果抽出的5个骰子，占了4种骰子种的3种或者4种，那么上面的情况至少会有一种会发生。<br>而取5次取出3种的情况有2 2 1与 3 1 1两种可能。</p>
+<p>首先，从4种里选3种出来$C_4^3$,其次，考虑2 2 1的情况$C_5^2C_3^2$,而2 2 1又会有3种分布，因此2 2 1的所有可能情况是$3C_4^3C_5^2C_3^2 &#x3D; 360$.</p>
+<p>3 1 1与上述类似$3C_4^3C_5^3C_2^1 &#x3D; 240$.</p>
+<p>然后考虑从4种取4种的情况，只会有一种分布：1 1 1 2，可以得到$4C_5^2C_3^1C_2^1 &#x3D; 240$.</p>
+<p>最后我们就要考虑到从4种中取出来两种，而且恰好是第一种与第二种，或者第三种与第四种的概率。骰子有两种的次数分布有2种情况：1 4，2 3.</p>
+<p>1 4: 2$C_5^4 &#x3D; 10$</p>
+<p>2 3: $2C_5^3 &#x3D; 20$</p>
+<p>考虑到第一种与第二种，第三种与第四种，因此结果还应乘2，最后结果是：60.</p>
+<p>所以，所有不符合的情况共有240+240+60+360 &#x3D; 900，因此这道题目最后结果是$1 - \frac {900} {4^5} &#x3D; \frac {31} {256}$.</p>
+<p>For Questions 15-20, you will play with PLA and pocket algorithm. </p>
+<p>15-20为编程题目，需要自己写代码验证，然后得到结果。</p>
+<p><strong>15.  First, we use an artificial data set to study PLA. The data set is in<br><a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_math/hw1_15_train.dat">data</a>.Each line of the data set contains one ($\mathbf{x}_n, y_n$) with $\mathbf{x}_n \in \mathbb{R}^4$. The first 4 numbers of the line contains the components of $\mathbf{x}_n$ orderly, the last number is $y_n$.<br>Please initialize your algorithm with $\mathbf{w} &#x3D; 0$ and take $sign(0)$ as -1. Please always remember to add $x_0 &#x3D; 1$ to each $\mathbf{x}_n​$.Implement a version of PLA by visiting examples in the naive cycle using the order of examples in the data set. Run the algorithm on the data set. What is the number of updates before the algorithm halts?</strong></p>
+<p>a.&lt;10 updates</p>
+<p>b.11 - 30 updates</p>
+<p>c.31 - 50 updates</p>
+<p>d.$\geq$ 201 updates</p>
+<p>e.51 - 200 updates</p>
+<p>这道题目只需要应用上次实现的PLA算法，需要额外做的是数据的读取。在数据读取时候我运用了正则表达式来进行分割，整个过程整合在一个叫做readDataFrom函数中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">readDataFrom</span>(<span class="params">filename</span>):</span><br><span class="line">    result = []</span><br><span class="line">    separator = re.<span class="built_in">compile</span>(<span class="string">&#x27;\t|\b| |\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename,<span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline()</span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            temp = separator.split(line)[<span class="number">0</span>:-<span class="number">1</span>]</span><br><span class="line">            abc = [<span class="built_in">float</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> temp]</span><br><span class="line">            result.append(abc)</span><br><span class="line">            line = f.readline()</span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<p>最后得到结果是修正了61次。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">修正次数： 61</span><br></pre></td></tr></table></figure>
+
+<p><strong>16. Implement a version of PLA by visiting examples in fixed, pre-determined random cycles throughout the algorithm. Run the algorithm on the data set. Please repeat your experiment for 2000 times, each with a different random seed. What is the average number of updates before the algorithm halts?</strong></p>
+<p>a.&lt;10 updates</p>
+<p>b.11 - 30 updates</p>
+<p> c.31 - 50 updates</p>
+<p>d.$\geq$ 201 updates</p>
+<p>e.51 - 200 updates</p>
+<p>这个版本需要对原来的pla算法进行简单的修改，每次寻找预测错误的样本时候采用随机的顺序去寻找。对于序列进行随机的办法实现方法很简单，也就是打乱序列，做法是与随机的坐标进行交换：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">randomIndex</span>(<span class="params">n</span>):</span><br><span class="line">    index = [i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,n)]</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">swap</span>(<span class="params">l,x,y</span>):</span><br><span class="line">        l[x] = l[x]+l[y]</span><br><span class="line">        l[y] = l[x] - l[y]</span><br><span class="line">        l[x] = l[x] - l[y]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,n):</span><br><span class="line">        swap(index,i,<span class="built_in">int</span>(random.random()*n))</span><br><span class="line">    <span class="keyword">return</span> index</span><br></pre></td></tr></table></figure>
+<p>应用上面的函数生成随机打乱的序列，然后代替顺序查找，运行2000次平均修正次数如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">修正次数： 61.3933</span><br></pre></td></tr></table></figure>
+
+<p><strong>17. Implement a version of PLA by visiting examples in fixed, pre-determined random cycles throughout the algorithm, while changing the update rule to be<br>$$<br>\mathbf{w}<em>{t+1} \leftarrow \mathbf{w}<em>t +\eta y</em>{n(t)}\mathbf{x}</em>{n(t)}<br>$$<br>with η&#x3D;0.5. Note that your PLA in the previous Question corresponds to η&#x3D;1. Please repeat your experiment for 2000 times, each with a different random seed. What is the average number of updates before the algorithm halts?</strong><br>a.&lt;10 updates</p>
+<p>b.11 - 30 updates</p>
+<p>c.31 - 50 updates</p>
+<p>d.$\geq$ 201 updates</p>
+<p>e.51 - 200 updates</p>
+<p>只需要对上述算法进行简单改动即可.运行2000次后平均修正次数如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">修正次数： 63.532</span><br></pre></td></tr></table></figure>
+
+<p><strong>18. Next, we play with the pocket algorithm. Modify your PLA in Question 16 to visit examples purely randomly, and then add the “pocket” steps to the algorithm. We will use <a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_math/hw1_18_train.dat">train</a> as the training data set $\mathcal{D}$, and <a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_math/hw1_18_test.dat">test</a> as the test set for “verifying’’ the gg returned by your algorithm (see lecture 4 about verifying). The sets are of the same format as the previous one. Run the pocket algorithm with a total of 50 updates on $\mathcal{D}$ , and verify the performance of $\mathbf{w}_{POCKET}$ using the test set. Please repeat your experiment for 2000 times, each with a different random seed. What is the average error rate on the test set?</strong></p>
+<p>a. &lt;0.2</p>
+<p>b. 0.2 - 0.4</p>
+<p>c. 0.4 - 0.6</p>
+<p>d. $\geq$ 0.8</p>
+<p>e. 0.6 - 0.8</p>
+<p>这个题目需要实现pocket算法。pocket算法之前没有介绍，因为它和pla很像，只是pla算法的一个变形。因为我们无法保证数据一定是线性可分的，为此我们每次遇到错误更新后，与之前的w进行对比，如果错误率更低，再更新这个参数，同时pla算法选择错误的样本时候是随机顺序选择的，从之前的代码验证中我们也发现了随机对于减小修正次数来说是有好处的（但是生成随机序列同样也会带来额外开销）。</p>
+<p>实现pocket算法只需要多加几行代码以及做少量改动，这里就不列出来了。值得注意的是需要添加一个新的函数，进行错误评估：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">computeER</span>(<span class="params">para,datas</span>):</span><br><span class="line">    size = <span class="built_in">len</span>(datas)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> size &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    dms = <span class="built_in">len</span>(datas[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">if</span> dms == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    count = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, size):</span><br><span class="line">        p = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, dms - <span class="number">1</span>):</span><br><span class="line">            p += para[x] * datas[i][x]</span><br><span class="line">        p += para[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> p &lt;= <span class="number">0</span> <span class="keyword">and</span> datas[i][-<span class="number">1</span>] &gt; <span class="number">0</span> <span class="keyword">or</span> p &gt; <span class="number">0</span> <span class="keyword">and</span> datas[i][-<span class="number">1</span>] &lt; <span class="number">0</span>:<span class="comment">#ignore </span></span><br><span class="line">            count=count+<span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> count/size</span><br></pre></td></tr></table></figure>
+<p>下面是运行结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">平均错误率： 0.12437000000000001</span><br></pre></td></tr></table></figure>
+
+<p><strong>19. Modify your algorithm in Question 18 to return $\mathbf{w}_{50}$ (the PLA vector after 5050 updates) instead of $\hat{\mathbf{w} }$ (the pocket vector) after 50 updates.Run the modified algorithm on $\mathcal{D}$, and verify the performance using the test set.Please repeat your experiment for 2000 times, each with a different random seed. What is the average error rate on the test set?</strong></p>
+<p>a. &lt;0.2</p>
+<p>b. 0.2 - 0.4</p>
+<p>c. 0.4 - 0.6</p>
+<p>d. $\geq$ 0.8</p>
+<p>e. 0.6 - 0.8</p>
+<p>这个算法返回pla向量。运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">平均错误率： 0.3666599999999999</span><br></pre></td></tr></table></figure>
+
+<p><strong>20. Modify your algorithm in Question 18 to run for 100 updates instead of 50, and verify the performance of $mathbf{w}_{POCKET}$ ​using the test set. Please repeat your experiment for 2000 times, each with a different random seed. What is the average error rate on the test set?</strong></p>
+<p>a. &lt;0.2</p>
+<p>b. 0.2 - 0.4</p>
+<p>c. 0.4 - 0.6</p>
+<p>d. $\geq$ 0.8</p>
+<p>e. 0.6 - 0.8</p>
+<p>很简单的改动，运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">平均错误率： 0.10796000000000007</span><br></pre></td></tr></table></figure>
+
+<h2 id="Note："><a href="#Note：" class="headerlink" title="Note："></a>Note：</h2><ol>
+<li><p><em>刚开始对pocket算法的理解有误，以为wt的更新是每次都对pocket中的w为基准的，实际上它就是正常的pla算法运行的过程，仔细思考这样确实比原来的算法更快。第二，pocket算法中随机选取错误意味着每次都要随机打乱样本，这样可以获得更低的错误率。</em></p>
+</li>
+<li><p><em>python不支持i++,++i这种操作，但是，为何不报错…</em></p>
+</li>
+<li><p><em>list直接赋值只是对源对象进行了引用，同时有浅拷贝与深拷贝之分。这个狠狠地坑了我一把。</em></p>
+</li>
+<li><p>15，16，17题目前运行依然是60多次.答案是31到50。——<br>更新于8.8。 我忽略了cycle这个词，也就是找错误的过程应该从上次断掉的地方继续开始，更新后得到正确的结果。<br>受到影响的代码重新跑了一遍：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">15. 修正次数： 46</span><br><span class="line">16. 修正次数： 40.867</span><br><span class="line">17. 修正次数： 41.5105</span><br></pre></td></tr></table></figure>
+<p>代码上传至<a target="_blank" rel="noopener" href="https://github.com/wlsdzyzl/PLA">github</a>，修改了上次可视化的内容，不过只是修改了接口内容。</p>
+</li>
+</ol>
+<p>代码几乎没怎么写注释，这是需要改进的地方。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/" rel="prev" title="机器学习——Hoeffding不等式">
+                  <i class="fa fa-angle-left"></i> 机器学习——Hoeffding不等式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94VC-bound/" rel="next" title="机器学习——VC bound">
+                  机器学习——VC bound <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

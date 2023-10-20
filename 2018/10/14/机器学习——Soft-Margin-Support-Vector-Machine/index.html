@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前提到的之前的SVM会overfitting除了模型过于复杂，另一个问题就是它要将样本分类在训练集上做到完全正确。这时候一些噪声就会很大程度上影响结果。为了适应这些噪声，不得不做出很复杂的模型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Soft-Margin Support Vector Machine">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Soft-Margin-Support-Vector-Machine/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前提到的之前的SVM会overfitting除了模型过于复杂，另一个问题就是它要将样本分类在训练集上做到完全正确。这时候一些噪声就会很大程度上影响结果。为了适应这些噪声，不得不做出很复杂的模型。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-13T16:38:54.000Z">
+<meta property="article:modified_time" content="2018-11-03T05:25:12.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Soft-Margin-Support-Vector-Machine/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Soft-Margin-Support-Vector-Machine/","path":"2018/10/14/机器学习——Soft-Margin-Support-Vector-Machine/","title":"机器学习——Soft-Margin Support Vector Machine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Soft-Margin Support Vector Machine | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Soft-Margin-Support-Vector-Machine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Soft-Margin Support Vector Machine | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Soft-Margin Support Vector Machine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-14 00:38:54" itemprop="dateCreated datePublished" datetime="2018-10-14T00:38:54+08:00">2018-10-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-11-03 13:25:12" itemprop="dateModified" datetime="2018-11-03T13:25:12+08:00">2018-11-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前提到的之前的SVM会overfitting除了模型过于复杂，另一个问题就是它要将样本分类在训练集上做到完全正确。这时候一些噪声就会很大程度上影响结果。为了适应这些噪声，不得不做出很复杂的模型。<span id="more"></span></p>
+<p>因此有时候我们希望可以容忍一些样本被错误分类。因此原有的数学条件就需要改变一下了。</p>
+<p>现在我们回到最开始描述的问题：</p>
+<p><strong>min</strong>  $\frac 1 2 W^TW$</p>
+<p>$s.t.  y_n(W^TX_n+b) \ge 1,n &#x3D;1,2,…,N $.</p>
+<p>现在我们不要求所有的$ y_n(W^TX_n+b) \ge 1$,可以容忍一些错误。当然这个错误不能无限大。假设现在被分错的样本犯的错误是$\xi _n$,那么问题可以被描述为下：</p>
+<p><strong>min</strong>  $\frac 1 2 W^TW + C\sum_{n&#x3D;1}^N\xi_n$</p>
+<p>$s.t.  y_n(W^TX_n+b) \ge 1 - \xi_n,n &#x3D;1,2,…,N $.</p>
+<p>$\xi_n \ge 0,n&#x3D;1,2,…,N$</p>
+<p>仔细看上面的描述我们可以发现，如果一个样本没有犯错，那么它对应的$\xi_n &#x3D; 0$.如果一个样本犯错了，那么它对应的$\xi_n &#x3D; 1 - y_n(W^TX_n+b)$.</p>
+<p>因此实际上上面的问题也可以被描述成下面的形式：</p>
+<p><strong>min</strong>  $\frac 1 2 W^TW + C\sum_{n&#x3D;1}^N \ell(y_i,W^TX_i+b)$</p>
+<p>where  $\ell(\cdot,\cdot)$ is the hinge loss defined by $\ell(x,y) \triangleq max{1-yz,0}$.</p>
+<p>常数$C$的作用在于我们可以接受的犯错程度大小。可以想象的是如果$C$比较大，整个目标既然在最小化上面的式子，那么$\xi_n$的值就会变得非常小，也就是我们可以对划分错误的容忍度是比较小的，如果$C$比较大，那么容忍度则较大，因此这里也有一个权衡。</p>
+<p>我们从上面的描述出发继续推导这个问题的Lagrange Dual Problem：</p>
+<p>$$\frac 1 2||W||^2 + C\sum_{n&#x3D;1}^N \xi_n + \sum_{n&#x3D;1}^N \alpha_n(1 - \xi_n - y_n(W_TX_n+b)) + \sum_{n&#x3D;1}^N(-\beta \xi_n)$$</p>
+<p>这个时候，实际上所有的关于$W,b$的偏导数与之前都是一致的。在这里就不详细推导了，只是最后我们需要对$\xi_n$求偏导：</p>
+<p>$$<br>\frac {\partial \ell} {\partial \xi_n} &#x3D; 0 &#x3D; C - \alpha_n - \beta _n<br>$$</p>
+<p>由上式可以得到：$\beta _n &#x3D; C - \alpha_n$因为我们有参数限制，$\alpha_n \ge 0,\beta_n \ge 0,n&#x3D;1,…,N$,因此实际上我们可以得到的约束是：$ 0 \leq \alpha_n \leq C$.</p>
+<p>同时由上面的结论，再结合原来的式子，还可以消掉的是$\xi$.</p>
+<p>因此最后得到的那些KKT条件与原来HardMagin唯一的不同就在于$\alpha_n$的限制变了。从这里可以看出来$C$的作用:$C$很大的时候，说明这个限制相对原来较小，也就是要求犯错较少（因为原来的情况我们是不允许犯错误的）。</p>
+<p>通过二次规划，我们可以一样得到$\alpha_n $的值，从而得到$W$，与$b$.但是需要注意的是$b$与之前的算法不一样了。</p>
+<p>之前我们通过$a_n(1 - y_n(W^TX_n+b)) &#x3D; 0$，通过找到是支持向量的点（$a_n \ne 0$）,从而通过该点计算出来$b &#x3D; y_n - W^TX_n$.</p>
+<p>而此时，我们想要计算的$b &#x3D; y_n - y_n \xi_n - W^TX_n$.</p>
+<p>有个问题，我们不知道$\ell_n$的值啊（其实我们是知道的$\xi_n &#x3D; max(1 - y_n(W^TX_n+b),0)$，不过这是要等$b$求出来之后）。但是我们知道另一个信息$\beta_n \xi_n &#x3D; (C - \alpha_n) \xi_n &#x3D; 0$，这意味着如果$\alpha_n \ne C$的点，$\xi &#x3D; 0$.所有实际上我们需要的是$0&lt;\alpha_n &lt; C$的点，这时候$\xi&#x3D; 0$,可以计算出$b &#x3D; y_n - W^TX_n$，这样的点叫free Support Vector.个别时候我们无法找到$free Support Vector$，那么这个$b$的值只能用kkt条件来限制了。</p>
+<p>这里，我们希望可以仔细思考一下$\alpha_n$背后是否有什么指示。</p>
+<p>如果$\alpha_n &#x3D; 0$，那么$1 - \xi_n - y_n(W^TX_n +b) \leq 0$，可以得到的是这些点一般是完全没有错误的，这点和之前是一样的。</p>
+<p>否则，$C&gt;\alpha_n &gt; 0$，则我们通过上面的推导也知道$\xi_n &#x3D; 0$.这意味着，它们对应的$y_n(W^TX_n+b) &#x3D; 1$.所以这些点是Support Vector，它们定义了最宽的分界线。</p>
+<p>还有一种情况，$\alpha_n &#x3D; C$.这种点就是被分错的点了，$\xi \ne 0$，但是$ 1 - \xi - y_n(W^TX_n+b) &#x3D; 0$.要注意的是这里的分错并不一定是分类结果错误，还有可能是在分到margin中间去了。</p>
+<p>上面的内容就是Soft Margin SVM，但是值得注意的是，我们需要调一个参数：C，如果C过大，仍然可能会overfitting。</p>
+<p>Soft Margin SVM可以与Kernel结合，在实际中使用比Hard Margin SVM更加频繁。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Support-Vector-Macine/" rel="prev" title="机器学习——Kernel Support Vector Macine">
+                  <i class="fa fa-angle-left"></i> 机器学习——Kernel Support Vector Macine
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/16/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Newton-Method/" rel="next" title="数学——Newton Method">
+                  数学——Newton Method <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

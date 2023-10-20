@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次数据学习课上，讲的是Generalized Linear Model。我心里想着是要概况线性模型，我应该都清楚吧。上课了之后才发现，这实际上是广义线性模型，有很多新东西。然而我还是睡着了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Generalized Linear Model">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次数据学习课上，讲的是Generalized Linear Model。我心里想着是要概况线性模型，我应该都清楚吧。上课了之后才发现，这实际上是广义线性模型，有很多新东西。然而我还是睡着了。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-22T12:26:26.000Z">
+<meta property="article:modified_time" content="2018-11-02T14:38:44.000Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="exponential family">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/","path":"2018/10/22/Learning-From-Data——Generalized-Linear-Model/","title":"Learning From Data——Generalized Linear Model"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Generalized Linear Model | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exponential-Family"><span class="nav-number">1.</span> <span class="nav-text">Exponential Family</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Bernoulli-Distribution"><span class="nav-number">1.1.</span> <span class="nav-text">Bernoulli Distribution</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gaussian-Distribution-unit-variance"><span class="nav-number">1.2.</span> <span class="nav-text">Gaussian Distribution(unit variance)####</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gaussian-Distribution"><span class="nav-number">1.3.</span> <span class="nav-text">Gaussian Distribution</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Poisson-Distribution-Poisson-lambda"><span class="nav-number">1.4.</span> <span class="nav-text">Poisson Distribution:Poisson($\lambda$)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generalized-Linear-Models"><span class="nav-number">2.</span> <span class="nav-text">Generalized Linear Models</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Example"><span class="nav-number">3.</span> <span class="nav-text">Example</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Ordinary-Least-Square"><span class="nav-number">3.1.</span> <span class="nav-text">Ordinary Least Square</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Logistic-Regression"><span class="nav-number">3.2.</span> <span class="nav-text">Logistic Regression</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Possion-Regression"><span class="nav-number">3.3.</span> <span class="nav-text">Possion Regression</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Softmax-Regression"><span class="nav-number">3.4.</span> <span class="nav-text">Softmax Regression</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/22/Learning-From-Data%E2%80%94%E2%80%94Generalized-Linear-Model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Generalized Linear Model | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Generalized Linear Model
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-22 20:26:26" itemprop="dateCreated datePublished" datetime="2018-10-22T20:26:26+08:00">2018-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2018-11-02 22:38:44" itemprop="dateModified" datetime="2018-11-02T22:38:44+08:00">2018-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次数据学习课上，讲的是Generalized Linear Model。我心里想着是要概况线性模型，我应该都清楚吧。上课了之后才发现，这实际上是广义线性模型，有很多新东西。然而我还是睡着了。</p>
+<span id="more"></span>
+
+<p>首先引入一个概念，叫做<strong>指数族分布</strong>。</p>
+<h3 id="Exponential-Family"><a href="#Exponential-Family" class="headerlink" title="Exponential Family"></a>Exponential Family</h3><p>如果一个分布可以被写成下面的形式：</p>
+<p>$$<br>p(y;\eta) &#x3D; b(y)e^{\eta ^T T(y) - a(\eta)}<br>$$</p>
+<p>那么这个分布属于Exponential Family。其中：</p>
+<p>$\eta$: natural&#x2F;canonical parameter(自然参数) </p>
+<p>$T(y)$: suﬃcient statistic of the distribution(充分统计量) </p>
+<p>$a(η)$: log partition function(对数划分函数)</p>
+<p>其中$a(\eta)$是一个归一化常数的对数。也就是：</p>
+<p>$p(y;\eta) &#x3D; b(y)e^{\eta ^T T(y) - a(\eta)} &#x3D; \frac {b(y)e^{\eta^T T(y)} } {e^{a(\eta)} }$</p>
+<p>$\sum_{y} p(y;\eta) &#x3D; 1(or \int _y p(y;\eta) dy &#x3D; 1) $</p>
+<p>我们可以得到：<br>$a(\eta) &#x3D; \log {\left(\sum _y b(y)e^{\eta ^T T(y)} \right)}$</p>
+<p>指数分布族有很多成员，实际上我们熟悉的很多分布都是指数分布族的。下面举几个例子：</p>
+<h4 id="Bernoulli-Distribution"><a href="#Bernoulli-Distribution" class="headerlink" title="Bernoulli Distribution"></a>Bernoulli Distribution</h4><p>伯努利分布应该是最简单的分布之一了。$y \in {1,0}$，而且$p(y&#x3D;1) &#x3D; φ,p(y&#x3D;0) &#x3D; 1 - φ$，因此它的分布可以写成下面的样子：</p>
+<p>$p(y;φ) &#x3D; φ^y(1-φ)^{1-y}$</p>
+<p>如何将它转化为指数族的形式？</p>
+<ul>
+<li><p>$\eta &#x3D; \log {\frac {\phi } {1-\phi} }$</p>
+</li>
+<li><p>$T(y) &#x3D; y$</p>
+</li>
+<li><p>$a(\eta) &#x3D; \log {(1 + e^{\eta})}$ </p>
+</li>
+<li><p>$b(y) &#x3D; 1$</p>
+</li>
+</ul>
+<h4 id="Gaussian-Distribution-unit-variance"><a href="#Gaussian-Distribution-unit-variance" class="headerlink" title="Gaussian Distribution(unit variance)####"></a>Gaussian Distribution(unit variance)####</h4><p>高斯分布也是很常见的分布，这里我们先说明一下unit variance的情况，也就是$\sigma &#x3D; 1$。它的概率密度如下：<br>$$<br>p(y;\mu) &#x3D; \frac 1 {\sqrt{2 \pi} } exp\left(- \frac {(y - \mu)^2}{2} \right)<br>$$</p>
+<ul>
+<li><p>$\eta &#x3D; \mu$</p>
+</li>
+<li><p>$ T(y) &#x3D; y$</p>
+</li>
+<li><p>$a(\eta) &#x3D; \frac {\eta ^2} {2}$</p>
+</li>
+<li><p>$b(y) &#x3D; \frac 1 {\sqrt{2 \pi} } e^{-\frac {y^2}{2} } $</p>
+</li>
+</ul>
+<h4 id="Gaussian-Distribution"><a href="#Gaussian-Distribution" class="headerlink" title="Gaussian Distribution"></a>Gaussian Distribution</h4><p>现在将目标放到普通的高斯分布上。<br>$$<br>p(y;\mu) &#x3D; \frac 1 {\sqrt{2 \pi \sigma ^ 2} } exp\left(- \frac {(y - \mu)^2}{2\sigma ^ 2} \right)<br>$$</p>
+<ul>
+<li><p>$$<br>\eta &#x3D; \left[\begin{matrix}<br>\frac {\mu}{\sigma^2} \<br>-\frac {1}{2\sigma^2}<br>\end{matrix}\right]$$</p>
+</li>
+<li><p>$$<br>  T(y) &#x3D; \left[ \begin{matrix} y \<br> y^2<br> \end{matrix}<br> \right]<br> $$</p>
+</li>
+<li><p>$a(\eta) &#x3D; \frac {\mu^2}{2\sigma^2} + \log {\sigma}$</p>
+</li>
+<li><p>$b(y) &#x3D; \frac 1 {\sqrt {2 \pi} }$</p>
+</li>
+</ul>
+<p>这里情况变得就稍微复杂了点。</p>
+<h4 id="Poisson-Distribution-Poisson-lambda"><a href="#Poisson-Distribution-Poisson-lambda" class="headerlink" title="Poisson Distribution:Poisson($\lambda$)"></a>Poisson Distribution:Poisson($\lambda$)</h4><p>泊松分布平时我们接触不如前两项多。泊松分布一般可以用在估计一个固定的时间段内某个事情发生的次数，假设各个事件之间互相独立，它们发生有一个固定的比率$\lambda$.</p>
+<p>泊松分布的概率密度函数如下：<br>$$<br>p(y;\lambda) &#x3D; \frac {\lambda ^y e ^{- \lambda} }{y!}<br>$$</p>
+<ul>
+<li><p>$\eta &#x3D; \log {\lambda}$</p>
+</li>
+<li><p>$T(y) &#x3D; y$</p>
+</li>
+<li><p>$a(\eta) &#x3D; e^{\eta}$</p>
+</li>
+<li><p>$b(y) &#x3D; \frac {1}{y!}$</p>
+</li>
+</ul>
+<h3 id="Generalized-Linear-Models"><a href="#Generalized-Linear-Models" class="headerlink" title="Generalized Linear Models"></a>Generalized Linear Models</h3><p>所以什么是广义线性模型？GLM是从来自于指数族分布$y|X;\theta$一种构造线性模型的方法。</p>
+<p>广义线性模型的设计动机为：</p>
+<ul>
+<li>相应变量y可以是任意分布</li>
+<li>允许y的任意函数（链接函数）可以随输入值x线性变化</li>
+</ul>
+<p>广义线性模型形式化定义有下面几个假设：</p>
+<ol>
+<li>$y|x;\theta$ ~ Exponential Family(\eta),如高斯分布，伯努利分布，泊松分布等</li>
+<li>假设目标函数是$h(x) &#x3D; \mathbb{E}[T(y)|x]$</li>
+<li>自然常数$\eta$和输入$X$是线性相关的：$\eta &#x3D; \theta^TX$ or $\eta_i &#x3D; \theta_i^T X (\eta &#x3D; \Theta^T X)$</li>
+</ol>
+<p>将自然参数与分布平均值连接得到：$\mathbb{E}[T(y);\eta]$.</p>
+<p>权威响应函数（Canonical response function）g给出了分布平均值：$g(\eta) &#x3D; \mathbb{E}[T(y);\eta]$.</p>
+<p>则 $\eta &#x3D; g^{-1}(\mathbb{E}[T(y);\eta])$,被称为权威链接函数（canonical link function）。</p>
+<p>写成广义线性模型，可以得到：$\mathbb{E}(y;\eta)&#x3D;\frac{d}{d\eta}a({\eta})$（证明较为复杂）。因此，可以很轻易得求出假设函数。</p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><h4 id="Ordinary-Least-Square"><a href="#Ordinary-Least-Square" class="headerlink" title="Ordinary Least Square"></a>Ordinary Least Square</h4><p>应用GLM到下面的假设：</p>
+<ol>
+<li><p>$y|X;\theta ~ N(\mu,1)$,则$\eta &#x3D; \mu,T(y) &#x3D; y$.</p>
+</li>
+<li><p>Derive Hypothesis function $h_\theta(X) &#x3D; \mathbb{E}[y|X;\theta] &#x3D; \mu &#x3D; \eta$.</p>
+</li>
+<li><p>Adopt linear model $\eta &#x3D; \theta ^TX $: $h_\theta (X) &#x3D; \eta &#x3D; \theta ^T X$.</p>
+</li>
+</ol>
+<p>Canonical response function:$g(\eta) &#x3D; \mu &#x3D; \eta$</p>
+<p>Canonical link function:$\eta &#x3D; g^{-1}(\mathbb{E}[T(y);\eta] &#x3D; g’(\mu) &#x3D; mu$</p>
+<h4 id="Logistic-Regression"><a href="#Logistic-Regression" class="headerlink" title="Logistic Regression"></a>Logistic Regression</h4><ol>
+<li><p>$y|X;\theta ~ Bernoulli(\phi)$，则$\eta &#x3D; \log {\left(\frac {\phi}{1 - \phi}\right)},T(y) &#x3D; y$</p>
+</li>
+<li><p>Derive hypothesis function $h_\theta(X) &#x3D; \mathbb{E}[y|X;\theta] &#x3D; \phi &#x3D; $,则$\phi &#x3D; \frac {1}{1 + e^{-\eta} }$</p>
+</li>
+<li><p>Adopt linear model $\eta &#x3D; \theta ^T X$: $h_\theta(X) &#x3D; \phi &#x3D; \frac {1}{1 + e^{-\theta^TX} }$</p>
+</li>
+</ol>
+<p>Canonical response function:$ φ &#x3D; g(η) &#x3D; sigmoid(η)$ </p>
+<p>Canonical link function : $η &#x3D; g^{−1}(φ) &#x3D; logit(φ)$</p>
+<h4 id="Possion-Regression"><a href="#Possion-Regression" class="headerlink" title="Possion Regression"></a>Possion Regression</h4><ol>
+<li><p>$y|X;\theta ~ P(\lambda)$,则$\eta &#x3D; \log{\lambda},T(y) &#x3D; y$</p>
+</li>
+<li><p>Derive hypothesis function $h_\theta(X) &#x3D; \mathbb{E}[y|X;\theta] &#x3D; \lambda &#x3D; e^{\eta}$</p>
+</li>
+<li><p>Adopt linear model $\eta &#x3D; \theta^TX$: $h_\theta (X) &#x3D; \lambda &#x3D; e^{\theta^TX}$</p>
+</li>
+</ol>
+<p>Canonical response function:$\lambda &#x3D; g(\eta) &#x3D; e^{\eta}$</p>
+<p>Canonical link function:$\eta &#x3D; g^{-1}(\lambda) &#x3D; log(\lambda)$</p>
+<h4 id="Softmax-Regression"><a href="#Softmax-Regression" class="headerlink" title="Softmax Regression"></a>Softmax Regression</h4><p>最后我们来推断下Softmax Regression，因为softmax是多维的分布，所以还是有点难度的。</p>
+<p>首先我们应该写出它的分布函数如下：<br>$$<br>p(y;\theta) &#x3D; \prod_{i&#x3D;1}^k \phi_i^{\mathbf{1}{y &#x3D; i} }<br>$$</p>
+<p>然后需要做的是把它写成Exponential Family的形式.</p>
+<p>如果照着平时的思路下来，我们会发现，$a(\eta) &#x3D; 0$,这是不允许发生的（Why？）。因此我们需要想办法，如果把$\phi_k$移到最后，又如何保证前面没有$y$的影响？</p>
+<p>仔细观察上式，我们发现可以将上式写为：$\prod _{i&#x3D;1}^k \left(\frac{\phi_i}{\phi_k} \right)^{\mathbf{1}{y&#x3D;i} } \phi_k$. (!!!Genius!).</p>
+<ul>
+<li><p>$\eta &#x3D; \left [ \begin{matrix}<br>\log{\frac {\phi_1}{\phi_k} }\<br>\log{\frac {\phi_2}{\phi_k} }\<br>…\<br>\log{\frac{\phi_{k-1} }{\phi_k} }<br>\end{matrix} \right ]$</p>
+</li>
+<li><p>$T(y) &#x3D; \left[<br>  \begin{matrix}<br>  \mathbf{1}{y&#x3D;1}\<br>  \mathbf{2}{y&#x3D;2}\<br>  …\<br>  \mathbf{k-1}{y&#x3D;k-1}<br>  \end{matrix}<br>  \right]$</p>
+</li>
+<li><p>$b(y) &#x3D; 1$</p>
+</li>
+<li><p>$a(\eta) &#x3D; -\log{(\phi_k)}$</p>
+</li>
+</ul>
+<p>有了上面的格式，如何运用线性模型就比较顺理成章了。</p>
+<ol>
+<li><p>$y|X;\theta ~ P(\Phi)$,则$\eta ,T(y)$如上。</p>
+</li>
+<li><p>Derive hypothesis function :<br>$$<br>h_\theta(X) &#x3D; \mathbb{E}[y|X;\theta] &#x3D; \Phi &#x3D;<br>$$<br>$$<br>\begin{bmatrix}<br>\frac {e^{\eta_1} }{\sum _{i&#x3D;1}^k e^{\eta_i} }\<br>\frac {e^{\eta_2} }{\sum _{i&#x3D;2}^k e^{\eta_i} }\<br>…\<br>1 - \frac {e^{\eta_k} }{\sum _{i&#x3D;1}^k e^{\eta_i} }<br>\end{bmatrix}<br>$$<br>(注意，在这里为了方便我们定义$\eta_k &#x3D; \log { {\eta_k}{\eta_k} } &#x3D; 0$)</p>
+</li>
+<li><p>Adopt linear model $eta &#x3D; \Theta^TX$:</p>
+</li>
+</ol>
+<p> $ h_\Theta (X)  &#x3D;\begin{bmatrix}<br>\frac {e^{\theta_1^TX} }{\sum _{i&#x3D;1}^k e^{\theta_i^TX} }\<br>\frac {e^{\theta_2^TX} }{\sum _{i&#x3D;1}^k e^{\theta_i^TX} }\<br>…\<br>1 - \frac {e^{\theta_k ^TX} }{\sum _{i&#x3D;1}^k e^{\eta_i^TX} }<br>\end{bmatrix} $</p>
+<p>Canonical response function:$\phi_i &#x3D; g(\eta) &#x3D;\frac  {e^{\eta_i} }{\sum _{i&#x3D;2}^k e^{\eta_i} }$</p>
+<p>Canonical link function:$\eta_i &#x3D; g^{-1}(\phi) &#x3D; \log {\frac {\phi_i}{\phi_k} }$.</p>
+<p>因此，根据广义线性模型，我们可以推出需要的hypothesis funtion的形式，从而进行进一步的学习。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/exponential-family/" rel="tag"># exponential family</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/16/Learning-From-Data%E2%80%94%E2%80%94Softmax-Regression/" rel="prev" title="Learning From Data——Softmax Regression">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Softmax Regression
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/24/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Basic-Math/" rel="next" title="图形学——Basic Math">
+                  图形学——Basic Math <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

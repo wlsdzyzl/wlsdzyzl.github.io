@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="总共20道题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——（基石）作业二">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="总共20道题目。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-14T13:30:29.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:21:49.987Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/","path":"2018/08/14/机器学习——（基石）作业2/","title":"机器学习——（基石）作业二"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——（基石）作业二 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——（基石）作业二 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——（基石）作业二
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-14 21:30:29" itemprop="dateCreated datePublished" datetime="2018-08-14T21:30:29+08:00">2018-08-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:21:49" itemprop="dateModified" datetime="2023-10-21T04:21:49+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>总共20道题目。</p>
+<span id="more"></span>
+
+<p>Questions 1-2 are about noisy targets.</p>
+<p><strong>1.Consider the bin model for a hypothesis $h$ that makes an error with probability $\mu$ in approximating a deterministic target function $f$ (both $h$ and $f$ outputs ${-1, +1}$).</strong><br> If we use the same $h$ to approximate a noisy version of $f$ given by</p>
+<p>$$<br>P({\bf{x} },y) &#x3D; P({\bf{x} })P(y|{\bf{x} })P(x,y)&#x3D;P({\bf{x} })P(y∣ {\bf{x} })<br>$$</p>
+<p>$$<br>P(y|{\bf{x} }) &#x3D; \left {<br>\begin{matrix}<br>\lambda &amp; {y&#x3D;f(x)} \<br>1-\lambda &amp; \text{otherwise}<br>\end{matrix} \right.<br>​$$</p>
+<p>What is the probability of error that $h$ makes in approximating the noisy target $y$?</p>
+<p>a. $1-\lambda$</p>
+<p>b. $\mu$</p>
+<p>c. $\lambda(1-\mu)+(1-\lambda)\mu$</p>
+<p>d. $\lambda\mu+(1-\lambda)(1-\mu)$</p>
+<p>e. none of the other choices</p>
+<p>这个题目半天看不懂，实际上意思是噪声的几率是($1-\lambda$)。算最后的错误率。所以，当预测错误时候，如果是非噪声，则最后还是错误；当预测正确时候，结果该样本是噪声，则会造成错误，将两种情况加起来，因此答案是 $\mu \lambda + (1-\lambda)(1-\mu)$，选d.</p>
+<p><strong>2. Following Question 1, with what value of $\lambda$ will the performance of $h$ be independent of $\mu$?</strong></p>
+<p>a. 0</p>
+<p>b. 0 or 1</p>
+<p>c. 1</p>
+<p>d. 0.5</p>
+<p>e. none of the other choices</p>
+<p>这道题目很简单，意思是$\lambda$的值是多少的时候，h的性能与$\mu$无关。<br>很简单，将错误率展开：$\mu(2 \lambda - 1) + 1 - \lambda$，可以很容易看出来，$\lambda &#x3D; 0.5$.</p>
+<p>Questions 3-5 are about generalization error, and getting the feel of the bounds numerically.</p>
+<p><strong>3. Please use the simple upper bound $N^{d_{\text{vc} } }$ on the growth function $m_{\mathcal{H} }(N)$,assuming that $N \geq 2$ and $d_{vc} \geq 2$.<br>For an $\mathcal{H}$ with $d_{\text{vc} } &#x3D; 10$, if you want $95%$ confidence that your generalization error is at most 0.05, what is the closest numerical approximation of the sample size that the VC generalization bound predicts?</strong></p>
+<p>a. 420,000</p>
+<p>b. 440,000</p>
+<p>c. 460,000</p>
+<p>d. 480,000</p>
+<p>e. 500,000</p>
+<p>这个题目考验的是VC bound.翻看直接我们推导出来的最终结果：<br>$$<br>\epsilon &#x3D; \sqrt {\frac 8 N \ln {(\frac {4(2N)^{d_{vc} } } {\delta })} }<br>$$</p>
+<p>上式中，$\epsilon &#x3D; 0.05(generalization error), \delta &#x3D; 0.05 (confidence)$,带入上式中，可以计算出来以下结果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">\\ε^<span class="number">2</span> = (<span class="number">8</span>/N)*ln(((<span class="number">2</span>*N)^<span class="number">10</span>*<span class="number">4</span>)/<span class="number">0.05</span>) $\approx$ <span class="number">0.0025</span></span><br><span class="line">N = <span class="number">420</span>,<span class="number">000</span>  ε = <span class="number">0.0026817828255785</span></span><br><span class="line">N = <span class="number">440</span>,<span class="number">000</span>  ε = <span class="number">0.0025683417908949</span></span><br><span class="line">N = <span class="number">460</span>,<span class="number">000</span>  ε = <span class="number">0.0024644054978248</span></span><br><span class="line">N = <span class="number">480</span>,<span class="number">000</span>  ε = <span class="number">0.0023688152044852</span> </span><br><span class="line">N = <span class="number">500</span>,<span class="number">000</span>  ε = <span class="number">0.0022805941154291</span></span><br></pre></td></tr></table></figure>
+<p>可以看到答案为 460，000.</p>
+<p><strong>4. There are a number of bounds on the generalization error $\epsilon$, all holding with probability at least $1 - \delta$. Fix $d_{\text{vc} } &#x3D; 50$d and $\delta &#x3D; 0.05$ and plot these bounds as a function of N. Which bound is the tightest (smallest) for very large N, say N&#x3D;10,000?<br>Note that Devroye and Parrondo &amp; Van den Broek are implicit bounds in $\epsilon$.</strong></p>
+<p>a. Original VC bound: $ \epsilon \le \sqrt{\frac{8}{N}\ln\frac{4m_{\mathcal{H} }(2N)}{\delta} }$</p>
+<p>b. Rademacher Penalty Bound: $ \epsilon \le \sqrt{\frac{2\ln(2Nm_{\mathcal{H} }(N))}{N} } + \sqrt{\frac{2}{N}\ln\frac{1}{\delta} } + \frac{1}{N}$</p>
+<p>c. Parrondo and Van den Broek: $ \epsilon \le \sqrt{\frac{1}{N}(2\epsilon + \ln\frac{6m_{\mathcal{H} }(2N)}{\delta})}$</p>
+<p>d. Devroye: $\epsilon \le \sqrt{\frac{1}{2N} (4\epsilon(1 + \epsilon) + \ln \frac{4m_{\mathcal{H} }(N^2)}{\delta})}$</p>
+<p>e. Variant VC bound: $\epsilon \le \sqrt{\frac{16}{N}\ln\frac{2m_{\mathcal{H} }(N)}{\sqrt{\delta} } }$</p>
+<p>代公式的问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">a. (8/10000*ln((4*(2*10000)^50)/0.05))^(0.5) = 0.63217491520084</span><br><span class="line"></span><br><span class="line">b. ((2*ln(2*10000*10000^50))/10000)^0.5+(2/10000*ln(1/0.05))^0.5+1/10000 = 0.33130878596164</span><br><span class="line"></span><br><span class="line">c. (1/10000*(2*ε+ln(6*(20000)^50/0.05)))^0.5 当ε等于0.223左右的时候取等号,当ε大于0.223时候，上式已经不再成立，当小于0.223时候是成立的，所以bound在是0.223左右</span><br><span class="line"></span><br><span class="line">d. (1/20000*(4*ε*(1+ε)+ln(4*1000000^(50)/0.05)))^0.5 同上，bound在0.186左右</span><br><span class="line"></span><br><span class="line">e. (16/10000*ln(2*10000^50/0.5))^0.5 = 0.85967743993657</span><br></pre></td></tr></table></figure>
+
+<p>答案为Devroye,选d.</p>
+<p><strong>5. Continuing from Question 4, for small N, say N&#x3D;5, which bound is the tightest (smallest)?</strong></p>
+<p>答案与上面解答过程类似。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">a. (8/5*ln((4*(2*5)^50)/0.05))^0.5 = 13.828161484991</span><br><span class="line"></span><br><span class="line">b. ((2*ln(2*5*5^50))/5)^0.5+(2/5*ln(1/0.05))^0.5+1/5 = 7.0487765641837</span><br><span class="line"></span><br><span class="line">c. 答案为5.0左右</span><br><span class="line"></span><br><span class="line">d. 答案为5.5左右</span><br><span class="line"></span><br><span class="line">e. (16/5*ln(2*5^50/0.5))^0.5 = 16.184752328814</span><br></pre></td></tr></table></figure>
+<p>显然答案选Parrondo and Van den Broek.</p>
+<p>In Questions 6­-11, you are asked to play with the growth function or VC-dimension of some hypothesis sets.</p>
+<p><strong>6. What is the growth function $m_{\mathcal{H} }(N)$ of “positive-and-negative intervals on $\mathbb{R}$”? The hypothesis set $\mathcal{H}$ of “positive-and-negative intervals” contains the functions which are $+1$ within an interval $[\ell,r]$ and −1 elsewhere, as well as the functions which are −1 within an interval $[\ell,r]$ and +1 elsewhere.<br>For instance, the hypothesis $h_1(x)&#x3D;sign(x(x−4))$ is a negative interval with -1 within $[0, 4]$ and +1 elsewhere, and hence belongs to $\mathcal{H}$. The hypothesis $h_2(x)&#x3D;sign((x+1)(x)(x−1))$ contains two positive intervals in $[-1, 0]$ and $[1, \infty)$ and hence does not belong to $\mathcal{H}$.</strong></p>
+<p>a. $N^2-N+2$</p>
+<p>b. $N^2$</p>
+<p>c. $N^2+1$</p>
+<p>d. $N^2+N+2$</p>
+<p>e. none of the other choices.</p>
+<p>这个题目题意描述很长，但是看懂了并不难。实际上就是positive intervals的拓展，只不过原来是中间是正的，两边是负的,这时候情况与之前就不一样了。<br>之前，N个样本将这个直线划分成了N+1个区域，从中取两个，中间是正，外面是负，同时还包含一种全是负的情况，比如选的两个点在一个区域内，就会有全负的情况，因此结果是$C_{N+1}^2+1 &#x3D;  frac{1}{2} N^2+ \frac{1}{2}N+1$;<br>而本题就要注意一些问题了，很直觉的想法是对上面的做法翻倍，但是实际上仔细想想，如果我们取到最边上的两个点，那么实际上就包含了全是正和全是负的结果，另一方面，只要我们取到了最边上的区域某个点，就会有重复的结果（与取另一端的端点是一样的），因此取到最边上的点应当只算一次。<br>所以我们要换个思路，一是两个点都不是端点区域的：$C_{N-1}^2$,<br>第二个是两个点有一个是端点区域的：$C_{N-1}^1 \times C_2^1 $,<br>最后一种情况是两个端点区域的，有两种情况，全正或者全负：2.<br>至于取相同区域的情况得到的结果是与最后一种情况一致的。<br>所以最后结果：$m_H(N) &#x3D; N^2-N+2 $.</p>
+<p>另一种讨巧的做法：当N &#x3D; 3的时候，其他的答案都大于8，这是不可能发生的。</p>
+<p><strong>7. Continuing from the previous problem, what is the VC-dimension of the hypothesis set of “positive-and-negative intervals on $\mathbb{R}$”?</strong></p>
+<p>既然上面都得到成长函数了，很轻易可以得到结果，答案是3，当为N &#x3D; 4时候，$N^2-N+2 &#x3D; 14&lt;16$.</p>
+<p><strong>8. What is the growth function $m_{\mathcal{H} }(N)$ of “positive donuts in $\mathbb{R}^2$”?</strong></p>
+<p>The hypothesis set $\mathcal{H}$ of “positive donuts” contains hypotheses formed by two concentric circles centered at the origin. In particular, each hypothesis is +1 within a “donut” region of $a^2 \leq x_1^2+x_2^2 \leq b^2$ and −1 elsewhere. Without loss of generality, we assume $0 \lt a \lt b \lt \infty$.</p>
+<p>a. $N+1$</p>
+<p>b. $C_{N+1}^2+1$</p>
+<p>c. $C_{N+1}^3+1$</p>
+<p>d. none of the other choices.</p>
+<p>e. $C_N^2+1$</p>
+<p>这道题目是要在以原点为中心画两个圆，分布在环上的点为正，其余为负。看上去维度似乎变成了二维，实际上还是一维的：这个维度就是与原点的距离。如果与原点距离一致，它们的分类也是一样的。因此，我们简化一下这个问题，将与原点的距离画到一条线上，立马这个问题就成为一般的positive intervals问题了，答案也是一样的：$C_{N+2}^2+1$。</p>
+<p><strong>9. Consider the “polynomial discriminant” hypothesis set of degree $D$ on $\mathbb{R}$, which is given by</strong></p>
+<p>$$<br>\begin{eqnarray}\mathcal{H} &#x3D; \left{ h_{\bf{c} } ; \middle| ; h_{\bf{c} }(x) &#x3D; {\rm{sign} }\left(\sum_{i&#x3D;0}^D c_ix^i\right) \right}\end{eqnarray}<br>$$</p>
+<p>What is the VC-dimension of such an $\mathcal{H}$?</p>
+<p>这个不就是perceptron吗？答案是$D+1$.</p>
+<p><strong>10.Consider the “simplified decision trees” hypothesis set on $\mathbb{R}^d$, which is given by</strong></p>
+<p>$$<br>\begin{eqnarray}\mathcal{H}&#x3D; {h_{\mathbf{t},\mathbf{S} } ; | &amp; ; h_{\mathbf{t},\mathbf{S} }(\mathbf{x}) &#x3D; 2 [[\mathbf{v}\in S]] - 1,\text{ where} ; v_i &#x3D; [[x_i&gt;t_i]], &amp; \&amp; \mathbf{S} \text{ a collection of vectors in } {0,1}^d,\mathbf{t} \in \mathbb{R}^d &amp;}\end{eqnarray}<br>$$</p>
+<p>That is, each hypothesis makes a prediction by first using the $d$ thresholds $t_i$ to locate $\mathbf{x}$ to be within one of the $2^d$ hyper-rectangular regions, and looking up $\mathbf{S}$ to decide whether the region should be +1 or −1.</p>
+<p>What is the VC-dimension of the “simplified decision trees” hypothesis set?</p>
+<p>a. $2^d$</p>
+<p>b. $2^{d+1}-3$</p>
+<p>c. $\infty$</p>
+<p>d. none of the other choices.</p>
+<p>e. $2^{d+1}$</p>
+<p>这个题目看不大懂…</p>
+<p><strong>11. Consider the “triangle waves’’ hypothesis set on $\mathbb{R}$, which is given by</strong></p>
+<p>$$<br>\begin{eqnarray}\mathcal{H} &#x3D; {h_{\alpha} ; | &amp; ; h_{\alpha}(x) &#x3D; \text{sign}(| (\alpha x) \mbox{ mod } 4 - 2| - 1), \alpha \in \mathbb{R} }\end{eqnarray}<br>$$</p>
+<p>Here $(z mod 4)$ is a number $z - 4k$ for some integer $k$ such that $z - 4k \in [0, 4)$. For instance, $(11.26 mod 4)$ is 3.26, and $(−11.26 mod 4)$ is 0.74. What is the VC-dimension of such an $\mathcal{H}$?</p>
+<p>a. 1</p>
+<p>b. 2</p>
+<p>c. ∞</p>
+<p>d. none of the other choices</p>
+<p>e. 3</p>
+<p>这个问题看上去很复杂，所以一步一步拆开来解决。<br>第一，这个点是分布在实数轴上的，所以我们要首先弄清楚轴上的那部分的点是+1，哪部分的点是-1.<br>如果是-1，则$|(\alpha x) mod 4 - 2| &lt; 1 $,可以推出来$(\alpha x) mod 4 \in (1,3)$,同理可以退出来如果是+1，则 $(\alpha x) mod 4 \in (0,1) \bigcup (3,4)$ ,根据题中负数取余数的定义，总结一下如下：</p>
+<p>$$<br> h_{\alpha}(x) &#x3D; \left {<br>\begin{matrix}<br>+1&amp; \alpha x \in (-1+4k,1+4k) \<br>-1 &amp; \alpha x \in (1+4k,3+4k)<br>\end{matrix} \right.<br>$$</p>
+<p>对于N &#x3D; 1和N &#x3D; 2的时候，很容易可以知道各种情况都是可以shatter的。</p>
+<p>（举个N&#x3D;2的例子，如</p>
+<p>$[0.6,0.7]—[+1,+1]; [0.6 \times \frac 9 6, 0.7 \times \frac 9 6 ]—[+1,-1];[0.6 \times \frac 29 6,0.7 \times \frac 29 6]—[-1,+1];[0.6 \times \frac 29 7,0.7 \times \frac 29 7]—[-1,-1]$）. </p>
+<p>当N等于3的时候，也是可以被shatter。</p>
+<p>实际上，取余的过程中有这么一个性质：$\alpha x mod 4 &#x3D; [\alpha (x mod 4)] mod 4$，这意味着(假设有3个样本)，对于任何大小的$x_n$,我们都可以将它缩放到$[0,4)$的范围来进行处理。这个题目的答案是∞。但是如何证明我还不是很清楚。</p>
+<p>In Questions 12-15, you are asked to verify some properties or bounds on the growth function and VC-dimension.</p>
+<p><strong>12. Which of the following is an upper bounds of the growth function $m_\mathcal{H}(N)$ for $N \ge d_{ {vc} } \ge 2$?</strong></p>
+<p>a. $m_H(⌊N&#x2F;2⌋)$</p>
+<p>b. $2^{d_{vc} }$</p>
+<p>c. $ \min _{1 \leq i \leq N-1} 2^im_H(N-i)$</p>
+<p>d. $\sqrt {N^{d_{vc} } }$</p>
+<p>e. none of the other choices.</p>
+<p>这个题目问的是成长函数。对于成长函数的界限，之前的博客已经有了以下的说明：</p>
+<p>$$<br>B(N,k) \leq \sum _{i&#x3D;0} ^{k-1} C_N^i<br>$$</p>
+<p>而上式中，$k &#x3D; d+1$。<br>根据上式，我们可以很轻易的排除a,b两项。同时，如果举例计算，亦可以排除选项d。如，$B(6,3) &#x3D; 22 ＞ \sqrt {6^2}$.</p>
+<p>因此答案是c.至于对c的证明，我们可以从之前vc bound的表格里发现， </p>
+<p>$B(N,d) &#x3D; B(N-1,d-1)+B(N-1,d) \leq 2 \times B(N-1,d) \leq 4 \times B(N-2,d) \leq 2^i \times B(N-i,d)$，因此，任何 $2^im_H(N-i)$都是大于等于$m_H(N)$的，选择一个最小的即可。</p>
+<p><strong>13. Which of the following is not a possible growth functions $m_{\mathcal{H} }(N)$for some hypothesis set?</strong></p>
+<p>a. $2^N$</p>
+<p>b. $2^{⌊ \sqrt {N} ⌋}$</p>
+<p>c. 1</p>
+<p>d. $N^2 -N +2$</p>
+<p>e. none of the other choices.</p>
+<p>答案是b. 首先，a,d的情况我们都遇到过，而c的情况也是很简单的，比如这个H对所有的样本都取正。至于b为什么错了，当N &#x3D; 1的时候，$2^1 &#x3D; 2$，而当N &#x3D; 2的时候，$m_H(2) &#x3D; 2$，<br>$m_H(3) &#x3D;2$, $m_H(4) &#x3D; 4$. 实际上是不可能出现成长函数呈现出这样的规律增长的，因为N个点中随意取N-1个出来，必然要满足之前的N-1个时候的所有要求（出现的情况与之前的N-1的各种情况一致，可以有重复，但是不能多也不能少），这保证了成长函数要么是严格单调增的，要么是不变的（我的理解）。</p>
+<p><strong>14. For hypothesis sets $\mathcal{H}_1, \mathcal{H}_2, …, \mathcal{H}<em>K$ with finite, positive VC-dimensions d</em>{ {vc} }(\mathcal{H}_k), some of the following bounds are correct and some are not.</strong></p>
+<p>Which among the correct ones is the tightest bound on $d_{ {vc} }(\bigcap_{k&#x3D;1}^{K}!\mathcal{H}_k)$, the VC-dimension of the $\bf{intersection}$ of the sets?</p>
+<p>(The VC-dimension of an empty set or a singleton set is taken as zero.)</p>
+<p>这个题目是有K个H集合，每个集合都对应一个vc dimension，问题是这些集合的交集构成的集合的vc dimension的范围。</p>
+<p>a. $ 0 \leq d_{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq \sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k)$</p>
+<p>b. $0 \leq d_{vc}({\bigcap <em>{k&#x3D;1} }^K H_k) \leq \min{d</em>{vc}(H_k) }_{k&#x3D;1}^K $</p>
+<p>c. $0 \leq d_{vc}({\bigcap <em>{k&#x3D;1} }^K H_k) \leq \max{d</em>{vc}(H_k) }_{k&#x3D;1}^K $</p>
+<p>d. $ \min{d_{vc}(H_k) }<em>{k&#x3D;1}^K  \leq d</em>{vc}({\bigcap <em>{k&#x3D;1} }^K H_k) \leq \max{d</em>{vc}(H_k) }_{k&#x3D;1}^K $</p>
+<p>e. $ \min{d_{vc}(H_k) }<em>{k&#x3D;1}^K  \leq d</em>{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq \sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k) $</p>
+<p>如果交集为空，那么vc dimension为0。同时，不管怎么说，H的大小不可能是比之前任何一个<br>$H_n$大，而且一定是之前任何一个集合的一部分。因此它的vc dimension也不会超过之前任何一个集合，所有答案很明显，是b.</p>
+<p><strong>15. For hypothesis sets $\mathcal{H}_1, \mathcal{H}_2, …, \mathcal{H}<em>K$ with finite, positive VC-dimensions d</em>{ {vc} }(\mathcal{H}_k), some of the following bounds are correct and some are not.</strong></p>
+<p>Which among the correct ones is the tightest bound on $d_{ {vc} }(\bigcup_{k&#x3D;1}^{K}!\mathcal{H}_k)$, the VC-dimension of the $\bf{union}$ of the sets?</p>
+<p>a.  $ 0 \leq d_{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq K-1+\sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k)$</p>
+<p>b. $ \min{d_{vc}(H_k) }<em>{k&#x3D;1}^K  \leq d</em>{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq \sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k) $</p>
+<p>c. $ \max{d_{vc}(H_k) }<em>{k&#x3D;1}^K  \leq d</em>{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq \sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k) $</p>
+<p>d. $ \max{d_{vc}(H_k) }<em>{k&#x3D;1}^K  \leq d</em>{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq K-1+\sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k) $</p>
+<p>e. $0 \leq d_{vc}({\bigcap _{k&#x3D;1} }^K H_k) \leq \sum <em>{k&#x3D;1} ^K d</em>{vc}(H_k) $</p>
+<p>这道题目与上一道刚好相反。首先，并集是包含所有的，因此它的vc dimension一定是大于最大的。所以就排除了a，b，d。然后，再c与d之间做选择.想象一个情况，$H_1$是将所有的点划分为正，$H_2$是将所有的点划分为负，$H_1+H_2$的vc dimension是1，但是各自的vc dimension为0.这样足以选出这个答案是d。如何证明？观察之前的那个表,可以举出更多的例子。但是如何得到这个具体的界限，需要更严格的数学证明。</p>
+<p>For Questions 16-20, you will play with the decision stump algorithm.</p>
+<p>16-20题目依然是编程问题。</p>
+<p><strong>16. In class, we taught about the learning model of “positive and negative rays” (which is simply one-dimensional perceptron) for one-dimensional data. The model contains hypotheses of the form:</strong></p>
+<p>$$<br>h_{s, \theta}(x) &#x3D; s \cdot \mbox{sign}(x - \theta).<br>$$</p>
+<p>The model is frequently named the “decision stump’’ model and is one of the simplest learning models. As shown in class, for one-dimensional data, the VC dimension of the decision stump model is 2.</p>
+<p>In fact, the decision stump model is one of the few models that we could easily minimize $E_{in}$ efficiently by enumerating all possible thresholds. In particular, for $N$ examples, there are at most $2N$ dichotomies (see page 22 of lecture 5 slides), and thus at most $2N$ different $E_{in}$ values. We can then easily choose the dichotomy that leads to the lowest $E_{in}$, where ties an be broken by randomly choosing among the lowest $E_{in}$ ones. The chosen dichotomy stands for a combination of some “spot” (range of $\theta$) and $s$, and commonly the median of the range is chosen as the $\theta$ that realizes the dichotomy.</p>
+<p>In this problem, you are asked to implement such and algorithm and run your program on an artificial data set. First of all, start by generating a one-dimensional data by the procedure below:</p>
+<p>(a) Generate $x$ by a uniform distribution in $[-1, 1]$.</p>
+<p>(b) Generate $y$ by $f(x) &#x3D; \tilde{s}(x)$+$noise$ where $ \tilde{s}(x) &#x3D; sign(x)$ and the noise flips the result with $20%$ probability.</p>
+<p>For any decision stump $h_{s, \theta}$ with $\theta \in [-1, 1]$, express $E_{out}(h_{s, \theta})$ as a function of $\theta$ and $s$.</p>
+<p>a. $0.3+0.5s(|\theta| - 1)$</p>
+<p>b. $0.3+0.5s(1 - |\theta|)$</p>
+<p>c. $0.5+0.3s(|\theta| - 1)$</p>
+<p>d. $0.5+0.3s(1 - |\theta|)$</p>
+<p>e. none of the other choices.</p>
+<p>虽然是编程题目，但是本道题目还没有涉及到代码编写，而是从理论分析这个问题。本题中数据生成是利用$sign(x)+noise$，其中noise出现的概率是20%。<br>我们可以知道，当$h_{s,\theta}(x)$在没有噪声的情况下，错误率是$\frac \theta 2$.</p>
+<p>由第一题的分析可以知道，$E_{out} &#x3D;  \frac {|\theta|} 2 \times (1 - 0.2) + (1 - \frac {|\theta|} 2) \times 0.2 &#x3D; 0.3 |\theta| + 0.2$, 看了下似乎没有这个答案，这是因为我们没有考虑到符号的问题。如果考虑到符号，s是负的，那么原先的正确率反而变成错误率了, 即 $0.8 - 0.3 |\theta|$可以看到，答案选c。</p>
+<p><strong>17. Generate a data set of size 20 by the procedure above and run the one-dimensional decision stump algorithm on the data set. Record $E_{in}$ and compute $E_{out}$ with the formula above. Repeat the experiment (including data generation, running the decision stump algorithm, and computing $E_{in}$ and $E_{out}$) 5,000 times. What is the average $E_{in}$? Please choose the closest option.</strong></p>
+<p>a. 0.05</p>
+<p>b. 0.15</p>
+<p>c. 0.25</p>
+<p>d. 0.35</p>
+<p>e. 0.45</p>
+<p>这道题目需要编程实现。首先，我们需要生成数据和噪音：<br>下面的代码生成20个数据，并用0.2的概率抽出来作为噪音。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">sign</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> x &lt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span> : <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generateXY</span>():</span><br><span class="line">    x = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span>  <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">20</span>):</span><br><span class="line">        x.append([random.random()*<span class="number">2</span>-<span class="number">1</span>])</span><br><span class="line">    noise = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">20</span>):</span><br><span class="line">        ran = random.random()</span><br><span class="line">        <span class="comment">#print(ran)</span></span><br><span class="line">        <span class="keyword">if</span> ran &lt;= <span class="number">0.2</span>:</span><br><span class="line">            noise+=<span class="number">1</span></span><br><span class="line">            x[i].append(-sign(x[i][<span class="number">0</span>]))</span><br><span class="line">        <span class="keyword">else</span> :x[i].append(sign(x[i][<span class="number">0</span>]))</span><br><span class="line">    <span class="comment">#print(&quot;noise:&quot;,noise)</span></span><br><span class="line">    <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+<p>然后就是实现算法了。这个算法很简单，我们可以很轻易得枚举出来各种过程。同时为了简化算法，我没有实现s为负的场景，因为为负的场景最后大概率是选不到的。</p>
+<p>首先，将随机数据排序，然后每次选择一个间隔，统计其之前与之后错误的分类个数。选择间隔的时候，首先选取d[i]，意味着现在选择的区域是(d[i-1],d[i])，将d[i]之前的作为-1，d[i]之后包括d[i]的作为+1，这样可以简化算法。值得注意的是i将会等于len(d)，因为间隔有len(d)+1个。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">decision_stump</span>(<span class="params">dataset</span>):</span><br><span class="line"></span><br><span class="line">    sort_d = <span class="built_in">sorted</span>(dataset)</span><br><span class="line">    min_pos = []</span><br><span class="line"></span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    min_err = <span class="built_in">len</span>(dataset)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(dataset)+<span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,i):</span><br><span class="line">            <span class="keyword">if</span> sort_d[k][<span class="number">1</span>]&gt;<span class="number">0</span>:</span><br><span class="line">                err+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(i,<span class="built_in">len</span>(dataset)):</span><br><span class="line">            <span class="keyword">if</span> sort_d[k][<span class="number">1</span>]&lt;<span class="number">0</span>:</span><br><span class="line">                err+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> err &lt; min_err:</span><br><span class="line">            min_pos = []</span><br><span class="line">            min_pos.append(i)</span><br><span class="line">            min_err = err</span><br><span class="line">        <span class="keyword">elif</span> err == min_err:</span><br><span class="line">            min_pos.append(i)</span><br><span class="line">        err = <span class="number">0</span></span><br><span class="line"><span class="comment"># choose the lowest Ein randomly</span></span><br><span class="line">    choosen = <span class="built_in">int</span>(<span class="built_in">len</span>(min_pos)*random.random())</span><br><span class="line">    <span class="keyword">if</span> min_pos[choosen] &lt; <span class="built_in">len</span>(sort_d):</span><br><span class="line">        <span class="keyword">return</span> [sort_d[min_pos[choosen]][<span class="number">0</span>],min_err]</span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> [(sort_d[min_pos[choosen]-<span class="number">1</span>][<span class="number">0</span>]+<span class="number">1</span>)/<span class="number">2</span>,min_err]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>结果：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">average Ein: 0.1713600000000006</span><br></pre></td></tr></table></figure>
+
+<p>因此答案选b。</p>
+<p><strong>18. Continuing from the previous question, what is the average E_{out}? Please choose the closest option.</strong></p>
+<p>a. 0.05</p>
+<p>b. 0.15</p>
+<p>c. 0.25</p>
+<p>d. 0.35</p>
+<p>e. 0.45</p>
+<p>对于Eout的计算，可以直接使用16中的公式带入。结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">average Eout: 0.25962811866336116</span><br></pre></td></tr></table></figure>
+<p>因此答案选C.</p>
+<p><strong>19. Decision stumps can also work for multi-dimensional data. In particular, each decision stump now deals with a specific dimension $i$, as shown below.</strong><br>$$<br>h_{s, i, \theta}(\mathbf{x}) &#x3D; s \cdot \mbox{sign}(x_i - \theta).<br>$$<br>Implement the following decision stump algorithm for multi-dimensional data:</p>
+<p>a) for each dimension $i &#x3D; 1, 2, \cdots, d$, find the best decision stump $h_{s, i, \theta}$ using the one-dimensional decision stump algorithm that you have just implemented.</p>
+<p>b) return the “best of best” decision stump in terms of $E_{in}$. If there is a tie , please randomly choose among the lowest-$E_{in}$ ones.</p>
+<p>The training data $\mathcal{D}_{train}$ is available at:</p>
+<p><a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_math/hw2_train.dat">https://www.csie.ntu.edu.tw/~htlin&#x2F;mooc&#x2F;datasets&#x2F;mlfound_math&#x2F;hw2_train.dat</a></p>
+<p>The testing data $\mathcal{D}_{test}$ is available at:</p>
+<p><a target="_blank" rel="noopener" href="https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_math/hw2_test.dat">https://www.csie.ntu.edu.tw/~htlin&#x2F;mooc&#x2F;datasets&#x2F;mlfound_math&#x2F;hw2_test.dat</a></p>
+<p>Run the algorithm on the $\mathcal{D}<em>{train}$. Report the $E</em>{\text{in} }$​ of the optimal decision stump returned by your program. Choose the closest option.</p>
+<p>在本例中，是将之前的算法用到多维度的数据上，分两步：1.对每个维度的数据运用上面的算法选出最佳的$E_in$;2.在所有的维度中选择一个最好的出来。</p>
+<p>这个对应到实际中可能会出现，比如某个维度是真正起作用的，而其余的特征的作用不大。</p>
+<p>实际上用到的算法与之前的一致。但是需要注意的是，因为这次我们对真实的$\theta,s$值一无所知，因为不能忽略s为负的情况。改进算法的步骤很简单，因为s为负的情况出错的个数就是所有样本个数减去s为正的情况出错的个数。</p>
+<p>改正后的算法：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">decision_stump</span>(<span class="params">dataset</span>):</span><br><span class="line"></span><br><span class="line">    sort_d = <span class="built_in">sorted</span>(dataset)</span><br><span class="line">    min_pos = []</span><br><span class="line"></span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line">    isNeg = <span class="literal">False</span></span><br><span class="line">    min_err = <span class="built_in">len</span>(dataset)</span><br><span class="line">    size = <span class="built_in">len</span>(dataset)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(dataset)+<span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,i):</span><br><span class="line">            <span class="keyword">if</span> sort_d[k][<span class="number">1</span>]&gt;<span class="number">0</span>:</span><br><span class="line">                err+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(i,<span class="built_in">len</span>(dataset)):</span><br><span class="line">            <span class="keyword">if</span> sort_d[k][<span class="number">1</span>]&lt;<span class="number">0</span>:</span><br><span class="line">                err+=<span class="number">1</span></span><br><span class="line">        isNeg = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> err &lt; min_err:</span><br><span class="line">            min_pos = []</span><br><span class="line">            min_pos.append([i,isNeg])</span><br><span class="line">            min_err = err</span><br><span class="line">        <span class="keyword">elif</span> err == min_err:</span><br><span class="line">            min_pos.append([i,isNeg])</span><br><span class="line">        isNeg = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">if</span> (size - err) &lt; min_err:</span><br><span class="line">            min_pos = []</span><br><span class="line">            min_pos.append([i,isNeg])</span><br><span class="line">            min_err = size - err</span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> (size - err) == min_err:</span><br><span class="line">            min_pos.append([i,isNeg])</span><br><span class="line">        err = <span class="number">0</span></span><br><span class="line"><span class="comment"># choose the lowest Ein randomly</span></span><br><span class="line">    <span class="comment">#print(min_pos)</span></span><br><span class="line">    choosen = <span class="built_in">int</span>(<span class="built_in">len</span>(min_pos)*random.random())</span><br><span class="line">    <span class="keyword">if</span> min_pos[choosen][<span class="number">0</span>] &lt; <span class="built_in">len</span>(sort_d):</span><br><span class="line">        <span class="keyword">return</span> [sort_d[min_pos[choosen][<span class="number">0</span>]][<span class="number">0</span>],min_err,min_pos[choosen][<span class="number">1</span>]]</span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> [(sort_d[min_pos[choosen][<span class="number">0</span>]-<span class="number">1</span>][<span class="number">0</span>]+<span class="number">1</span>)/<span class="number">2</span>,min_err,min_pos[choosen][<span class="number">1</span>]]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们增添了一个isNeg的变量，来代表s是否是-1.</p>
+<p>最后multi算法就是在不同维度上运行该算法，挑出错误最小的维度与$\theta$。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">multiDDecision_stump</span>(<span class="params">dataset</span>):</span><br><span class="line">    min_err_d = []</span><br><span class="line">    min_err = <span class="number">0x7fffffff</span></span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(dataset)):<span class="comment">#</span></span><br><span class="line">        temp = decision_stump(dataset[i])</span><br><span class="line">        err = temp[<span class="number">1</span>]</span><br><span class="line">        <span class="comment">#print(err)</span></span><br><span class="line">        <span class="keyword">if</span> err &lt; min_err:</span><br><span class="line">            min_err = err</span><br><span class="line">            min_err_d = []</span><br><span class="line">            min_err_d.append([temp[<span class="number">0</span>],i,min_err,temp[<span class="number">2</span>]])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">elif</span> err == min_err:</span><br><span class="line">            min_err_d.append([temp[<span class="number">0</span>],i,min_err,temp[<span class="number">2</span>]])</span><br><span class="line">    choosen = <span class="built_in">int</span>(random.random()*<span class="built_in">len</span>(min_err_d))</span><br><span class="line">    <span class="keyword">return</span> min_err_d[choosen]</span><br></pre></td></tr></table></figure>
+
+<p>这道题目用到的数据是课程提供的，因此写入读取数据的过程：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">readDataFrom</span>(<span class="params">filename</span>):</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span> (filename) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline()[<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            temp = line.split(<span class="string">&#x27; &#x27;</span>)</span><br><span class="line">            <span class="comment">#print(temp)</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(result) == <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">for</span> x_i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(temp)-<span class="number">1</span>):</span><br><span class="line">                    result.append([[<span class="built_in">float</span>(temp[x_i]),<span class="built_in">float</span>(temp[-<span class="number">1</span>])]])</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">for</span> x_i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(temp) - <span class="number">1</span>):</span><br><span class="line">                    result[x_i].append([<span class="built_in">float</span>(temp[x_i]),<span class="built_in">float</span>(temp[-<span class="number">1</span>])])</span><br><span class="line">            line = f.readline()[<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+
+<p>最后得到结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dimension: 3</span><br><span class="line">theta: 1.774</span><br><span class="line">Ein: 0.25</span><br></pre></td></tr></table></figure>
+
+<p><strong>20. Use the returned decision stump to predict the label of each example within $\mathcal{D}<em>{test}$. Report an estimate of $E</em>{\text{out} }$ by $E_{\text{test} }$. Please choose the closest option.</strong></p>
+<p>使用题目给的数据来做测试，估计$E_{out}$，需要一个检测错误的函数：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">checkout</span>(<span class="params">min_err_d,dataset</span>):</span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> dataset[min_err_d[<span class="number">1</span>]]:</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> sign(i[<span class="number">0</span>] - min_err_d[<span class="number">0</span>]) != sign(i[<span class="number">1</span>]):</span><br><span class="line">            err += <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> min_err_d[<span class="number">3</span>] == <span class="literal">True</span>:</span><br><span class="line">        err =  <span class="built_in">len</span>(dataset[<span class="number">0</span>]) - err</span><br><span class="line">    <span class="keyword">return</span> err</span><br></pre></td></tr></table></figure>
+<p>最后结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Eout: 0.36</span><br></pre></td></tr></table></figure>
+<p>p.s. 10，11，15题目留有疑问。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/12/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Noise-and-Error/" rel="prev" title="机器学习——Noise and Error">
+                  <i class="fa fa-angle-left"></i> 机器学习——Noise and Error
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/" rel="next" title="机器学习——linear regression">
+                  机器学习——linear regression <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

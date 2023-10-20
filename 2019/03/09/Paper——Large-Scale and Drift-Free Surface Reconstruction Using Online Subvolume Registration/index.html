@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这次周末再读一篇文章，希望能从中得到一些启发，来做好现在的相关的工作。这篇文章为Large-Scale and Drift-Free Surface ReconstructionUsing Online Subvolume Registration，是2015年CVPR的一篇文章。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/09/Paper%E2%80%94%E2%80%94Large-Scale%20and%20Drift-Free%20Surface%20Reconstruction%20Using%20Online%20Subvolume%20Registration/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次周末再读一篇文章，希望能从中得到一些启发，来做好现在的相关的工作。这篇文章为Large-Scale and Drift-Free Surface ReconstructionUsing Online Subvolume Registration，是2015年CVPR的一篇文章。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv2.png">
+<meta property="article:published_time" content="2019-03-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:26:41.127Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="3D reconstruction">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv3.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/09/Paper%E2%80%94%E2%80%94Large-Scale%20and%20Drift-Free%20Surface%20Reconstruction%20Using%20Online%20Subvolume%20Registration/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/09/Paper%E2%80%94%E2%80%94Large-Scale%20and%20Drift-Free%20Surface%20Reconstruction%20Using%20Online%20Subvolume%20Registration/","path":"2019/03/09/Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration/","title":"Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Low-Drift%E5%B1%80%E9%83%A8%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">Low-Drift局部模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Subvolume%E6%B3%A8%E5%86%8C"><span class="nav-number">3.</span> <span class="nav-text">Subvolume注册</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Correspondence-Set"><span class="nav-number">3.1.</span> <span class="nav-text">The Correspondence Set</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-Opitimization-Problem"><span class="nav-number">3.2.</span> <span class="nav-text">The Opitimization Problem</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%9E%8D%E5%90%88Subvolume"><span class="nav-number">4.</span> <span class="nav-text">融合Subvolume</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/09/Paper%E2%80%94%E2%80%94Large-Scale%20and%20Drift-Free%20Surface%20Reconstruction%20Using%20Online%20Subvolume%20Registration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper——Large-Scale and Drift-Free Surface Reconstruction Using Online Subvolume Registration
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-09 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-09T00:00:00+08:00">2019-03-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:26:41" itemprop="dateModified" datetime="2023-10-21T04:26:41+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次周末再读一篇文章，希望能从中得到一些启发，来做好现在的相关的工作。这篇文章为<a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Fioraio_Large-Scale_and_Drift-Free_2015_CVPR_paper.pdf">Large-Scale and Drift-Free Surface ReconstructionUsing Online Subvolume Registration</a>，是2015年CVPR的一篇文章。  </p>
+<span id="more"></span>
+
+
+<p>关于TSDF，我们已经知道的很多了。在这篇文章中也是同样的。文章中，$\mathbf{u}$代表空间中的三维点，而$F(\mathbf{u})$代表该点的SDF值，$W(\mathbf{u})$表示的是SDF值的信心度量（可以理解为权重）。不同的地方是，文章中还定义了一个归一化梯度：</p>
+<p>\hat{\nabla}F(\mathbf{u}) \triangleq \frac{\nabla F(\mathbf{u})}{\Vert \nabla F(\mathbf{u}) \Vert}</p>
+<p>当$F$是常数时，返回一个未定义值。</p>
+<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a><a href="about:blank#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0" title="问题描述"></a>问题描述</h3><p>为了进行depth fusion，每个voxel都被投影到二维平面中，并且和传感器获得的深度值对比：</p>
+<p>\Delta _z(\mathbf{u},t) &#x3D; D_t(\pi (T^{-1}_t \cdot \mathbf{u})) - \zeta(T^{-1}_t\cdot \mathbf{u})</p>
+<p>上式中，$\pi$是一个$\mathbb R^3 \rightarrow \mathbb R^2$的投影过程，也就是从三维到二维的转换，而$\zeta$提取了$z$坐标，也就是$\zeta(x,y,z) &#x3D; z$。当$\Delta_z &gt; -\sigma$时候更新TSDF值，而$\sigma$指的是截断距离。新的TSDF$(F^{new},W^{new})$为：</p>
+<p>F^{new}(\mathbf{u}) &#x3D; \frac{F(\mathbf{u})W(\mathbf{u})+ \min\left(1,\frac{\Delta_z(u,t)}{\sigma}\right)}{W(\mathbf{u})+1},\\ W^{new}(\mathbf{u}) &#x3D; W(\mathbf{u})+1</p>
+<p>值得注意的是，这里依然保留的是截断距离，只不过用了另一种方法，选取和1比较的最小值。另外，对于权重的分配，有很多种方法，论文中采取的是最简单的，也就是平均分配，每次$W &#x3D; W+1$。</p>
+<p>这篇文章的模型是在KinectFusion的基础上进行的，而KinectFusion之所以不能很好的在large scale上应用，主要有两个原因，一是drift累积，二是global TSDF会需要较大的内存。</p>
+<h3 id="Low-Drift局部模型"><a href="#Low-Drift局部模型" class="headerlink" title="Low-Drift局部模型"></a><a href="about:blank#Low-Drift%E5%B1%80%E9%83%A8%E6%A8%A1%E5%9E%8B" title="Low-Drift局部模型"></a>Low-Drift局部模型</h3><p>这篇文章在解决Drift问题上，采取了submap的形式。在本文中，称为subvolume。每K帧会建立一个submap。这篇文章提出了一个比较有趣的方法，来做integrate，为了避免每一步都进行K次integrate，也就是对F，W的更新，每次得到新的帧时，它将该帧以及对应的位姿push进一个队列中（FIFO），同时将$t-K$帧pop出去，对TSDF volume进行腐蚀（erosion）：</p>
+<p>F^{new}(\mathbf{u}) &#x3D; \frac{F(\mathbf{u})W(\mathbf{u})-\min\left(1,\frac{\Delta_z(u,t-K)}{\sigma}\right)}{W(\mathbf{u})-1},\\ W^{new}(\mathbf{u}) &#x3D; W(\mathbf{u})-1</p>
+<p>当处理的帧数量少于K帧时，不会发生腐蚀。当到达K帧时，队列也满了，将volumen从GPU拷贝到主机中，作为一个新的subvolume，然后腐蚀操作开始。其实我是真的不知道这样做有什么吊用。。。或者我理解有误？总之，这不是关注的重点。</p>
+<p>这一部分还包含了对有效Block的筛选，也是比较常规的做法，就不多说了。</p>
+<p>本文中$K&#x3D;50$。</p>
+<h3 id="Subvolume注册"><a href="#Subvolume注册" class="headerlink" title="Subvolume注册"></a><a href="about:blank#Subvolume%E6%B3%A8%E5%86%8C" title="Subvolume注册"></a>Subvolume注册</h3><p>在本文中，每K帧形成一个新的subvolume$(F_j,W_j)$，被存储在主机上，下面会将各个subvolume的位姿表示为$V_j$。尽管每个subvolume的局部位姿都很小，但是将它们直接简单收集起来会产生较大的drift和misalignment。本篇文章中通过全局优化各个subvolume的位姿来解决这个问题，当得到一个新的subvolume时，会通过一个创新的volume混合方案来进行非刚性变换。一个比较显著的点是，这个优化过程不需要相机tracking模块，因此它可以使得操作实时进行，并且在把新的subvolume放入一个共享缓存区，允许位姿优化作为一个并行运行的过程。</p>
+<p>提出的优化过程是受到了ICP算法的启发。优化需要的cost function是这样得到的：</p>
+<ol>
+<li>对于每个subvolume，提取出zero-level的点的集合，并且得到它们的法向量</li>
+<li>对于每个subvolume，考虑它的边界框，并且找到与其他subvolume之间的overlap</li>
+<li>对于每个subvolume得到的点集，通过距离函数的梯度来找到与它有overlap的subvolume中的对应</li>
+<li>每个有效的对应都会带来一个点到平面的距离约束，用来优化</li>
+<li>如果有一个位姿超出约束，至少有一个位姿错误项被添加，来保证全局一致</li>
+</ol>
+<p>接着，通过最小化一个合适的cost function来优化subvolume的位姿。在添加subvolume时候，上一个创建的subvolume的位姿保持固定，来得到tracked相机的最终估计。相对应的，下一个subvolume也能很快根据之前的subvolume得到一个合适的位姿，在相机track成功的情况下。cost funtion会最小化直到收敛，当得到新的对应时，继续最小化。下面会详细介绍一下point matching和优化问题。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv3.png"></p>
+<h4 id="The-Correspondence-Set"><a href="#The-Correspondence-Set" class="headerlink" title="The Correspondence Set"></a><a href="about:blank#The-Correspondence-Set" title="The Correspondence Set"></a>The Correspondence Set</h4><p>给定subvolume$(F_j, W_j)$，以及zero-level点集：$\left\{ \mathbf p_i^{(j)} \right\}$以及计算的法向量$\mathbf{n_i^{(j)} } &#x3D; \hat{\nabla}F_j\left(p_i^{(j)}\right)$。我们定义最小的边界框（bounding box）包围了它所有的有效voxel。接着，找到subvolume的子集$S^{(j)}$，它们之间有重叠的边界框。接着，对于每个点$\mathbf p_i^{(j)}$，我们遍历候选集，对于每个$k \in S^{(j)}$，计算插值距离函数以及它在$V_k^{-1} \cdot V_j \cdot\mathbf p_i^{(j)}$的梯度。如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv1.png"></p>
+<p>一个点的match为下：</p>
+<p>\mathbf q_k^{ij} &#x3D; V_k^{-1} \cdot V_j \cdot \mathbf p_i^{(j)} - F_k\left(V_k^{-1} \cdot V_j \cdot \mathbf p_i^{(j)}\right)\hat \nabla F_k\left(V_k^{-1}\cdot V_j \cdot \mathbf p_i^{(j)} \right).</p>
+<p>对于所有的subvolume中所有的采样点进行上面的过程，有点类似于ICP算法匹配的过程。我还不是很明白这里梯度那一项的作用，也许可以增加鲁棒。</p>
+<h4 id="The-Opitimization-Problem"><a href="#The-Opitimization-Problem" class="headerlink" title="The Opitimization Problem"></a><a href="about:blank#The-Opitimization-Problem" title="The Opitimization Problem"></a>The Opitimization Problem</h4><p>假设通过上面的过程，我们已经成功找到了对应。我们可以根据这些对应建立cost funstion。对于每个点对$\left( \mathbf p_i^{(j)},\mathbf q_k^{ji} \right)$，我们对$F_k$在$\mathbf q_k^{ji}$处的形状是没有保证的。我们已经估计了$F_j$中$p_i^{(j)}$处的法向量，因此我们可以得到一个点与平面之间的constraint：</p>
+<p>e_k^{ji} &#x3D; \left(\mathbf p_i^{(j)} - V_j^{-1}\cdot V_k \cdot \mathbf q_k^{ji}\right)\cdot \mathbf n_i^{(j)}.</p>
+<p>cost function的形式为：</p>
+<p>\arg \min_{V_1,…,V_N} \sum_j \sum_i \sum_k\Vert e_k^{ji} \Vert^2</p>
+<p>在本文中，通过Ceres中的列文伯格-马夸尔特方法来优化。</p>
+<p>在这个过程中，有可能会出现一些别的情况，比如subvolume $F_h$是空的，或者有很少的基数，使得约束不成立，或者得到很差的位姿估计，在这种情况下可以引入位姿之间的约束来增强相机追踪得到的估计。当这个位姿引用的两帧分别在两个subvolume上，如$Z_{h-1,h}$，则估计的错误项可以描述为下：</p>
+<p>e^{h-1,h} &#x3D; \Phi\log (Z_{h-1,h} \cdot V_h^{-1} \cdot V_{h-1})</p>
+<p>上式中$\log$将$SE(3)$转换到$\mathcal{se}(3)$，而$\Phi$是一个$6\cdot 6$的刚性矩阵。按照经验将$\Phi$设置为单位矩阵。</p>
+<h3 id="融合Subvolume"><a href="#融合Subvolume" class="headerlink" title="融合Subvolume"></a><a href="about:blank#%E8%9E%8D%E5%90%88Subvolume" title="融合Subvolume"></a>融合Subvolume</h3><p>对于融合Subvolume，文章中没有过多介绍。如何融到一个global volume中？</p>
+<p>F_G(\mathbf u)&#x3D;\frac{\sum_j F_j(V_j^{-1}\cdot \mathbf u)W_j(V_j^{-1}\cdot \mathbf u)}{\sum_{j}W_j(V_j^{-1}\cdot \mathbf u)}.</p>
+<p>这个过程并没有比较新奇的地方。文章中，如何融合global volume，是通过对一个全局的位置依次扫描，对每个位置$\mathbf u$进行上述的操作。这样的采样，如果subvolume分布比较广，会导致大量的无用计算。如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/subv2.png"></p>
+<p>因此，它会根据有overlap的subvolume来进行：</p>
+<p>F_j(\mathbf u) &#x3D; \frac{\sum_k F_k(V_k^{-1} \cdot V_j \cdot \mathbf u) W_k(V_k^{-1} \cdot V_j \cdot \mathbf u)}{\sum_kW_k(V_k^{-1}\cdot V_j \cdot \mathbf u)}.</p>
+<p>上式中$k \in S^{(j)}$，也就是与subvolume j有重叠的subvolume的集合。</p>
+<p>上述就是这个文章的主要内容。其实读完了我觉得没什么特别新颖的点。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/3D-reconstruction/" rel="tag"># 3D reconstruction</a>
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/04/Paper%E2%80%94%E2%80%94Real-time%203D%20Reconstruction%20at%20Scale%20using%20Voxel%20Hashing/" rel="prev" title="Paper——Real-time 3D Reconstruction at Scale using Voxel Hashing">
+                  <i class="fa fa-angle-left"></i> Paper——Real-time 3D Reconstruction at Scale using Voxel Hashing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/11/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E9%A2%9C%E8%89%B2%E4%B8%8E%E7%BD%91%E6%A0%BC/" rel="next" title="图形学——颜色与网格">
+                  图形学——颜色与网格 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

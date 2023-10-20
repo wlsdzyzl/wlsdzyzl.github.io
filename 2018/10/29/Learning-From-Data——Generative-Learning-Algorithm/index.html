@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前我们介绍的分类算法，包括，logistic regression，PLA甚至加上linear regression，他们都是试图找到一条线然后来将两种类别分开。这种算法叫做Discriminative Learning Algorithm，他们的由来，都是直接去估计$P(Y|X)$,这样的话根据新样本的X，从而预测Y。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Generative Learning Algorithm">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前我们介绍的分类算法，包括，logistic regression，PLA甚至加上linear regression，他们都是试图找到一条线然后来将两种类别分开。这种算法叫做Discriminative Learning Algorithm，他们的由来，都是直接去估计$P(Y|X)$,这样的话根据新样本的X，从而预测Y。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0366.JPG">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg4.png">
+<meta property="article:published_time" content="2018-10-29T13:19:48.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="classification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/","path":"2018/10/29/Learning-From-Data——Generative-Learning-Algorithm/","title":"Learning From Data——Generative Learning Algorithm"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Generative Learning Algorithm | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-Discriminate-Analysis"><span class="nav-number">1.</span> <span class="nav-text">Gaussian Discriminate Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GDA%E4%B8%8ELogistic-Regression"><span class="nav-number">1.1.</span> <span class="nav-text">GDA与Logistic Regression</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Naive-Beyas"><span class="nav-number">2.</span> <span class="nav-text">Naive Beyas</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E5%8F%98%E9%87%8F%E4%BC%AF%E5%A5%B4%E5%88%A9%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">多变量伯奴利事件模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Laplace-Smoothing"><span class="nav-number">2.2.</span> <span class="nav-text">Laplace Smoothing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Naive-Bayes-and-Multinomial-Event-Model"><span class="nav-number">2.3.</span> <span class="nav-text">Naive Bayes and Multinomial Event Model</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Generative Learning Algorithm | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Generative Learning Algorithm
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-29 21:19:48" itemprop="dateCreated datePublished" datetime="2018-10-29T21:19:48+08:00">2018-10-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们介绍的分类算法，包括，logistic regression，PLA甚至加上linear regression，他们都是试图找到一条线然后来将两种类别分开。这种算法叫做Discriminative Learning Algorithm，他们的由来，都是直接去估计$P(Y|X)$,这样的话根据新样本的X，从而预测Y。<span id="more"></span></p>
+<p>接下来我们想介绍的是另外一种思路来解决分类问题。我们不再直接估计$P(Y|X)$,而是估计$P(X|Y)$.也就是，我们希望从当前的样本中学到X的特征看上去应该是什么样子，从鸡的样本中学到鸡的样子，从狗的样本中学到狗的样子。这样的算法叫做Generative Learning Algorithm（生成学习算法）。当然，我们最后要知道的还是$P(Y|X)$,不过根据Bayes理论可以知道：<br>$$<br>P(Y|X) &#x3D; \frac{P(X|Y)P(Y)}{P(X)}<br>$$</p>
+<p>我们知道：</p>
+<p>$argmax_yp(y|x) &#x3D; argmax_y \frac{p(x|y)p(y)}{p(x)} &#x3D; argmax_y p(x|y)p(y) &#x3D; WhatWePredict$</p>
+<p>所以我们真正需要解决的是$P(x|y)P(y)$.</p>
+<p>当然，如果想要求得P(X),可以通过全概率公式：$P(X) &#x3D; P(y&#x3D;1)\cdot P(X|y&#x3D;1) +P(y&#x3D;0)\cdot P(X|y&#x3D;0)$.</p>
+<p>下面介绍两个最常见的生成学习算法：Gaussian Discriminant Analysis(高斯判别分析)与Naive Beyas(朴素贝叶斯模型)。</p>
+<h3 id="Gaussian-Discriminate-Analysis"><a href="#Gaussian-Discriminate-Analysis" class="headerlink" title="Gaussian Discriminate Analysis"></a>Gaussian Discriminate Analysis</h3><p>高斯判别模型主要用于输入是连续的时候，也就是X的特征值是属于实数集的。首先来复习一下多维高斯分布模型，它是高斯判别模型的基础：</p>
+<p>一般来说，多维高斯分布简写为：X \tilde{} N(\mu,\Sigma).</p>
+<ul>
+<li>$\mu \in \mathbb{R}^n$ 是平均向量。</li>
+<li>$\Sigma \in \mathbb{R}^{n \times n}$是协方差矩阵。$\Sigma$是对称的SPD（ symmetric and positive definite matrix）.</li>
+</ul>
+<p>它的概率密度函数如下：<br>$$<br>p(x;\mu,\Sigma) &#x3D; \frac{1}{(2\pi)^{\frac n 2}\vert \Sigma\vert ^{\frac 1 2} } e^{-\frac 1 2(x-u)^T\Sigma^{-1}(x-u)}<br>$$</p>
+<p>均值和协方差对分布有什么影响？利用一个二维的向量来说的话，有下面几张图可以看看：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg1.png"></p>
+<p>这三张图分别对应着协方差矩阵为$I，2I,\frac 1 2 I$的情况。其中<br>$I &#x3D; \begin{bmatrix}<br>1&amp;0\<br>0&amp;1<br>\end{bmatrix}$.</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg2.png"></p>
+<p>从上图又可以看出来，协方差矩阵非对角线的数字变化的时候，对它的图形似乎扭向一边了。实际上这代表了两个特征间的相关程度。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg3.png"></p>
+<p>最后一个就是$mu$的变化，很显而易见，图形的中心改变了。</p>
+<p>现在假如有一个分类问题，其中$X \in \mathbb{R}^n$,利用高斯判别模型的话，我们会有以下假设：<br>$$<br>y\tilde{} Bernuolli(\Phi)\<br>p(x|y&#x3D;0)\tilde{}N(\mu_0,\Sigma)\<br>p(x|y&#x3D;1)\tilde{}N(\mu_1,\Sigma)<br>$$<br>从上面看出来，我们对于两个模型的生成采用的$\mu$不一样，但是$\Sigma$一样，这样不光保证了两个模型的形状一样，简化了计算过程，最后可以用它们接触点的切线来当做分割线，从而实现与之前Discriminative学习算法的比较。</p>
+<p>Note:现在n为向量的维度，而m为样本个数。</p>
+<p>和往常一样，我们求它的log极大似然估计：<br>$$<br>\begin{align}<br>l(\Phi,\mu_0,\mu_1,\Sigma)&amp;&#x3D; \log \prod_{i&#x3D;1}^{m}p(X_i,y_i;\Phi,\mu_0,\mu_1,\Sigma)\<br>&amp;&#x3D; \log \prod_{i&#x3D;1}^m p(X_i|y_i;\mu_0,\mu_1,\Sigma)p(y_i;\Phi)<br>\end{align}<br>$$</p>
+<p>上述的式子中的参数取值如下：<br>$$<br>\Phi &#x3D; \frac 1 m \sum_{i&#x3D;1}^m \mathbf{1}{ y_i &#x3D; 1}\<br>\mu_b &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;b}X_i}{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;b} },b&#x3D;0,1\<br>\Sigma &#x3D; \frac 1 m \sum_{i&#x3D;1}^m(X_i - \mu_{y_i})(X_i - \mu_{y_i})^T<br>$$</p>
+<p>我们希望生成的模型如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0366.JPG"></p>
+<p>如果画等高线图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/mg4.png"> </p>
+<p>我们会发现找到一条线，它属于0或者1的概率是相等的。因此我们就找到了这条线。</p>
+<h4 id="GDA与Logistic-Regression"><a href="#GDA与Logistic-Regression" class="headerlink" title="GDA与Logistic Regression"></a>GDA与Logistic Regression</h4><p>在上面的推导过程中我们发现：<br>$$<br>\begin{align}<br>P(y&#x3D;1|X;\Phi,\mu_0,\mu_1,\Sigma) &amp;&#x3D;  \frac{p(X|y&#x3D;1)p(y&#x3D;1)}{p(X|y&#x3D;1)p(y&#x3D;1)+p(X|y&#x3D;0)p(y&#x3D;0)}\<br>&amp;&#x3D;\frac {1}{1+e^{-\theta ^TX} }<br>\end{align}<br>$$<br>上式中：$\theta &#x3D; \begin{bmatrix} \log \frac{1-\Phi}{\Phi} - \frac 1 2(\mu_0^T\Sigma^{-1}\mu_0 - \mu_1^T \Sigma^{-1}\mu_1) \ \Sigma ^{-1}(\mu_0 - \mu_1)\end{bmatrix}$.</p>
+<p>如果还记得上次讲过的exponential family，我们应该知道对于伯奴利分布$(y|x \tilde{} B(\psi))$的canonical link funtion是 $\log \frac{\psi}{1-\psi}$.</p>
+<p>因此$\theta ^X &#x3D; \log \frac{\psi}{1-psi} &#x3D; \log \frac{p(y&#x3D;1|X)}{p(y&#x3D;0|X)} &#x3D; \log \frac {p(X|y&#x3D;1)p(y&#x3D;1)}{p(X|y&#x3D;0)p(y&#x3D;0)}$</p>
+<p>这意味着：如果$p(x|y)\tilde{}N(\mu,\Sigma)$,则$p(y|x)$是logistic function.但是从logistic regression是无法推出来GDA的。</p>
+<p>如果我们的假设正确，GDA模型更高效，效果也更好，但是logistic regression因为比较简单，对于即使假设错误了依然有很好的鲁棒性。GDA最大化联合分布，而LR最大化的是概率分布。</p>
+<p>所以我们发现，GDA并不像普通的学习算法那样需要去进行cost funtion的优化。这得益于我们假设整个正样本的X服从一个高斯分布。而之前的学习方法，每个样本因为X不同各个样本之间服从分布的参数都会不一致，也就是每个样本在给定y的时候有一个自己的分布（如逻辑回归，每个样本都有不同的概率，而它预测的是伯奴利分布，也就是每个样本服从不同的伯奴利分布；又如线性回归，每个样本有不一样的$\mu$）。</p>
+<h3 id="Naive-Beyas"><a href="#Naive-Beyas" class="headerlink" title="Naive Beyas"></a>Naive Beyas</h3><p>下面介绍朴素贝叶斯模型。它用来处理输入为离散数据时候的情况。假如有这么一个例子：垃圾邮件分类。如何定义邮件的特征？当然定义的是其中的单词了。但是这个世界上单词有很多很多，而垃圾邮件很可能更包含了很多无意义的字符组合，这样特征就更多了。</p>
+<p>假设给一个大小为n的字典（这个n可能很大，50000或者100000），而一个邮件的特征值会像下面的样子：<br>$$<br>\begin{bmatrix}<br>1\<br>0\<br>.\<br>.\<br>.\<br>1\<br>.\<br>.\<br>.<br>\end{bmatrix} \begin{matrix}<br>a\<br>aadjsa\<br>.\<br>.\<br>.\<br>b\<br>.\<br>.\<br>.<br>\end{matrix}<br>$$</p>
+<p>1或者0代表了在这个邮件中是否出现了。</p>
+<p>现在希望对$P(X|Y)$建模。对于一封垃圾邮件：<br>$$<br>p(x_1,x_2,…,x_n|y) &#x3D; p(x_1|y)p(x_2|y,x_1),…,p(x_n|y,x_1,…,x_{n-1})<br>$$<br><em>使用了概率论中的链式法则。这个规则我也不了解，概率论还需要学习</em></p>
+<p>这样的计算是非常复杂的。因此朴素贝叶斯模型中有一个假设：$x_i$在给定y之后是条件独立的。这意味着：$p(x_n|y,x_1,…,x_{n-1}) &#x3D; p(x_n|y)$.</p>
+<p>所以$p(x_1,x_2,…,x_n|y) &#x3D; \prod _{i&#x3D;1}^np(x_i|y)$.</p>
+<h4 id="多变量伯奴利事件模型"><a href="#多变量伯奴利事件模型" class="headerlink" title="多变量伯奴利事件模型"></a>多变量伯奴利事件模型</h4><p>$p(x,y) &#x3D; p(y)p(x|y) &#x3D; p(y) \prod _{i&#x3D;1}^n p(x_i|y)$.</p>
+<p>这个模型假设了每封邮件是以$\Phi_y$随机生成的。如果给定y，每个单词是独立的包含在信息里的，而这个概率为$p(x_i&#x3D;1|y) &#x3D; \Phi_{i|y}$.</p>
+<p>这个模型参数如下：</p>
+<ul>
+<li>$\Phi_y &#x3D; p(y&#x3D;1)$</li>
+<li>$\Phi_{i|y&#x3D;0} &#x3D; p(x&#x3D;1|y&#x3D;0)$</li>
+<li>$\Phi_{i|y&#x3D;1} &#x3D; p(x&#x3D;1|y&#x3D;1)$</li>
+</ul>
+<p>同样的，接下来要做的依然是求log极大似然估计：</p>
+<p>$$<br>\begin{align}<br>L(\Phi_y \Phi_{i|y&#x3D;1},\Phi_{i|y&#x3D;0}) &amp;&#x3D;\log \prod_{i&#x3D;1}^m p(X_i,y_i)\<br>&amp;&#x3D; \log \prod_{i&#x3D;1}^m p(X_i|y_i)p(y_i)\<br>&amp;&#x3D; \log \prod_{i&#x3D;1}^m \prod_{j&#x3D;1}^np(x_j|y_i)<br>\end{align}<br>$$</p>
+<p>不难想象，各个参数的取值如下：<br>$$<br>\Phi_y &#x3D; p(y&#x3D;1) &#x3D; \frac 1 m \sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;1}\</p>
+<p>\Phi_{j|y&#x3D;b} &#x3D; \frac {\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} \cdot \mathbf{1}{ x_j&#x3D;1} }{\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} },b&#x3D;0,1<br>$$</p>
+<p>当给了一个新的样本的时候，我们计算$p(y&#x3D;1|x)$:</p>
+<p>$$<br>\begin{align}<br>p(y&#x3D;1|X) &amp;&#x3D; \frac{p(X|y&#x3D;1)p(y&#x3D;1)}{p(X)}\<br>&amp;&#x3D; \frac{p(y&#x3D;1)\prod _{i&#x3D;1}^n p(x_i|y&#x3D;1)}{p(X|y&#x3D;1)+p(X|y&#x3D;0)}\<br>&amp;&#x3D;\frac{p(y&#x3D;1)\prod _{i&#x3D;1}^n p(x_i|y&#x3D;1)}{p(y&#x3D;0)\prod _{i&#x3D;1}^n p(x_i|y&#x3D;0)+ p(y&#x3D;1)\prod _{i&#x3D;1}^n p(x_i|y&#x3D;1)}<br>\end{align}<br>$$</p>
+<p>然后根据概率是否大于0.5来进行预测。</p>
+<h4 id="Laplace-Smoothing"><a href="#Laplace-Smoothing" class="headerlink" title="Laplace Smoothing"></a>Laplace Smoothing</h4><p>这个模型是有一个缺点的：如果新的样本的单词从来没有在训练集合里出现过，那么：</p>
+<p>$$<br>\Phi_{j|y&#x3D;b} &#x3D; \frac {\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} \cdot \mathbf{1}{ x_{i,j}&#x3D;1} }{\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} } &#x3D; 0,b&#x3D;0,1<br>$$</p>
+<p>也就是垃圾邮件和非垃圾邮件里出现它的概率都为0.那么最后预测结果为$\frac 0 0$,这就没法计算了。</p>
+<p>所以我们需要进行Laplace平滑。对于没有出现过的词，我们给他赋一个较小值，而不是让他为0：<br>$$<br>\Phi_j &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{z_i &#x3D; j}+1}{m+k}<br>$$</p>
+<p>为了最后使得$\Phi_j$的和为0,所以k为类比的个数，即$\sum_{i&#x3D;1}^k\Phi_i &#x3D; 1$。</p>
+<p>所以最后的估计就成了下面的样子：<br>$$<br>\Phi_{j|y&#x3D;b} &#x3D; \frac {\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} \cdot \mathbf{1}{ x_{i,j} &#x3D; 1} +1}{\sum_{i&#x3D;1}^m \mathbf{1}{y_i &#x3D; b} +2},b&#x3D;0,1<br>$$</p>
+<p>除此之外其他地方是一样的。</p>
+<h4 id="Naive-Bayes-and-Multinomial-Event-Model"><a href="#Naive-Bayes-and-Multinomial-Event-Model" class="headerlink" title="Naive Bayes and Multinomial Event Model"></a>Naive Bayes and Multinomial Event Model</h4><p>现在有一个新的方法，就是多项式模型。</p>
+<p>现在$x_i \in {1,…,\vert V \vert}$,其中|V|为字典的长度。而n为信息的长度，也就是现在每个样本的特征数已经不一样了，因为我们没法保证每封信长度一样。</p>
+<p>对字典中每个词都进行编号：</p>
+<table>
+<thead>
+<tr>
+<th>dictionary id</th>
+<th>1</th>
+<th>2</th>
+<th>…</th>
+<th>1300</th>
+<th>…</th>
+<th>2400</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>word</td>
+<td>a</td>
+<td>aa</td>
+<td>…</td>
+<td>free</td>
+<td>…</td>
+<td>gift</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<p>多项式模型中有下面几个假设：</p>
+<ul>
+<li>信息随机地被以概率$p(y)$生成</li>
+<li>$x_1,x_2,…,x_n$独立同分布</li>
+<li>$p(x_1,x_2,…,x_n,y) &#x3D; p(y)\prod _{i&#x3D;1}^n p(x_i|y)$</li>
+</ul>
+<p>假设$p(x_i&#x3D;k|y)$对所有的$k$来说都相等。<br>则该模型参数如下：</p>
+<ul>
+<li>$\Phi_y &#x3D; p(y)$ </li>
+<li>$\Phi_{k|y&#x3D;1} &#x3D; p(x_j &#x3D; k|y&#x3D;1)$ for any $j \in {1,…,n}$</li>
+<li>$\Phi_{k|y&#x3D;1} &#x3D; p(x_j &#x3D; k|y&#x3D;0)$ for any $j \in {1,…,n}$</li>
+</ul>
+<p>则出现训练样本的概率为:<br>$$<br>\begin{align}<br>L(\Phi_y,\Phi_{k|y&#x3D;0},\Phi_{k|y&#x3D;1}) &amp;&#x3D; \prod_{i&#x3D;1}^m p(x_i,y_i)\<br>&amp;&#x3D; \prod_{i&#x3D;1}^m p(y_i)p(x_i|y_i)\<br>&amp;&#x3D;\prod_{i&#x3D;1}^m p(y_i) \prod_{j&#x3D;1}^{n_i} p(x_{i,j}|y_i;\Phi_y,\Phi_{k|y&#x3D;1},\Phi_{k|y&#x3D;0})<br>\end{align}<br>$$</p>
+<p>各个参数取值如下：<br>$$<br>\Phi_y &#x3D; \frac 1 m \sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;1}\<br>\Phi_{k|y&#x3D;1} &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;1}\cdot (\sum_{j&#x3D;1}^{n_i}\mathbf{1}{x_i&#x3D;k}) +1}{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;1}+|V|}\<br>\Phi_{k|y&#x3D;0} &#x3D; \frac{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;0}\cdot (\sum_{j&#x3D;1}^{n_i}\mathbf{1}{x_i&#x3D;k}) +1}{\sum_{i&#x3D;1}^m \mathbf{1}{y_i&#x3D;0}+|V|}<br>$$</p>
+<p>最后，预测值为：$p(y&#x3D;1|x) &#x3D; \frac{p(x|y&#x3D;1)p(y)} {p(x|y&#x3D;1)+p(x|y&#x3D;0)}$</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/classification/" rel="tag"># classification</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/29/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Basic-Conception/" rel="prev" title="信息论——Basic Conception">
+                  <i class="fa fa-angle-left"></i> 信息论——Basic Conception
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/31/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94the-Convexity/" rel="next" title="信息论——the Convexity">
+                  信息论——the Convexity <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

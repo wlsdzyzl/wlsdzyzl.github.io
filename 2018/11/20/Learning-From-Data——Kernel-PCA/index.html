@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次说了几个PCA的局限性，其中有一个是它只找各个特征之间的线性关系。如何拓展线性关系到非线性，似乎有点思路，因为之前SVM中说过，可以通过kernel将SVM拓展到非线性的分类。同样通过kernel，我们也可以找到特征之间的非线性关系，从而利用PCA进行数据压缩等操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Kernel PCA">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/20/Learning-From-Data%E2%80%94%E2%80%94Kernel-PCA/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次说了几个PCA的局限性，其中有一个是它只找各个特征之间的线性关系。如何拓展线性关系到非线性，似乎有点思路，因为之前SVM中说过，可以通过kernel将SVM拓展到非线性的分类。同样通过kernel，我们也可以找到特征之间的非线性关系，从而利用PCA进行数据压缩等操作。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/KPCA1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/KPCA2.png">
+<meta property="article:published_time" content="2018-11-20T09:33:01.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.776Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="unsupervised learning">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/KPCA1.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/20/Learning-From-Data%E2%80%94%E2%80%94Kernel-PCA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/20/Learning-From-Data%E2%80%94%E2%80%94Kernel-PCA/","path":"2018/11/20/Learning-From-Data——Kernel-PCA/","title":"Learning From Data——Kernel PCA"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Kernel PCA | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/20/Learning-From-Data%E2%80%94%E2%80%94Kernel-PCA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Kernel PCA | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Kernel PCA
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-20 17:33:01" itemprop="dateCreated datePublished" datetime="2018-11-20T17:33:01+08:00">2018-11-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次说了几个PCA的局限性，其中有一个是它只找各个特征之间的线性关系。如何拓展线性关系到非线性，似乎有点思路，因为之前SVM中说过，可以通过kernel将SVM拓展到非线性的分类。同样通过kernel，我们也可以找到特征之间的非线性关系，从而利用PCA进行数据压缩等操作。</p>
+<span id="more"></span>
+
+<p>对于线性的PCA的扩展，就是将PCA映射到更高维度的空间,使其在更高维度的空间有线性关系：$\phi:\mathbb{R}^n \rightarrow \mathbb{R}^d,d\ge n$.而如何映射，通过一个kernel函数来定义：$k(X_i,X_j) &#x3D; \phi(X_i)^T\phi(X_j)$或者kernel矩阵$K \in \mathbb{R}^{m \times m}$. 映射完成后，我们就可以在更高维度的空间再使用标准的PCA算法了。不过这个想法是naive的，比如高斯核函数，是映射到无限维度，如果用原来的PCA去求，是不现实的。而且，从下面的分析可以看到，直接求也用不到kernel函数的方便之处。</p>
+<p>映射后的数据的协方差矩阵如下：<br>$$<br>\Sigma &#x3D; \frac 1 m  \sum_{i&#x3D;1}^m \phi(X_i) \phi(X_i)^T \in \mathbb{R}^{d\times d}<br>$$</p>
+<p>假如$(\lambda_k,v_k),k&#x3D;1,…,d$为$\sigma$的特征分解，则：<br>$$<br>\Sigma v_k &#x3D; \lambda_k v_k<br>$$</p>
+<p>则原来$X_l$的在第k个主要成分的投影为：$\phi(X_l)^Tv_k$. </p>
+<p>到目前位置，我们都没有用到kernel。$\phi(X_i)$是难以计算的，而kernel是容易计算的。因此如何避免$\phi_(X_i)$的计算？</p>
+<p>首先我们知道：<br>$$<br>\begin{align}<br>\Sigma v_k &#x3D; \left (\sum_{i&#x3D;1}^m \phi(X_i) \phi(X_i)^T \right ) v_k &#x3D; \lambda _k v_k<br>\end{align}<br>$$</p>
+<p>实际上，我们可以将$v_k$写成$\phi(X_i)^T$的组合（这个很像是之前的kernel logistic regression用的trick），这里就不证明为什么一定可以写成这个组合了，我觉得应该会用到线性代数的秩的知识。<br>$$<br>v_k &#x3D; \sum_{i &#x3D; 1} ^m \alpha_i^{(k)} \phi(X_i)<br>$$</p>
+<p>那么，之前提到的投影可以将上式带入：<br>$$<br>\begin{aligned}<br>\phi(X_l)^Tv_k &amp;&#x3D; \phi(X_l)^T \sum_{i &#x3D; 1} ^m \alpha_i^{(k)} \phi(X_i)\<br>&amp;&#x3D; \sum_{i&#x3D;1} ^m \alpha_i^{(k)} \phi(X_l)^T\phi(X_i)\<br>&amp;&#x3D; \sum_{i&#x3D;1} ^m \alpha_i^{(k)} k(X_l,X_i)<br>\end{aligned}<br>$$</p>
+<p>这又引入了一个问题：如何得到$\alpha_i^{(k)}$?</p>
+<p>将$v_k &#x3D; \sum_{i &#x3D; 1} ^m \alpha_i^{(k)} \phi(X_i)$带入(1)式,我们得到：<br>$$<br>\left[\sum_{i&#x3D;1}^m \phi(X_i) \phi(X_i)^T \right] \left(\sum_{i&#x3D;1}^m \alpha_i^{(k)} \phi(X_i) \right) &#x3D; \lambda_k m \left(\sum_{i&#x3D;1}^m \alpha_i^{(k)} \phi(X_i) \right)\<br>\Phi(X)^T \Phi(X) \Phi(X)^T \alpha^{(k)} &#x3D; \lambda_k m  \Phi(X)^T \alpha^{(k)}\<br>\Phi(X) \Phi(X)^T \alpha^{(k)} &#x3D; \lambda_k m \alpha^{(k)}\<br>K \alpha^{(k)} &#x3D; \lambda_k m \alpha_k,<br>$$<br>上式中：<br>$$<br>\alpha ^{(k)} &#x3D; \begin{bmatrix}<br>a_1^{(k)}\<br>\vdots\<br>a_m^{(k)}<br>\end{bmatrix};\Phi(X) &#x3D; \begin{bmatrix}<br>\phi(X_1)^T\<br>\vdots\<br>\phi(X_m)^T<br>\end{bmatrix} \<br>K &#x3D; \begin{bmatrix}<br>k(X_1,X_1)&amp;k(X_1,X_2)&amp;\cdots&amp;k(X_1,X_m)\<br>k(X_2,X_1)&amp;k(X_2,X_2)&amp;\cdots&amp;k(X_2,X_m)\<br>\vdots&amp;\vdots\ &amp;\ddots&amp;\vdots\<br>k(X_m,X_1)&amp;k(X_m,X_2)&amp;\cdots&amp;k(X_m,X_m)<br>\end{bmatrix}<br>$$</p>
+<p>上式中$\alpha^{(k)}$可以通过求解K的特征向量得到，而K是kernel矩阵。</p>
+<p>我们希望正交化$\alpha^{(k)}$，使得$v_k^Tv_k &#x3D; 1$（与之前的标准PCA一致）.<br>$$<br>v_k^T v_k &#x3D; (\alpha^{(k)})^T \Phi(X) \Phi(X)^T \alpha^{(k)} &#x3D; \lambda_k m  ((\alpha^{(k)})^T \alpha^{(k)}).<br>$$</p>
+<p>所以$\Vert \alpha^{(k)} \Vert^2 &#x3D; \frac{1}{\lambda_k m} $.</p>
+<p>此外，如果$\mathbb{E}(\phi(X)) \ne 0$，我们还需要中心化$\phi(X)$:<br>$$<br>\tilde{\phi}(X_i) &#x3D; \phi(X_i) - \frac 1 m   \sum_{l&#x3D;1}^m \phi(X_i)<br>$$</p>
+<p>而中心化以后的kernel矩阵为：<br>$$<br>\tilde{k}(i,j) &#x3D; \tilde{\phi}(X_i)^T \tilde{\phi}(X_j)<br>$$</p>
+<p>写成矩阵就是：<br>$$<br>\tilde{K} &#x3D; K -1_m K - K 1_m + 1_mK1_m<br>$$</p>
+<p>其中：<br>$$<br>1_m &#x3D; \begin{bmatrix}<br>\frac 1 m &amp; \cdots &amp;\frac 1 m\<br>\vdots &amp; \ddots &amp; \vdots\<br>\frac 1 m &amp; \cdots &amp;\frac 1 m<br>\end{bmatrix} \in \mathbb{R}^{m\times m}<br>$$</p>
+<p>我们从前面已经推导出来，计算kernel PCA的$v_k$最终需要的是kernel矩阵，因此使用$\tilde{K}$去计算PCA即可。</p>
+<p>２个问题：</p>
+<ol>
+<li>之前的X不光是中心化的，而且还是Stdev(X) &#x3D; 1,在kernel PCA中没有考虑这一点吗？</li>
+</ol>
+<p>对于kernel PCA的标准协方差分析是非常困难的。不过协方差的意义在于使得数据范围不会变动过大（如身高ｍ为单位，变化程度可能是１以内，而体重以斤为单位，变化范围为几十），因此如果对原数据进行协方差变0的操作后，假设kernel是对称的，它们的变化范围不会差得过多。</p>
+<ol start="2">
+<li>$ａ^{(k)}$算出来有ｍ个，但是我们不一定把它映射到ｍ维度的空间了。不像原来的PCA，ｎ维有ｎ个特征向量？</li>
+</ol>
+<p>一般来说我们升维时候都会升到无限维度，很少有比ｍ小的。这时候它的特征向量个数就受到了数据个数的限制。如果维度比ｍ小，则特征向量不会真正达到ｍ个。</p>
+<p>总结以下，kernel PCA的步骤：</p>
+<ol>
+<li><p>求出Ｋ</p>
+</li>
+<li><p>求出$\tilde{K}$</p>
+</li>
+<li><p>求出上面的特征值和特征向量，并且根据使得特征向量的长度等于$\frac {1}{\sqrt{\lambda_k m} }$，其中$\lambda_km$也就是对应的特征值。</p>
+</li>
+<li><p>根据求得的特征向量，求得$v_k$.</p>
+</li>
+</ol>
+<p>Kernel PCA的例子：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/KPCA1.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/KPCA2.png"></p>
+<p>kernel PCA经常用于聚类，异常检测等等。它需要找到$m \times m$的特征向量来代替$n \times n$。通过投影到k维主子空间进行降维通常是不可能的，也就是一般不用kernel PCA来进行数据压缩。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/unsupervised-learning/" rel="tag"># unsupervised learning</a>
+              <a href="/tags/kernel/" rel="tag"># kernel</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/" rel="prev" title="Learning From Data——PCA">
+                  <i class="fa fa-angle-left"></i> Learning From Data——PCA
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/27/Learning-From-Data%E2%80%94%E2%80%94Info-between-X-and-Y-SVD/" rel="next" title="Learning From Data——Info between X and Y/SVD">
+                  Learning From Data——Info between X and Y/SVD <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

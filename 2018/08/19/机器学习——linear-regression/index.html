@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——linear regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png">
+<meta property="article:published_time" content="2018-08-19T15:25:05.000Z">
+<meta property="article:modified_time" content="2023-10-20T19:30:59.773Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="regression">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/","path":"2018/08/19/机器学习——linear-regression/","title":"机器学习——linear regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——linear regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——linear regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——linear regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-19 23:25:05" itemprop="dateCreated datePublished" datetime="2018-08-19T23:25:05+08:00">2018-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 03:30:59" itemprop="dateModified" datetime="2023-10-21T03:30:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。</p>
+<span id="more"></span>
+<p>线性回归想做到的事情是，给出一堆点，使用一条直线（平面或者其他）来拟合这个dataset。而在之前的noise and error中提到了，它用来衡量错误的办法是$(y - y’)^2$。</p>
+<p>和之前的机器学习算法也一致，因为VC bound在线性回归的例子中也一样适用，所以我们想做的是保证$E_{in}$越小越好。</p>
+<p>对于线性回归的H集合是 $y’ &#x3D; W^TX$，当然$X$，$W$都是列向量，向量的维度是d+1（d为特征量的个数）.为了minimize $E_{in}$，首先我们应该写出来$E_{in}$的表达式：<br>$$<br>E_{in} &#x3D; \frac 1 n \sum _{i &#x3D;<br> 1} (h(X_n) - y)^2 &#x3D;  \frac 1 n \sum _{i &#x3D; 1} (W^TX_n - y_n)^2<br>$$</p>
+<p>这个表达式看着还比较复杂，有个求和符号在里面。首先，这后面有N个平方和，我们可以很轻松的想到向量的范数求法。因此，我们可以将原式写成对向量求范数的形式：</p>
+<p>$$<br>E_{in} &#x3D; \frac 1 n || XW - Y||^2<br>$$<br>上式中<br>$$<br>X &#x3D; \begin{bmatrix}<br>…X_1^T… \<br>…X_2^T… \<br>……….\<br>…X_n ^T …<br>\end{bmatrix}<br>$$<br>X是一个n*（d+1）的矩阵，n是样本个数，d是特征量个数。</p>
+<p>因此$E_{in}$可以说是一个关于W的函数，而且可以证明的是，这个函数是连续的（continuous），可导的（differentiable）,并且是凸函数（convex）。因此我们一定可以求得最低点，也就是$E_{in}$的最小值。与实数的函数一样（实际上求的是W的各个方向的偏导数），在取最小值的那个点的时候，$E_{in}$关于$W$的导数是0，表明取得是极值，也就是梯度是0。</p>
+<p>将上式展开可以得到：</p>
+<p>$$<br>E_{in} &#x3D; \frac 1 n (W^TX^TXW -2Y^TXW +Y^TY)，<br>$$<br>将除了W之外的矩阵或者数字看成常量，则可以得到：<br>$$<br>E_{in} &#x3D;  \frac 1 n (W^TAW-2BW+c)<br>$$<br>为了求关于$W$的导数，我们首先想象一下如果是$W$一维的话的样子。<br>$$<br>E_{in} &#x3D; aW^2-2bW+c ; \frac {dE_{in} } {dW} &#x3D; 2aW-2b<br>$$</p>
+<p>对应到矩阵上来说:<br>$$<br>\frac {dE_{in} } {dW} &#x3D; \frac 1 n 2AW-2B<br>$$</p>
+<p>可以看到的是梯度是一个向量。</p>
+<p>为了使得$E_{in}$取得最小值，那么$X^TXW &#x3D; X^TY$,如果$(X^TX)$的反矩阵存在，那么很简单:<br>$$<br>W &#x3D; (X^TX)^{-1}X^TY<br>$$</p>
+<p>我们称$(X^TX)^{-1}X^T$为pseudo-inverse $X^{+}$。而且大多数时候我们遇到的都是可逆的，因为$n&gt;&gt;d+1$，这意味着首先对于X矩阵来说，它的秩很可能就是等于d+1的.这样它们相乘的秩很大可能也是d+1，也就是可逆。</p>
+<p>但是如果遇到另外的情况，如不可逆，我们可以使用其他的方式来定义$X^{+}$，具体的数学原理需要更详细的线性代数知识，但是我们知道很多程序包里都实现了这些东西，用它一样可以得到比较好的结果。</p>
+<p>综上，$W &#x3D; X^{+}Y$,$Y’ &#x3D; XW &#x3D; XX^{+}Y$.</p>
+<p>最后，这个算法之所以可以学习，我们可以使用VC bound来证明。但是还有另一种方法，也可以证明它泛化能力不错，可以取得良好的学习效果，当然，与VC bound一样，严格的证明需要更严密的数学推导，下面只是简要介绍。</p>
+<p>首先，我们推导$\overline {E_{in} }$是很接近噪声的（噪声意味着我们无法通过学习进行改善的部分），而同样的步骤可以用在对$\overline {E_{out} }$的分析上，这样就说明了，平均来说我们的算法是可以取得很好的学习效果的。</p>
+<p>首先，我们应该定义一下$\overline {E_{in} }$：<br>$$<br>\overline {E_{in} } &#x3D; \epsilon <em>{D~P^N}\left{\ E</em>{in}(W_{LIN} w.r.t. D)  \right} &#x3D; noise  level \cdot (1-\frac {d+1}{N})<br>$$</p>
+<p>具体的含义就是多个样本的$E_{in}$平均值，大概看起来会接近noise level，而当样本量越大，与noise level越接近。</p>
+<p>首先，我们应该将线性回归得到的结果带入$E_{in}$的表达式中：<br>$$<br>E_{in} &#x3D; \frac 1 N ||Y - \hat Y||^2 &#x3D; \frac 1 N ||Y - XX^{+}Y ||^2 &#x3D; \frac 1 N ||(I - X X^{+})Y||^2<br>$$</p>
+<p>我们称$XX^{+}$为hat matrix。</p>
+<p>这里我们思考$\hat Y &#x3D; XW$在做什么。Y是一个N维向量，而X可以看做是m个N维向量构成的矩阵，而实际上W的作用，是给每个矩阵中的N维向量分配一个参数，让他们做线性组合，最终得到一个新的N维向量。为了使得$\hat Y$尽量接近于$Y$，从另一个方面来说，就是让$Y - \hat Y \bot X’s span$，也就是让他们的差尽量垂直于X所展开的空间，当垂直时，$\hat Y$等于Y在X上的投影，这时候二者相差是最小的.</p>
+<p>实际上，Y一般不可能被X完美表示，因为一般来讲$N&gt;&gt;d$.所以我们能做的就是上面说的。</p>
+<p>所以，Hat的作用就是将Y投影到X上。而$(I-Hat)$就是将Y转换为$(Y-\hat Y)$的矩阵。<br>而且我们可以计算出来$trace (I - Hat) &#x3D; n - (d+1)$，意味着$(I- Hat)$有$N - d- 1$个自由度。</p>
+<p>如果$Y$来自与一些理想的$f(X)$与噪声的组合，那么如果只是理想的函数，则上述得到的差距实际上是由噪声造成的，因此：<br>$$<br>E_{in} &#x3D; \frac 1 N ||Y - \hat Y||^2  &#x3D; \frac 1 N ||(I - Hat)noise||^2 &#x3D; \frac 1 N (N - d - 1)||noise||^2<br>$$<br>而$\overline {E_{in} } &#x3D; ( 1 - \frac{d+1}{N})noise level$<br>利用类似的办法，可以推断出来，$\overline {E_{out} } &#x3D; ( 1 + \frac{d+1}{N})noise level$.</p>
+<p>也就是平均来说，我们通过拟合样本，可以得到更小的错误率，但是泛化之后的错误率往往更大一点。</p>
+<p>因此平均来说，我们可以将$E_{in}$与$E_{out}$画在一张图上：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png"></p>
+<p>如果对应到实际的机器学习，对于一些很少的样本量的机器学习过程，很容易拟合成功，得到很好的$E_{in}$，甚至是0，但是这时候泛化能力却很差。机器学习，不是一味地增加特征量减少$E_{in}$，而纠正过拟合的一种办法，就是增加样本量。</p>
+<p>最后，我想说的是，上面的”证明”非常不严格，甚至有些地方让人费解。对于机器学习，理论部分严格的证明更多是数学和统计的事情，而学习计算机的人更多的是掌握各种算法，学习利用它来解决问题。即使这样，尽可能多地了解理论部分，对于实际的应用有很大的帮助。这个世界很复杂，永远保持一个好奇心吧。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/" rel="prev" title="机器学习——（基石）作业二">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）作业二
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/27/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression%E4%B8%8Elinear-classification/" rel="next" title="机器学习——linear regression与linear classification">
+                  机器学习——linear regression与linear classification <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

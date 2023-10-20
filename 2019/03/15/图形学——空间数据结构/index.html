@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="上次讲了光线追踪，但是在追踪过程中，我们需要进行加速，可能才能满足实时等应用。同样，还有很多图形学的相关过程，都需要更好的数据结构的支持，用来加速和节省内存。下面介绍一些光线追踪时候用来加速的数据结构。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图形学——空间数据结构">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/03/15/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次讲了光线追踪，但是在追踪过程中，我们需要进行加速，可能才能满足实时等应用。同样，还有很多图形学的相关过程，都需要更好的数据结构的支持，用来加速和节省内存。下面介绍一些光线追踪时候用来加速的数据结构。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%282%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%285%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%286%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%287%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%288%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%289%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA1.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%2810%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%283%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%281%29.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%284%29.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%281%29.jpg">
+<meta property="article:published_time" content="2019-03-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:23:59.783Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="computer graphics">
+<meta property="article:tag" content="data structure">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%282%29.jpg">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/03/15/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/03/15/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/","path":"2019/03/15/图形学——空间数据结构/","title":"图形学——空间数据结构"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图形学——空间数据结构 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E5%9B%B4%E4%BD%93"><span class="nav-number">1.</span> <span class="nav-text">包围体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BB%84%E5%B9%B3%E8%A1%8C%E9%9D%A2%E5%8C%85%E5%9B%B4%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">多组平行面包围体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%85%E5%9B%B4%E7%90%83"><span class="nav-number">1.2.</span> <span class="nav-text">包围球</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%82%E6%AC%A1%E5%8C%85%E5%9B%B4%E4%BD%93"><span class="nav-number">1.3.</span> <span class="nav-text">层次包围体</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%87%E5%8C%80%E6%A0%BC%E7%82%B9%EF%BC%88Uniform-Grids%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">均匀格点（Uniform Grids）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E5%8F%89%E6%A0%91%EF%BC%88Octree%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">八叉树（Octree）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BSP%E6%A0%91%E5%92%8Ck-d%E6%A0%91"><span class="nav-number">2.2.</span> <span class="nav-text">BSP树和k-d树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%8A%80%E6%9C%AF"><span class="nav-number">2.3.</span> <span class="nav-text">其他技术</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/03/15/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图形学——空间数据结构 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图形学——空间数据结构
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-03-15 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-15T00:00:00+08:00">2019-03-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:23:59" itemprop="dateModified" datetime="2023-10-21T04:23:59+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次讲了光线追踪，但是在追踪过程中，我们需要进行加速，可能才能满足实时等应用。同样，还有很多图形学的相关过程，都需要更好的数据结构的支持，用来加速和节省内存。下面介绍一些光线追踪时候用来加速的数据结构。  </p>
+<span id="more"></span>
+
+
+<p>为了加速光线追踪，有多种数据结构。比如之前提到的包围体。包围体除了长方体，还有球体等等。也有比较熟悉的均匀grid用来表示空间点，四叉树和八叉树，kd树，hash表等等。</p>
+<h2 id="包围体"><a href="#包围体" class="headerlink" title="包围体"></a><a href="about:blank#%E5%8C%85%E5%9B%B4%E4%BD%93" title="包围体"></a>包围体</h2><h3 id="多组平行面包围体"><a href="#多组平行面包围体" class="headerlink" title="多组平行面包围体"></a><a href="about:blank#%E5%A4%9A%E7%BB%84%E5%B9%B3%E8%A1%8C%E9%9D%A2%E5%8C%85%E5%9B%B4%E4%BD%93" title="多组平行面包围体"></a>多组平行面包围体</h3><p>包围体最简单想到的当然是长方体包围体，也叫包围盒，也是有多种的。最简单的为平行与坐标轴的包围盒。这个包围盒计算简单，但是效果很差，因为可能会多包很多地方。如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%282%29.jpg"></p>
+<p>如何计算平行与坐标轴的包围盒？很简单，只要求模型里x，y，z方向上的最大值和最小值即可。但是正如上面所说的，这个包围盒太大，很多时候光线没有经过模型，但是经过了包围盒。因此我们需要更紧致一点的包围盒。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%285%29.jpg"></p>
+<p>在计算更紧致的包围盒时，我们可以不局限与长方体，而是考虑用多组平行平面包围住一个模型。模型有两种情况，一种是网格模型，也就是由各个点构成，另外一种是隐士曲面，可能有无数的点。</p>
+<p>用多少组平面围住模型更好？一般用5组就可以达到比较紧凑的效果，毕竟过多的平面会导致对包围体交点的计算也变的复杂。我们首先确定5组平面的法向量，然后尽量压缩这两个平面的距离。</p>
+<p>首先，平面的方程为$Ax+By+Cz+d &#x3D; 0$，而这一组平面对应的法向量为$n&#x3D;(A,B,C)$。之前提到的，点距离已知平面的距离为：$d_0 &#x3D; Ax+By+Cz+d$。因此我们规定这一组平面的原平面为：$Ax+By+Cz&#x3D;0$，然后计算模型各个点投影到法向量$n$上后的点到原平面的距离，也就是$nP &#x3D; Ax+By+Cz$。找到这个距离的最大值和最小值，也就确定了这一组平面。非常好理解。这个方法被称为Kay-Kajiya方法。</p>
+<p>对于隐式曲面，也就是有一个方程$f(x,y,z) &#x3D; 0$表示的曲面，可能有无数点。这时候点到原平面的距离不变，依然是$F(x,y,z) &#x3D; Ax+By+Cz$，想要求它的最大和最小值，又加上了约束。因此，这个问题就变成了一个条件极值问题，使用拉格朗日乘数法就能很容易得到结果：</p>
+<p>\max F(x,y,z),s.t. f(x,y,z)&#x3D;0</p>
+<h3 id="包围球"><a href="#包围球" class="headerlink" title="包围球"></a><a href="about:blank#%E5%8C%85%E5%9B%B4%E7%90%83" title="包围球"></a>包围球</h3><p>另外一个常用的包围体是球形的。球形包围体有几个优点，它仅包含两个参数，球心和半径，而且具有旋转不变性。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%286%29.jpg"></p>
+<p>然而计算最优包围球是很困难的，在这里介绍一个近似方法，它的时间复杂度为$O(n)$。一般来说，它比最优的包围球要大5%。</p>
+<p>首先，遍历所有点，找到下面3对点：</p>
+<p>x坐标最大的点，x坐标最小的点; y坐标最大的点，y坐标最小的点; z坐标最大的点，z坐标最小的点。</p>
+<p>分别计算每一对点的距离，选择最大的距离作为包围球(s)的直径。但是这样并不一定能包围所有的点。因此还需要继续，如果发现了有在包围球外的点，将该点和原来包围球的球心连接并延长到球的表面，作为新的包围球(s’)的直径。不断重复上面的过程，直到没有点在包围球外部了。s与s’内切。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%287%29.jpg"></p>
+<p>这个算法算不上优秀，因为它也需要不少的计算量，但是很容易理解。</p>
+<h3 id="层次包围体"><a href="#层次包围体" class="headerlink" title="层次包围体"></a><a href="about:blank#%E5%B1%82%E6%AC%A1%E5%8C%85%E5%9B%B4%E4%BD%93" title="层次包围体"></a>层次包围体</h3><p>一个包围体的比较好的拓展就是层次化。这个也很好理解。如果一个空间里有n个物体，每个都做包围盒，但是光线可能根本没有穿过这一块。因此，比较好的做法就是建立树状结构，对于各个空间块的物体建立层次包围体，每一层是对下一层的并集，如果上层没有交点，也就不用看下层了，从而大大减小计算量。这也是计算机科学中很重要的思想。</p>
+<p>层次包围体一个有意思现象是，同层间包围体可能有overlap，但是这是无关紧要的。我们只需要保证上层完全包含了下层就可以。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%288%29.jpg"></p>
+<p>包围体除了加速，还在消隐，碰撞检测等等都有很重要的应用。</p>
+<h2 id="均匀格点（Uniform-Grids）"><a href="#均匀格点（Uniform-Grids）" class="headerlink" title="均匀格点（Uniform Grids）"></a><a href="about:blank#%E5%9D%87%E5%8C%80%E6%A0%BC%E7%82%B9%EF%BC%88Uniform-Grids%EF%BC%89" title="均匀格点（Uniform Grids）"></a>均匀格点（Uniform Grids）</h2><p>均匀格点的想法，是通过将各个面片分到均匀网格中，然后计算出光线经过的网格（通过DDA算法），如果当前的格点中有面片，计算它和该面片的交点。它的优点在于，让光线自己去找，而不是对每个面片进行交点的计算。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%289%29.jpg"></p>
+<p>下面简单说明以下DDA算法。</p>
+<p>DDA算法是二维的光栅算法，也就是在格点上绘制一条直线，也很容易拓展到三维。首先，二维中直线的方程为：$y&#x3D;kx+b$，$k &#x3D; \frac{dy}{dx}$。我们只要知道直线的两个端点，就能得到$k,b$的值。</p>
+<p>同理，在平面上，像素也是一格一格增长的。知道直线方程，我们就能知道增加一格x，增加多少y：$x+1,y+k$,同理也知道，当y增加1,x增加$\frac{1}{k}$。</p>
+<p>当我们知道$(x_i,y_i)$时，计算：</p>
+<p>x_{i+1} &#x3D; x_i + 1, \Delta y &#x3D; k; y_{i+1} &#x3D; y_i +1 ,\Delta x &#x3D; \frac{1}{k}</p>
+<p>比较$\Delta y,\Delta x$的大小，实际上就是比$k$和$1$的大小。</p>
+<p>如果$k&gt;1$，则说明y走得更多，则选择让y的步长为1：$y_{i+1} &#x3D; y_i+1, x_{i+1} &#x3D; x_{i} + \Delta x$。然后对$y_i,x_i$进行向下取整，得到坐标。</p>
+<p>如果$k&lt;1$，则选择让x的步长为1。</p>
+<p>下面简单写一个python代码实现下二维的DDA算法吧。  </p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line">img=np.zeros((<span class="number">600</span>,<span class="number">800</span>))</span><br><span class="line">img = img + <span class="number">255</span></span><br><span class="line">rows,cols=img.shape</span><br><span class="line"></span><br><span class="line">floor = math.floor</span><br><span class="line"></span><br><span class="line">k = float(input(<span class="string">"k&gt;0:"</span>))</span><br><span class="line">x_0 = y_0 = <span class="number">50</span></span><br><span class="line"><span class="string">'''_x = []</span></span><br><span class="line"><span class="string">_y = []'''</span></span><br><span class="line"><span class="keyword">if</span> k&gt;<span class="number">1</span>:</span><br><span class="line">    y = [i <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">51</span>,rows<span class="number">-50</span>)]</span><br><span class="line">    x = []</span><br><span class="line">    delta = <span class="number">1.0</span>/k</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> y:        </span><br><span class="line">        x_1 = x_0+delta</span><br><span class="line">        x.append(floor(x_1))</span><br><span class="line">        <span class="string">'''_x.append(floor(x_1))</span></span><br><span class="line"><span class="string">        if float(floor(x_1)) == x_1:</span></span><br><span class="line"><span class="string">            _y.append(i)</span></span><br><span class="line"><span class="string">        else:</span></span><br><span class="line"><span class="string">            _y.append(i-1)'''</span></span><br><span class="line">        x_0 = x_1</span><br><span class="line">        <span class="keyword">if</span> x_1 &gt;= cols<span class="number">-50</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">            </span><br><span class="line"><span class="keyword">if</span> k&lt;=<span class="number">1</span>:</span><br><span class="line">    x = [i <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">51</span>,cols<span class="number">-50</span>)]</span><br><span class="line">    y = []</span><br><span class="line">    delta = k</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> x:</span><br><span class="line">        y_1 = y_0+delta</span><br><span class="line">        y.append(floor(y_1))</span><br><span class="line">        <span class="string">'''_y.append(floor(y_1))</span></span><br><span class="line"><span class="string">        if float(floor(y_1)) == y_1:</span></span><br><span class="line"><span class="string">            _x.append(i)</span></span><br><span class="line"><span class="string">        else:</span></span><br><span class="line"><span class="string">            _x.append(i-1)'''</span></span><br><span class="line">        y_0 = y_1</span><br><span class="line">        <span class="keyword">if</span> y_1 &gt;= rows<span class="number">-50</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(min(len(x),len(y))):</span><br><span class="line">    img[rows - y[i],x[i]] = <span class="number">0</span></span><br><span class="line"><span class="string">'''for i in range(len(_y)):</span></span><br><span class="line"><span class="string">    img[rows - _y[i],_x[i]] = 0'''</span></span><br><span class="line">im = Image.fromarray(img)</span><br><span class="line">im.show()</span><br></pre></td></tr></tbody></table>
+
+<p>这个程序会生成一张白色图片，根据你输入的k，以$(50,50)$为起始坐标，利用DDA算法生成一张直线图。为了简化，只写了$k&gt;0$的情况。下面是$k&#x3D;0.6$的情况：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA1.png"></p>
+<p>查看细节：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA2.png"></p>
+<p>如果想要查找有光线经过的网格，将上述代码中注释的部分去掉即可。在使用DDA算法时候，我们设定速度更快的那个轴步长为一，然后计算另外一个轴的值来向下取整，但是这样会导致一部分光线经过的方块没有画出来。如果另外一个轴的值本身就是整数，则不会出现这种情况。因此，判断该值是否是整数，然后进行相应处理。</p>
+<p>画出有光线经过的网格的结果如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA3.png"></p>
+<p>可以看到，这个线变“粗”了。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/DDA4.png"></p>
+<p>下面是三维中均匀格点的方法的可视化：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%2810%29.jpg"></p>
+<p>均匀格点的有点是容易构建，也容易遍历，想法也简单，但是它的缺点在于，都是均匀的，有时候大多数多边形只占一小部分，一个格子格子遍历速度是很慢的。格子过大，每个格点中面片过多，使得运算变慢，而格子过小，又会导致大量的存储问题，速度也不快。</p>
+<p>由于空间中物体分布就是不均匀的，因此均匀格点没那么合理，非均匀的格点是更好的选择。</p>
+<h3 id="八叉树（Octree）"><a href="#八叉树（Octree）" class="headerlink" title="八叉树（Octree）"></a><a href="about:blank#%E5%85%AB%E5%8F%89%E6%A0%91%EF%BC%88Octree%EF%BC%89" title="八叉树（Octree）"></a>八叉树（Octree）</h3><p>八叉树是四叉树的推广，四叉树是二叉树的推广，分别对应着三维，二维，一维的情况。</p>
+<p>八叉树我之前在写一个小的SFM程序时曾经用过，用它来加速计算的过程。现在讲一讲它在光线追踪过程中的应用。</p>
+<p>首先，八叉树的目的，是在面片比较多的空间中，用更小的格点去表示，也就是更高的分辨率，而在面片比较少的空间中，用更大的格点表示。最基本的划分，是将一个空间正方体，根据三维坐标系的8个象限分成8个方块，对需要细分的方块继续进行8叉树的划分。</p>
+<p>值得注意的是，一般的8叉树，对于多面体的表示可能是重叠的，也就是可能一个多面体有一部分在这个格子，另一部分在另一个格子。这种情况下，有多种做法，一是重复包含，也就是将每个格子只要包含了部分这个面片，就记它包含了这个面片，这种情况的比较明细的缺点，就是加大了计算量；第二种是将面片按照空间的划分切割，这个做法也不是太好，因为也比较复杂，会切割出更多的面片，使得面片总数增加，也增大了计算量；第三个是用一种改进的八叉树，叫做Octree-R，它使得空间划分更自由一点，相对于最naive的做法，可以提速10%~47%。本篇文章仅仅说明最简单的八叉树，不考虑面片重复的情况。</p>
+<p>如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%283%29.jpg"></p>
+<p>八叉树的建立是这么一个过程。首先，将整个空间分成8个方块，计算每个方块中的面片个数，如果面片个数大于某个阈值，就对该空间继续进行同样的细分，直到方块中包含的面片个数小于某个阈值，或者达到了最大的递归深度，就退出递归。而八叉树的最小方块的分辨率，被称为这一颗八叉树的空间分辨率。</p>
+<p>八叉树比较厉害的一个点，是对各个方块进行层次编码。如果八叉树的深度为$N$，八叉树终结节点(叶子节点，也就是各个方块)的编码为$\underbrace{q_1q_2…q_iF…F}_N$。只有第N层的深度的叶子节点，才能编码中所有的都是$0~7$的数字，而对于层次未达到N层的叶子节点，为了保持编码长度一致，后面的几个位置编码用$F$（可以用任何字母）表示。规定了下图这样的编码方式，给定空间中的任何一个坐标，我们可以迅速定位到这个坐标所在方块的编码。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%281%29.png"></p>
+<p>也就是给x轴权重为1，y轴权重为2，z轴权重为4。</p>
+<p>如果我们得到一个空间点的位置$P(x,y,z)$，要注意的是这里的$x,y,z\ge 0$，而且为整数。但是实际情况中，坐标不一定是正整数，因此这里的坐标点是经过处理的相对坐标，正如一张图片的坐标一样。</p>
+<p>我们分别将$x,y,z$写成二进制形式：</p>
+<p>x &#x3D; {i_1i_2…i_N}_{B},y &#x3D; {j_1j_2..j_N}_B,z &#x3D; {k_1k_2…k_N}_B,</p>
+<p>则它属于的空间块的编码为：</p>
+<p>q_n &#x3D; i_n + 2\cdot j_n + 4 \cdot k_n, n &#x3D; 1,…,N</p>
+<p>匹配规则采取最长匹配，只要没碰到$F$或者算完$N$位，就计算下去。</p>
+<p>同理，我们可以根据方块的编码$q_1q_2…q_MF…F$，得到方块中的空间坐标二进制前$M$位的值：</p>
+<p>i_n &#x3D; q_n\&amp; 1, j_n &#x3D; q_n \&amp; 2, k_n &#x3D; q_n \&amp; 4, n &#x3D; 1,…,M</p>
+<p>下面说，如何通过八叉树来加速光线追踪。首先，利用上述性质，根据光源坐标来求光源所在的方块编码$Q$，然后计算方块中面片与光线是否有交点。如果有的话很好，就结束了，如果没有，那么光线会射出这个方块。这里稍微复杂一点。首先，要用光线对着6个面求交，然后利用光线的截距和斜率，得到它在下一个起点，作为光源点，计算所在方块编码，重复上述过程，直到射出八叉树的范围，或者找到交点。</p>
+<p>八叉树的建立看上去稍微繁琐，但是在空间分布不均匀而且面片非常多的情况下，可以非常显著地提高追踪的速度。下面是一个用八叉树表示的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%284%29.jpg"></p>
+<h3 id="BSP树和k-d树"><a href="#BSP树和k-d树" class="headerlink" title="BSP树和k-d树"></a><a href="about:blank#BSP%E6%A0%91%E5%92%8Ck-d%E6%A0%91" title="BSP树和k-d树"></a>BSP树和k-d树</h3><p>二叉空间分割树（BSP）是另一种方法，它和八叉树不同，它每次用一个平面将空间分成两部分，最初用来解决隐藏表面问题。它主要有两种类型：axis-aligned与polygon-aligned。axis-aligned也就是根据坐标轴来分割空间，而polygon-aligned是根据多边形来划分，实际上就是根据某个面片的所在平面来划分。很明显，axis-aligned更简单，在这里我也主要说明axis-aligned。</p>
+<p>划分平面的正交性极大简化了光线与划分平面的求交运算，光线与一个Axis-aligned的平面求交计算量是与任意位置的平面求交的$1&#x2F;3$（统计数据）。</p>
+<p>BSP的构建过程和Octree是非常类似的，每次使用一个垂直于坐标轴的划分平面将一个当前的叶子划分为相等的两个节点，如果未达到递归终止条件（面片个数小于阈值或者深度大于最大值），则继续划分。当然，每次划分的时候选取垂直的坐标轴是不一样的，如果一直使用一个坐标轴，得到的就是很细的切片。</p>
+<p>下面是一个BSP树存储的例子：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/oct%20%281%29.jpg"></p>
+<p>而k-d树与BSP树的区别在于，k-d树对于节点的划分不要求是相等的，BSP树是k-d树的一种特殊情况。光线在BSP树中的遍历就不多说了，因为具体的我也不了解。它的思想和Octree应该差的不多，通过坐标可以快速定位到点所在的叶子节点，因为每次比较的只有一个坐标轴的值。在实际中光线遍历BSP树的速度会比Octree快10%左右。和Octree一样，某个面片可能出现在多个划分中，与Octree-R的思想类似，它可以用K-d树来解决。</p>
+<h3 id="其他技术"><a href="#其他技术" class="headerlink" title="其他技术"></a><a href="about:blank#%E5%85%B6%E4%BB%96%E6%8A%80%E6%9C%AF" title="其他技术"></a>其他技术</h3><p>还有很多更高级的光线追踪技术，这里简单提一下：</p>
+<ul>
+<li>分布式光线追踪，举个例子，反射的时候传统算法只会朝着一个方向反射，而分布式会在一个范围内反射，可以实现软阴影等效果。</li>
+<li>光束追踪，将多个像素融合成一个光束，包含了局部坐标和世界坐标的转换</li>
+<li>选择性光线追踪，选择一些点进行光线追踪，然后对其他的点进行插值，可以加快计算，但是会变得模糊一点</li>
+<li>基于小波的像素选择，通过小波来进行重要性采样，选择重要的像素来进行追踪</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/computer-graphics/" rel="tag"># computer graphics</a>
+              <a href="/tags/data-structure/" rel="tag"># data structure</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/13/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/" rel="prev" title="图形学——光线追踪">
+                  <i class="fa fa-angle-left"></i> 图形学——光线追踪
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/18/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Bezier%E6%9B%B2%E7%BA%BF%E5%8F%8A%E6%9B%B2%E9%9D%A2/" rel="next" title="图形学——Bezier曲线及曲面">
+                  图形学——Bezier曲线及曲面 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

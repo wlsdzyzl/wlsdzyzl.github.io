@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="到目前为止，我们都只算出来了信道容量，没有讲过怎么编码能得到这些容量。接下来要做的就是说明，所有上面算出来的容量，都是可以实现的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——信道及其容量（二）">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="到目前为止，我们都只算出来了信道容量，没有讲过怎么编码能得到这些容量。接下来要做的就是说明，所有上面算出来的容量，都是可以实现的。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa2.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa3.jpg">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa4.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa1.png">
+<meta property="article:published_time" content="2019-01-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-20T20:24:32.747Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa2.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F%EF%BC%88%E4%BA%8C%EF%BC%89/","path":"2019/01/02/信息论——信道及其容量（二）/","title":"信息论——信道及其容量（二）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——信道及其容量（二） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">18</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">138</span></a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="photo fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">信道编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E7%A0%81%E7%8E%87"><span class="nav-number">1.1.</span> <span class="nav-text">信道编码的码率</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Example"><span class="nav-number">1.1.1.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E9%94%99%E8%AF%AF%E6%A6%82%E7%8E%87"><span class="nav-number">1.2.</span> <span class="nav-text">信道编码的错误概率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E4%B8%BB%E4%B9%89%E5%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.3.</span> <span class="nav-text">经验主义式的设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E7%A0%81"><span class="nav-number">1.4.</span> <span class="nav-text">重复码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%81%E6%98%8E%E9%A6%99%E5%86%9C%E7%AC%AC%E4%BA%8C%E5%AE%9A%E7%90%86"><span class="nav-number">1.5.</span> <span class="nav-text">证明香农第二定理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%94%E5%90%88%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97"><span class="nav-number">1.5.1.</span> <span class="nav-text">联合典型序列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%94%E5%90%88%E6%B8%90%E8%BF%9B%E7%AD%89%E5%90%8C%E5%88%86%E5%89%B2%E5%AE%9A%E7%90%86%EF%BC%88Joint-AEP%EF%BC%89"><span class="nav-number">1.5.2.</span> <span class="nav-text">联合渐进等同分割定理（Joint AEP）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E7%9A%84%E8%AF%81%E6%98%8E"><span class="nav-number">1.5.3.</span> <span class="nav-text">可达性的证明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#converse%E8%AF%81%E6%98%8E"><span class="nav-number">1.5.4.</span> <span class="nav-text">converse证明</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">84</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——信道及其容量（二） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——信道及其容量（二）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-02T00:00:00+08:00">2019-01-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-21 04:24:32" itemprop="dateModified" datetime="2023-10-21T04:24:32+08:00">2023-10-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>到目前为止，我们都只算出来了信道容量，没有讲过怎么编码能得到这些容量。接下来要做的就是说明，所有上面算出来的容量，都是可以实现的。  </p>
+<span id="more"></span>
+
+
+
+<p>一个信道如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa2.png"></p>
+<h2 id="信道编码"><a href="#信道编码" class="headerlink" title="信道编码"></a><a href="about:blank#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81" title="信道编码"></a>信道编码</h2><p>这里我们先回忆一下之前的混乱打字机。之前说过，世界上任何一个数字信道，都可以直接或者间接地看作是混乱打字机模型。</p>
+<p>对于信道$\{X,q(y|x),Y\}$的信道编码包含以下要素：</p>
+<ul>
+<li>输入符号集合$\{1,2,…,M\}$</li>
+<li>编码函数$X^n$:$\{1,2,…,M\} \rightarrow X^n$，该函数为每一个输入符号产生了相应的信道编码码字$X^n(1),X^n(2),…,X^n(M)$，这些码字构成的集合称为“码本”。</li>
+<li>解码函数$g$:$Y^n \rightarrow \{1,2,…,M\}$，该函数为一个确定性判决函数，将每一个可能的接受向量映射到一个输入符号。</li>
+</ul>
+<p>意思也就是，对于符号个数为$M$的符号集，我们把它映射到一个长度为n的序列上,分n次传输。</p>
+<h3 id="信道编码的码率"><a href="#信道编码的码率" class="headerlink" title="信道编码的码率"></a><a href="about:blank#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E7%A0%81%E7%8E%87" title="信道编码的码率"></a>信道编码的码率</h3><p>$(M,n)$码的码率Ｒ定义为：</p>
+<p>R &#x3D; \frac{\log M}{n} ,</p>
+<p>单位为比特&#x2F;传输。这是信道码的每个码字母所能携带的最大的信息量。</p>
+<p>如何理解？对于输入集合如果取等概分布，则它的信息量为$\log M$，这时候呢，$n$次传输才能传达这么多的信息量，所以每个传输的量就是$\frac{\log M}{n} &#x3D; R$，则$M &#x3D; 2^{nR}$。称这样的码为$(2^{nR},n)$码。</p>
+<h4 id="Example"><a href="#Example" class="headerlink" title="Example"></a><a href="about:blank#Example" title="Example"></a>Example</h4><p><strong>重复码</strong>，输入字母数$M &#x3D; 2$:$\{0,1\}$，重复n次，这个码率为$1&#x2F;n$。</p>
+<p>直观来说，如果字符个数为$M$个，我们需要编码长度为$log M$就够了，这时候就可以保证码率为1。那为什么要进行这么复杂的定义？因为我们需要知道信道的传输是有噪声的。因此往往码率是要小于1，也就是n个长度本可以表示更大的字符集，但是我们选择它，增加码的冗余度，来降低错误率。比如下面的例子。</p>
+<p><strong>二进制奇偶校验码</strong>，输入字母数$M &#x3D; 2^{n-1}:{x_1,x_2,…,x_{n-1} }$，信道编码方案为$C &#x3D; x_1,x_2,…,x_{n-1}x_{\text{parity} }$，其中$x_{\text{parity} }$用于辨识码字中$1$的个数为奇数还是偶数，这个码率为：$\frac{n-1}{n}$。</p>
+<h3 id="信道编码的错误概率"><a href="#信道编码的错误概率" class="headerlink" title="信道编码的错误概率"></a><a href="about:blank#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E9%94%99%E8%AF%AF%E6%A6%82%E7%8E%87" title="信道编码的错误概率"></a>信道编码的错误概率</h3><p>输入为符号$i$时的条件错误概率为：</p>
+<p>\begin{aligned} \lambda_i &amp;&#x3D; Pr\{g(Y^n) \ne i \vert X^n &#x3D; x^n(i)\}\\ &amp;&#x3D; \sum_{y^n} q(y^n\vert x^n(i))I(g(y^n) \ne i) \end{aligned}</p>
+<p>其中$I(\cdot)$为指示函数。</p>
+<p>$(M,n)$码的最大错误概率为：</p>
+<p>\lambda^{(n)} &#x3D; \max_{i \in 1,2,…M} \lambda_i</p>
+<p>$(M,n)$码的算术平均错误概率为：</p>
+<p>P_e^{(n)} &#x3D; \frac{1}{M} \sum_{i&#x3D;1}^M\lambda_i</p>
+<p>我们称一个码率$R$是可达的，若存在一个信道编码$(\lceil 2^{nR}\rceil,n )$，其最大差错概率在$n\rightarrow \infty$时趋于0。可以看出来可达要求无差错，而且是渐进的。</p>
+<p>这时候我们得到信道容量的另外一个定义：一个信道的容量是该信道上所有可达码率的上确界，即$C &#x3D; \text{sup }R$，这意味着$C$一定对应着一种信道编码方案。</p>
+<h3 id="经验主义式的设计"><a href="#经验主义式的设计" class="headerlink" title="经验主义式的设计"></a><a href="about:blank#%E7%BB%8F%E9%AA%8C%E4%B8%BB%E4%B9%89%E5%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1" title="经验主义式的设计"></a>经验主义式的设计</h3><p>在信道传输中如何减少差错？由香农公式：</p>
+<p>C_T(\beta) &#x3D; WT \log(1+\frac{P_S}{N_0W})</p>
+<p>可以得到，提高抗干扰能力的方法如下：</p>
+<ol>
+<li>增加功率(提高信噪比)</li>
+<li>加大带宽(信号变化剧烈)</li>
+<li>延长时间(降低速率)</li>
+</ol>
+<p>$C &#x3D; max_{p(x),功率约束}\{I(X;Y)\}$</p>
+<p>而降低重复速率，实际上就是重复，增加冗余。</p>
+<h3 id="重复码"><a href="#重复码" class="headerlink" title="重复码"></a><a href="about:blank#%E9%87%8D%E5%A4%8D%E7%A0%81" title="重复码"></a>重复码</h3><p>最直观的纠错方法就是：重复，增加冗余。</p>
+<ul>
+<li>编码１：将每个输入元重复三次<ul>
+<li>纠正任一位上的错误</li>
+<li>设码字记为$(c_8,c_7,…,c_0)$</li>
+<li>由编码方法可知，信道无误时： c_8 &#x3D; c_7 &#x3D; c_6\\ c_5 &#x3D; c_4 &#x3D; c_3\\ c_2 &#x3D; c_1 &#x3D; c_0</li>
+<li>解码时，若$c_8 &#x3D; c_6 \ne c_7$，则判定$c_7$位出错，采用简单多数法进行判定</li>
+<li>依据是：连续出现两个错误的概率远远小于出现一个错误的概率</li>
+</ul>
+</li>
+</ul>
+<p>如下图，如果我们将上述编码放进二进制对称信道，则想要得到无差错编码。误码率的大小是重复$2n+1$次，而至少出现了$n+1$次错误。为了让误码率取0,$n \rightarrow 0$，此时码率也趋近于0，这不是一个好消息。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png"></p>
+<p>但是，是否对于信息的无差错传输，就意味着码率为0呢？答案是否定的。</p>
+<p>现在我们考虑BSC信道，$W&#x3D; \{1,2,…,2^k\}$,如下：</p>
+<p>W&#x3D;\{1,2,…,2^k\} \rightarrow \text{Encoder} \rightarrow X^n \rightarrow\text{BSC(p)} \rightarrow Y^n \rightarrow \text{Decoder} \rightarrow W</p>
+<p>我们可以得到：</p>
+<p>\begin{aligned} nC &amp;\ge nI(X;Y)\\ &amp;\ge I(X^n;Y^n)\\ &amp;\ge I(W,\hat W)\\ &amp;&#x3D;H(W) - H(W\vert \hat W)\\ &amp;\ge k - k H(P_e) \end{aligned}</p>
+<p>上式中最后一步是由Fano不等式得到的（不知道怎么得到，实际上我只能得到的是：$\ge k - (H(P_e)+kP_e)$）。</p>
+<p>则：k \leq \frac{nC}{1 - H(P_e)}</p>
+<p>而由于BSC信道的容量可以得到：$C &#x3D; 1 - H(P)$，所以我们得到一个R的上界：</p>
+<p>R &#x3D; \frac{k}{n} \ge \frac{1 - H(P)}{1 - H(P_e)}</p>
+<p>通过变形，我们可以得到：</p>
+<p>H(P_e) \ge 1 - \frac C R \rightarrow P_e \ge H^{-1}\left(1 - \frac C R\right)</p>
+<p>这意味着，如果想要让$P_e\leq 0$，则$R \leq C$，如果$R &gt; C$，则$H(P_e)&gt;0$，所以我们一定可以得到$P_e&gt;0$，不可能进行可靠通信。</p>
+<p>那么无差错传输的情况下，码率最大能有多少？先给你看一个preview，很直白的内容，不过它被证明确实是正确的：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa3.jpg"></p>
+<p>想象信道将信源映射到一个球体里，而对每个输入符号也对应一个球。而这个球的体积就意味着噪声带来的体积，而大球中能容纳多少小球，正是这个信道编码在无错的情况下可以映射的符号数M。因为这个球的维度是n维的，我们可以得到：</p>
+<p>M &#x3D; \frac{\left[\sqrt{P_S +P_N}\right]^n}{\left[\sqrt{P_N}\right]^n} &#x3D; (1 + \frac{P_S}{P_N})^{\frac n 2}</p>
+<p>由上式，可以计算得出：</p>
+<p>R &#x3D; \frac 1 2 \log (1 + \frac{P_S}{P_N})</p>
+<p>而这个值，正好与连续无记忆加性高斯噪声信道的容量一致。</p>
+<p>当然，这个只是preview，不是严格的证明过程。下面对这个证明进行稍微严谨地推导，说明大多数噪声信道都有这样地特性。</p>
+<p>为了证明这个东西，我们需要介绍一些别的定义。之前证明信源无失真压缩定理地时候，用到了典型序列，而这次我们在典型序列地基础上，重新介绍一个新的内容。</p>
+<h3 id="证明香农第二定理"><a href="#证明香农第二定理" class="headerlink" title="证明香农第二定理"></a><a href="about:blank#%E8%AF%81%E6%98%8E%E9%A6%99%E5%86%9C%E7%AC%AC%E4%BA%8C%E5%AE%9A%E7%90%86" title="证明香农第二定理"></a>证明香农第二定理</h3><h4 id="联合典型序列"><a href="#联合典型序列" class="headerlink" title="联合典型序列"></a><a href="about:blank#%E8%81%94%E5%90%88%E5%85%B8%E5%9E%8B%E5%BA%8F%E5%88%97" title="联合典型序列"></a>联合典型序列</h4><p>设$(X^n,Y^n)$是长为$n$的随机序列对，其概率分布满足</p>
+<p>p(x^n,y^n) &#x3D; \prod_{i&#x3D;1}^n p(x_i,y_i)</p>
+<p>若$(X^n,Y^n)$满足以下条件，则称其为联合典型序列：</p>
+<ul>
+<li>$\lvert -\frac 1 n \log p(x^n) - H(X) \rvert &lt; \epsilon$</li>
+<li>$\lvert -\frac 1 n \log p(y^n) - H(Y) \rvert &lt; \epsilon$</li>
+<li>$\lvert -\frac 1 n \log p(x^n,y^n) - H(X,Y)\rvert &lt; \epsilon$<br>联合典型序列构成的集合为$A_\epsilon^{(n)}$。</li>
+</ul>
+<p>联合典型序列与之前典型序列定义是有很大地相似性：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/">信息论——Lossless-Encoding</a>。我们首先要看看联合典型序列的性质，才能用它来证明。</p>
+<h4 id="联合渐进等同分割定理（Joint-AEP）"><a href="#联合渐进等同分割定理（Joint-AEP）" class="headerlink" title="联合渐进等同分割定理（Joint AEP）"></a><a href="about:blank#%E8%81%94%E5%90%88%E6%B8%90%E8%BF%9B%E7%AD%89%E5%90%8C%E5%88%86%E5%89%B2%E5%AE%9A%E7%90%86%EF%BC%88Joint-AEP%EF%BC%89" title="联合渐进等同分割定理（Joint AEP）"></a>联合渐进等同分割定理（Joint AEP）</h4><p>设$(X^n,Y^n)$是长度为$n$的随机序列对，其分布满足：</p>
+<p>p(x^n,y^n) &#x3D; \prod_{i&#x3D;1}^n p(x_i,y_i)</p>
+<p>则以下性质成立：</p>
+<ul>
+<li>当$n \rightarrow \infty$时，$Pr((X^n,Y^n) \in A_\epsilon ^{(n)}) \rightarrow 1$</li>
+<li>$(1 - \epsilon)2^{n(H(X,Y) - \epsilon)} \leq \vert A_\epsilon ^{(n)} \vert\leq 2^{n(H(X,Y)+\epsilon)}$</li>
+<li>设$(\tilde{X^n},\tilde{Y^n})\sim p(x^n)p(y^n) $,即$\tilde{X^n},\tilde{Y^n}$统计独立，且具有与$p(x^n,y^n)$一致的边缘分布，则： Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \leq 2^{-n(I(X;Y) - 3\epsilon)}若$n$足够大，则： Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \ge (1 - \epsilon)2^{-n(I(X;Y) + 3\epsilon)}</li>
+</ul>
+<p>前两点都比较好理解，第三点中，$(\tilde{X^n},\tilde{Y^n})$是由$(X^n,Y^n)$的边缘分布依照$X^n,Y^n$独立形成的另一个联合分布，而这个分布属于典型序列的概率约等于$2^{-nI(X;Y)}$。</p>
+<p>在这里我们证明以下第三条的前半部分：</p>
+<p>\tilde{X^n},\tilde{Y^n}\text{ are independent. }\tilde{X^n}\sim P_X(x^n),\tilde{Y^n}\sim P_Y(y^n)\\ \begin{aligned} Pr\{(\tilde{X^n},\tilde{Y^n}) \in A_\epsilon^{(n)} \} &amp;&#x3D; \sum_{(\tilde{x^n},\tilde{y^n}) \in A_\epsilon^{(n)} } P(x^n)P(y^n)\\ &amp;\leq 2^{b(H(X,Y) + \epsilon)}\cdot 2^{-n(H(X) - \epsilon)} \cdot 2^{-n(H(Y) - \epsilon)}\\ &amp;&#x3D; 2^{-n(I(X;Y) - 3\epsilon)} \end{aligned}</p>
+<p>下图可以帮助我们更好地理解这些性质：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa4.png"></p>
+<ul>
+<li>联合分布中，大约有$2^{nH(X)}$个典型X序列和$2^{nH(Y)}$个典型Y序列</li>
+<li>其组合共有$2^{nH(X) + nH(Y)}$个，但是其中联合典型的只有$2^{nH(X,Y)}$个</li>
+<li>随机选择而出现联合典型序列的概率为$2^{-nI(X;Y)}$</li>
+</ul>
+<p>现在来看一下联合典型序列的另一个解释：</p>
+<ul>
+<li>对于典型输入序列$x^n$，存在大约$2^{nH(Y|X)}$个可能的输出，且它们等概</li>
+<li>所有可能的典型输出序列大约有$2^{nH(Y)}$个，这些序列被分成若干个不相交的子集</li>
+<li>子集个数为$2^{n(H(Y) - H(Y|X))} &#x3D; 2^{nI(X;Y)}$，表示信道可以无错误传递的最大字母序列个数</li>
+</ul>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/capa1.png"></p>
+<p>对于定理的证明包含两部分，一是可达性，也就是这个容量是可达的，第二个就是证明不可能达到比这个容量更好的速率。</p>
+<h4 id="可达性的证明"><a href="#可达性的证明" class="headerlink" title="可达性的证明"></a><a href="about:blank#%E5%8F%AF%E8%BE%BE%E6%80%A7%E7%9A%84%E8%AF%81%E6%98%8E" title="可达性的证明"></a>可达性的证明</h4><p>可达性的证明也就是我们可以找到一个编码函数和解码函数，使得信道带到容量C，而且是无差错地传输。</p>
+<p>W \in [1:2^{nR}] \rightarrow X^n \sim P_X(x) \rightarrow q(y|X)\rightarrow Y^n\rightarrow \hat W</p>
+<p>很反直觉的是，香农给我们编码方法是随机编码。这个随机编码指的是生成码字的过程为随机的：</p>
+<p>\text{Random Code:}\\ \ell &#x3D;\begin{pmatrix} x^n(1)\\ x^n(2)\\ \vdots\\ x^n(2^{nR}) \end{pmatrix}</p>
+<p>其中$x^n(k)$是独立同分布的生成的，分布为$P_X(x^n(k)) &#x3D; \prod_{i&#x3D;1}^n P_X(x_i(k))$</p>
+<p>于是我们得到了码本，信源发送$x^n(k)$，而解码器收到$y^n$，一个长度为n的序列。</p>
+<p>解码过程：如果解码器端找到唯一的$(x^n(\hat k), y^n) \in A_{\epsilon}^{(n)}$，则解码得到$\hat k$。也就是$y^n$和一个唯一的$\hat k$对应的编码序列$x^n(\hat k)$属于联合典型序列，则解码为$\hat k$，否则解码出错。</p>
+<p>现在我们分析一下出错概率。假设1为被传输的符号，而$y^n$为对应的输出。那么$x^n(1)$与$y^n$为联合典型序列的概率非常高。而另外一个i对应的$x^n(i)$与$y^n$为联合典型序列的概率就没有那么高了。实际上这个概率和联合典型序列性质的第三条是一致的。$x^n(i),y^n$有很大的概率是边缘典型序列，而随意两个边缘典型序列组合为联合典型序列的概率，正是</p>
+<p>Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \approx 2^{-nI(X;Y)}.</p>
+<p>出错的类型有两种。</p>
+<ol>
+<li>传的是1,而没有联合典型，</li>
+<li>传的是1,有多个和它是联合典型。</li>
+</ol>
+<p>\begin{aligned} P(E) &amp;&#x3D; P(E_1\cup E_2)\\ &amp;\leq P(E_1)+P(E_2)\\ &amp;\leq \epsilon + \sum_{i&#x3D;2}^{2nR}2^{-n(I(X;Y) - 3\epsilon)}\\ &amp;\leq \epsilon + 2^{3n\epsilon}2^{-n(I(X;Y) - R)} \end{aligned}</p>
+<p>我们希望$P(E) \rightarrow 0$，而第一项是可以任意小的，我们真正在意的是想要$I(X;Y)-R &gt;0$。如果我们把生出随机码本的$P_X(x)$固定到$P^*_X(x)$，则$I(X;Y) &#x3D; C$，于是只要$R&lt;C$即可。</p>
+<p>这个证明并不严谨，但是给我们提供了一个很重要的思维脉络。我们证明了$R &lt; C$的情况下，可以实现无差错传输。</p>
+<p>下面要说明的是定理的逆的证明。</p>
+<h4 id="converse证明"><a href="#converse证明" class="headerlink" title="converse证明"></a><a href="about:blank#converse%E8%AF%81%E6%98%8E" title="converse证明"></a>converse证明</h4><p>\begin{aligned} nR &amp;&#x3D; H(W)\\ &amp;&#x3D; H(W|\hat W) + I(W;\hat W)\\ &amp;&#x3D; I(W;\hat W)\\ &amp;\leq I(X^n(W);Y^n)\\ &amp;&#x3D; H(Y^n) - H(Y^n|X^n)\\ &amp;\leq \sum_{i} H(Y_i) - \sum_{i}H(Y_i|X_i)\\ &amp;&#x3D; \sum_{i} I(X_i;Y_i)\\ &amp;\leq nC \end{aligned}</p>
+<p>由此我们证明了，要想实现无差错的传输，那么$R\leq C$是一定成立的。由此香农第二定理的证明就结束了。和无差错编码一样，随机编码在现实中由于码本巨大也是难以实现的。不过在信息论提出的60年中，人类一次次提出新的编码，像香农界不断逼近。看着这些进步，感觉自己的信息论虽然没什么用到过，但是也没有白学。</p>
+<p><a target="_blank" rel="noopener" href="https://wlsdzyzl.top/tags/information-theory/"># information theory</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/01/Learning-From-Data%E2%80%94%E2%80%94Introduction-of-Deep-Learning/" rel="prev" title="Learning From Data——Introduction of Deep Learning">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Introduction of Deep Learning
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/02/Learning-From-Data%E2%80%94%E2%80%94DQN/" rel="next" title="Learning From Data——DQN">
+                  Learning From Data——DQN <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
