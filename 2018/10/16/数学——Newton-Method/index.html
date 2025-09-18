@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -290,26 +290,21 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>梯度下降时候，有时候我们可以使用Newton Direction.牛顿迭代法其实大家听起来很熟悉的。<br><span id="more"></span></p>
+    <div class="post-body" itemprop="articleBody"><p>梯度下降时候，有时候我们可以使用Newton Direction.牛顿迭代法其实大家听起来很熟悉的。</p>
+<span id="more"></span>
+
 <p>首先来说明下，简单的牛顿迭代法的原理。牛顿迭代法是求近似解的一个办法，很多时候解无法算出来，我们只能用牛顿迭代法来一步步逼近。</p>
 <p>首先给个很直观的例子，也就是一维的函数。先观看一下下面的gif。</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/NewtonIteration_Ani.gif" alt=""></p>
-<p>为了求得$f(x) = 0$,我们从图上直观看到可以一直这样逼近，最终会逼近到f(x) = 0的解。</p>
-<p>原理是，如果我们将f(x)一阶泰勒展开,得到：</p>
-<script type="math/tex; mode=display">
-f(x) \approx f(x_0)+f'(x_0)(x - x_0) = g(x)</script><p>而上式g(x) = 0是很容易解决的：$x = x_0 - \frac {f(x_0)}{f’(x_0)}$.</p>
-<p>因为泰勒只是近似，因此上述得到的解并不是真正的解，只是离原有的解更接近了。也就是，牛顿迭代法种，下一步更新策略为:$x_ {n+1} =x_n - \frac {f(x_n)}{f’(x_n)} $.</p>
-<p>如何将牛顿迭代法用来解决优化问题？我们知道优化问题，想要得到最小值，或者最大值，在该点导数是为0的，这个问题就变成了，如何找到导数为0的点，那么就很简单了，对于一维函数的优化问题迭代步骤如下:$x_ {n+1} =x_n - \frac {f’(x_n)}{f’’(x_n)} $.</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/NewtonIteration_Ani.gif"></p>
+<p>为了求得$f(x) &#x3D; 0$,我们从图上直观看到可以一直这样逼近，最终会逼近到f(x) &#x3D; 0的解。</p>
+<p>原理是，如果我们将f(x)一阶泰勒展开,得到：<br>$$<br>f(x) \approx f(x_0)+f’(x_0)(x - x_0) &#x3D; g(x)<br>$$</p>
+<p>而上式g(x) &#x3D; 0是很容易解决的：$x &#x3D; x_0 - \frac {f(x_0)}{f’(x_0)}$.</p>
+<p>因为泰勒只是近似，因此上述得到的解并不是真正的解，只是离原有的解更接近了。也就是，牛顿迭代法种，下一步更新策略为:$x_ {n+1} &#x3D;x_n - \frac {f(x_n)}{f’(x_n)} $.</p>
+<p>如何将牛顿迭代法用来解决优化问题？我们知道优化问题，想要得到最小值，或者最大值，在该点导数是为0的，这个问题就变成了，如何找到导数为0的点，那么就很简单了，对于一维函数的优化问题迭代步骤如下:$x_ {n+1} &#x3D;x_n - \frac {f’(x_n)}{f’’(x_n)} $.</p>
 <p>多维函数来说，情况较为复杂一点，因为高纬度的二阶导数实在是很多。不过原理也是变化不大的，我们需要利用Hessian矩阵：</p>
-<p>$x_ {n+1} = x_ {n+1}-H_f^{-1}(x_n)\nabla f(x_n)$.</p>
-<p>Hessian矩阵定义如下：</p>
-<script type="math/tex; mode=display">
-H_f = \begin{bmatrix} 
-\frac {\partial^2f}{\partial x_1^2}& \frac {\partial^2f}{\partial x_1 \partial x_2}&...&\frac {\partial^2f}{\partial x_1 \partial x_n} \\
-\frac {\partial^2f}{\partial x_2 \partial x_1}& \frac {\partial^2f}{\partial x_2 \partial x_2}&...&\frac {\partial^2f}{\partial x_2 \partial x_n} \\
-...\\
-\frac {\partial^2f}{\partial x_n \partial x_1}& \frac {\partial^2f}{\partial x_n \partial x_2}&...&\frac {\partial^2f}{\partial x_n^2}
- \end{bmatrix}</script><p>可以看到的是，如果维度较高，这个海森矩阵的求逆是非常耗费时间的。一般来说，优化问题时候，维度较低的情况下，它的效果还是非常好的，比梯度下降更快。</p>
+<p>$x_ {n+1} &#x3D; x_ {n+1}-H_f^{-1}(x_n)\nabla f(x_n)$.</p>
+<p>Hessian矩阵定义如下：<br>$$<br>H_f &#x3D; \begin{bmatrix}<br>\frac {\partial^2f}{\partial x_1^2}&amp; \frac {\partial^2f}{\partial x_1 \partial x_2}&amp;…&amp;\frac {\partial^2f}{\partial x_1 \partial x_n} \<br>\frac {\partial^2f}{\partial x_2 \partial x_1}&amp; \frac {\partial^2f}{\partial x_2 \partial x_2}&amp;…&amp;\frac {\partial^2f}{\partial x_2 \partial x_n} \<br>…\<br>\frac {\partial^2f}{\partial x_n \partial x_1}&amp; \frac {\partial^2f}{\partial x_n \partial x_2}&amp;…&amp;\frac {\partial^2f}{\partial x_n^2}<br> \end{bmatrix}<br>$$</p>
+<p>可以看到的是，如果维度较高，这个海森矩阵的求逆是非常耗费时间的。一般来说，优化问题时候，维度较低的情况下，它的效果还是非常好的，比梯度下降更快。</p>
 
     </div>
 

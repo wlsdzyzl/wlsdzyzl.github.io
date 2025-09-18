@@ -134,7 +134,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -291,33 +291,14 @@
     
     <div class="post-body" itemprop="articleBody"><p>SLAM中另外一个用到的最多的后端优化方法叫做位姿图（Pose Graph）优化。想象一下，对于路标的优化，可能进行几次之后就已经收敛了，这时候每次插入一个帧都再次进行一次BA仿佛有点用力过猛。而且实际中，路标的数量远远大于位姿数量，因此BA在大规模建图时，它的计算量可能会越来越大，使得实时计算变得困难。这里我们介绍的位姿图优化，就是省去了对路标的优化，仅仅调整位姿的一种做法。  </p>
 <span id="more"></span>
-<p>我们将pose graph的优化转换成图的问题，那么图的节点就是一个个位姿，用$\xi_1,…,\xi_n$来表示，而边则是两个位姿之间相对运动的估计，这个估计可能来自与特征点法或者是直接法。比如$\xi_i,\xi_j$之间一个相对运动$\Delta \xi_ {ij}$，则：</p>
-<script type="math/tex; mode=display">
-\Delta \xi_ {ij} = \xi_i^{-1}\circ \xi_j = \ln(\exp((-\xi_i)^{\hat{} }) \exp (\xi_j^{\hat{} }))^{\hat{} }</script><p>或者按照李群的写法：</p>
-<script type="math/tex; mode=display">
-T_ {ij} = T_ {i}^{-1} T_j.</script><p>我们知道，实际中上式不会精确成立，因此我们需要设立最小二乘误差，然后讨论关于优化变量的导数。这里我们将上式的$T_ {ij}$移到右侧，为了让其满足误差最小为0的设定，加上一个$\ln$:</p>
-<script type="math/tex; mode=display">
-e_ {ij} = \ln(T_ {ij}^{-1}T_i^{-1}T_j)^{\hat{} } = \ln(\exp((-\xi_ {ij})^{\hat{} })\exp((-\xi_ {i})^{\hat{} })\exp(\xi_j^{\hat{} }))^{\hat {} }</script><p>值得注意的是这里的优化变量有两个：$\xi_i,\xi_j$，因此我们需要求$e_ {ij}$关于这两个变量的导数。按照李代数的求导方式，给$\xi_i,\xi_j$各一个左扰动$\delta \xi_i,\delta \xi_j$，于是误差变为：</p>
-<script type="math/tex; mode=display">
-\hat e_ {ij} = \ln(T_ {ij}^{-1}T_i^{-1}\exp((-\delta \xi_i)^{\hat{} })\exp(\delta\xi_j)^{\hat{} }T_j)^{\hat{} }</script><p>我们希望将扰动项移到左侧或者右侧，需要利用到一个伴随性质：</p>
-<script type="math/tex; mode=display">
-\exp((Ad(T)\xi)^{\hat{} }) = T\exp(\xi^{\hat{} })T^{-1}.</script><p>稍加改变，得到：</p>
-<script type="math/tex; mode=display">
-\exp(\xi^{\hat{} })T = T\exp((Ad(T^{-1})\xi)^{\hat{} }).</script><p>这说明通过引入一个伴随项，我们能够交换扰动项左右侧的$T$，利用它可以将扰动项移到最右，导出右乘形式的雅科比矩阵：</p>
-<script type="math/tex; mode=display">
-\begin{aligned} \hat e_ {ij} &=\ln\left (T_ {ij}^{-1}T_i^{-1}\exp((-\delta\xi_i)^{\hat{} })\exp(\delta\xi_j^{\hat{} })T_j\right)^{\hat{} }\\ &=\ln\left(T_ {ij}^{-1}T_i^{-1}T_j \exp\left((-Ad(A_j^{-1})\delta\xi_i)^{\hat{} }\right)\exp\left((Ad(T_j^{-1})\delta \xi_j)^{\hat{} }\right)\right)\\ &\approx \ln(T_ {ij}^{-1}T_i^{-1}T_j[I - (Ad(T_j^{-1})\delta \xi_i)^{\hat{} } + (Ad(T_j^{-1})\delta\xi_j)^{\hat{} }])^{\hat{} }\\ &\approx e_ {ij}+\frac{\partial e_ {ij} }{\partial \delta \xi_i}\delta \xi_i + \frac{\partial e_ {ij} }{\partial \delta \xi_j}\delta \xi_j \end{aligned}</script><p>因此，按照李代数上的求导规则，我们求出了误差关于两个位姿的雅科比矩阵。关于$T_i$的：</p>
-<script type="math/tex; mode=display">
-\frac{\partial e_ {ij} }{\partial \delta \xi_i} = -\mathcal{J}_r^{-1}(e_ {ij})Ad(T_j^{-1}).</script><p>关于$T_j$的：</p>
-<script type="math/tex; mode=display">
-\frac{\partial e_ {ij} }{\partial \delta \xi_i} = \mathcal{J}_r^{-1}(e_ {ij})Ad(T_j^{-1}).</script><p>这部分的理解有点困难，可以回顾之前的<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">李群李代数</a>。之前也说过，由于李群（se(3)）上的雅科比矩阵形式过于复杂，我们通常取近似。如果误差接近于0，可以取近似：</p>
-<script type="math/tex; mode=display">
-\mathcal{J}_r^{-1}(e_ {ij}) \approx I + \frac 1 2 \begin{bmatrix} \phi _e ^{\hat{} } & \rho _e^{\hat{} }\\ 0 & \phi _e ^{\hat{} } \end{bmatrix}.</script><p>了解了雅科比计算之后，其余的部分就是普通的图优化了。记$\varepsilon$为所有边的集合，总体的目标函数为：</p>
-<script type="math/tex; mode=display">
-\min_\xi \frac{1}{2} \sum_ {i,j \in \varepsilon} e_ {ij}^T\Sigma_ {ij}^{-1}e_ {ij}.</script><p>我们依然可以利用列文伯格或者高斯牛顿法来解决这个问题。</p>
+
+
+
+<p>我们将pose graph的优化转换成图的问题，那么图的节点就是一个个位姿，用$\xi_1,…,\xi_n$来表示，而边则是两个位姿之间相对运动的估计，这个估计可能来自与特征点法或者是直接法。比如$\xi_i,\xi_j$之间一个相对运动$\Delta \xi_ {ij}$，则：<br>$$<br>\Delta \xi_ {ij} &#x3D; \xi_i^{-1}\circ \xi_j &#x3D; \ln(\exp((-\xi_i)^{\hat{} }) \exp (\xi_j^{\hat{} }))^{\hat{} }<br>$$<br>或者按照李群的写法：<br>$$<br>T_ {ij} &#x3D; T_ {i}^{-1} T_j.<br>$$<br>我们知道，实际中上式不会精确成立，因此我们需要设立最小二乘误差，然后讨论关于优化变量的导数。这里我们将上式的$T_ {ij}$移到右侧，为了让其满足误差最小为0的设定，加上一个$\ln$:<br>$$<br>e_ {ij} &#x3D; \ln(T_ {ij}^{-1}T_i^{-1}T_j)^{\hat{} } &#x3D; \ln(\exp((-\xi_ {ij})^{\hat{} })\exp((-\xi_ {i})^{\hat{} })\exp(\xi_j^{\hat{} }))^{\hat {} }<br>$$<br>值得注意的是这里的优化变量有两个：$\xi_i,\xi_j$，因此我们需要求$e_ {ij}$关于这两个变量的导数。按照李代数的求导方式，给$\xi_i,\xi_j$各一个左扰动$\delta \xi_i,\delta \xi_j$，于是误差变为：<br>$$<br>\hat e_ {ij} &#x3D; \ln(T_ {ij}^{-1}T_i^{-1}\exp((-\delta \xi_i)^{\hat{} })\exp(\delta\xi_j)^{\hat{} }T_j)^{\hat{} }<br>$$<br>我们希望将扰动项移到左侧或者右侧，需要利用到一个伴随性质：<br>$$<br>\exp((Ad(T)\xi)^{\hat{} }) &#x3D; T\exp(\xi^{\hat{} })T^{-1}.<br>$$<br>稍加改变，得到：<br>$$<br>\exp(\xi^{\hat{} })T &#x3D; T\exp((Ad(T^{-1})\xi)^{\hat{} }).<br>$$<br>这说明通过引入一个伴随项，我们能够交换扰动项左右侧的$T$，利用它可以将扰动项移到最右，导出右乘形式的雅科比矩阵：<br>$$<br>\begin{aligned} \hat e_ {ij} &amp;&#x3D;\ln\left (T_ {ij}^{-1}T_i^{-1}\exp((-\delta\xi_i)^{\hat{} })\exp(\delta\xi_j^{\hat{} })T_j\right)^{\hat{} }\ &amp;&#x3D;\ln\left(T_ {ij}^{-1}T_i^{-1}T_j \exp\left((-Ad(A_j^{-1})\delta\xi_i)^{\hat{} }\right)\exp\left((Ad(T_j^{-1})\delta \xi_j)^{\hat{} }\right)\right)\ &amp;\approx \ln(T_ {ij}^{-1}T_i^{-1}T_j[I - (Ad(T_j^{-1})\delta \xi_i)^{\hat{} } + (Ad(T_j^{-1})\delta\xi_j)^{\hat{} }])^{\hat{} }\ &amp;\approx e_ {ij}+\frac{\partial e_ {ij} }{\partial \delta \xi_i}\delta \xi_i + \frac{\partial e_ {ij} }{\partial \delta \xi_j}\delta \xi_j \end{aligned}<br>$$<br>因此，按照李代数上的求导规则，我们求出了误差关于两个位姿的雅科比矩阵。关于$T_i$的：<br>$$<br>\frac{\partial e_ {ij} }{\partial \delta \xi_i} &#x3D; -\mathcal{J}<em>r^{-1}(e</em> {ij})Ad(T_j^{-1}).<br>$$<br>关于$T_j$的：<br>$$<br>\frac{\partial e_ {ij} }{\partial \delta \xi_i} &#x3D; \mathcal{J}<em>r^{-1}(e</em> {ij})Ad(T_j^{-1}).<br>$$<br>这部分的理解有点困难，可以回顾之前的<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">李群李代数</a>。之前也说过，由于李群（se(3)）上的雅科比矩阵形式过于复杂，我们通常取近似。如果误差接近于0，可以取近似：<br>$$<br>\mathcal{J}<em>r^{-1}(e</em> {ij}) \approx I + \frac 1 2 \begin{bmatrix} \phi <em>e ^{\hat{} } &amp; \rho <em>e^{\hat{} }\ 0 &amp; \phi <em>e ^{\hat{} } \end{bmatrix}.<br>$$<br>了解了雅科比计算之后，其余的部分就是普通的图优化了。记$\varepsilon$为所有边的集合，总体的目标函数为：<br>$$<br>\min</em>\xi \frac{1}{2} \sum</em> {i,j \in \varepsilon} e</em> {ij}^T\Sigma_ {ij}^{-1}e_ {ij}.<br>$$<br>我们依然可以利用列文伯格或者高斯牛顿法来解决这个问题。</p>
 <h3 id="Note"><a href="#Note" class="headerlink" title="Note"></a><a href="about:blank#Note" title="Note"></a>Note</h3><p>伴随性质：</p>
 <ul>
-<li><script type="math/tex; mode=display">SO(3) R \exp(p^{\hat{} })R^T = \exp((Rp)^{\hat{} }).</script></li>
-<li><script type="math/tex; mode=display">SE(3) T\exp(\xi^{\hat{} })T^{-1} = \exp((Ad(T)\xi)^{\hat{} }).</script>其中： <script type="math/tex">Ad(T) = \begin{bmatrix} R & t^{\hat{} }R\\ 0 & R \end{bmatrix}.</script></li>
+<li>$$SO(3) R \exp(p^{\hat{} })R^T &#x3D; \exp((Rp)^{\hat{} }).$$</li>
+<li>$$SE(3) T\exp(\xi^{\hat{} })T^{-1} &#x3D; \exp((Ad(T)\xi)^{\hat{} }).$$<br>其中： $$Ad(T) &#x3D; \begin{bmatrix} R &amp; t^{\hat{} }R\ 0 &amp; R \end{bmatrix}.$$</li>
 </ul>
 
     </div>

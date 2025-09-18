@@ -134,7 +134,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -289,8 +289,10 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>项目需要拓展到多相机协同重建，需要借助C/S模型通信。而使用ROS是非常好的选择。最近借助之前学得ros的知识，代码部分拓展得差不多了，再拓展到多个机器的过程中，出现了通信与节点名字冲突的问题，解决方法也不难，就在这里记录一下。</p>
+    <div class="post-body" itemprop="articleBody"><p>项目需要拓展到多相机协同重建，需要借助C&#x2F;S模型通信。而使用ROS是非常好的选择。最近借助之前学得ros的知识，代码部分拓展得差不多了，再拓展到多个机器的过程中，出现了通信与节点名字冲突的问题，解决方法也不难，就在这里记录一下。</p>
 <span id="more"></span>
+
+
 <h3 id="多机通信"><a href="#多机通信" class="headerlink" title="多机通信"></a><a href="about:blank#%E5%A4%9A%E6%9C%BA%E9%80%9A%E4%BF%A1" title="多机通信"></a>多机通信</h3><p>分布式的架构是ROS的灵魂。实际上，ros把通信这里的东西封装得相当方便了。现在多机通信的情况是这样：一台主机运行Master，其他的结点运行在不同的机器上，这些结点一台是服务器，有的是客户端。但是他们有一个共同点，就是需要向Master注册。</p>
 <p>首先，各个机器要和Master所在的机器ping通，这个是必要的。理论上互相ping通，ros就可将它们连接运行起来。在我这里，Master和一个客户端A运行在ip为10.8.5.230的机器上，而另外一个客户端和服务器运行在192.168.0.110上。需要做的是：在192.168.0.110机器终端输入：  </p>
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export ROS_MASTER_URI=http://10.8.5.230:11311</span><br></pre></td></tr></tbody></table>

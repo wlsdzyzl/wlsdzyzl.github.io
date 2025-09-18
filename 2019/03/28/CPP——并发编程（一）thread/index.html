@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -292,10 +292,11 @@
     
     <div class="post-body" itemprop="articleBody"><p>因为目前做的项目需要用到CPP的并发编程，之前虽然用CPP写过不少代码，但大多是OJ和课后题目，以及一些黑框小游戏，而没有涉及到并发编程。涉及到并发的一直都是用Java，Python的语言去做的，也用c语言做过一个服务器，利用fork，pthread等等，是操作系统层面的操作（linux，windows等）。因此这次了解一下CPP的并发。  </p>
 <span id="more"></span>
+
+
 <p>CPP之前的并发感觉用的比较多的boost库，现在C++11也加入了对线程的支持，可以直接在语言层面编写并行代码。下面简单了解一下C++11中的线程。</p>
 <p>std::thread，包含在thread头文件中（#include）。</p>
 <p>thread的默认构造函数，初始化，拷贝构造函数，移动构造函数分别如下：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -303,8 +304,7 @@
 <th>声明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>default (1)</td>
 <td>thread() noexcept;</td>
 </tr>
@@ -314,21 +314,18 @@
 </tr>
 <tr>
 <td>copy [deleted ] (3)</td>
-<td>thread (const thread&amp;) = delete;</td>
+<td>thread (const thread&amp;) &#x3D; delete;</td>
 </tr>
 <tr>
 <td>move (4)</td>
 <td>thread (thread&amp;&amp; x) noexcept;</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>可以看到的是，thread类型的初始化为参数可变参数,且不能隐式转换（explicit关键字），没有拷贝构造函数。移动构造后，原有的线程不再存在。示例代码如下：  </p>
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span> &amp;n)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    n +=<span class="number">10</span>;</span><br><span class="line">}</span><br><span class="line"><span class="comment">//wrong </span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(f,n)</span></span>;</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t</span><span class="params">(f,<span class="built_in">std</span>::ref(n))</span></span>;</span><br><span class="line"><span class="comment">//wrong: copy[deleted]</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t1</span><span class="params">(t)</span></span>;</span><br><span class="line"><span class="comment">//right: move</span></span><br><span class="line"><span class="built_in">std</span>::<span class="function">thread <span class="title">t2</span><span class="params">(<span class="built_in">std</span>::move(t))</span></span>;</span><br><span class="line"><span class="comment">//wrong: t is moved, it is not joinable</span></span><br><span class="line">t.join();</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line">t2.join();</span><br></pre></td></tr></tbody></table>
 
 <p>第一个wrong，是因为thread中f如果包含引用，那么传入引用的变量需要经过std::ref。这是因为thread的可变参数是右值引用，如果直接传入根据引用叠加规则会导致错误。具体的原理需要深究，现在只需要知道即可。</p>
 <p>除了拷贝和移动，另一个值得关注的是<strong>赋值函数</strong>。赋值函数有两个重构：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -336,15 +333,12 @@
 <th>声明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>move (1)</td>
-<td>thread&amp; operator= (thread&amp;&amp; rhs) noexcept;</td>
+<td>thread&amp; operator&#x3D; (thread&amp;&amp; rhs) noexcept;</td>
 </tr>
-</tbody>
-</table>
-</div>
-<p>copy [deleted ] (2)thread&amp; operator= (const thread&amp;) = delete;</p>
+</tbody></table>
+<p>copy [deleted ] (2)thread&amp; operator&#x3D; (const thread&amp;) &#x3D; delete;</p>
 <p>可以看到的是赋值函数的两个重构对应的是拷贝构造函数和移动构造函数，也就是thread只可以被右值赋值。  </p>
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::thread t = thread(f,<span class="built_in">std</span>::ref(n));</span><br><span class="line"><span class="comment">//wrong</span></span><br><span class="line"><span class="built_in">std</span>::thread t1 = t;</span><br><span class="line"><span class="comment">//right</span></span><br><span class="line"><span class="built_in">std</span>::thread t2=<span class="built_in">std</span>::move(t);</span><br></pre></td></tr></tbody></table>
 

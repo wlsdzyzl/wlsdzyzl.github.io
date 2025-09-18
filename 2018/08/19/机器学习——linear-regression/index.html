@@ -137,7 +137,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -291,52 +291,34 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。<br><span id="more"></span><br>线性回归想做到的事情是，给出一堆点，使用一条直线（平面或者其他）来拟合这个dataset。而在之前的noise and error中提到了，它用来衡量错误的办法是$(y - y’)^2$。</p>
+    <div class="post-body" itemprop="articleBody"><p>终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。</p>
+<span id="more"></span>
+<p>线性回归想做到的事情是，给出一堆点，使用一条直线（平面或者其他）来拟合这个dataset。而在之前的noise and error中提到了，它用来衡量错误的办法是$(y - y’)^2$。</p>
 <p>和之前的机器学习算法也一致，因为VC bound在线性回归的例子中也一样适用，所以我们想做的是保证$E_ {in}$越小越好。</p>
-<p>对于线性回归的H集合是 $y’ = W^TX$，当然$X$，$W$都是列向量，向量的维度是d+1（d为特征量的个数）.为了minimize $E_ {in}$，首先我们应该写出来$E_ {in}$的表达式：</p>
-<script type="math/tex; mode=display">
-E_ {in} = \frac 1 n \sum _ {i =
- 1} (h(X_n) - y)^2 =  \frac 1 n \sum _ {i = 1} (W^TX_n - y_n)^2</script><p>这个表达式看着还比较复杂，有个求和符号在里面。首先，这后面有N个平方和，我们可以很轻松的想到向量的范数求法。因此，我们可以将原式写成对向量求范数的形式：</p>
-<script type="math/tex; mode=display">
-E_ {in} = \frac 1 n || XW - Y||^2</script><p>上式中</p>
-<script type="math/tex; mode=display">
-X = \begin{bmatrix}
-...X_1^T... \\
-...X_2^T... \\
-..........\\
-...X_n ^T ...
-\end{bmatrix}</script><p>X是一个n*（d+1）的矩阵，n是样本个数，d是特征量个数。</p>
+<p>对于线性回归的H集合是 $y’ &#x3D; W^TX$，当然$X$，$W$都是列向量，向量的维度是d+1（d为特征量的个数）.为了minimize $E_ {in}$，首先我们应该写出来$E_ {in}$的表达式：<br>$$<br>E_ {in} &#x3D; \frac 1 n \sum _ {i &#x3D;<br> 1} (h(X_n) - y)^2 &#x3D;  \frac 1 n \sum _ {i &#x3D; 1} (W^TX_n - y_n)^2<br>$$</p>
+<p>这个表达式看着还比较复杂，有个求和符号在里面。首先，这后面有N个平方和，我们可以很轻松的想到向量的范数求法。因此，我们可以将原式写成对向量求范数的形式：</p>
+<p>$$<br>E_ {in} &#x3D; \frac 1 n || XW - Y||^2<br>$$<br>上式中<br>$$<br>X &#x3D; \begin{bmatrix}<br>…X_1^T… \<br>…X_2^T… \<br>……….\<br>…X_n ^T …<br>\end{bmatrix}<br>$$<br>X是一个n*（d+1）的矩阵，n是样本个数，d是特征量个数。</p>
 <p>因此$E_ {in}$可以说是一个关于W的函数，而且可以证明的是，这个函数是连续的（continuous），可导的（differentiable）,并且是凸函数（convex）。因此我们一定可以求得最低点，也就是$E_ {in}$的最小值。与实数的函数一样（实际上求的是W的各个方向的偏导数），在取最小值的那个点的时候，$E_ {in}$关于$W$的导数是0，表明取得是极值，也就是梯度是0。</p>
 <p>将上式展开可以得到：</p>
-<script type="math/tex; mode=display">
-E_ {in} = \frac 1 n (W^TX^TXW -2Y^TXW +Y^TY)，</script><p>将除了W之外的矩阵或者数字看成常量，则可以得到：</p>
-<script type="math/tex; mode=display">
-E_ {in} =  \frac 1 n (W^TAW-2BW+c)</script><p>为了求关于$W$的导数，我们首先想象一下如果是$W$一维的话的样子。</p>
-<script type="math/tex; mode=display">
-E_ {in} = aW^2-2bW+c ; \frac {dE_ {in} } {dW} = 2aW-2b</script><p>对应到矩阵上来说:</p>
-<script type="math/tex; mode=display">
-\frac {dE_ {in} } {dW} = \frac 1 n 2AW-2B</script><p>可以看到的是梯度是一个向量。</p>
-<p>为了使得$E_ {in}$取得最小值，那么$X^TXW = X^TY$,如果$(X^TX)$的反矩阵存在，那么很简单:</p>
-<script type="math/tex; mode=display">
-W = (X^TX)^{-1}X^TY</script><p>我们称$(X^TX)^{-1}X^T$为pseudo-inverse $X^{+}$。而且大多数时候我们遇到的都是可逆的，因为$n&gt;&gt;d+1$，这意味着首先对于X矩阵来说，它的秩很可能就是等于d+1的.这样它们相乘的秩很大可能也是d+1，也就是可逆。</p>
+<p>$$<br>E_ {in} &#x3D; \frac 1 n (W^TX^TXW -2Y^TXW +Y^TY)，<br>$$<br>将除了W之外的矩阵或者数字看成常量，则可以得到：<br>$$<br>E_ {in} &#x3D;  \frac 1 n (W^TAW-2BW+c)<br>$$<br>为了求关于$W$的导数，我们首先想象一下如果是$W$一维的话的样子。<br>$$<br>E_ {in} &#x3D; aW^2-2bW+c ; \frac {dE_ {in} } {dW} &#x3D; 2aW-2b<br>$$</p>
+<p>对应到矩阵上来说:<br>$$<br>\frac {dE_ {in} } {dW} &#x3D; \frac 1 n 2AW-2B<br>$$</p>
+<p>可以看到的是梯度是一个向量。</p>
+<p>为了使得$E_ {in}$取得最小值，那么$X^TXW &#x3D; X^TY$,如果$(X^TX)$的反矩阵存在，那么很简单:<br>$$<br>W &#x3D; (X^TX)^{-1}X^TY<br>$$</p>
+<p>我们称$(X^TX)^{-1}X^T$为pseudo-inverse $X^{+}$。而且大多数时候我们遇到的都是可逆的，因为$n&gt;&gt;d+1$，这意味着首先对于X矩阵来说，它的秩很可能就是等于d+1的.这样它们相乘的秩很大可能也是d+1，也就是可逆。</p>
 <p>但是如果遇到另外的情况，如不可逆，我们可以使用其他的方式来定义$X^{+}$，具体的数学原理需要更详细的线性代数知识，但是我们知道很多程序包里都实现了这些东西，用它一样可以得到比较好的结果。</p>
-<p>综上，$W = X^{+}Y$,$Y’ = XW = XX^{+}Y$.</p>
+<p>综上，$W &#x3D; X^{+}Y$,$Y’ &#x3D; XW &#x3D; XX^{+}Y$.</p>
 <p>最后，这个算法之所以可以学习，我们可以使用VC bound来证明。但是还有另一种方法，也可以证明它泛化能力不错，可以取得良好的学习效果，当然，与VC bound一样，严格的证明需要更严密的数学推导，下面只是简要介绍。</p>
 <p>首先，我们推导$\overline {E_ {in} }$是很接近噪声的（噪声意味着我们无法通过学习进行改善的部分），而同样的步骤可以用在对$\overline {E_ {out} }$的分析上，这样就说明了，平均来说我们的算法是可以取得很好的学习效果的。</p>
-<p>首先，我们应该定义一下$\overline {E_ {in} }$：</p>
-<script type="math/tex; mode=display">
-\overline {E_ {in} } = \epsilon _ {D~P^N}\left\{\ E_ {in}(W_ {LIN} w.r.t. D)  \right\} = noise  level \cdot (1-\frac {d+1}{N})</script><p>具体的含义就是多个样本的$E_ {in}$平均值，大概看起来会接近noise level，而当样本量越大，与noise level越接近。</p>
-<p>首先，我们应该将线性回归得到的结果带入$E_ {in}$的表达式中：</p>
-<script type="math/tex; mode=display">
-E_ {in} = \frac 1 N ||Y - \hat Y||^2 = \frac 1 N ||Y - XX^{+}Y ||^2 = \frac 1 N ||(I - X X^{+})Y||^2</script><p>我们称$XX^{+}$为hat matrix。</p>
-<p>这里我们思考$\hat Y = XW$在做什么。Y是一个N维向量，而X可以看做是m个N维向量构成的矩阵，而实际上W的作用，是给每个矩阵中的N维向量分配一个参数，让他们做线性组合，最终得到一个新的N维向量。为了使得$\hat Y$尽量接近于$Y$，从另一个方面来说，就是让$Y - \hat Y \bot X’s span$，也就是让他们的差尽量垂直于X所展开的空间，当垂直时，$\hat Y$等于Y在X上的投影，这时候二者相差是最小的.</p>
+<p>首先，我们应该定义一下$\overline {E_ {in} }$：<br>$$<br>\overline {E_ {in} } &#x3D; \epsilon _ {D~P^N}\left{\ E_ {in}(W_ {LIN} w.r.t. D)  \right} &#x3D; noise  level \cdot (1-\frac {d+1}{N})<br>$$</p>
+<p>具体的含义就是多个样本的$E_ {in}$平均值，大概看起来会接近noise level，而当样本量越大，与noise level越接近。</p>
+<p>首先，我们应该将线性回归得到的结果带入$E_ {in}$的表达式中：<br>$$<br>E_ {in} &#x3D; \frac 1 N ||Y - \hat Y||^2 &#x3D; \frac 1 N ||Y - XX^{+}Y ||^2 &#x3D; \frac 1 N ||(I - X X^{+})Y||^2<br>$$</p>
+<p>我们称$XX^{+}$为hat matrix。</p>
+<p>这里我们思考$\hat Y &#x3D; XW$在做什么。Y是一个N维向量，而X可以看做是m个N维向量构成的矩阵，而实际上W的作用，是给每个矩阵中的N维向量分配一个参数，让他们做线性组合，最终得到一个新的N维向量。为了使得$\hat Y$尽量接近于$Y$，从另一个方面来说，就是让$Y - \hat Y \bot X’s span$，也就是让他们的差尽量垂直于X所展开的空间，当垂直时，$\hat Y$等于Y在X上的投影，这时候二者相差是最小的.</p>
 <p>实际上，Y一般不可能被X完美表示，因为一般来讲$N&gt;&gt;d$.所以我们能做的就是上面说的。</p>
-<p>所以，Hat的作用就是将Y投影到X上。而$(I-Hat)$就是将Y转换为$(Y-\hat Y)$的矩阵。<br>而且我们可以计算出来$trace (I - Hat) = n - (d+1)$，意味着$(I- Hat)$有$N - d- 1$个自由度。</p>
-<p>如果$Y$来自与一些理想的$f(X)$与噪声的组合，那么如果只是理想的函数，则上述得到的差距实际上是由噪声造成的，因此：</p>
-<script type="math/tex; mode=display">
-E_ {in} = \frac 1 N ||Y - \hat Y||^2  = \frac 1 N ||(I - Hat)noise||^2 = \frac 1 N (N - d - 1)||noise||^2</script><p>而$\overline {E_ {in} } = ( 1 - \frac{d+1}{N})noise level$<br>利用类似的办法，可以推断出来，$\overline {E_ {out} } = ( 1 + \frac{d+1}{N})noise level$.</p>
+<p>所以，Hat的作用就是将Y投影到X上。而$(I-Hat)$就是将Y转换为$(Y-\hat Y)$的矩阵。<br>而且我们可以计算出来$trace (I - Hat) &#x3D; n - (d+1)$，意味着$(I- Hat)$有$N - d- 1$个自由度。</p>
+<p>如果$Y$来自与一些理想的$f(X)$与噪声的组合，那么如果只是理想的函数，则上述得到的差距实际上是由噪声造成的，因此：<br>$$<br>E_ {in} &#x3D; \frac 1 N ||Y - \hat Y||^2  &#x3D; \frac 1 N ||(I - Hat)noise||^2 &#x3D; \frac 1 N (N - d - 1)||noise||^2<br>$$<br>而$\overline {E_ {in} } &#x3D; ( 1 - \frac{d+1}{N})noise level$<br>利用类似的办法，可以推断出来，$\overline {E_ {out} } &#x3D; ( 1 + \frac{d+1}{N})noise level$.</p>
 <p>也就是平均来说，我们通过拟合样本，可以得到更小的错误率，但是泛化之后的错误率往往更大一点。</p>
-<p>因此平均来说，我们可以将$E_ {in}$与$E_ {out}$画在一张图上：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png" alt=""></p>
+<p>因此平均来说，我们可以将$E_ {in}$与$E_ {out}$画在一张图上：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png"></p>
 <p>如果对应到实际的机器学习，对于一些很少的样本量的机器学习过程，很容易拟合成功，得到很好的$E_ {in}$，甚至是0，但是这时候泛化能力却很差。机器学习，不是一味地增加特征量减少$E_ {in}$，而纠正过拟合的一种办法，就是增加样本量。</p>
 <p>最后，我想说的是，上面的”证明”非常不严格，甚至有些地方让人费解。对于机器学习，理论部分严格的证明更多是数学和统计的事情，而学习计算机的人更多的是掌握各种算法，学习利用它来解决问题。即使这样，尽可能多地了解理论部分，对于实际的应用有很大的帮助。这个世界很复杂，永远保持一个好奇心吧。</p>
 

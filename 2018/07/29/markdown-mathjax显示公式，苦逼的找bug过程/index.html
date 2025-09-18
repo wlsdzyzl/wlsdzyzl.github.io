@@ -137,7 +137,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -293,7 +293,9 @@
     
     
     <div class="post-body" itemprop="articleBody"><p>在记录自己学习过程中，难免会遇到公式，截图的办法不是长久之计。于是我给它加上了渲染公式的过程。</p>
-<p>整个过程非常崎岖。<br><span id="more"></span></p>
+<p>整个过程非常崎岖。</p>
+<span id="more"></span>
+
 <p>其实很简单，在普通的页面上引入一个js文件，就可以将latex代码渲染成公式。为了方便编写，我直接在文章中引入了这个js，在vs code上渲染是非常成功的。但是在博客上怎么弄也没法成功。百度的话有很多相关的博客来介绍怎么去做，主要是因为hexo的渲染器与mathjax中部分语法有冲突。我也天真的相信我的问题就是这些构成的，后来我发现即使是最简单的公式（没有下标）也无法渲染成功，此时我的blog里已经加了很多别的没用包了，也删除了很多可能有用的包，怎么设置也没办法。</p>
 <p>昨晚就纠结了很久，今天没办法了重新装了下blog，先解决最简单公式显示的问题（直接打开next主题中的mathjax开关），成功了，然后我遇到的问题，才是别人遇到的那些问题。慢慢解决，后来发现还是有部分错误，有两处问题：</p>
 <p>1.这次是latex与markdown的冲突：markdown中的*是斜体，因此尽量乘法不要使用它，可以使用{a \times b}（$a \times b$）来代替来代替 a*b,或者就是对*进行转义，或者直接省略。</p>
@@ -304,6 +306,7 @@
 <li>标题：</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 一号字体 #</span><br><span class="line">## 二号字体 ## </span><br><span class="line">### 三号字体 ### </span><br></pre></td></tr></table></figure>
+
 <h1 id="一号字体"><a href="#一号字体" class="headerlink" title="一号字体"></a>一号字体</h1><h2 id="二号字体"><a href="#二号字体" class="headerlink" title="二号字体"></a>二号字体</h2><h3 id="三号字体"><a href="#三号字体" class="headerlink" title="三号字体"></a>三号字体</h3><ul>
 <li>加粗：</li>
 </ul>
@@ -321,40 +324,47 @@
 </ul>
 <p>要加删除线的文字左右分别用两个~~号包起来</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">**这是加粗的文字**</span><br><span class="line">*这是倾斜的文字*`</span><br><span class="line">***这是斜体加粗的文字***</span><br><span class="line">~~这是加删除线的文字~~</span><br></pre></td></tr></table></figure>
+
 <p><strong>这是加粗的文字</strong></p>
 <p><em>这是倾斜的文字</em></p>
-<p><strong><em>这是斜体加粗的文字</em></strong></p>
+<p><em><strong>这是斜体加粗的文字</strong></em></p>
 <p><del>这是加删除线的文字</del></p>
 <ul>
 <li>引用：</li>
 </ul>
 <p>在引用的文字前加&gt;即可</p>
  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; 引用的内容 </span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>引用的内容</p>
 </blockquote>
 <ul>
-<li>分割线：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">***</span><br></pre></td></tr></table></figure>
-</li>
+<li>分割线：</li>
 </ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">***</span><br></pre></td></tr></table></figure>
+
 <hr>
 <hr>
 <ul>
 <li>超链接：</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[name](url)</span><br></pre></td></tr></table></figure>
-<p><a target="_blank" rel="noopener" href="https://www.google.com">Google</a></p>
+
+<p><a target="_blank" rel="noopener" href="https://www.google.com/">Google</a></p>
 <ul>
 <li>图片：</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![name](imgurl)</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_8234.PNG" alt="name"></p>
 <ul>
 <li>列表：</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 列表内容</span><br><span class="line">+ 列表内容</span><br><span class="line">* 列表内容</span><br></pre></td></tr></table></figure>
+
 <pre><code>注意：- + * 跟内容之间都要有一个空格
-</code></pre><ul>
+</code></pre>
+<ul>
 <li>列表内容</li>
 </ul>
 <ul>
@@ -367,39 +377,39 @@
 </li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">表头|表头|表头</span><br><span class="line">---|:--:|---:</span><br><span class="line">内容|内容2|内容</span><br><span class="line">内容|内容100|内容</span><br></pre></td></tr></table></figure>
+
 <p>第二行分割表头和内容。<br>文字默认居左<br>-两边加：表示文字居中<br>-右边加：表示文字居右<br>注：原生的语法两边都要用 | 包起来。此处省略</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
 <th>表头</th>
-<th style="text-align:center">表头</th>
-<th style="text-align:right">表头</th>
+<th align="center">表头</th>
+<th align="right">表头</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>内容</td>
-<td style="text-align:center">内容2</td>
-<td style="text-align:right">内容</td>
+<td align="center">内容2</td>
+<td align="right">内容</td>
 </tr>
 <tr>
 <td>内容</td>
-<td style="text-align:center">内容100</td>
-<td style="text-align:right">内容</td>
+<td align="center">内容100</td>
+<td align="right">内容</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <ul>
 <li>代码：</li>
 </ul>
-<p><code>单行代码</code><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">多行代码</span><br></pre></td></tr></table></figure></p>
-<p>vscode中前面加制表符自动为代码格式。<br>可以在标记后标记出代码语言，用来高亮：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>单行代码</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">多行代码</span><br></pre></td></tr></table></figure>
+
+<p>vscode中前面加制表符自动为代码格式。<br>可以在标记后标记出代码语言，用来高亮：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello,world&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="Latex语法"><a href="#Latex语法" class="headerlink" title="Latex语法"></a>Latex语法</h3><ul>
 <li>希腊字母：</li>
 </ul>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -409,8 +419,7 @@
 <th>命令</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>α</td>
 <td>\alpha</td>
 <td>β</td>
@@ -480,11 +489,15 @@
 <td>ω</td>
 <td>\omega</td>
 <td></td>
+<td></td>
 </tr>
-</tbody>
-</table>
-</div>
-<p>命令首字母大写则为显示为大写。</p>
+<tr>
+<td>命令首字母大写则为显示为大写。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 <ul>
 <li>字母修饰：</li>
 </ul>
@@ -510,7 +523,7 @@
 <li>求和：</li>
 </ul>
 <p>求和符号\sum显示为$∑$</p>
-<p>举例:\sum_ {i=0}^n 显示为 $\sum_ {i=0}^n$</p>
+<p>举例:\sum_ {i&#x3D;0}^n 显示为 $\sum_ {i&#x3D;0}^n$</p>
 <ul>
 <li>极限：</li>
 </ul>
@@ -520,7 +533,6 @@
 <ul>
 <li>积分：</li>
 </ul>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -528,8 +540,7 @@
 <th>显示</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>\int</td>
 <td>∫</td>
 </tr>
@@ -549,10 +560,8 @@
 <td>\oint</td>
 <td>∮</td>
 </tr>
-</tbody>
-</table>
-</div>
-<p>举例：\int_0^\infty{fxdx} 显示为<script type="math/tex">\int_0^\infty{f(x)dx}</script></p>
+</tbody></table>
+<p>举例：\int_0^\infty{fxdx} 显示为$$\int_0^\infty{f(x)dx}$$</p>
 <ul>
 <li>分式：</li>
 </ul>
@@ -565,8 +574,8 @@
 </li>
 </ul>
 <p>\函数名</p>
-<p>举例:\sin x,\ln x,\log_n^2 5,\max(A,B,C)显示为</p>
-<script type="math/tex; mode=display">\sin x,\ln x,\log_n^2,\max(A,B,C)</script><p>暂时写这么些，还有很多其他用法，需要平时的积累。</p>
+<p>举例:\sin x,\ln x,\log_n^2 5,\max(A,B,C)显示为<br>$$ \sin x,\ln x,\log_n^2,\max(A,B,C) $$</p>
+<p>暂时写这么些，还有很多其他用法，需要平时的积累。</p>
 
     </div>
 

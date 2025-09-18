@@ -140,7 +140,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -297,22 +297,16 @@
     
     <div class="post-body" itemprop="articleBody"><p>暑期课程开始了，这个暑假选了大名鼎鼎的马毅老师的课：压缩感知与稀疏模型。不过马老师在深圳呆的时间只有一周，因此这个课对于压缩感知理论的介绍不会面面俱到，希望能建立一个框架出来，而对日后工作学习有所启发。</p>
 <span id="more"></span>
+
+
 <p>这篇博客不会介绍什么具体的内容，而是一个简单介绍。什么是压缩感知与稀疏模型？实际上，在之前阅读的那篇<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2019/06/09/Paper%E2%80%94%E2%80%94Image-Super-Resolution-as-Sparse-Representation-of-Raw-Image-Patches/">Image Super-Resolution as Sparse Representation of Raw Image Patches</a>（这篇文章也是马毅老师的文章）就是一个稀疏模型很好的应用。简单来说，就是用低纬度的数据来分析高纬数据。从高纬到低纬就是压缩，而压缩之后的数据往往是稀疏的，而我们希望能够通过对稀疏模型的分析，来恢复或者分析高纬的数据。</p>
-<p>现如今的我们对“大数据”一点也不陌生。因为如今数据充斥着每个世界，如今每一分钟youtube就会增加300小时的视频，每天有3亿张照片被上传到Facebook。当今世界的数据的维度与大小以及增长速度都是前所未有的。对于数据与信息的研究，在早期，由于设备比较昂贵而且分析数据耗时也长，科学家往往只采集足够的信息即可。因此，经典信号处理以及数据分析遵循下面的前提：</p>
-<script type="math/tex; mode=display">
-\text{Classical Premise: Data } \approx \text{ Information}</script><p>而现如今，数据变得越来越庞大并且容易获取，相机分辨率越来越高。不同的数据分析任务也有着不同的新的前提。比如，对于人脸识别，对于人眼来说，一个高分辨率的人脸图像与一个低分辨率的人脸图像，就识别这个任务来说差别不大，如下图：</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression_sjl.png" alt=""></p>
-<p>尽管左边压缩后的图像看起来不清晰，我们还是很容易认识到这就是女神斯嘉丽。但是从数据的角度来说，一个1200×1800分辨率图片维度是120×180维度的100倍。因此，在这类任务下，前提就变成了：</p>
-<script type="math/tex; mode=display">
-\text{New Premise1: Data } \gg \text{ Information}</script><p>下面是另一个例子，我们想从街道的照片中进行行人检测，而在这张图片中，真正是行人的只占了整张图片的一小部分，而其他的信息都是多余的，如下图：</p>
+<p>现如今的我们对“大数据”一点也不陌生。因为如今数据充斥着每个世界，如今每一分钟youtube就会增加300小时的视频，每天有3亿张照片被上传到Facebook。当今世界的数据的维度与大小以及增长速度都是前所未有的。对于数据与信息的研究，在早期，由于设备比较昂贵而且分析数据耗时也长，科学家往往只采集足够的信息即可。因此，经典信号处理以及数据分析遵循下面的前提：<br>$$<br>\text{Classical Premise: Data } \approx \text{ Information}<br>$$<br>而现如今，数据变得越来越庞大并且容易获取，相机分辨率越来越高。不同的数据分析任务也有着不同的新的前提。比如，对于人脸识别，对于人眼来说，一个高分辨率的人脸图像与一个低分辨率的人脸图像，就识别这个任务来说差别不大，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/compression_sjl.png"></p>
+<p>尽管左边压缩后的图像看起来不清晰，我们还是很容易认识到这就是女神斯嘉丽。但是从数据的角度来说，一个1200×1800分辨率图片维度是120×180维度的100倍。因此，在这类任务下，前提就变成了：<br>$$<br>\text{New Premise1: Data } \gg \text{ Information}<br>$$<br>下面是另一个例子，我们想从街道的照片中进行行人检测，而在这张图片中，真正是行人的只占了整张图片的一小部分，而其他的信息都是多余的，如下图：</p>
 <p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pedestrian_detection.jpeg" alt="Come from Gigacamera"></p>
-<p>在这类任务下，前提就变成了：</p>
-<script type="math/tex; mode=display">
-\text{New Premise2: Data } = \text{ Information + Irrelevant Data}</script><p>而对于其他的任务，比如电影推荐系统，这个系统的作用是希望根据用户看过的电影来向他们推荐未看过的电影。在这个任务中，没有哪个用户会看过所有的电影，也没有哪个电影是所有的用户都看过，因此我们的数据是不完整的。那么我们能根据不完整的数据库来推断完整的信息的重要原因，就是因为这些数据不是随机的，它们往往有很好的结构。有一类人，喜欢类似的电影，而有一类电影有着相似的风格。如下图：</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/content_based_recommender_systems.png" alt=""></p>
-<p>因此，在这个任务中，前提则是：</p>
-<script type="math/tex; mode=display">
-\text{New Premise3: Incomplete Data } \approx \text{ Complete Information}</script><p>因此可以看到的是，在大数据时代，我们往往需要从redundant，irrelevant或者incomplete数据中恢复特定的信息。这样的信息往往被编码成为特定的低纬结构或者仅仅依赖于巨大的数据中的一个小的子集，这个和之前的研究是有非常大的不同的。我们希望学习新的理论，能从低维中恢复高纬的信息，同样，从大量的高维信息中高效提取低纬信息也是同样重要的。这也是压缩感知与稀疏模型所希望做到的。</p>
+<p>在这类任务下，前提就变成了：<br>$$<br>\text{New Premise2: Data } &#x3D; \text{ Information + Irrelevant Data}<br>$$<br>而对于其他的任务，比如电影推荐系统，这个系统的作用是希望根据用户看过的电影来向他们推荐未看过的电影。在这个任务中，没有哪个用户会看过所有的电影，也没有哪个电影是所有的用户都看过，因此我们的数据是不完整的。那么我们能根据不完整的数据库来推断完整的信息的重要原因，就是因为这些数据不是随机的，它们往往有很好的结构。有一类人，喜欢类似的电影，而有一类电影有着相似的风格。如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/content_based_recommender_systems.png"></p>
+<p>因此，在这个任务中，前提则是：<br>$$<br>\text{New Premise3: Incomplete Data } \approx \text{ Complete Information}<br>$$<br>因此可以看到的是，在大数据时代，我们往往需要从redundant，irrelevant或者incomplete数据中恢复特定的信息。这样的信息往往被编码成为特定的低纬结构或者仅仅依赖于巨大的数据中的一个小的子集，这个和之前的研究是有非常大的不同的。我们希望学习新的理论，能从低维中恢复高纬的信息，同样，从大量的高维信息中高效提取低纬信息也是同样重要的。这也是压缩感知与稀疏模型所希望做到的。</p>
 <h3 id="Dealing-High-Dimensional-Data"><a href="#Dealing-High-Dimensional-Data" class="headerlink" title="Dealing High-Dimensional Data"></a><a href="about:blank#Dealing-High-Dimensional-Data" title="Dealing High-Dimensional Data"></a>Dealing High-Dimensional Data</h3><p>高纬度数据下的低纬度模型，一般的概念以及数据压缩，采样，稀疏性。</p>
 <h3 id="A-Brief-History"><a href="#A-Brief-History" class="headerlink" title="A Brief History"></a><a href="about:blank#A-Brief-History" title="A Brief History"></a>A Brief History</h3><p>Error correction： Boscovich and Laplace(1700’s)</p>
 <p>Principal component analysis: Hotelings(1900’s)</p>

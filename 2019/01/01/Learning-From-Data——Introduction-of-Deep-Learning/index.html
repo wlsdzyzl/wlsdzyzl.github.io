@@ -154,7 +154,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -309,16 +309,18 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>上节课是数据学习的最后一个课程，做了一个简单的深度学习的介绍。<br><span id="more"></span></p>
+    <div class="post-body" itemprop="articleBody"><p>上节课是数据学习的最后一个课程，做了一个简单的深度学习的介绍。</p>
+<span id="more"></span>
+
 <p>不用我说大家也都知道，深度学习是当今最流行的机器学习算法了，甚至它成为了一门独立的学科，因为它真的非常强大。深度学习是从神经网络开始的。</p>
 <p>神经网络：可微模型+可微损失</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl1.png" alt=""></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl1.png"></p>
 <p>简单的来说，在神经网络基础上go deep，就是深度学习了。</p>
 <h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="overfitting"><a href="#overfitting" class="headerlink" title="overfitting"></a>overfitting</h3><p>神经网络虽然能很好的拟合各个函数，但是它同样面临着挑战.那就是过拟合的问题。</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl2.png" alt=""></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl2.png"></p>
 <p>之前的机器学习系列的博客也多次提到过拟合的问题。一个模型不是越强大就越好的，因为我们无法避免噪声的存在。如果为了迎合样本，最后产生了很奇怪的东西，那可能并不是我们想要的结果。如下图：</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl3.png" alt=""></p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl4.png" alt=""></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl3.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl4.png"></p>
 <h3 id="Vanishing-gradient-problem"><a href="#Vanishing-gradient-problem" class="headerlink" title="Vanishing gradient problem"></a>Vanishing gradient problem</h3><p>我们知道，神经网络需要激活函数。最容易想到的是sigmod函数，但是当x很大时候，它面临着很严重的梯度消失问题，使得结果可能无法收敛。使用什么样的激活函数也是深度学习需要面临的挑战。</p>
 <p>Activation functions：</p>
 <ul>
@@ -338,23 +340,23 @@
 <li>Nadam</li>
 <li>…</li>
 </ul>
-<h3 id="Computation"><a href="#Computation" class="headerlink" title="Computation"></a>Computation</h3><p>计算量过大也是深度学习面临的问题。一般来说要跑神经网络，往往需要GPU，TPU等等。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl5.png" alt=""></p>
+<h3 id="Computation"><a href="#Computation" class="headerlink" title="Computation"></a>Computation</h3><p>计算量过大也是深度学习面临的问题。一般来说要跑神经网络，往往需要GPU，TPU等等。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl5.png"></p>
 <h3 id="Data"><a href="#Data" class="headerlink" title="Data"></a>Data</h3><p>还有就是获取数据的问题。深度学习的训练往往需要大量的数据。数据获取，数据标注也是很大的问题。</p>
 <h2 id="Representation"><a href="#Representation" class="headerlink" title="Representation"></a>Representation</h2><p>尽管神经网络有很大的挑战，但是它依然是一个非常强大的工具。以神经网络为基础，诞生了很多非常有名的网络模型，它们共同组成了深度学习。下面是深度学习的几个有名的代表：</p>
-<h3 id="卷积神经网络（Convolutional-Neural-Network）"><a href="#卷积神经网络（Convolutional-Neural-Network）" class="headerlink" title="卷积神经网络（Convolutional Neural Network）"></a>卷积神经网络（Convolutional Neural Network）</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl6.png" alt=""></p>
-<h3 id="RNN-Recurrent-Neural-Network"><a href="#RNN-Recurrent-Neural-Network" class="headerlink" title="RNN(Recurrent Neural Network)"></a>RNN(Recurrent Neural Network)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl7.png" alt=""></p>
-<h3 id="LSTM-Long-Short-Term-Memory-Module"><a href="#LSTM-Long-Short-Term-Memory-Module" class="headerlink" title="LSTM(Long-Short Term Memory Module)"></a>LSTM(Long-Short Term Memory Module)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl8.png" alt=""></p>
-<h3 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a>ResNet</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl9.png" alt=""></p>
-<h3 id="DenseNet"><a href="#DenseNet" class="headerlink" title="DenseNet"></a>DenseNet</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl10.png" alt=""></p>
+<h3 id="卷积神经网络（Convolutional-Neural-Network）"><a href="#卷积神经网络（Convolutional-Neural-Network）" class="headerlink" title="卷积神经网络（Convolutional Neural Network）"></a>卷积神经网络（Convolutional Neural Network）</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl6.png"></p>
+<h3 id="RNN-Recurrent-Neural-Network"><a href="#RNN-Recurrent-Neural-Network" class="headerlink" title="RNN(Recurrent Neural Network)"></a>RNN(Recurrent Neural Network)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl7.png"></p>
+<h3 id="LSTM-Long-Short-Term-Memory-Module"><a href="#LSTM-Long-Short-Term-Memory-Module" class="headerlink" title="LSTM(Long-Short Term Memory Module)"></a>LSTM(Long-Short Term Memory Module)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl8.png"></p>
+<h3 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a>ResNet</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl9.png"></p>
+<h3 id="DenseNet"><a href="#DenseNet" class="headerlink" title="DenseNet"></a>DenseNet</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl10.png"></p>
 <h2 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h2><p>也许我们还没有注意到，但是深度学习现在已经应用到生活的各个地方了。</p>
-<h3 id="NPL-word2vec"><a href="#NPL-word2vec" class="headerlink" title="NPL:word2vec"></a>NPL:word2vec</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl11.png" alt=""></p>
-<h3 id="Image-Caption-Generator"><a href="#Image-Caption-Generator" class="headerlink" title="Image Caption Generator"></a>Image Caption Generator</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl12.png" alt=""></p>
-<h3 id="Autoencoder"><a href="#Autoencoder" class="headerlink" title="Autoencoder"></a>Autoencoder</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl13.png" alt=""></p>
-<h3 id="GANs-Generative-Adversarial-Networks"><a href="#GANs-Generative-Adversarial-Networks" class="headerlink" title="GANs (Generative Adversarial Networks)"></a>GANs (Generative Adversarial Networks)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl14.png" alt=""></p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl15.png" alt=""></p>
+<h3 id="NPL-word2vec"><a href="#NPL-word2vec" class="headerlink" title="NPL:word2vec"></a>NPL:word2vec</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl11.png"></p>
+<h3 id="Image-Caption-Generator"><a href="#Image-Caption-Generator" class="headerlink" title="Image Caption Generator"></a>Image Caption Generator</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl12.png"></p>
+<h3 id="Autoencoder"><a href="#Autoencoder" class="headerlink" title="Autoencoder"></a>Autoencoder</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl13.png"></p>
+<h3 id="GANs-Generative-Adversarial-Networks"><a href="#GANs-Generative-Adversarial-Networks" class="headerlink" title="GANs (Generative Adversarial Networks)"></a>GANs (Generative Adversarial Networks)</h3><p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl14.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl15.png"></p>
 <h2 id="Opening-the-blackbox"><a href="#Opening-the-blackbox" class="headerlink" title="Opening the blackbox"></a>Opening the blackbox</h2><p>虽然神经网络功能非常强大，但是一直到现在，我们依然无法在数学上解释它为何这么强大。因此，神经网络对于我们来说一直像是一个黑盒子。我们希望可以打开一点这个黑盒子，窥视一下它背后的机理。之前有篇博客曾经提到这方面过，也就是<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/">derive something from Softmax</a>。这是黄绍伦老师的相关研究成果。</p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl16.png" alt=""></p>
-<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl17.png" alt=""></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl16.png"></p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/dl17.png"></p>
 <p>从那篇文章以及这些图片，我们可以对神经网络为何这么强大有一些直观的了解，并且部分明白了其背后的道理。</p>
 
     </div>

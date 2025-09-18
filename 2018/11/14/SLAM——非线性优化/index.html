@@ -137,7 +137,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -292,104 +292,56 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>实际上从上次介绍的东西，我们理论上已经知道了SLAM是怎么运作的了。从深度图和颜色图，估计相机位姿，通过相机位姿，以及深度图和颜色图，我们实际上就可以去拼接点云或者三维建模了。不过现实往往没有那么容易，如果这么简单SLAM也没什么好研究的了。<br><span id="more"></span><br>实际上，生活中处处充满了噪声。我们采集的数据也是一样。我们无法消除噪声。所以我们得到的运动方程还有观测方程，都不一定（实际上是一定不）是严格成立的，只能近似成立。为了使得状态估计在噪声中有不错的效果，我们必须得进行优化。现实中的优化问题往往是非线性问题，所以这次主要讲的内容是非线性优化。</p>
+    <div class="post-body" itemprop="articleBody"><p>实际上从上次介绍的东西，我们理论上已经知道了SLAM是怎么运作的了。从深度图和颜色图，估计相机位姿，通过相机位姿，以及深度图和颜色图，我们实际上就可以去拼接点云或者三维建模了。不过现实往往没有那么容易，如果这么简单SLAM也没什么好研究的了。</p>
+<span id="more"></span>
+<p>实际上，生活中处处充满了噪声。我们采集的数据也是一样。我们无法消除噪声。所以我们得到的运动方程还有观测方程，都不一定（实际上是一定不）是严格成立的，只能近似成立。为了使得状态估计在噪声中有不错的效果，我们必须得进行优化。现实中的优化问题往往是非线性问题，所以这次主要讲的内容是非线性优化。</p>
 <p>实际上机器学习以及信息论中很多地方多多少少涉及到了优化问题，因此看这篇文章到最后会有“很多原来是这个啊”的类似感慨。</p>
-<h2 id="状态估计问题"><a href="#状态估计问题" class="headerlink" title="状态估计问题"></a>状态估计问题</h2><h3 id="最大后验与最大似然"><a href="#最大后验与最大似然" class="headerlink" title="最大后验与最大似然"></a>最大后验与最大似然</h3><p>在前面几次内容中，我们知道了SLAM的数学模型如下：</p>
-<script type="math/tex; mode=display">
-\left\{
-\begin{matrix}
-x_k = f(x_ {k-1},\mu_k) + w_k\\
-z_ {k,j} = h(y_j,x_k) + v_ {k,j}
-\end{matrix}
-\right .</script><p>我们了解到$x_k$是相机的位姿，可以使用变换矩阵或者李代数来表示，即$x_k$可以由$T_k$或者$\exp(\xi_k\hat{})$来表示。我们暂且专注于观测方程。假设位姿为$x_k$对路标$y_j$进行了一次观测，对应到图像的位置为$z_ {k,j}$，则观测方程可以表示为：</p>
-<script type="math/tex; mode=display">
-sz_ {k,j} = K \exp(\xi\hat{})y_j.</script><p>上式中$K$为相机内参，而$s$为物体与相机之间的距离。这里的$z_ {k,j}, y_j$都用齐次坐标描述。</p>
-<p>现在，考虑高斯噪声：<script type="math/tex">w_k \tilde{} N(0,R_k),v_ {k,j} \tilde{} N(0,Q_ {k,j}).</script></p>
+<h2 id="状态估计问题"><a href="#状态估计问题" class="headerlink" title="状态估计问题"></a>状态估计问题</h2><h3 id="最大后验与最大似然"><a href="#最大后验与最大似然" class="headerlink" title="最大后验与最大似然"></a>最大后验与最大似然</h3><p>在前面几次内容中，我们知道了SLAM的数学模型如下：<br>$$<br>\left{<br>\begin{matrix}<br>x_k &#x3D; f(x_ {k-1},\mu_k) + w_k\<br>z_ {k,j} &#x3D; h(y_j,x_k) + v_ {k,j}<br>\end{matrix}<br>\right .<br>$$</p>
+<p>我们了解到$x_k$是相机的位姿，可以使用变换矩阵或者李代数来表示，即$x_k$可以由$T_k$或者$\exp(\xi_k\hat{})$来表示。我们暂且专注于观测方程。假设位姿为$x_k$对路标$y_j$进行了一次观测，对应到图像的位置为$z_ {k,j}$，则观测方程可以表示为：<br>$$<br>sz_ {k,j} &#x3D; K \exp(\xi\hat{})y_j.<br>$$</p>
+<p>上式中$K$为相机内参，而$s$为物体与相机之间的距离。这里的$z_ {k,j}, y_j$都用齐次坐标描述。</p>
+<p>现在，考虑高斯噪声：$$w_k \tilde{} N(0,R_k),v_ {k,j} \tilde{} N(0,Q_ {k,j}).$$</p>
 <p>在这些噪声的影响下，我们希望通过$z$和$\mu$来推断位姿$x$和地图$y$，这就构成了一个状态估计问题。在之前的研究中，多用滤波器（尤其是卡尔曼滤波器EKF）来求解这个问题。卡尔曼滤波器的特点是只关心当前时刻的状态估计$x_k$，而对之前的状态则不多考虑，也就是假设这一系列状态是符合马尔可夫链的。近些年来的研究多用的是非线性优化的方法，比卡尔曼滤波有更好的效果。</p>
-<p>首先从概率论角度看一下我们探讨的问题。非线性优化中把所有代估计的变量放在一个状态变量当中：</p>
-<script type="math/tex; mode=display">
-\{x,y\};x = \{x_1,...,x_N\};y=\{y_1,...,y_M\}.</script><p>现在我们要求的是在当前的观测$z$和输入数据$u$的情况下，状态$\{x,y\}$的概率：$P(x,y|z,u)$.这里的$u,z$是其他输入的统称，如果输入图片是没有时间关系的，那么这个问题是Structure from Motion(SfM)问题。</p>
-<p>对于上面这个概率是非常熟悉了，我们已经多次遇到了。利用贝叶斯公式可以得到：</p>
-<script type="math/tex; mode=display">
-P(x,y|z,u) = \frac{P(z,u|x,y)P(x,y)}{P(z,u)}</script><p>贝叶斯左侧为后验概率，而右侧中$P(x,y)为$先验，$P(z,u|x,y)$为似然。直接求后验分布往往是困难的，而求一个状态最优估计，使得该状态下后验概率最大化(Maximizae a Posterior, MAP)是可行的：</p>
-<script type="math/tex; mode=display">
-{x^\*,y^\*}_ {MAP} = argmax_ {x,y}P(x,y|z,u) = argmax_ {x,y}P(z,u|x,y)P(x,y)</script><p>进一步，如果我们不在乎先验，得到的就是x,y的最大似然估计(Maximize Likelihood Estimation, MLE)：</p>
-<script type="math/tex; mode=display">
-{x^\*,y^\*}_ {MLE} = argmax P(z,u|x,y)</script><p>后验的意思是在当前的观测数据下可能出现什么样的状态，而似然的意思是在这个的状态下，出现当前观测数据的概率，因此最大似然的直观意思就是什么样的状态下最可能产生现在的观测数据。最大后验是当前的观测数据下最可能出现什么样的状态。这两者并不是完全等价的。</p>
-<h2 id="引出最小二乘法"><a href="#引出最小二乘法" class="headerlink" title="引出最小二乘法"></a>引出最小二乘法</h2><p>如何求最大似然估计？在高斯分布的假设下，最大似然有比较简单的形式。对于某一次观测：</p>
-<script type="math/tex; mode=display">
-z_ {k,j} = h(y_j,x_k)+v_ {k,j},</script><p>由于我们假设噪声$v_ {k,j} \tilde N(0,Q_ {k,j})$，所以观测数据的条件概率为：</p>
-<script type="math/tex; mode=display">
-P(z_ {j,k}|x_k,y_j) = N(h(y_j,x_k),Q_ {k,j})</script><p>它依然是一个高斯分布。为了计算是他最大化的$x_k,y_j$，我们往往使用最小化负对数的方式，也就是加$\log$。<br>高斯分布在负对数下有较好的数学形式，考虑高斯分布$x\tilde{}N(\mu,\Sigma)$，它的概率密度函数展开形式为：</p>
-<script type="math/tex; mode=display">
-P(x) = \frac{1}{\sqrt{(2\pi)^N det(\Sigma)} }\exp\left(-\frac 1 2 (x - \mu)^T \Sigma^{-1}(x - \mu)\right).</script><p>则：</p>
-<script type="math/tex; mode=display">
--\log P(x) = \frac{1}{2}\log \left( (2\pi)^N det(\Sigma)\right) + \frac{1}{2}(x-\mu)^T\Sigma^{-1}(x-\mu).</script><p>对原式求最大化也就是对上式求最小化。上式中第一项与x无关，可以忽略。带入SLAM的观测方程得到：</p>
-<script type="math/tex; mode=display">
-x^* = argmin \left((z_ {k,j} - h(x_k,y_j))^T Q_ {k,j}^{-1}(z_ {k,j} - h(x_k,y_j)) \right).</script><p>我们发现上式等价与最小化噪声项的平方($\Sigma$范数意义下)。因此对于所有的运动和任意的观测，我们定义数据与估计值之间的误差为：</p>
-<script type="math/tex; mode=display">
-e_ {v,k} = x_k - f(x_ {k-1},u_k)\\
-e_ {y,j,k} = z_ {k,j} - h(x_k,y_j),</script><p>该误差的平方和如下：</p>
-<script type="math/tex; mode=display">
-J(x) = \sum_k e_ {v,k}^T R_k^{-1}e_ {v,k} + \sum_k \sum_j e_ {y,k,j}^T Q_ {k,j}^{-1}e_ {y,k,j}</script><p>这样就得到了一个总体意义下的最小二乘问题。它的最优解等价于状态的最大似然估计。</p>
-<h2 id="非线性最小二乘"><a href="#非线性最小二乘" class="headerlink" title="非线性最小二乘"></a>非线性最小二乘</h2><p>对于简单的最小二乘问题，假设：</p>
-<script type="math/tex; mode=display">
-\min_x \frac 1 2 \Vert f(x)\Vert_2^2.</script><p>如果$f(x)$形式比较简单，我们可以通过导数为0得到最优解，也就是求极值。不过往往我们需要求解的这个问题函数形式并不简单。这时候要使用的就是迭代的方法一步步向着最优解走。也就是$x_ {i+1} = x_ {i} + \delta x_i$。当$\Delta x_i$很小的时候迭代停止。这个过程中，比较难的地方在于如何确定这个$\delta x_i$，使得优化问题有很多方法。</p>
-<h3 id="一阶梯度法和二阶梯度法"><a href="#一阶梯度法和二阶梯度法" class="headerlink" title="一阶梯度法和二阶梯度法"></a>一阶梯度法和二阶梯度法</h3><p>求解增量解最直观的方式是将目标函数在$x$附近进行泰勒展开：</p>
-<script type="math/tex; mode=display">
-\Vert f(x+\delta x)\Vert_2^2 \approx \Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x.</script><p>上式中$J$是$\Vert f(x)\Vert_2^2$关于ｘ的导数(雅科比矩阵)，而$H$为二阶导数(海森矩阵)。我们可以选择保留一阶项或者二阶项，分别得到一阶和二阶梯度法。</p>
-<h4 id="一阶梯度法"><a href="#一阶梯度法" class="headerlink" title="一阶梯度法"></a>一阶梯度法</h4><p>保留一阶项，比较好理解，为了朝最低的点走，就是朝着导数的反方向，实际上这个走不能走得太多，一阶展开后最小值是无穷小的，不过走得太多泰勒展开是不成立的，因此一般需要一个学习率：</p>
-<script type="math/tex; mode=display">
-\delta x = -J^T(x)</script><p>实际上这就是梯度下降算法。</p>
-<h4 id="二阶梯度法"><a href="#二阶梯度法" class="headerlink" title="二阶梯度法"></a>二阶梯度法</h4><p>对于二阶梯度法：</p>
-<script type="math/tex; mode=display">
-\delta x^* = argmin (\Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x)</script><p>上式对$\delta $求导，得到：</p>
-<script type="math/tex; mode=display">
-H\delta x = -J^T</script><p>这个方法称为牛顿法。实际上呢，它就是牛顿迭代法，可以看另外一种解释：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/10/16/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Newton-Method/">Newton Method</a></p>
+<p>首先从概率论角度看一下我们探讨的问题。非线性优化中把所有代估计的变量放在一个状态变量当中：<br>$$<br>{x,y};x &#x3D; {x_1,…,x_N};y&#x3D;{y_1,…,y_M}.<br>$$<br>现在我们要求的是在当前的观测$z$和输入数据$u$的情况下，状态${x,y}$的概率：$P(x,y|z,u)$.这里的$u,z$是其他输入的统称，如果输入图片是没有时间关系的，那么这个问题是Structure from Motion(SfM)问题。</p>
+<p>对于上面这个概率是非常熟悉了，我们已经多次遇到了。利用贝叶斯公式可以得到：<br>$$<br>P(x,y|z,u) &#x3D; \frac{P(z,u|x,y)P(x,y)}{P(z,u)}<br>$$</p>
+<p>贝叶斯左侧为后验概率，而右侧中$P(x,y)为$先验，$P(z,u|x,y)$为似然。直接求后验分布往往是困难的，而求一个状态最优估计，使得该状态下后验概率最大化(Maximizae a Posterior, MAP)是可行的：<br>$$<br>{x^*,y^*}_ {MAP} &#x3D; argmax_ {x,y}P(x,y|z,u) &#x3D; argmax_ {x,y}P(z,u|x,y)P(x,y)<br>$$</p>
+<p>进一步，如果我们不在乎先验，得到的就是x,y的最大似然估计(Maximize Likelihood Estimation, MLE)：<br>$$<br>{x^*,y^*}_ {MLE} &#x3D; argmax P(z,u|x,y)<br>$$</p>
+<p>后验的意思是在当前的观测数据下可能出现什么样的状态，而似然的意思是在这个的状态下，出现当前观测数据的概率，因此最大似然的直观意思就是什么样的状态下最可能产生现在的观测数据。最大后验是当前的观测数据下最可能出现什么样的状态。这两者并不是完全等价的。</p>
+<h2 id="引出最小二乘法"><a href="#引出最小二乘法" class="headerlink" title="引出最小二乘法"></a>引出最小二乘法</h2><p>如何求最大似然估计？在高斯分布的假设下，最大似然有比较简单的形式。对于某一次观测：<br>$$<br>z_ {k,j} &#x3D; h(y_j,x_k)+v_ {k,j},<br>$$<br>由于我们假设噪声$v_ {k,j} \tilde N(0,Q_ {k,j})$，所以观测数据的条件概率为：<br>$$<br>P(z_ {j,k}|x_k,y_j) &#x3D; N(h(y_j,x_k),Q_ {k,j})<br>$$</p>
+<p>它依然是一个高斯分布。为了计算是他最大化的$x_k,y_j$，我们往往使用最小化负对数的方式，也就是加$\log$。<br>高斯分布在负对数下有较好的数学形式，考虑高斯分布$x\tilde{}N(\mu,\Sigma)$，它的概率密度函数展开形式为：<br>$$<br>P(x) &#x3D; \frac{1}{\sqrt{(2\pi)^N det(\Sigma)} }\exp\left(-\frac 1 2 (x - \mu)^T \Sigma^{-1}(x - \mu)\right).<br>$$</p>
+<p>则：<br>$$<br>-\log P(x) &#x3D; \frac{1}{2}\log \left( (2\pi)^N det(\Sigma)\right) + \frac{1}{2}(x-\mu)^T\Sigma^{-1}(x-\mu).<br>$$</p>
+<p>对原式求最大化也就是对上式求最小化。上式中第一项与x无关，可以忽略。带入SLAM的观测方程得到：<br>$$<br>x^* &#x3D; argmin \left((z_ {k,j} - h(x_k,y_j))^T Q_ {k,j}^{-1}(z_ {k,j} - h(x_k,y_j)) \right).<br>$$<br>我们发现上式等价与最小化噪声项的平方($\Sigma$范数意义下)。因此对于所有的运动和任意的观测，我们定义数据与估计值之间的误差为：<br>$$<br>e_ {v,k} &#x3D; x_k - f(x_ {k-1},u_k)\<br>e_ {y,j,k} &#x3D; z_ {k,j} - h(x_k,y_j),<br>$$<br>该误差的平方和如下：<br>$$<br>J(x) &#x3D; \sum_k e_ {v,k}^T R_k^{-1}e_ {v,k} + \sum_k \sum_j e_ {y,k,j}^T Q_ {k,j}^{-1}e_ {y,k,j}<br>$$</p>
+<p>这样就得到了一个总体意义下的最小二乘问题。它的最优解等价于状态的最大似然估计。</p>
+<h2 id="非线性最小二乘"><a href="#非线性最小二乘" class="headerlink" title="非线性最小二乘"></a>非线性最小二乘</h2><p>对于简单的最小二乘问题，假设：<br>$$<br>\min_x \frac 1 2 \Vert f(x)\Vert_2^2.<br>$$<br>如果$f(x)$形式比较简单，我们可以通过导数为0得到最优解，也就是求极值。不过往往我们需要求解的这个问题函数形式并不简单。这时候要使用的就是迭代的方法一步步向着最优解走。也就是$x_ {i+1} &#x3D; x_ {i} + \delta x_i$。当$\Delta x_i$很小的时候迭代停止。这个过程中，比较难的地方在于如何确定这个$\delta x_i$，使得优化问题有很多方法。</p>
+<h3 id="一阶梯度法和二阶梯度法"><a href="#一阶梯度法和二阶梯度法" class="headerlink" title="一阶梯度法和二阶梯度法"></a>一阶梯度法和二阶梯度法</h3><p>求解增量解最直观的方式是将目标函数在$x$附近进行泰勒展开：<br>$$<br>\Vert f(x+\delta x)\Vert_2^2 \approx \Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x.<br>$$</p>
+<p>上式中$J$是$\Vert f(x)\Vert_2^2$关于ｘ的导数(雅科比矩阵)，而$H$为二阶导数(海森矩阵)。我们可以选择保留一阶项或者二阶项，分别得到一阶和二阶梯度法。</p>
+<h4 id="一阶梯度法"><a href="#一阶梯度法" class="headerlink" title="一阶梯度法"></a>一阶梯度法</h4><p>保留一阶项，比较好理解，为了朝最低的点走，就是朝着导数的反方向，实际上这个走不能走得太多，一阶展开后最小值是无穷小的，不过走得太多泰勒展开是不成立的，因此一般需要一个学习率：<br>$$<br>\delta x &#x3D; -J^T(x)<br>$$<br>实际上这就是梯度下降算法。</p>
+<h4 id="二阶梯度法"><a href="#二阶梯度法" class="headerlink" title="二阶梯度法"></a>二阶梯度法</h4><p>对于二阶梯度法：<br>$$<br>\delta x^* &#x3D; argmin (\Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x)<br>$$<br>上式对$\delta $求导，得到：<br>$$<br>H\delta x &#x3D; -J^T<br>$$</p>
+<p>这个方法称为牛顿法。实际上呢，它就是牛顿迭代法，可以看另外一种解释：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/10/16/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Newton-Method/">Newton Method</a></p>
 <p>无论是一介导数还是二阶导数都是非常直观的，不过梯度下降因为策略是贪心，最后经常走出锯齿路线，使得迭代次数过多，而牛顿法对于海森矩阵的求解，在大规模的情况下是非常耗时的。我们希望能够避免$H$的求解，下面介绍两个SLAM中用的更多的方法。</p>
-<h3 id="高斯牛顿法"><a href="#高斯牛顿法" class="headerlink" title="高斯牛顿法"></a>高斯牛顿法</h3><p>我们想要最小化$\Vert f(x + \delta x)\Vert_2^2$，一种策略是像上面一样，对他进行泰勒展开，另一种，我们可以先在内部进行泰勒展开：</p>
-<script type="math/tex; mode=display">
-f(x+\delta x) \approx f(x) + J(x)\delta x</script><p>然后最小化$\Vert f(x) + J(x)\delta x  \Vert_2^2$：</p>
-<script type="math/tex; mode=display">
-\delta x^* = argmin _ {\delta x} \frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2</script><p>由于泰勒展开，让上面的形式已经比较简单了，所以我们无需再次泰勒展开了。为了方便，我们将上面的形式写成：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2 &= \frac{1}{2}( f(x) + J(x)\delta x)^T ( f(x) + J(x)\delta x)\\
-&= \frac{1}{2}\left(\Vert f(x) \Vert_2^2 +2f(x)^TJ(x)\delta x + \delta x^TJ^T(x)J(x)\delta x\right)
-\end{aligned}</script><p>对上式求导令其为0：</p>
-<script type="math/tex; mode=display">
-2J^T(x)f(x) + 2J^T(x)J(x)\delta x = 0</script><p>得到：</p>
-<script type="math/tex; mode=display">
-J^T(x)J(x) \delta x = -J^T(x)f(x)</script><p>我们要求的是$\delta x$，这是一个线性方程组，我们称为增量方程，或者高斯牛顿方程，也叫正规方程。将上式中左侧定义为$H$,右侧定义为$g$，得到：</p>
-<script type="math/tex; mode=display">
-H\delta x = g,</script><p>因此，我们在利用$J^TJ$作为海森矩阵的近似。原则上，我们的近似$H$矩阵是可逆且正定，但是实际中经常出现$J^TJ$为半正定矩阵，使用高斯牛顿法时候可能得到奇异矩阵或者病态的情况，此时稳定性较差，导致算法不一定会收敛。有时候得到的$\delta x$过大，导致结果不减反增。</p>
+<h3 id="高斯牛顿法"><a href="#高斯牛顿法" class="headerlink" title="高斯牛顿法"></a>高斯牛顿法</h3><p>我们想要最小化$\Vert f(x + \delta x)\Vert_2^2$，一种策略是像上面一样，对他进行泰勒展开，另一种，我们可以先在内部进行泰勒展开：<br>$$<br>f(x+\delta x) \approx f(x) + J(x)\delta x<br>$$</p>
+<p>然后最小化$\Vert f(x) + J(x)\delta x  \Vert_2^2$：<br>$$<br>\delta x^* &#x3D; argmin _ {\delta x} \frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2<br>$$<br>由于泰勒展开，让上面的形式已经比较简单了，所以我们无需再次泰勒展开了。为了方便，我们将上面的形式写成：<br>$$<br>\begin{aligned}<br>\frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2 &amp;&#x3D; \frac{1}{2}( f(x) + J(x)\delta x)^T ( f(x) + J(x)\delta x)\<br>&amp;&#x3D; \frac{1}{2}\left(\Vert f(x) \Vert_2^2 +2f(x)^TJ(x)\delta x + \delta x^TJ^T(x)J(x)\delta x\right)<br>\end{aligned}<br>$$<br>对上式求导令其为0：<br>$$<br>2J^T(x)f(x) + 2J^T(x)J(x)\delta x &#x3D; 0<br>$$<br>得到：<br>$$<br>J^T(x)J(x) \delta x &#x3D; -J^T(x)f(x)<br>$$<br>我们要求的是$\delta x$，这是一个线性方程组，我们称为增量方程，或者高斯牛顿方程，也叫正规方程。将上式中左侧定义为$H$,右侧定义为$g$，得到：<br>$$<br>H\delta x &#x3D; g,<br>$$<br>因此，我们在利用$J^TJ$作为海森矩阵的近似。原则上，我们的近似$H$矩阵是可逆且正定，但是实际中经常出现$J^TJ$为半正定矩阵，使用高斯牛顿法时候可能得到奇异矩阵或者病态的情况，此时稳定性较差，导致算法不一定会收敛。有时候得到的$\delta x$过大，导致结果不减反增。</p>
 <p>尽管高斯牛顿法有缺点，但是它是很多更先进算法(如线搜索方法，line search method)的基础。</p>
 <h3 id="列文伯格-马夸尔特法"><a href="#列文伯格-马夸尔特法" class="headerlink" title="列文伯格-马夸尔特法"></a>列文伯格-马夸尔特法</h3><p>列文伯格-马夸尔特法在一定程度上修正了这些问题，它比高斯牛顿更为健壮，不过它的收敛速度更慢，被称为阻尼牛顿法。</p>
 <p>高斯牛顿中的问题之所以会出现，一定程度上是因为$\delta$过大的时候，偏离了泰勒近似，所以可以想到的是找一个信赖区间，在区间内我们认为结果可以接受，超过了区间我们认为可能会出问题。</p>
-<p>如何确定信赖区间的范围？一种办法是比较真实减小值和近似减小值的差距：</p>
-<script type="math/tex; mode=display">
-\rho = \frac{f(x + \delta x) - f(x)}{J(x)\delta x}.</script><p>$\rho$的分子是真实减少值，而分母是近似减少值。如果$\rho$比较大，意味这相差不多，可以继续增大范围，如果$rho$近似于１，表示近似一致，而$rho$过小，则表示近似减少的太多了，需要缩小近似范围。</p>
-<p>因此我们可以想象这样一个过程：</p>
-<script type="math/tex; mode=display">
-\min_ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k)\delta x_k\Vert^2, s.t. \Vert  D \delta x_k\Vert^2 \leq \mu.</script><p>这里$\mu$是信赖区域的半径。</p>
+<p>如何确定信赖区间的范围？一种办法是比较真实减小值和近似减小值的差距：<br>$$<br>\rho &#x3D; \frac{f(x + \delta x) - f(x)}{J(x)\delta x}.<br>$$<br>$\rho$的分子是真实减少值，而分母是近似减少值。如果$\rho$比较大，意味这相差不多，可以继续增大范围，如果$rho$近似于１，表示近似一致，而$rho$过小，则表示近似减少的太多了，需要缩小近似范围。</p>
+<p>因此我们可以想象这样一个过程：<br>$$<br>\min_ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k)\delta x_k\Vert^2, s.t. \Vert  D \delta x_k\Vert^2 \leq \mu.<br>$$</p>
+<p>这里$\mu$是信赖区域的半径。</p>
 <ul>
 <li>计算$\rho$:<ul>
-<li>如果$\rho &gt; \frac 3 4$，则：$\mu = 2\mu$,</li>
-<li>如果$\rho &lt; \frac 1 4$，则：$\mu = 0.5\mu$,<br>如果$\rho$大于某个阈值表示是可以接受的，令$x_ {k+1} = x_k + \delta x_k$.</li>
+<li>如果$\rho &gt; \frac 3 4$，则：$\mu &#x3D; 2\mu$,</li>
+<li>如果$\rho &lt; \frac 1 4$，则：$\mu &#x3D; 0.5\mu$,<br>如果$\rho$大于某个阈值表示是可以接受的，令$x_ {k+1} &#x3D; x_k + \delta x_k$.</li>
 </ul>
 </li>
 </ul>
 <p>这里扩大的倍数等都是经验值，如果没有D，则表示范围是一个球，有了D可以是一个椭球，$D$是一个非负对角阵，一般来说使用$J^TJ$的对角元素平方根，使得在梯度小的维度上约束范围更大一些。</p>
-<p>实际上，这个操作就是正则化的一种，不过用到了优化过程中。利用拉格朗日乘子，我们可以将有约束的优化转化称为无约束的优化：</p>
-<script type="math/tex; mode=display">
-\min _ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k) \delta x_k\Vert^2 + \frac{\lambda}{2} \Vert D \delta x \Vert ^2.</script><p>更大的$\mu$（信赖范围），对应着更小的$\lambda$。对上式求导，得到：</p>
-<script type="math/tex; mode=display">
-(H + \lambda D^T D)\delta x = g</script><p>如果取$D=I$，那么当$\lambda$较小的时候（信赖半径较大），采用的就是高斯牛顿方法，如果$\lambda$比较大（信赖半径较小），那么更像是在用普通的梯度下降方法。</p>
+<p>实际上，这个操作就是正则化的一种，不过用到了优化过程中。利用拉格朗日乘子，我们可以将有约束的优化转化称为无约束的优化：<br>$$<br>\min _ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k) \delta x_k\Vert^2 + \frac{\lambda}{2} \Vert D \delta x \Vert ^2.<br>$$</p>
+<p>更大的$\mu$（信赖范围），对应着更小的$\lambda$。对上式求导，得到：<br>$$<br>(H + \lambda D^T D)\delta x &#x3D; g<br>$$</p>
+<p>如果取$D&#x3D;I$，那么当$\lambda$较小的时候（信赖半径较大），采用的就是高斯牛顿方法，如果$\lambda$比较大（信赖半径较小），那么更像是在用普通的梯度下降方法。</p>
 <p>由此可以看到列文伯格-马夸尔特法在一定程度上可以减少奇异以及病态问题。</p>
 <p>这几种方法是最基本的优化方法。一般来说分为两类：line search与trust region，line search是确定方向找步长，如一二阶梯度法，高斯牛顿法，而trust region是确定范围，在范围内找到更合适的点，如列文伯格-马夸尔特法。</p>
 <p>在求解$J^TJ$的时候，由于SLAM中这个矩阵具有稀疏性，简化了计算，使得这种优化方法被广为采纳。此外，在优化时候初始值也很重要，否则这些优化算法往往陷入局部最小值。一般来说，我们会利用ICP,PnP等算法提供一个较好的初始值。</p>
 <h2 id="图优化"><a href="#图优化" class="headerlink" title="图优化"></a>图优化</h2><p>最后简单提一下图优化。图优化牵扯到了图论，把要优化的变量转化为点，而误差项转化为边。对于任何一个最小二乘问题我们都可以构建与之对应的一个图。</p>
-<p>看下图是SLAM中优化对应的图优化模型：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/g2o.jpg" alt=""></p>
+<p>看下图是SLAM中优化对应的图优化模型：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/g2o.jpg"></p>
 <p>圆圈表示位姿，方框表示路标，而圆圈间的连线表示误差$w_k$，方框与圆圈之间的连线表示误差$v_ {k,j}$。</p>
 <p>为什么要用图优化，因为我们可以直观看到问题的结构，图论中很多理论可以用到了。比如先去掉孤立点，或者优先优化度数较大的顶点等等。</p>
 <p>最后，提两个从c++库：ceres与g2o。其中g2o是图优化库。</p>

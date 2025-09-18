@@ -139,7 +139,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -317,14 +317,13 @@
 <ul>
 <li>在同一个簇中的对象相比于不同的簇的对象来说更为相似。</li>
 </ul>
-<h2 id="K-Means问题描述"><a href="#K-Means问题描述" class="headerlink" title="K-Means问题描述"></a>K-Means问题描述</h2><p>给定n个样本：${X_1,X_2,…,X_n}$，将它们分为k个类（$k\leq n$）$C_1,C_2,…,C_k$，使得簇内平方和（within-cluster sum of squares，WCSS）达到最小：</p>
-<script type="math/tex; mode=display">
-argmin_C \sum_ {j=1}^k \sum{x \in C_j} \Vert x - \mu_j \Vert ^2</script><p>$\mu_j$是一个簇的中心：$\mu_j =\frac{1}{ \vert C_j \vert } \sum_ {X \in C_j} X_j$。</p>
+<h2 id="K-Means问题描述"><a href="#K-Means问题描述" class="headerlink" title="K-Means问题描述"></a>K-Means问题描述</h2><p>给定n个样本：${X_1,X_2,…,X_n}$，将它们分为k个类（$k\leq n$）$C_1,C_2,…,C_k$，使得簇内平方和（within-cluster sum of squares，WCSS）达到最小：<br>$$<br>argmin_C \sum_ {j&#x3D;1}^k \sum{x \in C_j} \Vert x - \mu_j \Vert ^2<br>$$</p>
+<p>$\mu_j$是一个簇的中心：$\mu_j &#x3D;\frac{1}{ \vert C_j \vert } \sum_ {X \in C_j} X_j$。</p>
 <p>这个问题还有其他几种等价的描述：</p>
 <ul>
-<li><p>最小化簇内协方差：$\sum_ {j=1}^k \vert C_j\vert Var(C_j)$</p>
+<li><p>最小化簇内协方差：$\sum_ {j&#x3D;1}^k \vert C_j\vert Var(C_j)$</p>
 </li>
-<li><p>最小化相同的簇内点的两两平方偏差：$\sum_ {i=1}^k \frac 1 {2\vert C_i \vert} \sum_ {x,x’\in C_i} \Vert x - x’ \Vert$</p>
+<li><p>最小化相同的簇内点的两两平方偏差：$\sum_ {i&#x3D;1}^k \frac 1 {2\vert C_i \vert} \sum_ {x,x’\in C_i} \Vert x - x’ \Vert$</p>
 </li>
 <li><p>最大化簇与簇之间的平方和（BCSS）</p>
 </li>
@@ -334,14 +333,14 @@ argmin_C \sum_ {j=1}^k \sum{x \in C_j} \Vert x - \mu_j \Vert ^2</script><p>$\mu_
 <ol>
 <li><p>随机初始化k个中心：$u_1,u_2,…,u_k$</p>
 </li>
-<li><p>对于每个样本i，$C^{(i)} = argmin_j \Vert X_i - \mu_j \Vert^2$</p>
+<li><p>对于每个样本i，$C^{(i)} &#x3D; argmin_j \Vert X_i - \mu_j \Vert^2$</p>
 </li>
 <li><p>根据聚类结果重新计算$\mu_j$</p>
 </li>
 </ol>
 <p>重复上述过程，直到$\mu$不再改变。</p>
 <p>现在，从非监督学习的目标来重新理解这个聚类算法，它实际上是学习到了一个k-dimentional的稀疏代表。也就是：$X_i$转换到$Z_i$了，而</p>
-<p>$z_ {i,j} =\left \{ \begin{matrix}<br>1&amp; if C^{i} = j;\\<br>0&amp; otherwise<br>\end{matrix}<br>\right .<br>$</p>
+<p>$z_ {i,j} &#x3D;\left { \begin{matrix}<br>1&amp; if C^{i} &#x3D; j;\<br>0&amp; otherwise<br>\end{matrix}<br>\right .<br>$</p>
 <p>它将原来的X特征向量转换成Z维向量。而这个Z矩阵是稀疏的，因为每个向量只有一项值为0.</p>
 <p>因为这个算法只能得到一个局部最优解，因此初始化是很重要的，可能会影响结果。</p>
 <p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/k_means_2.png" alt="k-means-2"></p>
@@ -351,7 +350,7 @@ argmin_C \sum_ {j=1}^k \sum{x \in C_j} \Vert x - \mu_j \Vert ^2</script><p>$\mu_
 </ol>
 <p>Uniformly random sampling, </p>
 <p>kmeans++ [Arthur &amp; Vassilvitskii SODA 2007]: distance-based sampling</p>
-<ol>
+<ol start="2">
 <li>如何自动选择分成几类（k的取值）？</li>
 </ol>
 <p>Cross validation（交叉验证）</p>

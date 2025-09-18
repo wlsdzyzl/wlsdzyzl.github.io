@@ -139,7 +139,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -294,114 +294,64 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>这周上的数据学习，主要讲了一些神经网络相关的知识。神经网络是目前最流行的机器学习算法了，甚至由它诞生了一个新的学科：deep learning。因此一篇博客，只能浅浅介绍一些神经网络的基本内容。<br><span id="more"></span><br>据说神经网络制造出来是为了模拟大脑。不过我认为离这个目标还差的远。但是呢，Neural Network确实做出来一些很牛逼的事情，让它成为现在AI中最受欢迎的技术。不过神经网络的概念倒是很早很早就提出了，之前没落是因为计算的性能跟不上。现在又东山再起了。</p>
+    <div class="post-body" itemprop="articleBody"><p>这周上的数据学习，主要讲了一些神经网络相关的知识。神经网络是目前最流行的机器学习算法了，甚至由它诞生了一个新的学科：deep learning。因此一篇博客，只能浅浅介绍一些神经网络的基本内容。</p>
+<span id="more"></span>
+<p>据说神经网络制造出来是为了模拟大脑。不过我认为离这个目标还差的远。但是呢，Neural Network确实做出来一些很牛逼的事情，让它成为现在AI中最受欢迎的技术。不过神经网络的概念倒是很早很早就提出了，之前没落是因为计算的性能跟不上。现在又东山再起了。</p>
 <p>即使没有接触过机器学习，也一定听过神经网络学习，以及见过类似下面的图：</p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Artificial_neural_network.svg/560px-Artificial_neural_network.svg.png" alt=""></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Artificial_neural_network.svg/560px-Artificial_neural_network.svg.png"></p>
 <p>实际上，这就是神经网络。神经网络的原理不复杂，但是如果嵌套层数比较多，就会需要非常大的计算量。</p>
 <p>对于每一个神经元，我们都可以把它看作之前的一个logistic regression。每一个神经元可以接受输入，然后提供输出，要么作为最终的输出，要么给别的神经元提供输入。</p>
-<h2 id="前向传播（forward-propagation）"><a href="#前向传播（forward-propagation）" class="headerlink" title="前向传播（forward propagation）"></a>前向传播（forward propagation）</h2><p>这意味着，我们的$W$参数将会变成一个”张量”（这么说也许不够准确，因为它不第一层可能有5个神经元，第2层可能有4个，也就是不是一个立方体）。在这里，我们用$\Theta$来表示这个张量。$\Theta^{(i)}$表示第i层的$\theta$参数，而$\Theta^{(i)}_j$表示第i层，第j个theta向量，$Theta^{(i)}_ {j,k}$表示的就是某个具体的参数值了。</p>
+<h2 id="前向传播（forward-propagation）"><a href="#前向传播（forward-propagation）" class="headerlink" title="前向传播（forward propagation）"></a>前向传播（forward propagation）</h2><p>这意味着，我们的$W$参数将会变成一个”张量”（这么说也许不够准确，因为它不第一层可能有5个神经元，第2层可能有4个，也就是不是一个立方体）。在这里，我们用$\Theta$来表示这个张量。$\Theta^{(i)}$表示第i层的$\theta$参数，而$\Theta^{(i)}<em>j$表示第i层，第j个theta向量，$Theta^{(i)}</em> {j,k}$表示的就是某个具体的参数值了。</p>
 <p>我们使用$a^{(i)}_j$按照上面的规则来表示第i层第j个神经元的输出。</p>
-<p>所以，就上面的这个图，我们可以很容易得出：</p>
-<script type="math/tex; mode=display">
-a_1^{(1)} = g(\Theta_ {1,0}^{(1)}x_0 + \Theta_ {1,1}^{(1)}x_1 + \Theta_ {1,2}^{(2)}x_2+\Theta_ {1,3}^{(3)}x_3 )\\
-a_2^{(1)} = g(\Theta_ {2,0}^{(1)}x_0 + \Theta_ {2,1}^{(1)}x_1 + \Theta_ {2,2}^{(2)}x_2+\Theta_ {2,3}^{(3)}x_3 )\\
-a_3^{(1)} = g(\Theta_ {3,0}^{(1)}x_0 + \Theta_ {3,1}^{(1)}x_1 + \Theta_ {3,2}^{(2)}x_2+\Theta_ {3,3}^{(3)}x_3 )
-a_4^{(1)} = g(\Theta_ {4,0}^{(1)}x_0 + \Theta_ {4,1}^{(1)}x_1 + \Theta_ {4,2}^{(2)}x_2+\Theta_ {4,3}^{(3)}x_3 )\\
-h_ {\Theta}(X) =\\
-\begin{bmatrix} 
-g(\Theta_ {1,0}^{(2)}a_0^{(1)} + \Theta_ {1,1}^{(2)}a_1^{(1)} + \Theta_ {1,2}^{(2)}a_2^{(1)} +\Theta_ {1,3}^{(2)}a_3^{(1)}+\Theta_ {1,4}^{(2)}a_4^{(1)} )\\
-g(\Theta_ {2,0}^{(2)}a_0^{(1)} + \Theta_ {2,1}^{(2)}a_1^{(1)} + \Theta_ {2,2}^{(2)}a_2^{(1)} +\Theta_ {2,3}^{(2)}a_3^{(1)}+\Theta_ {2,4}^{(2)}a_4^{(1)} )
-\end{bmatrix}\\
-= [a_1^{(2)},a_2^{(2)} ]^T</script><p>上面的神经网络输出有两项。</p>
-<p>上面的函数中，g为logistic函数，又叫sigmoid函数。当然这个函数不仅仅局限于sigmoid函数，也有relu函数，tanh函数：</p>
-<script type="math/tex; mode=display">
-\begin{matrix}
-g(z) = \frac 1 {1+e^{-z} } &(sigmoid)\\
-g(z) = \max(z,0) &(ReLU)\\
-g(z) = \frac{e^z - e^{-z} }{e^z + e^{-z} }& (tanh)
-\end{matrix}</script><p>我们定义$a_ {j}^1$为原始输入。</p>
+<p>所以，就上面的这个图，我们可以很容易得出：<br>$$<br>a_1^{(1)} &#x3D; g(\Theta_ {1,0}^{(1)}x_0 + \Theta_ {1,1}^{(1)}x_1 + \Theta_ {1,2}^{(2)}x_2+\Theta_ {1,3}^{(3)}x_3 )\<br>a_2^{(1)} &#x3D; g(\Theta_ {2,0}^{(1)}x_0 + \Theta_ {2,1}^{(1)}x_1 + \Theta_ {2,2}^{(2)}x_2+\Theta_ {2,3}^{(3)}x_3 )\<br>a_3^{(1)} &#x3D; g(\Theta_ {3,0}^{(1)}x_0 + \Theta_ {3,1}^{(1)}x_1 + \Theta_ {3,2}^{(2)}x_2+\Theta_ {3,3}^{(3)}x_3 )<br>a_4^{(1)} &#x3D; g(\Theta_ {4,0}^{(1)}x_0 + \Theta_ {4,1}^{(1)}x_1 + \Theta_ {4,2}^{(2)}x_2+\Theta_ {4,3}^{(3)}x_3 )\<br>h_ {\Theta}(X) &#x3D;\<br>\begin{bmatrix}<br>g(\Theta_ {1,0}^{(2)}a_0^{(1)} + \Theta_ {1,1}^{(2)}a_1^{(1)} + \Theta_ {1,2}^{(2)}a_2^{(1)} +\Theta_ {1,3}^{(2)}a_3^{(1)}+\Theta_ {1,4}^{(2)}a_4^{(1)} )\<br>g(\Theta_ {2,0}^{(2)}a_0^{(1)} + \Theta_ {2,1}^{(2)}a_1^{(1)} + \Theta_ {2,2}^{(2)}a_2^{(1)} +\Theta_ {2,3}^{(2)}a_3^{(1)}+\Theta_ {2,4}^{(2)}a_4^{(1)} )<br>\end{bmatrix}\<br>&#x3D; [a_1^{(2)},a_2^{(2)} ]^T<br>$$</p>
+<p>上面的神经网络输出有两项。</p>
+<p>上面的函数中，g为logistic函数，又叫sigmoid函数。当然这个函数不仅仅局限于sigmoid函数，也有relu函数，tanh函数：<br>$$<br>\begin{matrix}<br>g(z) &#x3D; \frac 1 {1+e^{-z} } &amp;(sigmoid)\<br>g(z) &#x3D; \max(z,0) &amp;(ReLU)\<br>g(z) &#x3D; \frac{e^z - e^{-z} }{e^z + e^{-z} }&amp; (tanh)<br>\end{matrix}<br>$$</p>
+<p>我们定义$a_ {j}^1$为原始输入。</p>
 <p>我们可以使用向量化来加速神经网络的计算过程。这个应该不算很稀奇的技术。对于每一层来说，$theta$都是严格的矩阵的,而输入也是一个矩阵。所以每一层的向量化都不算困难。</p>
 <p>通过输入，计算出每一层的输出，然后将这层输出当作下一层的输入，最后得到最后的结果，这就是前向传播。前向传播实际上就是神经网络怎么计算出结果的过程。</p>
 <p>利用神经网络我们可以很容易地实现很复杂的非线性函数的边界，从而进行分类。吴恩达在视频中介绍了用神经网络对与，或非以及异或的实现。不过这些都是相对简单的，复杂的神经网络分析其来完全没有这么容易，这也是神经网络强大的一个原因。</p>
 <p>为了实现多个分类，我们可以将最后的输出定位k个，分别来判断是否为当前类。这个做法实际上one-Vs-all的做法。</p>
-<h2 id="cost-function"><a href="#cost-function" class="headerlink" title="cost function"></a>cost function</h2><p>接下来我们来谈谈neural network的cost function。之前的logistic regression的cost function是通过计算极大似然估计得到的。而神经网络的cost funtion实际上呢也是一样的，不过它的h(x)不再是之前那么简单了，这里的$W$变成了$\Theta$。而且由于输出可能是多元的（多元分类），所以这个cost funtion实际上是各个类别的cost funtion的叠加：</p>
-<script type="math/tex; mode=display">
-J(\Theta) = -\frac{1}{m} \sum_ {i=1}^m \sum_ {k=1}^K y_i^{(k)} \log(h_ {\Theta}(X_i))_k + (1-y_i^{(k)}) \log (1 - (h_\Theta(X_i))_k)</script><p>如果加上正则化的话，则正则化项为：$\frac \lambda {2m} \sum_ {l=1}^{L}\sum_ {i=1}^{s_ {l} }\sum_ {j=1}{s_ {l-1} } (\Theta_ {i,j}^{(l)})^2$</p>
-<p>需要注意的是这个$s_ {l+1}$,为何是这样？$s_l$表示了第l层有多少神经元（如果l=0则表示有多少个原始输入），也就表示了有多少个输入向量，而输入向量的长度则由前一个输入的个数决定，因此$s_ {l-1}$实际上输入向量的长度。所以呢，我们先从层数开始，然后到该层的每个神经元，最后再到每个参数的每个取值。<br>（这里和吴恩达的课程的表述稍微有点区别，也就是我的输入是表示为第0层，也就是一共有L+1层，而吴恩达的课程中，共有L层，原来的0变成现在的第1层。不过这意味着，从1开始计数，由于第一层是没有theta参数的，所以第一层计算的实际是下一层的theta，而$s_l$是下一层的输入向量长度，而$s_ {l+1}$才是输入向量的个数，至于最后一层的theta由于已经在前一次计算过了，所以这里的regularization为$\frac \lambda {2m} \sum_ {l=1}^{L-1}\sum_ {i=1}^{s_ {l} }\sum_ {j=1}{s_ {l+1} } (\Theta_ {j,i}^{(l)})^2$）.</p>
+<h2 id="cost-function"><a href="#cost-function" class="headerlink" title="cost function"></a>cost function</h2><p>接下来我们来谈谈neural network的cost function。之前的logistic regression的cost function是通过计算极大似然估计得到的。而神经网络的cost funtion实际上呢也是一样的，不过它的h(x)不再是之前那么简单了，这里的$W$变成了$\Theta$。而且由于输出可能是多元的（多元分类），所以这个cost funtion实际上是各个类别的cost funtion的叠加：<br>$$<br>J(\Theta) &#x3D; -\frac{1}{m} \sum_ {i&#x3D;1}^m \sum_ {k&#x3D;1}^K y_i^{(k)} \log(h_ {\Theta}(X_i))<em>k + (1-y_i^{(k)}) \log (1 - (h</em>\Theta(X_i))_k)<br>$$</p>
+<p>如果加上正则化的话，则正则化项为：$\frac \lambda {2m} \sum_ {l&#x3D;1}^{L}\sum_ {i&#x3D;1}^{s_ {l} }\sum_ {j&#x3D;1}{s_ {l-1} } (\Theta_ {i,j}^{(l)})^2$</p>
+<p>需要注意的是这个$s_ {l+1}$,为何是这样？$s_l$表示了第l层有多少神经元（如果l&#x3D;0则表示有多少个原始输入），也就表示了有多少个输入向量，而输入向量的长度则由前一个输入的个数决定，因此$s_ {l-1}$实际上输入向量的长度。所以呢，我们先从层数开始，然后到该层的每个神经元，最后再到每个参数的每个取值。<br>（这里和吴恩达的课程的表述稍微有点区别，也就是我的输入是表示为第0层，也就是一共有L+1层，而吴恩达的课程中，共有L层，原来的0变成现在的第1层。不过这意味着，从1开始计数，由于第一层是没有theta参数的，所以第一层计算的实际是下一层的theta，而$s_l$是下一层的输入向量长度，而$s_ {l+1}$才是输入向量的个数，至于最后一层的theta由于已经在前一次计算过了，所以这里的regularization为$\frac \lambda {2m} \sum_ {l&#x3D;1}^{L-1}\sum_ {i&#x3D;1}^{s_ {l} }\sum_ {j&#x3D;1}{s_ {l+1} } (\Theta_ {j,i}^{(l)})^2$）.</p>
 <h2 id="向量化（vectorize）"><a href="#向量化（vectorize）" class="headerlink" title="向量化（vectorize）"></a>向量化（vectorize）</h2><p>首先，为了方便后面的说明，我们定义</p>
-<p>$z_ {j}^{(i)} = (\Theta_ {j}^{(i)})^Ta^{(i-1)}$.</p>
-<p>而$a_ {j}^{(i)} = g(z_ {j}^{(i)})$.</p>
-<p>$a^{(i-1)} = [a_0^{(i-1)},a_1^{(i-1)},…,a_ {s_ {i-1} }^{(i-1)} ]$</p>
+<p>$z_ {j}^{(i)} &#x3D; (\Theta_ {j}^{(i)})^Ta^{(i-1)}$.</p>
+<p>而$a_ {j}^{(i)} &#x3D; g(z_ {j}^{(i)})$.</p>
+<p>$a^{(i-1)} &#x3D; [a_0^{(i-1)},a_1^{(i-1)},…,a_ {s_ {i-1} }^{(i-1)} ]$</p>
 <p>希望大家还没有忘记这些符号以及下标的意义。</p>
 <p>如果一个符号，只有层数的上标，没有下标，则意味着它是一个向量(etc.$a^{(i)},z^{(i)}$)，或是一个矩阵$\Theta^{(i)}$.</p>
 <p>通过向量化，我们可以像下面一样通过线性代数库的并行优化，很快的计算出来$z^{(i)}$：</p>
-<script type="math/tex; mode=display">
-z^{(i)} = \Theta^{(i)} a^{(i-1)}</script><p>上式中：</p>
-<script type="math/tex; mode=display">
- \Theta^{(i)}  = \begin{bmatrix}
- ...  (\Theta_ {1}^{(i)})^T ... \\
- ...  (\Theta_ {2}^{(i)})^T ... \\
- ...\\
-  ...  (\Theta_ {s_i}^{(i)})^T ... 
- \end{bmatrix}</script><p>从这里，我们也可以知道了，为什么g不用identify function（g(z) = z）.因为神经网络的提出，是为了进行非线性的分类和预测。而：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-z^{(i)} &= \Theta^{(i)} a^{(i-1)}\\
-&=\Theta^{(i)}  g(z^{(i-1)})\\
-&=\Theta^{(i)}  z^{(i-1)}\\
-&= \Theta^{(i)}  \Theta ^{(i-1)} z^{(i-2)}\\
-&= \Theta^{(i)} \Theta^{(i-1)}...\Theta^{(1)} X_1
-\end{aligned}</script><p>这意味着我们通过线性的函数来做神经网络是无法得到非线性的分类结果的。</p>
-<p>如果我们再对训练样本利用向量化，</p>
-<script type="math/tex; mode=display">
-Z^{(l)} = \Theta^{(l)} ( A^{(l-1)})^T</script><p>这时候呢，Z变成矩阵了($s_ {l} \times m)$)，A也变成矩阵了（$ m \times s_ {l-1} $）。而Z^{(l)}实际如下：</p>
-<script type="math/tex; mode=display">
-Z^{(l)} =\begin{bmatrix}
- \vert & ... & \vert\\
-z^{(l)[1 ]} & ... &z^{(l)[m ]}\\
- \vert & ... & \vert
-\end{bmatrix}</script><h2 id="后向传播（back-propagation）"><a href="#后向传播（back-propagation）" class="headerlink" title="后向传播（back propagation）"></a>后向传播（back propagation）</h2><h3 id="参数初始化（Parameter-Initialization）"><a href="#参数初始化（Parameter-Initialization）" class="headerlink" title="参数初始化（Parameter Initialization）"></a>参数初始化（Parameter Initialization）</h3><p>需要注意的是，神经网络中我们不能简单地将参数初始化为0.经过计算你就会明白，如果参数初始化为0,则计算出来的梯度就是一样的，无法进行梯度下降,无论怎么运行，最后得到的结果为$0.5$(sigmoid)。可以进行随机初始化，给每个参数一个很小的值$N(0,0.1)$.</p>
-<p>在实际中，证明了有比随机初始化更好的方法来进行初始化：Xavier/He initialization.</p>
-<script type="math/tex; mode=display">
-\Theta ^{(l)} \tilde{} N\left(0,\sqrt{\frac {2}{s_l + s_ {l-1} } } \right)</script><h3 id="梯度（gradient）"><a href="#梯度（gradient）" class="headerlink" title="梯度（gradient）"></a>梯度（gradient）</h3><p>后向传播实际上是建立在梯度下降的基础上的，所以最复杂的部分就是计算梯度了。</p>
+<p>$$<br>z^{(i)} &#x3D; \Theta^{(i)} a^{(i-1)}<br>$$</p>
+<p>上式中：<br>$$<br> \Theta^{(i)}  &#x3D; \begin{bmatrix}<br> …  (\Theta_ {1}^{(i)})^T … \<br> …  (\Theta_ {2}^{(i)})^T … \<br> …\<br>  …  (\Theta_ {s_i}^{(i)})^T …<br> \end{bmatrix}<br>$$</p>
+<p>从这里，我们也可以知道了，为什么g不用identify function（g(z) &#x3D; z）.因为神经网络的提出，是为了进行非线性的分类和预测。而：<br>$$<br>\begin{aligned}<br>z^{(i)} &amp;&#x3D; \Theta^{(i)} a^{(i-1)}\<br>&amp;&#x3D;\Theta^{(i)}  g(z^{(i-1)})\<br>&amp;&#x3D;\Theta^{(i)}  z^{(i-1)}\<br>&amp;&#x3D; \Theta^{(i)}  \Theta ^{(i-1)} z^{(i-2)}\<br>&amp;&#x3D; \Theta^{(i)} \Theta^{(i-1)}…\Theta^{(1)} X_1<br>\end{aligned}<br>$$</p>
+<p>这意味着我们通过线性的函数来做神经网络是无法得到非线性的分类结果的。</p>
+<p>如果我们再对训练样本利用向量化，<br>$$<br>Z^{(l)} &#x3D; \Theta^{(l)} ( A^{(l-1)})^T<br>$$<br>这时候呢，Z变成矩阵了($s_ {l} \times m)$)，A也变成矩阵了（$ m \times s_ {l-1} $）。而Z^{(l)}实际如下：</p>
+<p>$$<br>Z^{(l)} &#x3D;\begin{bmatrix}<br> \vert &amp; … &amp; \vert\<br>z^{(l)[1 ]} &amp; … &amp;z^{(l)[m ]}\<br> \vert &amp; … &amp; \vert<br>\end{bmatrix}<br>$$</p>
+<h2 id="后向传播（back-propagation）"><a href="#后向传播（back-propagation）" class="headerlink" title="后向传播（back propagation）"></a>后向传播（back propagation）</h2><h3 id="参数初始化（Parameter-Initialization）"><a href="#参数初始化（Parameter-Initialization）" class="headerlink" title="参数初始化（Parameter Initialization）"></a>参数初始化（Parameter Initialization）</h3><p>需要注意的是，神经网络中我们不能简单地将参数初始化为0.经过计算你就会明白，如果参数初始化为0,则计算出来的梯度就是一样的，无法进行梯度下降,无论怎么运行，最后得到的结果为$0.5$(sigmoid)。可以进行随机初始化，给每个参数一个很小的值$N(0,0.1)$.</p>
+<p>在实际中，证明了有比随机初始化更好的方法来进行初始化：Xavier&#x2F;He initialization.</p>
+<p>$$<br>\Theta ^{(l)} \tilde{} N\left(0,\sqrt{\frac {2}{s_l + s_ {l-1} } } \right)<br>$$</p>
+<h3 id="梯度（gradient）"><a href="#梯度（gradient）" class="headerlink" title="梯度（gradient）"></a>梯度（gradient）</h3><p>后向传播实际上是建立在梯度下降的基础上的，所以最复杂的部分就是计算梯度了。</p>
 <p>假设，这个层数一共有L层，最后的输出是$a^{L}$，因此cost funtion和L层的参数是直接相关的。所以首先计算的就是cost funtion对$\Theta^{(L)}$的梯度。</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial L(\Theta)}{ \partial \Theta^{(L)} } &= -\frac{\partial}{\partial \Theta^{(L)} } \left((1-y)\log (1 - y')  + y\log y'\right)\\
-&=-(1 - y)\frac{\partial}{\partial \Theta^{(L)} } \log (1 - g(\Theta^{(L)}a^{(L-1)}))  - y \frac{\partial}{\partial \Theta^{(L)} } \log g(\Theta^{(L)}a^{(L-1)})\\
-&= (1-y)\frac{1}{1 - g(\Theta^{(L)}a^{(L-1)})} g'(\Theta^{(L)}a^{(L-1)}))(a^{(L-1)})^T - y \frac {1}{g(\Theta^{(L)}a^{(L-1)} } g'(\Theta^{(L)}a^{(L-1)}(a^{(L-1)})^T\\
-&= (1-y)\sigma(\Theta^{(L)}a^{(L-1)})(a^{(L-1)})^T - y(1 - \sigma(\Theta^{(L)}a^{(L-1)})) (a^{(L-1)})^T\\
-&= (1 - y)a^{(L)} (a^{(L-1)})^T - y (1 - a^{(L)})(a^{(L-1)})^T\\
-&= (a^{(L)} - y)(a^{(L-1)})^T
-\end{aligned}</script><p>上述推导过程中，g为sigmoid函数，因此$g’ = \sigma’ = \sigma(1 - \sigma)$.</p>
+<p>$$<br>\begin{aligned}<br>\frac{\partial L(\Theta)}{ \partial \Theta^{(L)} } &amp;&#x3D; -\frac{\partial}{\partial \Theta^{(L)} } \left((1-y)\log (1 - y’)  + y\log y’\right)\<br>&amp;&#x3D;-(1 - y)\frac{\partial}{\partial \Theta^{(L)} } \log (1 - g(\Theta^{(L)}a^{(L-1)}))  - y \frac{\partial}{\partial \Theta^{(L)} } \log g(\Theta^{(L)}a^{(L-1)})\<br>&amp;&#x3D; (1-y)\frac{1}{1 - g(\Theta^{(L)}a^{(L-1)})} g’(\Theta^{(L)}a^{(L-1)}))(a^{(L-1)})^T - y \frac {1}{g(\Theta^{(L)}a^{(L-1)} } g’(\Theta^{(L)}a^{(L-1)}(a^{(L-1)})^T\<br>&amp;&#x3D; (1-y)\sigma(\Theta^{(L)}a^{(L-1)})(a^{(L-1)})^T - y(1 - \sigma(\Theta^{(L)}a^{(L-1)})) (a^{(L-1)})^T\<br>&amp;&#x3D; (1 - y)a^{(L)} (a^{(L-1)})^T - y (1 - a^{(L)})(a^{(L-1)})^T\<br>&amp;&#x3D; (a^{(L)} - y)(a^{(L-1)})^T<br>\end{aligned}<br>$$</p>
+<p>上述推导过程中，g为sigmoid函数，因此$g’ &#x3D; \sigma’ &#x3D; \sigma(1 - \sigma)$.</p>
 <p>$a^{(i)}$我们都是可以通过前向传播得到的。</p>
 <p>然后我们想要计算的是$\Theta{(L-1)},…,\Theta{(1)}$这些的梯度。但是它们是和$L(\Theta)$是没有直接的关系的。不过，在微积分中是有链式求导法则的：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial L}{\partial \Theta^{(L-1)} } &= \frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{\partial \Theta^{(L-1)} }\\
- &=\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{\Theta^{(L-1)} }\\
-&=\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{\Theta^{(L-1)} }\\
-&=\underbrace{\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } }_ {a^{(L)} - y}\underbrace{ \frac{z^{(L)} }{a^{(L-1)} } }_ {\Theta^{(L)} }\underbrace{\frac{a^{(L-1)} }{z^{(L-1)} } }_ {g'(z^{(L-1)})}\underbrace{\frac{z^{(L-1)} }{\Theta^{(L-1)} } }_ {a^{(L-2)} }
-\end{aligned}</script><p>这其中，一个个的导数都是可以计算出来的。因此我们就得到了最终的梯度：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{z^{(L-1)} }\frac{z^{(L-1)} }{\Theta^{(L-1)} } = \underbrace{(a^{(L)} - y)}_ {s_L\times1}\underbrace{\Theta^{(L)} }_ {s_l \times s_ {l-1} }\underbrace{g'(z^{(L-1)})}_ {s_ {l-1} \times 1}\underbrace{a^{(L-2)} }_ {s_ {l-2} \times 1}
-\end{aligned}</script><p>不过需要注意的是，上面得到的导数你会发现矩阵的维度可能不合适。因此这个形式必须要重新组织一下：</p>
-<script type="math/tex; mode=display">
-\underbrace{\frac{\partial L}{\partial \Theta^{(L-1)} } }_ {s_ {l-1} \times s_ {l-2} }=\underbrace{(\Theta^{(L)})^T }_ {s_ {l-1} \times s_ {l} }\underbrace{(a^{(L)}-y)}_ {s_l \times 1} .* \underbrace{g'(z^{(L-1)})}_ {s_ {l-1}\times 1}\underbrace{(a^{(L-2)})^T}_ {1 \times s_ {l-2} }</script><p>如果想要计算更前面的参数矩阵的导数，这个链式法则会越来越长。</p>
-<p>为了更好的计算各个层的梯度，我们新定义一个符号:</p>
-<script type="math/tex; mode=display">
-\sigma^{(l)} = \nabla_ {z^{(l)} }L(y,y')</script><ul>
-<li><strong>$l = L$</strong></li>
+<p>$$<br>\begin{aligned}<br>\frac{\partial L}{\partial \Theta^{(L-1)} } &amp;&#x3D; \frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{\partial \Theta^{(L-1)} }\<br> &amp;&#x3D;\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{\Theta^{(L-1)} }\<br>&amp;&#x3D;\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{\Theta^{(L-1)} }\<br>&amp;&#x3D;\underbrace{\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } }_ {a^{(L)} - y}\underbrace{ \frac{z^{(L)} }{a^{(L-1)} } }_ {\Theta^{(L)} }\underbrace{\frac{a^{(L-1)} }{z^{(L-1)} } }_ {g’(z^{(L-1)})}\underbrace{\frac{z^{(L-1)} }{\Theta^{(L-1)} } }_ {a^{(L-2)} }<br>\end{aligned}<br>$$</p>
+<p>这其中，一个个的导数都是可以计算出来的。因此我们就得到了最终的梯度：<br>$$<br>\begin{aligned}<br>\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{z^{(L-1)} }\frac{z^{(L-1)} }{\Theta^{(L-1)} } &#x3D; \underbrace{(a^{(L)} - y)}_ {s_L\times1}\underbrace{\Theta^{(L)} }_ {s_l \times s_ {l-1} }\underbrace{g’(z^{(L-1)})}_ {s_ {l-1} \times 1}\underbrace{a^{(L-2)} }_ {s_ {l-2} \times 1}<br>\end{aligned}<br>$$</p>
+<p>不过需要注意的是，上面得到的导数你会发现矩阵的维度可能不合适。因此这个形式必须要重新组织一下：<br>$$<br>\underbrace{\frac{\partial L}{\partial \Theta^{(L-1)} } }_ {s_ {l-1} \times s_ {l-2} }&#x3D;\underbrace{(\Theta^{(L)})^T }_ {s_ {l-1} \times s_ {l} }\underbrace{(a^{(L)}-y)}_ {s_l \times 1} .* \underbrace{g’(z^{(L-1)})}_ {s_ {l-1}\times 1}\underbrace{(a^{(L-2)})^T}_ {1 \times s_ {l-2} }<br>$$</p>
+<p>如果想要计算更前面的参数矩阵的导数，这个链式法则会越来越长。</p>
+<p>为了更好的计算各个层的梯度，我们新定义一个符号:<br>$$<br>\sigma^{(l)} &#x3D; \nabla_ {z^{(l)} }L(y,y’)<br>$$</p>
+<ul>
+<li><strong>$l &#x3D; L$</strong></li>
 </ul>
 <p>有时候我们可以直接计算出来$\nabla_ {z^{(L)} }L(y,y’)$(g为softmax函数)，有时候需要使用链式法则:</p>
-<p>$\nabla_ {z^{(L)} }L(y,y’) = \nabla_ {y’}L(y’,y) .* g’(z^{(L)})$</p>
+<p>$\nabla_ {z^{(L)} }L(y,y’) &#x3D; \nabla_ {y’}L(y’,y) .* g’(z^{(L)})$</p>
 <ul>
 <li><strong>$l \ne L$</strong></li>
 </ul>
-<p>$\sigma^{l} = ((\Theta^{(l+1))^T}\sigma^{(l+1)}) .*g’(z^{(l)})$</p>
+<p>$\sigma^{l} &#x3D; ((\Theta^{(l+1))^T}\sigma^{(l+1)}) .*g’(z^{(l)})$</p>
 <ul>
-<li>$\nabla _ {\Theta^{(l)} } L = \sigma^{(l)}(a^{(l-1)})^T$</li>
+<li>$\nabla _ {\Theta^{(l)} } L &#x3D; \sigma^{(l)}(a^{(l-1)})^T$</li>
 </ul>
 <p>通过验证你会发现实际上上面说的正是我们推导的内容。</p>
 <p>使用梯度下降,或者SGD（更加常用），最终求得合适的$\Theta$.</p>

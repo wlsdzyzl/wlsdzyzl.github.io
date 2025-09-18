@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -292,8 +292,9 @@
     
     <div class="post-body" itemprop="articleBody"><p>踩过的坑系列是一些没什么技术含量却把人折磨的要死的过程。就做个记录，可能会有很多错误，不必当真。</p>
 <span id="more"></span>
+
+
 <p>关于ROS的安装。ROS是机器人操作系统Robot OS的缩写，ROS特别坑的地方在于对于不同的linux系统有不同的版本。</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -302,21 +303,20 @@
 <th>对应Ubutnu版本</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>2018.5</td>
 <td>ROS Medolic</td>
-<td>Ubuntu 18.04 (Bionic)/Ubuntu 17.10 (Artful)/Windows/ Mac OS X /Andriod</td>
+<td>Ubuntu 18.04 (Bionic)&#x2F;Ubuntu 17.10 (Artful)&#x2F;Windows&#x2F; Mac OS X &#x2F;Andriod</td>
 </tr>
 <tr>
 <td>2016.3</td>
 <td>ROS Kinetic Kame</td>
-<td>Ubuntu 16.04 (Xenial) / Ubuntu 15.10 (Wily)</td>
+<td>Ubuntu 16.04 (Xenial) &#x2F; Ubuntu 15.10 (Wily)</td>
 </tr>
 <tr>
 <td>2015.3</td>
 <td>ROS Jade Turtle</td>
-<td>Ubuntu 15.04 (Wily) / Ubuntu LTS 14.04 (Trusty)</td>
+<td>Ubuntu 15.04 (Wily) &#x2F; Ubuntu LTS 14.04 (Trusty)</td>
 </tr>
 <tr>
 <td>2014.7</td>
@@ -338,18 +338,14 @@
 <td>…</td>
 <td>…</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>然而，我在18.04的机器上安装之后（过程很曲折，理论上不需要这样，一直会出现包依赖的问题，最后用aptitude解决），和用得代码并不对应，我需要的是kinetic版本的，因此需要把系统换成ubuntu 16.04。对于系统的安装也有坑，有时间再记录。</p>
 <p>实际上安装ROS过程也不复杂，只要你的系统什么的都是对应的，理论上没有什么大问题：</p>
 <ol>
-<li>设置软件和更新，保证restricted，universe，multiverse前是打钩的。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/ros.png" alt=""></li>
-<li><p>添加源：</p>
-<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" &gt; /etc/apt/sources.list.d/ros-latest.list'</span><br></pre></td></tr></tbody></table>
-
-
+<li><p>设置软件和更新，保证restricted，universe，multiverse前是打钩的。<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/ros.png"></p>
 </li>
+<li><p>添加源：</p>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" &gt; /etc/apt/sources.list.d/ros-latest.list'</span><br></pre></td></tr></tbody></table></li>
 </ol>
 <p>设置秘钥：  </p>
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 0xB01FA116</span><br></pre></td></tr></tbody></table>
@@ -359,28 +355,19 @@
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br></pre></td></tr></tbody></table>
 </li>
 <li><p>安装ros-kinetic：</p>
-<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ros-kinetic-desktop-full</span><br></pre></td></tr></tbody></table>
-
-
-</li>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ros-kinetic-desktop-full</span><br></pre></td></tr></tbody></table></li>
 </ol>
 <p>保证网络要好，如果对于外网访问很差可能需要使用阿里的镜像，这个设置请去查。安装时间应该会比较久。</p>
 <ol>
 <li><p>初始化ros：</p>
-<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rosdep init</span><br><span class="line">rosdep update</span><br></pre></td></tr></tbody></table>
-
-
-</li>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rosdep init</span><br><span class="line">rosdep update</span><br></pre></td></tr></tbody></table></li>
 </ol>
 <p>设置环境变量：  </p>
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo "source /opt/ros/kinetic/setup.bash" &gt;&gt; ~/.bashrc</span><br><span class="line">source ~/.bashrc</span><br></pre></td></tr></tbody></table>
 
 <ol>
 <li><p>测试安装成功：</p>
-<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">roscore</span><br></pre></td></tr></tbody></table>
-
-
-</li>
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">roscore</span><br></pre></td></tr></tbody></table></li>
 </ol>
 <p>出现了started core service表示安装成功。</p>
 

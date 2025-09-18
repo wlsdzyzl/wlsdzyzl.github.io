@@ -137,7 +137,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -294,24 +294,21 @@
     <div class="post-body" itemprop="articleBody"><p>Gradient Decent,即梯度下降。梯度下降是机器学习中非常重要的接近最优解的工具。<span id="more"></span>理论上只要得到梯度，就可以使用梯度下降。因此它同样可以用于linear regression，在数据量很大特征很多的情况下，因为矩阵求逆的时间复杂度很大，它往往比之前介绍的linear regression“一步登天”的做法性能更好。</p>
 <p>首先，假设我们已经知道了$E_ {in}$的梯度为$\nabla E_ {in}$。首先，我们要知道一件事，梯度是所有方向上，“坡度”最陡的方向。梯度下降，使用了贪心的思想：每次都朝着坡度最陡的方向往下走。也许最后得到的不一定是全局最优解，但是一定是一个极小值点，通常也能取得不错的效果。</p>
 <p>所以，有一个起始点为$W_0$，每次向下走一个单位的长度乘上一个未知的$\eta$，用来控制步长。在梯度方向上的单位向量等于$\frac {\nabla E_ {in} }{|\nabla E_ {in}|}$，当然，我们也可以很容易知道，我们要走的方向应该是梯度的反方向。因为求出来的梯度往往指向的是函数值增加最快的方向，而我们要的是尽可能减少$E_ {in}$。所以就可以得到下面的式子：</p>
-<script type="math/tex; mode=display">
-W_1 = W_0 - \eta \frac {\nabla E_ {in} }{|\nabla E_ {in}|}</script><p>每次朝着梯度方向走一步，理想中这个函数就会下降一点，因为当走动的距离很小时候，有以下近似式：</p>
-<script type="math/tex; mode=display">
-E_ {in}(W_0+\Delta) \approx E_ {in} + \Delta \nabla E_ {in} (W_0)</script><p>上式其实是多维函数泰勒展开式（一阶）。</p>
+<p>$$<br>W_1 &#x3D; W_0 - \eta \frac {\nabla E_ {in} }{|\nabla E_ {in}|}<br>$$</p>
+<p>每次朝着梯度方向走一步，理想中这个函数就会下降一点，因为当走动的距离很小时候，有以下近似式：</p>
+<p>$$<br>E_ {in}(W_0+\Delta) \approx E_ {in} + \Delta \nabla E_ {in} (W_0)<br>$$</p>
+<p>上式其实是多维函数泰勒展开式（一阶）。</p>
 <p>接下来，就是对$\eta$的选择了。选择$\eta$时候，有下面几种情况：<br>1.$\eta$ 太小。 如果$\eta$很小，那么我们可以保证它最后一定可以走到一个很低的地方，不过速度太慢了。因为每一步步长太小。</p>
 <p>2.$\eta$ 太大。如果$\eta$太大，那么之前的泰勒展开式就不适用，充满了不确定性。有可能一步太长走到对面，运气好的话函数值还在变小，运气不好函数值会增加，因此这样也是不可选的。</p>
-<p>3.如下图，让$\eta$在变化。当梯度很大时候，步子迈的大一点，当梯度小了，意味着距离最低点很近了，步子小一点，谨慎一点走。上面三种情况如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/eta_choice.png" alt=""></p>
-<p>很明显，我们应当选择的是第三种策略。如何控制$\eta$可变？简单的做法就是让$\eta$与$|\nabla E_ {in}|$成正比，如果$\eta = \alpha|\nabla E_ {in}| $就会抵消了原来式子中的分母部分，最后得到下式：</p>
-<script type="math/tex; mode=display">
-W_ {i+1} = W_i - \eta  {\nabla E_ {in} }</script><p>可以看到式子变得更加简洁了。</p>
+<p>3.如下图，让$\eta$在变化。当梯度很大时候，步子迈的大一点，当梯度小了，意味着距离最低点很近了，步子小一点，谨慎一点走。上面三种情况如下图：<br><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/eta_choice.png"></p>
+<p>很明显，我们应当选择的是第三种策略。如何控制$\eta$可变？简单的做法就是让$\eta$与$|\nabla E_ {in}|$成正比，如果$\eta &#x3D; \alpha|\nabla E_ {in}| $就会抵消了原来式子中的分母部分，最后得到下式：<br>$$<br>W_ {i+1} &#x3D; W_i - \eta  {\nabla E_ {in} }<br>$$<br>可以看到式子变得更加简洁了。</p>
 <p>上式中的$\eta$成为fixed learning rate，尽管学习率是固定的，但是每一步步长却在改变。当然，对于上式中的$\eta$我们也应该选择合适的值，否则还是会出现上述的两种情况，但是它改进了很多，使得算法效率得到了提升。</p>
 <p>最后，梯度下降什么时候停止？当$\nabla E_ {in} \approx 0 $或者进行了足够多次数的迭代之后，我们就应该停止了。因为在计算机中数值上得到一个完全为0的值是很困难的，而约等于0时候，我们就可以取得满意的结果。或者进行了足够多的次数，依然得不到满意的结果，我们需要考虑的是改进算法，是不是学习率值取得不够好等等。</p>
 <p>以上就是梯度下降。</p>
 <p>在这里，另外提到一个叫随机梯度下降（Stochastic Gradient Desent）的算法。上面介绍的梯度下降算法虽然可以很好的找到我们想要的结果，但是在n很大的时候，每次更新都需要进行求和平均，这就导致了算法速度可能受到影响。实际上，它的时间复杂度与POCKET算法是一样的。我们希望可以将复杂度提升到PLA的级别。</p>
-<p>$E_ {in}$的定义是对所有点的$err$加起来求平均，在n很大时候，平均值的期望值与随机抽取一个样本的值的期望值是接近的，因此随机梯度下降实际上就是每次随机选取一个点（或者少量点求平均），然后用它的$err$来计算梯度，并进行更正。它类似于PLA算法的步骤:</p>
-<script type="math/tex; mode=display">
-SGD logistic regression:  W_ {t+1} = W_t + \eta  \theta (-y_nW_t^TXn)(y_nX_n)</script><script type="math/tex; mode=display">
-PLA:W_ {t+1} =  W_ {t}+[y \neq sign(W_t^TX_n)] (y_nX_n)</script><p>当SGD logistic regression的错误非常离谱，它的更新效果实际上接近于PLA算法。</p>
+<p>$E_ {in}$的定义是对所有点的$err$加起来求平均，在n很大时候，平均值的期望值与随机抽取一个样本的值的期望值是接近的，因此随机梯度下降实际上就是每次随机选取一个点（或者少量点求平均），然后用它的$err$来计算梯度，并进行更正。它类似于PLA算法的步骤:<br>$$<br>SGD logistic regression:  W_ {t+1} &#x3D; W_t + \eta  \theta (-y_nW_t^TXn)(y_nX_n)<br>$$</p>
+<p>$$<br>PLA:W_ {t+1} &#x3D;  W_ {t}+[y \neq sign(W_t^TX_n)] (y_nX_n)<br>$$</p>
+<p>当SGD logistic regression的错误非常离谱，它的更新效果实际上接近于PLA算法。</p>
 <p>这个算法运行什么时候终结？一般来说运行足够长的时间之后或者此时的$E_ {in}$已经足够小，我们就认为已经取得了不错的效果。它的优点是速度快，缺点是最终的结果相比于梯度下降还是差了一点。因此它是梯度下降算法的一个改进。</p>
 <p>适用场景：1.n特别大 2.如果本身样本是一个一个来的，而不是一批一批来的，也可以适用这个方法，也就是可以适用于在线学习（online learning）。</p>
 

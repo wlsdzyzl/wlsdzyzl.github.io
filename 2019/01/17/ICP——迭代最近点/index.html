@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -292,34 +292,17 @@
     
     <div class="post-body" itemprop="articleBody"><p>ICP（iterative closest point）最广泛的应用应该就是点云的配准了。它的提出也是为了解决这个问题。</p>
 <span id="more"></span>
+
+
+
 <p>假设我们有两个点云，它们应该是一一配对的（或者说在SLAM中两个场景有较大的overlap），但是我们并不知道点的配对关系。现在我们希望根据这两个点云的位置求到相机的位姿变化，也就是旋转矩阵$R$与平移$t$。</p>
-<p>假设这两个点云分别为$p,p’$，那么我们知道$p = Rp’ + t $。想要求得$R,t$，首先要做的是配对关系。而ICP非常简单，它选取距离最近（一般来说为欧几里得距离）的点作为配对的点。因此，现在我们有了两组配对点：</p>
-<script type="math/tex; mode=display">
-P = \{p_1,p_2,...,p_n\}, P' = \{p'_1,p'_2,...,p'_n\}</script><p>我们希望做的是最小化下面这个代价：</p>
-<script type="math/tex; mode=display">
-J = \sum_ {i=1}^n\Vert p'_i - (Rp_i+t)\Vert^2</script><p>如何解这其中的$R$和$t$？比较容易想到的就是最小二乘法，下面我们推导介绍一下利用SVD来解决这个最小二乘问题。</p>
-<p>首先定义点云的质心为：</p>
-<script type="math/tex; mode=display">
-p = \frac 1 n \sum_ {i=1}^np_i, p' = \frac{1}{n} \sum_ {i=1}^np'_i</script><p>则:</p>
-<script type="math/tex; mode=display">
-\begin{aligned} \sum_ {i=1}^n\Vert p'_i - (Rp_i + t) \Vert^2 &= \sum_ {i=1}^n\Vert p'_i- Rp_i - t - p' + Rp + p' - Rp \Vert^2\\ &=\sum_ {i=1}^n\Vert (p'_i-p'-R(p_i-p)) + (p'-Rp - t) \Vert^2\\ &= \sum_ {i=1}^n(\Vert p'_i-p'-R(p_i-p)\Vert^2 + \Vert p'-Rp - t \Vert^2 + 2(p'_i-p'-R(p_i-p))^T(p'-Rp - t)) \end{aligned}</script><p>值得注意的是：$p’_i-p’-R(p_i-p)$在求和之后为0，这是由质心的定义决定的。</p>
-<p>因此原来的问题就简化为：</p>
-<script type="math/tex; mode=display">
-\min_ {R,t} J = \sum_ {i=1}^n(\Vert p'_i-p'-R(p_i-p)\Vert^2 + \Vert p'-Rp - t \Vert^2</script><p>观察之后，我们发现第一个式子只和旋转有关，第二个式子和旋转平移都有关，不过另一方面它只和质心相关。如果我们求得了$R$，简单的令第二个式子为0就可以求得对应的$t$。所以现在ICP的算法表述如下：</p>
-<p>令$q_i,q’_i$为原来点的去质心坐标：</p>
-<script type="math/tex; mode=display">
-q_i = p_i - p,q'_i = p'_i - p'</script><p>计算最佳的$R$:</p>
-<script type="math/tex; mode=display">
-R^* = \arg\min_R \sum_ {i=1}^n\Vert q'_i - Rq_i\Vert^2</script><p>最后，根据$R^*$计算$t$:</p>
-<script type="math/tex; mode=display">
-t^* = p' - R^{*}p</script><p>因此求得$R$之后，$t$是非常容易得到的。</p>
-<script type="math/tex; mode=display">
-\sum_ {i=1}^n\Vert q'_i-Rq_i\Vert^2 = \sum_ {i=1}^n( {q'}_i^Tq'_i + q_i^TR^TRq_i - 2{q'}_i^TRq_i)</script><p>第一项与$R$无关，而$R^TR=I$，因此第二项也无所谓。我们重点要做的是$\min_R \sum_ {i=1}^n -{q’}_i^TRq_i$。</p>
-<script type="math/tex; mode=display">
-\sum_ {i=1}^n -{q'}_i^TRq_i = \sum_ {i=1}^n -\text{tr}(Rq_i{q'}_ i^T) = -\text{tr}\left(R\sum_ {i=1}^nq_i{q'}_i^T\right)</script><p>计算这个$R$可以使用SVD来解决。</p>
-<p>定义$W = \sum_ {i=1}^n q’_iq_i^T$，根据SVD得到：</p>
-<p>W = U\Sigma V^T</p>
-<p>则$R^* = UV^T$。如果$\text{rank}(W)=3$，则$R$是唯一最优解。具体的证明比较复杂。这就求得了从$p$到$p’$的旋转，有了旋转矩阵，平移就非常容易得到了。</p>
+<p>假设这两个点云分别为$p,p’$，那么我们知道$p &#x3D; Rp’ + t $。想要求得$R,t$，首先要做的是配对关系。而ICP非常简单，它选取距离最近（一般来说为欧几里得距离）的点作为配对的点。因此，现在我们有了两组配对点：<br>$$<br>P &#x3D; {p_1,p_2,…,p_n}, P’ &#x3D; {p’_1,p’_2,…,p’<em>n}<br>$$<br>我们希望做的是最小化下面这个代价：<br>$$<br>J &#x3D; \sum</em> {i&#x3D;1}^n\Vert p’_i - (Rp_i+t)\Vert^2<br>$$<br>如何解这其中的$R$和$t$？比较容易想到的就是最小二乘法，下面我们推导介绍一下利用SVD来解决这个最小二乘问题。</p>
+<p>首先定义点云的质心为：<br>$$<br>p &#x3D; \frac 1 n \sum_ {i&#x3D;1}^np_i, p’ &#x3D; \frac{1}{n} \sum_ {i&#x3D;1}^np’<em>i<br>$$<br>则:<br>$$<br>\begin{aligned} \sum</em> {i&#x3D;1}^n\Vert p’<em>i - (Rp_i + t) \Vert^2 &amp;&#x3D; \sum</em> {i&#x3D;1}^n\Vert p’<em>i- Rp_i - t - p’ + Rp + p’ - Rp \Vert^2\ &amp;&#x3D;\sum</em> {i&#x3D;1}^n\Vert (p’<em>i-p’-R(p_i-p)) + (p’-Rp - t) \Vert^2\ &amp;&#x3D; \sum</em> {i&#x3D;1}^n(\Vert p’_i-p’-R(p_i-p)\Vert^2 + \Vert p’-Rp - t \Vert^2 + 2(p’_i-p’-R(p_i-p))^T(p’-Rp - t)) \end{aligned}<br>$$<br>值得注意的是：$p’_i-p’-R(p_i-p)$在求和之后为0，这是由质心的定义决定的。</p>
+<p>因此原来的问题就简化为：<br>$$<br>\min_ {R,t} J &#x3D; \sum_ {i&#x3D;1}^n(\Vert p’_i-p’-R(p_i-p)\Vert^2 + \Vert p’-Rp - t \Vert^2<br>$$<br>观察之后，我们发现第一个式子只和旋转有关，第二个式子和旋转平移都有关，不过另一方面它只和质心相关。如果我们求得了$R$，简单的令第二个式子为0就可以求得对应的$t$。所以现在ICP的算法表述如下：</p>
+<p>令$q_i,q’_i$为原来点的去质心坐标：<br>$$<br>q_i &#x3D; p_i - p,q’_i &#x3D; p’<em>i - p’<br>$$<br>计算最佳的$R$:<br>$$<br>R^* &#x3D; \arg\min_R \sum</em> {i&#x3D;1}^n\Vert q’<em>i - Rq_i\Vert^2<br>$$<br>最后，根据$R^<em>$计算$t$:<br>$$<br>t^</em> &#x3D; p’ - R^{*}p<br>$$<br>因此求得$R$之后，$t$是非常容易得到的。<br>$$<br>\sum</em> {i&#x3D;1}^n\Vert q’<em>i-Rq_i\Vert^2 &#x3D; \sum</em> {i&#x3D;1}^n( {q’}<em>i^Tq’<em>i + q_i^TR^TRq_i - 2{q’}<em>i^TRq_i)<br>$$<br>第一项与$R$无关，而$R^TR&#x3D;I$，因此第二项也无所谓。我们重点要做的是$\min_R \sum</em> {i&#x3D;1}^n -{q’}<em>i^TRq_i$。<br>$$<br>\sum</em> {i&#x3D;1}^n -{q’}<em>i^TRq_i &#x3D; \sum</em> {i&#x3D;1}^n -\text{tr}(Rq_i{q’}</em> i^T) &#x3D; -\text{tr}\left(R\sum</em> {i&#x3D;1}^nq_i{q’}_i^T\right)<br>$$<br>计算这个$R$可以使用SVD来解决。</p>
+<p>定义$W &#x3D; \sum_ {i&#x3D;1}^n q’_iq_i^T$，根据SVD得到：</p>
+<p>W &#x3D; U\Sigma V^T</p>
+<p>则$R^* &#x3D; UV^T$。如果$\text{rank}(W)&#x3D;3$，则$R$是唯一最优解。具体的证明比较复杂。这就求得了从$p$到$p’$的旋转，有了旋转矩阵，平移就非常容易得到了。</p>
 <p>至于迭代的过程，就是我们根据求得的$R,t$进行转换后，重复上述的步骤。</p>
 <p>最早的关于ICP的论文为<a target="_blank" rel="noopener" href="http://www-evasion.inrialpes.fr/people/Franck.Hetroy/Teaching/ProjetsImage/2007/Bib/besl_mckay-pami1992.pdf">A Method for Registration of 3-D Shapes</a>。</p>
 

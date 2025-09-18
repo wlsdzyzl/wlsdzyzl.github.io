@@ -137,7 +137,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -291,50 +291,27 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>上节课除了说了softmax与HGR，还介绍了ACE算法的拓展：多变量下的ACE。<br><span id="more"></span><br>之前的ACE是从两个变量$X,Y$之间的信息推导出来的，而这次要拓展到d个变量。可以看到的是，这时候我们没有把哪个变量当作标签了，因此这是非监督学习。实际上我认为之前的ACE也可以说是非监督学习。分析到信息论层面非监督学习和监督学习联系到一起了，它们之间的界限变得比较模糊了。</p>
-<p>现在，有ｄ个离散变量：$X_1,X_2,…,X_d$.类似于之前，我们要做的是：</p>
-<script type="math/tex; mode=display">
-\max \mathbb{E}[\sum_ { i \ne j} f_i(X_i) f_j(X_j)]\\
-s.t. \mathbb{E}[f_i(X_i)] = 0, \mathbb{E}[f_i^2(X_i)] = 1</script><p>这时候的$\mathbb{E}[f_i(X_i) f_j(X_j)] = \Psi_i^T B_ {ij} \Phi_j$.这里的$B_ {ij}$表示的是一个矩阵：</p>
-<script type="math/tex; mode=display">B_ {ij,x_i,x_j}  \frac{p_ {X_iX)j}(x_i,x_j)}{\sqrt{p_ {X_i}(x_i)p_ {X_j}(x_j)} },B_ {|X_j| \times |X_i|},B_ {ij,|X_i| \times |X_j|}.</script><p>而定义$B$矩阵为：</p>
-<script type="math/tex; mode=display">
-B_ {|X_1|+...+|X_m| \times|X_1|+...+|X_m|  } = \begin{bmatrix}
-0&B_ {12}&\cdots&B_ {1d}\\
-B_ {21}&0&\cdots&B_ {2d}\\
-\vdots&\vdots&\ddots&\vdots\\
-B_ {d1}&B_ {d2}&\cdots&0
-\end{bmatrix}</script><script type="math/tex; mode=display">
-\Psi = \begin{bmatrix}
-\Psi_1^T,\Psi_2^T,...,\Psi_d^T
-\end{bmatrix}^T\\
-\Phi = \begin{bmatrix}
-\Phi_1^T,\Phi_2^T,...,\Phi_d^T
-\end{bmatrix}^T</script><p>$\mathbb{E}[\sum_ {i \ne j} f_i(X_i)f_j(X_j)] = \Psi ^T B \Phi $<br>由于：</p>
-<script type="math/tex; mode=display">
-\mathbb{E}[f_i(X_i) f_j(X_j)] = \Psi_i^T B_ {ij} \Phi_j= \Phi_j^T B_ {ji} \Psi_i = \mathbb{E}[f_j(X_j) f_i(X_i)] = \Psi_j^T B_ {ji} \Phi_i</script><p>所以我们可以得到：$\Phi_i = \Psi_i$，也就是对于每个变量我们只需要学习一个函数$f_i(X_i)$即可。</p>
+    <div class="post-body" itemprop="articleBody"><p>上节课除了说了softmax与HGR，还介绍了ACE算法的拓展：多变量下的ACE。</p>
+<span id="more"></span>
+<p>之前的ACE是从两个变量$X,Y$之间的信息推导出来的，而这次要拓展到d个变量。可以看到的是，这时候我们没有把哪个变量当作标签了，因此这是非监督学习。实际上我认为之前的ACE也可以说是非监督学习。分析到信息论层面非监督学习和监督学习联系到一起了，它们之间的界限变得比较模糊了。</p>
+<p>现在，有ｄ个离散变量：$X_1,X_2,…,X_d$.类似于之前，我们要做的是：<br>$$<br>\max \mathbb{E}[\sum_ { i \ne j} f_i(X_i) f_j(X_j)]\<br>s.t. \mathbb{E}[f_i(X_i)] &#x3D; 0, \mathbb{E}[f_i^2(X_i)] &#x3D; 1<br>$$</p>
+<p>这时候的$\mathbb{E}[f_i(X_i) f_j(X_j)] &#x3D; \Psi_i^T B_ {ij} \Phi_j$.这里的$B_ {ij}$表示的是一个矩阵：</p>
+<p>$$B_ {ij,x_i,x_j}  \frac{p_ {X_iX)j}(x_i,x_j)}{\sqrt{p_ {X_i}(x_i)p_ {X_j}(x_j)} },B_ {|X_j| \times |X_i|},B_ {ij,|X_i| \times |X_j|}.$$<br>而定义$B$矩阵为：<br>$$<br>B_ {|X_1|+…+|X_m| \times|X_1|+…+|X_m|  } &#x3D; \begin{bmatrix}<br>0&amp;B_ {12}&amp;\cdots&amp;B_ {1d}\<br>B_ {21}&amp;0&amp;\cdots&amp;B_ {2d}\<br>\vdots&amp;\vdots&amp;\ddots&amp;\vdots\<br>B_ {d1}&amp;B_ {d2}&amp;\cdots&amp;0<br>\end{bmatrix}<br>$$<br>$$<br>\Psi &#x3D; \begin{bmatrix}<br>\Psi_1^T,\Psi_2^T,…,\Psi_d^T<br>\end{bmatrix}^T\<br>\Phi &#x3D; \begin{bmatrix}<br>\Phi_1^T,\Phi_2^T,…,\Phi_d^T<br>\end{bmatrix}^T<br>$$<br>$\mathbb{E}[\sum_ {i \ne j} f_i(X_i)f_j(X_j)] &#x3D; \Psi ^T B \Phi $<br>由于：<br>$$<br>\mathbb{E}[f_i(X_i) f_j(X_j)] &#x3D; \Psi_i^T B_ {ij} \Phi_j&#x3D; \Phi_j^T B_ {ji} \Psi_i &#x3D; \mathbb{E}[f_j(X_j) f_i(X_i)] &#x3D; \Psi_j^T B_ {ji} \Phi_i<br>$$<br>所以我们可以得到：$\Phi_i &#x3D; \Psi_i$，也就是对于每个变量我们只需要学习一个函数$f_i(X_i)$即可。</p>
 <p>下面是多变量ACE算法的过程：</p>
 <ol>
-<li><p>选择$f = {f_1,f_2,…,f_g}$，这些函数为normalize后的函数</p>
+<li><p>选择$f &#x3D; {f_1,f_2,…,f_g}$，这些函数为normalize后的函数</p>
 </li>
-<li><p>$f_i(x_i) \leftarrow \mathbb{E}[ \sum_ {j\ne i}f_j(X_j)|X_i = x_i]$ </p>
+<li><p>$f_i(x_i) \leftarrow \mathbb{E}[ \sum_ {j\ne i}f_j(X_j)|X_i &#x3D; x_i]$ </p>
 </li>
-<li><p>normalize. $f_i(X_i) \leftarrow \frac{f_i(X_i)}{\mathbb{E}\left[ \sum_ {i=1}^d f_i^2(X_i)\right]}$</p>
+<li><p>normalize. $f_i(X_i) \leftarrow \frac{f_i(X_i)}{\mathbb{E}\left[ \sum_ {i&#x3D;1}^d f_i^2(X_i)\right]}$</p>
 </li>
 </ol>
 <p>直到最后收敛。</p>
 <p>现在我想说明，实际上如果限定f为线性映射，那么得到的结果实际上就是PCA算法。</p>
-<p><a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/">PCA</a>想做的是：</p>
-<script type="math/tex; mode=display">
-\max \frac{1}{n} \sum_ {i=1}^n(X_i^Tu)^2</script><p>而：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac{1}{n} \sum_ {i=1}^n(X_i^Tu)^2 &= \frac{1}{n} \sum_ {i=1}^m(\sum_ {j=1}^d x_ {ij} \mu_j)^2\\
-&= \frac{1}{n} \sum_ {i=1}^n (\sum_ {j=1}^d x_ {ij}^2 \mu_j^2 + 2\sum_ {j \ne q} \underbrace{(x_ {ij}\mu_j)}_ {f_j(x_ij)}\underbrace{(x_ {iq}\mu_q)}_ {f_q(x_iq)}) 
-\end{aligned}</script><p>由于normalize, 我们可以使得：</p>
-<script type="math/tex; mode=display">
-\frac{1}{n}\sum_ {i=1}^n \sum_ {j=1}^d x_ {ij}^2 \mu_j^2 =\sum_ {j=1}^d \frac{1}{n}\sum_ {i=1}^n  x_ {ij}^2 \mu_j^2 = \sum_ {j=1}^d \mathbb{E}[f_j^2(X_j)]= d</script><p>而：</p>
-<script type="math/tex; mode=display">
-\frac{1}{n} \sum_ {i=1}^n \sum_ {j \ne q} \underbrace{(x_ {ij}\mu_j)}_ {f_j(x_ij)}\underbrace{(x_ {iq}\mu_q)}_ {f_q(x_iq)}) = \mathbb{E}[\sum_ {j \ne q}f_j(X_j)f_q(X_q)]</script><p>而这正是MACE在做的事情。不过PCA只能发现线性关系，因此它要求f为线性映射。</p>
+<p><a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/19/Learning-From-Data%E2%80%94%E2%80%94PCA/">PCA</a>想做的是：<br>$$<br>\max \frac{1}{n} \sum_ {i&#x3D;1}^n(X_i^Tu)^2<br>$$<br>而：<br>$$<br>\begin{aligned}<br>\frac{1}{n} \sum_ {i&#x3D;1}^n(X_i^Tu)^2 &amp;&#x3D; \frac{1}{n} \sum_ {i&#x3D;1}^m(\sum_ {j&#x3D;1}^d x_ {ij} \mu_j)^2\<br>&amp;&#x3D; \frac{1}{n} \sum_ {i&#x3D;1}^n (\sum_ {j&#x3D;1}^d x_ {ij}^2 \mu_j^2 + 2\sum_ {j \ne q} \underbrace{(x_ {ij}\mu_j)}_ {f_j(x_ij)}\underbrace{(x_ {iq}\mu_q)}_ {f_q(x_iq)})<br>\end{aligned}<br>$$</p>
+<p>由于normalize, 我们可以使得：<br>$$<br>\frac{1}{n}\sum_ {i&#x3D;1}^n \sum_ {j&#x3D;1}^d x_ {ij}^2 \mu_j^2 &#x3D;\sum_ {j&#x3D;1}^d \frac{1}{n}\sum_ {i&#x3D;1}^n  x_ {ij}^2 \mu_j^2 &#x3D; \sum_ {j&#x3D;1}^d \mathbb{E}[f_j^2(X_j)]&#x3D; d<br>$$</p>
+<p>而：<br>$$<br>\frac{1}{n} \sum_ {i&#x3D;1}^n \sum_ {j \ne q} \underbrace{(x_ {ij}\mu_j)}_ {f_j(x_ij)}\underbrace{(x_ {iq}\mu_q)}_ {f_q(x_iq)}) &#x3D; \mathbb{E}[\sum_ {j \ne q}f_j(X_j)f_q(X_q)]<br>$$</p>
+<p>而这正是MACE在做的事情。不过PCA只能发现线性关系，因此它要求f为线性映射。</p>
 <p>更多细节请参考：</p>
 <p><a target="_blank" rel="noopener" href="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_pdf/An%20information-theoretic%20approach%20to%20unsupervised%20feature%20selection%20for%20high-dimensional%20data_196602880.pdf">An Information-theoretic Approach to Unsupervised<br>Feature Selection for High-Dimensional Data</a></p>
 

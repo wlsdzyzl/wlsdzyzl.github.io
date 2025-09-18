@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -300,53 +300,30 @@
 <ul>
 <li>定义在凸集D上的函数f(x)如果满足$f(\lambda \alpha + (1-\lambda)\beta) \leq \lambda f(\alpha) + (1-\lambda) f(\beta)$,则为下凸函数。</li>
 </ul>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/ConvexFunction.svg/768px-ConvexFunction.svg.png" alt=""></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/ConvexFunction.svg/768px-ConvexFunction.svg.png"></p>
 <ul>
 <li>定义在凸集D上的函数f(x)如果满足$f(\lambda \alpha + (1-\lambda)\beta) \geq \lambda f(\alpha) + (1-\lambda) f(\beta)$,则为上凸函数。</li>
 </ul>
 <h2 id="Jenson不等式"><a href="#Jenson不等式" class="headerlink" title="Jenson不等式"></a>Jenson不等式</h2><p>如果f是下凸函数，且X是离散随机变量，则$Ef(X)\geq f(EX)$,并且如果f是严格下凸函数，则上式中等号说明X为常数，及X与EX以概率1相等。（其中E为平均取值）。</p>
-<p>由Jenson不等式可以推出<strong>对数求和不等式</strong>：<br>对于非负实数$a_1,a_2,…,a_n;b_1,b_2,…,b_n$有</p>
-<script type="math/tex; mode=display">
-\sum _ {i=1}^n a_i \log \frac{a_i}{b_i} \geq \left(\sum_ {i=1}^na_i \right) \log \frac{\sum _ {i=1}^n a_i}{\sum _ {i=1}^n b_i}</script><p>这个式子的证明如下：</p>
-<p>首先，当$t&gt;0$时，$t \log t$为一个严格下凸函数.可自行用导数证明。<br>由Jenson不等式可以得到：</p>
-<script type="math/tex; mode=display">
- Et \log Et \leq \ E(t \log t)\\
-i.e. \sum \alpha_i f(t_i) \geq  f(\sum \alpha _i t_i)\\</script><p>令$\alpha _i = \frac {b_i}{B},t_i=\frac {a_i}{b_i}, B = \sum_ {b_i}$，代入上式可以得到：</p>
-<script type="math/tex; mode=display">
- \sum \frac{b_i}{B}\frac{a_i}{b_i} \log (\frac{a_i}{b_i}) \geq(\sum \frac{b_i}{B}\frac{a_i}{b_i}) \log(\sum \frac{b_i}{B}\frac{a_i}{b_i})\\
- \sum \frac{a_i}{B} \log (\frac{a_i}{b_i}) \geq (\sum \frac{a_i}{B}) \log{\sum \frac {a_i}{B} }\\
- \sum a_i \log {\frac {a_i}{b_i} } \geq (\sum a_i) \log {\frac {\sum a_i}{\sum b_i} }</script><p>在这里要学会如何构造去证明这个不等式。</p>
+<p>由Jenson不等式可以推出<strong>对数求和不等式</strong>：<br>对于非负实数$a_1,a_2,…,a_n;b_1,b_2,…,b_n$有<br>$$<br>\sum _ {i&#x3D;1}^n a_i \log \frac{a_i}{b_i} \geq \left(\sum_ {i&#x3D;1}^na_i \right) \log \frac{\sum _ {i&#x3D;1}^n a_i}{\sum _ {i&#x3D;1}^n b_i}<br>$$</p>
+<p>这个式子的证明如下：</p>
+<p>首先，当$t&gt;0$时，$t \log t$为一个严格下凸函数.可自行用导数证明。<br>由Jenson不等式可以得到：<br>$$<br> Et \log Et \leq \ E(t \log t)\<br>i.e. \sum \alpha_i f(t_i) \geq  f(\sum \alpha _i t_i)\<br>$$<br>令$\alpha <em>i &#x3D; \frac {b_i}{B},t_i&#x3D;\frac {a_i}{b_i}, B &#x3D; \sum</em> {b_i}$，代入上式可以得到：<br>$$<br> \sum \frac{b_i}{B}\frac{a_i}{b_i} \log (\frac{a_i}{b_i}) \geq(\sum \frac{b_i}{B}\frac{a_i}{b_i}) \log(\sum \frac{b_i}{B}\frac{a_i}{b_i})\<br> \sum \frac{a_i}{B} \log (\frac{a_i}{b_i}) \geq (\sum \frac{a_i}{B}) \log{\sum \frac {a_i}{B} }\<br> \sum a_i \log {\frac {a_i}{b_i} } \geq (\sum a_i) \log {\frac {\sum a_i}{\sum b_i} }<br>$$</p>
+<p>在这里要学会如何构造去证明这个不等式。</p>
 <h2 id="凸性"><a href="#凸性" class="headerlink" title="凸性"></a>凸性</h2><h3 id="鉴别信息的凸性"><a href="#鉴别信息的凸性" class="headerlink" title="鉴别信息的凸性"></a>鉴别信息的凸性</h3><p>$D(p\Vert q)$是$(p,q)$的下凸函数。即若存在$(p_1,q_1)$和$(p_2,q_2)$,则$\lambda D(p_1\Vert q_1) + (1 - \lambda) D(p_2\Vert q_2) \geq D(\lambda p_1 + (1-\lambda)p_2 \Vert \lambda q_1+(1 - \lambda)q_2)$对所有的$0\leq \lambda \1$成立。</p>
-<p>证明如下：</p>
-<script type="math/tex; mode=display">
-\begin{align}
-D(\lambda p_1 + (1-\lambda)p_2 \Vert \lambda q_1+(1 - \lambda)q_2)&=\sum_ {x \in \mathcal{X} } \left [ \lambda p_1(x)+ \overline {\lambda} p_2(x) \right] \log \frac{\lambda p_1(x)+ \overline {\lambda} p_2(x)}{\lambda q_1(x)+ \overline {\lambda} q_2(x)}\\
-& \leq \sum_ {x \in \mathcal{X} } \lambda p_1(x) \log {\frac{p_1(x)}{q_1(x)} } +  \overline {\lambda} p_2(x) \log \frac{p_2}{q_2}\\
-&= \sum_ {x \in \mathcal{X} } \lambda D(p_1 \Vert q_1) + \overline {\lambda} D(p_2 \Vert q_2)
-\end{align}</script><p>可以看到上式的证明利用到了之前的对数求和不等式。</p>
+<p>证明如下：<br>$$<br>\begin{align}<br>D(\lambda p_1 + (1-\lambda)p_2 \Vert \lambda q_1+(1 - \lambda)q_2)&amp;&#x3D;\sum_ {x \in \mathcal{X} } \left [ \lambda p_1(x)+ \overline {\lambda} p_2(x) \right] \log \frac{\lambda p_1(x)+ \overline {\lambda} p_2(x)}{\lambda q_1(x)+ \overline {\lambda} q_2(x)}\<br>&amp; \leq \sum_ {x \in \mathcal{X} } \lambda p_1(x) \log {\frac{p_1(x)}{q_1(x)} } +  \overline {\lambda} p_2(x) \log \frac{p_2}{q_2}\<br>&amp;&#x3D; \sum_ {x \in \mathcal{X} } \lambda D(p_1 \Vert q_1) + \overline {\lambda} D(p_2 \Vert q_2)<br>\end{align}<br>$$</p>
+<p>可以看到上式的证明利用到了之前的对数求和不等式。</p>
 <h3 id="熵的凸性"><a href="#熵的凸性" class="headerlink" title="熵的凸性"></a>熵的凸性</h3><p>知道了鉴别信息的下凸性质，证明熵的凸性就非常容易。</p>
-<p>$H(X) = \log |X| - D(p\Vert u)$</p>
+<p>$H(X) &#x3D; \log |X| - D(p\Vert u)$</p>
 <p>上式中，u不变，是均匀分布的情况，这时候D是一个下凸函数，而很明显$\log |X|$不变，因此$H(X)$是一个上凸函数。其实大家也很容易理解。因为均匀分布式的熵最大，也就是有最大值。</p>
 <h3 id="互信息的凸性"><a href="#互信息的凸性" class="headerlink" title="互信息的凸性"></a>互信息的凸性</h3><p>下面来证明互信息的凸性。</p>
-<p>互信息定义为下：</p>
-<script type="math/tex; mode=display">
-I(X;Y) = I(p;Q) =  \sum_ {x \in \mathcal{X} } \sum_ {y \in \mathcal{Y} } p(x)q(y|x)\log \frac{q(y|x)}{\sum _ {x \in \mathcal{X} }p(x)q(y|x)}</script><p>这样的写法，对于信道传输的模型更有帮助。</p>
+<p>互信息定义为下：<br>$$<br>I(X;Y) &#x3D; I(p;Q) &#x3D;  \sum_ {x \in \mathcal{X} } \sum_ {y \in \mathcal{Y} } p(x)q(y|x)\log \frac{q(y|x)}{\sum _ {x \in \mathcal{X} }p(x)q(y|x)}<br>$$</p>
+<p>这样的写法，对于信道传输的模型更有帮助。</p>
 <p>首先如果给定Q，这意味着给定了信道：</p>
-<p>Fix Q =[g(y|x)]</p>
-<script type="math/tex; mode=display">
-\begin{align}
-I(X;Y) &= H(Y) - H(Y|X)\\
-&= H(Y) - \sum_ {x \in \mathcal{X} } p(x)H(Y|X=x)\\
-&= H(Y) - \sum_ {x \in \mathcal{X} } p(x) \sum_ {y in \mathcal{Y} } q(y|x) \log \frac{q(y|x)}
-\end{align}</script><p>上式中既然Q已经给定，因此H(Y|X)也就是p(x)线性组合。因此整个函数为上凸减去线性，依然为上凸函数。</p>
+<p>Fix Q &#x3D;[g(y|x)]<br>$$<br>\begin{align}<br>I(X;Y) &amp;&#x3D; H(Y) - H(Y|X)\<br>&amp;&#x3D; H(Y) - \sum_ {x \in \mathcal{X} } p(x)H(Y|X&#x3D;x)\<br>&amp;&#x3D; H(Y) - \sum_ {x \in \mathcal{X} } p(x) \sum_ {y in \mathcal{Y} } q(y|x) \log \frac{q(y|x)}<br>\end{align}<br>$$</p>
+<p>上式中既然Q已经给定，因此H(Y|X)也就是p(x)线性组合。因此整个函数为上凸减去线性，依然为上凸函数。</p>
 <p>如果给定p：</p>
 <p>Fix p(x):</p>
-<script type="math/tex; mode=display">
-\begin{align}
-I(X;Y) = D(p(x,y)\Vert p(x)(y))\\
-p(x,y) = p(x)q(y|x)\\
-p(y) = \sum_ {x \in \mathcal{X} } p(x)q(y|x)
-\end{align}</script><p>因此p(x,y),p(y),p(x)p(y)都是q(y|x)的线性组合。而D本身是下凸函数。所以互信息固定p(x)时候为下凸函数。可用于有失真编码。</p>
+<p>$$<br>\begin{align}<br>I(X;Y) &#x3D; D(p(x,y)\Vert p(x)(y))\<br>p(x,y) &#x3D; p(x)q(y|x)\<br>p(y) &#x3D; \sum_ {x \in \mathcal{X} } p(x)q(y|x)<br>\end{align}<br>$$<br>因此p(x,y),p(y),p(x)p(y)都是q(y|x)的线性组合。而D本身是下凸函数。所以互信息固定p(x)时候为下凸函数。可用于有失真编码。</p>
 
     </div>
 

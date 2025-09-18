@@ -135,7 +135,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -160,7 +160,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Kraft不等式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E5%89%8D%E7%BC%80%E7%A0%81%E7%A0%81%E9%95%BF%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.</span> <span class="nav-text">任意前缀码码长约束</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Kraft不等式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E5%89%8D%E7%BC%80%E7%A0%81%E7%A0%81%E9%95%BF%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.</span> <span class="nav-text">任意前缀码码长约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%89%8D%E7%BC%80%E7%A0%81%E5%AE%9A%E7%90%86%EF%BC%88%E9%A6%99%E5%86%9C%E7%AC%AC%E4%B8%80%E5%AE%9A%E7%90%86%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">最优前缀码定理（香农第一定理）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%89%8D%E7%BC%80%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">分组前缀码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E6%95%88%E7%8E%87%E4%B8%8E%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">5.</span> <span class="nav-text">编码效率与互信息</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -290,94 +290,48 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>上次介绍了香农无损编码定理以及一些不同类别的编码。这次介绍kraft不等式以及huffman编码，并且说明霍夫曼编码的最优性。<br><span id="more"></span></p>
+    <div class="post-body" itemprop="articleBody"><p>上次介绍了香农无损编码定理以及一些不同类别的编码。这次介绍kraft不等式以及huffman编码，并且说明霍夫曼编码的最优性。</p>
+<span id="more"></span>
+
 <p>Kraft不等式为前缀码约束条件。在前缀码中，显然不能使用所有的最短的码字，这样的话前缀码的条件就无法满足。就用二叉树来编码（二进制编码）的时候，如果一个节点被作为码字，则它的子树结点都无法作为码字。</p>
 <h2 id="Kraft不等式"><a href="#Kraft不等式" class="headerlink" title="Kraft不等式"></a>Kraft不等式</h2><p>kraft不等式定义如下：</p>
-<p>任意D-进制码前缀码其码长$l_1,l_2,…,l_m$，满足</p>
-<script type="math/tex; mode=display">
-\sum_ {i} D^{-l_i} \leq 1</script><p>反之，如果码长约束满足上述不等式，则必然可以构造出具有此码长的前缀码。 </p>
+<p>任意D-进制码前缀码其码长$l_1,l_2,…,l_m$，满足<br>$$<br>\sum_ {i} D^{-l_i} \leq 1<br>$$</p>
+<p>反之，如果码长约束满足上述不等式，则必然可以构造出具有此码长的前缀码。 </p>
 <p>Kraft不等式的证明是非常直接的：</p>
 <ul>
 <li>必要性：</li>
 </ul>
 <p>我们依然从D叉树来考虑这个问题。假如码字最长为$l_ {max}$.当一个结点被选做码字的时候，假设这个结点的深度为$l_i$，也就是码长为$l_i$.那么因为它的存在，它子树的结点都不能再次作为码字。因此我们就损失了D^{l_ {max} - l_i}个叶子结点（注意，这里说的是叶子结点）。</p>
 <p>这棵树的所有叶子结点数目为：$D^{l_max}$.我们最多把所有的叶子结点都给剪掉。</p>
-<p>现在假设一共有m个码字，则：</p>
-<script type="math/tex; mode=display">
-\sum_ {i=1}^m D^{l_ {max} - l_i} \leq D^{l_ {max} }</script><p>两侧同时除以$D^{l_ {max} }$,就得到了kraft不等式。</p>
+<p>现在假设一共有m个码字，则：<br>$$<br>\sum_ {i&#x3D;1}^m D^{l_ {max} - l_i} \leq D^{l_ {max} }<br>$$</p>
+<p>两侧同时除以$D^{l_ {max} }$,就得到了kraft不等式。</p>
 <ul>
 <li>充分性</li>
 </ul>
 <p>充分性更好证明。我们只要在树上就可以很容易构造出来这样的编码。</p>
 <p>Kraft不等式给出了即时码的充要条件，但是和最优码长无关。</p>
-<h2 id="任意前缀码码长约束"><a href="#任意前缀码码长约束" class="headerlink" title="任意前缀码码长约束"></a>任意前缀码码长约束</h2><p>对随机变量X进行D进制前缀码编码，得到的码长满足：</p>
-<script type="math/tex; mode=display">
-L \ge H_D(X)</script><p>等号当且仅当$D^{-l_i} = p_i$时候成立。这个L为平均码长。</p>
-<p>证明如下：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-L - H_D(X) &= \sum P_i l_i - \sum P_i \log_D \frac 1 {P_i}\\
-&= \sum P_i \log_D D^{l_i} +\sum P_i \log_D P_i\\
-&= \sum P_i \log_D P_i - \sum P_i \log _D D^{-l_i}\\
-&= \sum P_i \log_D \frac{P_i}{D^{-l_i} } ----(1)\\
-\end{aligned}</script><p>也许大家会觉得从（1）可以直接得到:D(P\Vert D^{-l})，然后由互信息大于0从而完成证明。但这样是不严谨的，因为我们无法保证$\sum D^{-l_i} = 1$.</p>
-<p>因此这里需要做一个归一化处理：<br>令：$r_i = \frac{D^{-l_i} }{\Delta}，\Delta = \sum D^{-l_i}$<br>(这个地方真是不容易想到啊，很容易就不严谨了)</p>
-<p>则（1）可以写为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\sum P_i \log_D \frac{P_i}{D^{-l_i} } \\
-&=\sum P_i \log _D \frac{P_i}{r_i}\frac 1 {\Delta}\\
-&=\sum P_i \log_D \frac{P_i}{r_i} - \log_D \Delta \sum P_i\\
-&=D(P\Vert r) + \log \frac 1 \Delta 
-码长
-码长
-码长
-而$D(P\Vert r) + \log \frac 1 \Delta \ge 0$（由对数性质，鉴别信息性质以及Kraft不等式决定）.
-
-所以，我们完成了对上述定理的证明。
-
-## 最优前缀码定理（香农第一定理） ##
-
-该定理描述如下：
-
-对随机变量X进行D进制前缀编码，得到的最优码长满足下列不等式：</script><p>H_D(X) \leq L^* &lt; H_D(X)+1</p>
-<script type="math/tex; mode=display">
-
-左侧是不用证明的，因为上个定理已经证明了。我们主要需要证明的是右侧。
-
-香农通过构造香农码来证明右侧：
-
-取$\lceil \log_D \frac 1{P_i} \rceil$为码字长度，这样的编码是满足kraft不等式的：</script><p>\sum D^{-\rceil \log_D \frac 1 {P_i} } \leq \sum D^{-\log_D \frac 1 {P_i} } = \sum P_i = 1</p>
-<script type="math/tex; mode=display">
-因此我们可以根据这个码长来构造出相应的前缀码。
-
-我们知道：</script><p>\log _D \frac 1 {P_i} \leq l_i \leq \log_D \frac 1 {P_i}+1</p>
-<script type="math/tex; mode=display">
-
-如果对上述不等式的所有side求期望，得到：</script><p>H_D(X) \leq \sum p_il_i \leq H_D(X) + 1</p>
-<script type="math/tex; mode=display">
-
-这就是香农码。它不一定是最优，因此我们就完成了香农第一定理的证明。
-
-## 分组前缀码 ##
-
-定长编码定理告诉我们，$\epsilon$可以任意小，而变长编码告诉我们，我们付出的代价小于1。能不能让这个代价能保证比1更小呢？这就是分组编码。
-
-对于信源X进行分组前缀编码，得到的每消息符号数$L_n^*$满足不等式：</script><p>\frac{H(X_1,X_2,…,X_n)}{n} \leq L_n^* \leq \frac{H(X_1,X_2,…,X_n)}{n}  + \frac 1 n</p>
-<script type="math/tex; mode=display">
-
-如果信源稳恒，则$L_n^* \rightarrow H(X)$.
-
-这要求我们对X进行分组，因此会有解码延迟，也需要缓冲区。但是通过这个，可以使得平均码长代价更小。天下没有免费的午餐。
-
-## 编码效率与互信息 ##
-
-最优前缀码的编码与信源的分布密切相关，但是我们不一定能准确知道信源的分布。如果信源分布估计出现偏差，则平均码长就会受到惩罚。
-
-Penalty分析：
-
-可以证明，对于服从p(x)信源X进行前缀编码，如果码字长度取$l(x) = \lceil \log \frac 1 {q(x)}\rceil$，则平均码长满足：</script><p>H(p) + D(p\Vert q) \leq E_ {p}l(X) &lt; H(p) + D(p\Vert q) +1</p>
-<p>$$</p>
+<h2 id="任意前缀码码长约束"><a href="#任意前缀码码长约束" class="headerlink" title="任意前缀码码长约束"></a>任意前缀码码长约束</h2><p>对随机变量X进行D进制前缀码编码，得到的码长满足：<br>$$<br>L \ge H_D(X)<br>$$</p>
+<p>等号当且仅当$D^{-l_i} &#x3D; p_i$时候成立。这个L为平均码长。</p>
+<p>证明如下：<br>$$<br>\begin{aligned}<br>L - H_D(X) &amp;&#x3D; \sum P_i l_i - \sum P_i \log_D \frac 1 {P_i}\<br>&amp;&#x3D; \sum P_i \log_D D^{l_i} +\sum P_i \log_D P_i\<br>&amp;&#x3D; \sum P_i \log_D P_i - \sum P_i \log _D D^{-l_i}\<br>&amp;&#x3D; \sum P_i \log_D \frac{P_i}{D^{-l_i} } —-(1)\<br>\end{aligned}<br>$$</p>
+<p>也许大家会觉得从（1）可以直接得到:D(P\Vert D^{-l})，然后由互信息大于0从而完成证明。但这样是不严谨的，因为我们无法保证$\sum D^{-l_i} &#x3D; 1$.</p>
+<p>因此这里需要做一个归一化处理：<br>令：$r_i &#x3D; \frac{D^{-l_i} }{\Delta}，\Delta &#x3D; \sum D^{-l_i}$<br>(这个地方真是不容易想到啊，很容易就不严谨了)</p>
+<p>则（1）可以写为：<br>$$<br>\begin{aligned}<br>\sum P_i \log_D \frac{P_i}{D^{-l_i} } \<br>&amp;&#x3D;\sum P_i \log _D \frac{P_i}{r_i}\frac 1 {\Delta}\<br>&amp;&#x3D;\sum P_i \log_D \frac{P_i}{r_i} - \log_D \Delta \sum P_i\<br>&amp;&#x3D;D(P\Vert r) + \log \frac 1 \Delta<br>码长<br>码长<br>码长<br>而$D(P\Vert r) + \log \frac 1 \Delta \ge 0$（由对数性质，鉴别信息性质以及Kraft不等式决定）.</p>
+<p>所以，我们完成了对上述定理的证明。</p>
+<h2 id="最优前缀码定理（香农第一定理）"><a href="#最优前缀码定理（香农第一定理）" class="headerlink" title="最优前缀码定理（香农第一定理）"></a>最优前缀码定理（香农第一定理）</h2><p>该定理描述如下：</p>
+<p>对随机变量X进行D进制前缀编码，得到的最优码长满足下列不等式：<br>$$<br>H_D(X) \leq L^* &lt; H_D(X)+1<br>$$</p>
+<p>左侧是不用证明的，因为上个定理已经证明了。我们主要需要证明的是右侧。</p>
+<p>香农通过构造香农码来证明右侧：</p>
+<p>取$\lceil \log_D \frac 1{P_i} \rceil$为码字长度，这样的编码是满足kraft不等式的：<br>$$<br>\sum D^{-\rceil \log_D \frac 1 {P_i} } \leq \sum D^{-\log_D \frac 1 {P_i} } &#x3D; \sum P_i &#x3D; 1<br>$$<br>因此我们可以根据这个码长来构造出相应的前缀码。</p>
+<p>我们知道：<br>$$<br>\log _D \frac 1 {P_i} \leq l_i \leq \log_D \frac 1 {P_i}+1<br>$$</p>
+<p>如果对上述不等式的所有side求期望，得到：<br>$$<br>H_D(X) \leq \sum p_il_i \leq H_D(X) + 1<br>$$</p>
+<p>这就是香农码。它不一定是最优，因此我们就完成了香农第一定理的证明。</p>
+<h2 id="分组前缀码"><a href="#分组前缀码" class="headerlink" title="分组前缀码"></a>分组前缀码</h2><p>定长编码定理告诉我们，$\epsilon$可以任意小，而变长编码告诉我们，我们付出的代价小于1。能不能让这个代价能保证比1更小呢？这就是分组编码。</p>
+<p>对于信源X进行分组前缀编码，得到的每消息符号数$L_n^<em>$满足不等式：<br>$$<br>\frac{H(X_1,X_2,…,X_n)}{n} \leq L_n^</em> \leq \frac{H(X_1,X_2,…,X_n)}{n}  + \frac 1 n<br>$$</p>
+<p>如果信源稳恒，则$L_n^* \rightarrow H(X)$.</p>
+<p>这要求我们对X进行分组，因此会有解码延迟，也需要缓冲区。但是通过这个，可以使得平均码长代价更小。天下没有免费的午餐。</p>
+<h2 id="编码效率与互信息"><a href="#编码效率与互信息" class="headerlink" title="编码效率与互信息"></a>编码效率与互信息</h2><p>最优前缀码的编码与信源的分布密切相关，但是我们不一定能准确知道信源的分布。如果信源分布估计出现偏差，则平均码长就会受到惩罚。</p>
+<p>Penalty分析：</p>
+<p>可以证明，对于服从p(x)信源X进行前缀编码，如果码字长度取$l(x) &#x3D; \lceil \log \frac 1 {q(x)}\rceil$，则平均码长满足：<br>$$<br>H(p) + D(p\Vert q) \leq E_ {p}l(X) &lt; H(p) + D(p\Vert q) +1<br>$$</p>
 <p>受到的惩罚中，互信息出来了。</p>
 
     </div>

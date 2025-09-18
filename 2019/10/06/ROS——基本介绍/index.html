@@ -134,7 +134,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -291,6 +291,9 @@
     
     <div class="post-body" itemprop="articleBody"><p>ROS是Robot os，也就是机器人操作系统。目前我们看到的很多机器人，比如波士顿动力，还有很多SLAM中，都用到了ros。早在大四的时候我在电脑上试图跑CHISEL的时候就看到了ros，当时觉得真是复杂。后来到了现在发现还是得啃。复杂只是因为不了解，任何好用的工具，都是尝试再把事情变得简单。</p>
 <span id="more"></span>
+
+
+
 <p>对于ROS的安装这里就不多提了，可以参考：<a target="_blank" rel="noopener" href="https://wlsdzyzl.top/2019/05/09/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94ROS%E5%AE%89%E8%A3%85/">踩过的坑——ROS安装</a>。</p>
 <p>ROS虽然是一个操作系统，但是它并不是像linux，windows这样的运行各种程序，而一般来说，它用来连接电脑和PC，让我们更方便的使用电脑来操作机器人。这其中最重要的就是它的构架形式。操作一个机器人是非常复杂的，首先眼睛是摄像头或者激光雷达，来获取信息，接着转向，机械臂的控制等等，这些繁琐的工作如果要在一个进程中完成是非常臃肿的。ros将各个进程封装成了Node（结点），同时有一个master（管理者）管理所有Node，任何一个Node必须经过master注册之后才能加入并且与其他Node进行通信。通过这样的构架使得对机器人的开发变得非常明确，在实际编程中分工也更加清晰。</p>
 <h3 id="catkin"><a href="#catkin" class="headerlink" title="catkin"></a><a href="about:blank#catkin" title="catkin"></a>catkin</h3><p>上面说的Node是运行级的，现在在这里我们简单说一下一个ros程序的代码结构一般是什么样子。首先我们要知道一个ros程序经常使用的特殊的编译器，catkin。它是基于cmake的，用来编译ros程序。在安装ros的过程中，一般catkin也就顺带安装了。首先，我们需要一个workspace，也就是包含了整个程序的目录。我们可以使用命令<code>catkin_init_workspace $workspace_name</code>来初始化一个workspace目录，需要注意的是workspace目录中应当包含src目录。当进行初始化结束后，一个workspace里子目录如下：devel，build，src。这其中，build就是编译的输出结果，而devel包含了一些启动啊环境的脚本，而我们需要关注的是src文件夹，它是源代码所在的位置。</p>
@@ -308,7 +311,7 @@
 <table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"source path/catkin_ws/devel/setup.bash"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></tbody></table>
 
 <h3 id="metapackage"><a href="#metapackage" class="headerlink" title="metapackage"></a><a href="about:blank#metapackage" title="metapackage"></a>metapackage</h3><p>metapackage是一组相关包的集合，一般来说除了非常专业的人，我们很少编写这样的包，只需要了解即可。在ros官方提供了很多这样的集合包，比如navigation，turtlebut等等，下载的时候也可以一键打包下载。</p>
-<p>这就是关于ros一些基本的介绍，注意，这一系列文章是记录了一些学习过程，类似于整理笔记，而不是一个教程。参考资料可以查看<a target="_blank" rel="noopener" href="http://wiki.ros.org/action/fullsearch/ROS?action=fullsearch&amp;context=180&amp;value=linkto%3A%22cn%2FROS%22">ros_wiki</a>。</p>
+<p>这就是关于ros一些基本的介绍，注意，这一系列文章是记录了一些学习过程，类似于整理笔记，而不是一个教程。参考资料可以查看<a target="_blank" rel="noopener" href="http://wiki.ros.org/action/fullsearch/ROS?action=fullsearch&context=180&value=linkto:%22cn/ROS%22">ros_wiki</a>。</p>
 
     </div>
 

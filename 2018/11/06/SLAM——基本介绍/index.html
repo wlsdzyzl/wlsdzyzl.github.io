@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -293,6 +293,8 @@
     
     <div class="post-body" itemprop="articleBody"><p>不出意外的话，以后我的方向应该就是三维重建方向了，而SLAM是一个逃不开的东西。<span id="more"></span></p>
 <!--more-->
+
+
 <p>SLAM（simultaneous localization and mapping），即时定位与地图构建。它是个什么东西？就是将一个机器人放到一个陌生的环境，它能够自我定位并构建出当前环境的三维地图。我们实验室的有一个项目：<a target="_blank" rel="noopener" href="http://luvision.net/FlashFusion/">FlashFusion</a>，和SLAM也有这千丝万缕的关系。</p>
 <p>SLAM已经诞生了30多年了，也取得了很长足的进步吸引了很多学术界的关注，但是一直达不到业界使用的要求。</p>
 <p>SLAM学习的门槛比较高，因为对知识储备以及工程能力都有较高的要求。</p>
@@ -307,14 +309,8 @@
 </ul>
 <p>这些模块每个都需要很多的知识和精力来学习，所以这里只列出来框架。以后学习完毕之后，在给它们加上超链接。</p>
 <h2 id="数学描述"><a href="#数学描述" class="headerlink" title="数学描述"></a>数学描述</h2><p>我们假设地图是由路标描述的，路标有N个，则路标分别为：$\mathbf{y}_1,…,\mathbf{y}_N$. 而各个时刻的机器人的位置表示为$\mathbf{x}_1,…,\mathbf{x}_k$.其中k为时刻。</p>
-<p>则我们可以用下面两个式子来描述SLAM:</p>
-<script type="math/tex; mode=display">
-\left \{
-\begin{aligned}
-\mathbf{x}_k = f(\mathbf{x}_ {k-1},\mu_k,\mathbf{w}_k)\\
-z_ {k,j} = h(\mathbf{y}_j,\mathbf{x}_k,\mathbf{v}_ {k,j})
-\end{aligned}
-\right.</script><p>上式中，$\mu_k$为传感器读数,$\mathbf{w}_k$为噪声。第一个式子为运动方程，也就是我们通过之前的位置和运动传感器的输入得到了目前时刻的位置。</p>
+<p>则我们可以用下面两个式子来描述SLAM:<br>$$<br>\left {<br>\begin{aligned}<br>\mathbf{x}<em>k &#x3D; f(\mathbf{x}</em> {k-1},\mu_k,\mathbf{w}<em>k)\<br>z</em> {k,j} &#x3D; h(\mathbf{y}_j,\mathbf{x}<em>k,\mathbf{v}</em> {k,j})<br>\end{aligned}<br>\right.<br>$$</p>
+<p>上式中，$\mu_k$为传感器读数,$\mathbf{w}_k$为噪声。第一个式子为运动方程，也就是我们通过之前的位置和运动传感器的输入得到了目前时刻的位置。</p>
 <p>第二个式子为观测方程，z为观测数据，$\mathbf{v}_ {k,j}$为观测噪声。观测方程中$z$是我们直接观测到的。</p>
 <p>如果我们可以得到$\mathbf{x}_k$与$\mathbf{y}_k$的值，不就实现了定位与建图吗？</p>
 <h2 id="CMake"><a href="#CMake" class="headerlink" title="CMake"></a>CMake</h2><p>在SLAM中C++语言是占有绝对优势的。任何程序都可以使用g++编译，但是对于过于复杂的工程，g++的命令会太长不好操作，因此我们需要使用CMake工具。</p>
@@ -322,7 +318,9 @@ z_ {k,j} = h(\mathbf{y}_j,\mathbf{x}_k,\mathbf{v}_ {k,j})
 <p>实际上，CMake的使用主要在于CMakeList.txt的编写。</p>
 <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1.cmake verson，指定cmake版本 </span></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.project name，指定项目的名称，一般和项目的文件夹名称对应</span></span><br><span class="line"><span class="keyword">PROJECT</span>(test_sqrt)</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.head file path，头文件目录</span></span><br><span class="line"><span class="keyword">INCLUDE_DIRECTORIES</span>(</span><br><span class="line"><span class="keyword">include</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.source directory，源文件目录</span></span><br><span class="line"><span class="keyword">AUX_SOURCE_DIRECTORY</span>(src DIR_SRCS)</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.set environment variable，设置环境变量，编译用到的源文件全部都要放到这里，否则编译能够通过，但是执行的时候会出现各种问题，比如&quot;symbol lookup error xxxxx , undefined symbol&quot;</span></span><br><span class="line"><span class="keyword">SET</span>(TEST_MATH</span><br><span class="line"><span class="variable">$&#123;DIR_SRCS&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#6.add executable file，添加要编译的可执行文件</span></span><br><span class="line"><span class="keyword">ADD_EXECUTABLE</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> <span class="variable">$&#123;TEST_MATH&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#7.add link library，添加可执行文件所需要的库，比如我们用到了libm.so（命名规则：lib+name+.so），就添加该库的名称</span></span><br><span class="line"><span class="keyword">TARGET_LINK_LIBRARIES</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> m)</span><br></pre></td></tr></table></figure>
 <p>aux_source_directory(&lt; dir &gt; &lt; variable &gt;)</p>
-<p>搜集所有在指定路径下的源文件的文件名，将输出结果列表储存在指定的变量中。<br>如果想要生成库文件：<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#静态库</span></span><br><span class="line"><span class="keyword">add_library</span>( name libname.cpp)</span><br><span class="line"><span class="comment">#共享库</span></span><br><span class="line"><span class="keyword">add_library</span>(name_shared SHARED libname.cpp)</span><br></pre></td></tr></table></figure></p>
+<p>搜集所有在指定路径下的源文件的文件名，将输出结果列表储存在指定的变量中。<br>如果想要生成库文件：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#静态库</span></span><br><span class="line"><span class="keyword">add_library</span>( name libname.cpp)</span><br><span class="line"><span class="comment">#共享库</span></span><br><span class="line"><span class="keyword">add_library</span>(name_shared SHARED libname.cpp)</span><br></pre></td></tr></table></figure>
+
 <p>当然，Cmake工具还有更多使用的技巧，需要平时做项目的时候去积累。</p>
 
     </div>

@@ -135,7 +135,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -290,61 +290,35 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>加入了智能成像实验室，但是我对计算机图形学了解还太浅，因此需要学习一些图形学的基础知识。本篇博客先介绍一些很简单的数学基础。<br><span id="more"></span></p>
+    <div class="post-body" itemprop="articleBody"><p>加入了智能成像实验室，但是我对计算机图形学了解还太浅，因此需要学习一些图形学的基础知识。本篇博客先介绍一些很简单的数学基础。</p>
+<span id="more"></span>
+
 <h3 id="右手坐标系"><a href="#右手坐标系" class="headerlink" title="右手坐标系"></a>右手坐标系</h3><p>首先是XYZ坐标轴，一般我们使用的坐标轴是符合右手定则的。这也是大多数数学教材使用的坐标轴的定义。右手定则即用右手从X轴方向握向Y轴方向，这时候伸出大拇指，大拇指的朝向就是Z轴的方向。实际上这是一个很基础的知识，但是我过去没多久才发现自己一直不知道这个东西。直到计算第二型曲面积分时候发现结果总是相反才发现。</p>
-<h3 id="向量点乘和叉乘"><a href="#向量点乘和叉乘" class="headerlink" title="向量点乘和叉乘"></a>向量点乘和叉乘</h3><h4 id="点乘（Dot-Product）"><a href="#点乘（Dot-Product）" class="headerlink" title="点乘（Dot Product）"></a>点乘（Dot Product）</h4><p>$\mathbf{a} \cdot \mathbf{b} = \vert a \vert \vert b\vert \cos {\theta}$</p>
-<p>$\theta = \cos ^{-1} \frac {\mathbf{a} \cdot \mathbf{b} }{\vert a \vert \vert b\vert}$</p>
+<h3 id="向量点乘和叉乘"><a href="#向量点乘和叉乘" class="headerlink" title="向量点乘和叉乘"></a>向量点乘和叉乘</h3><h4 id="点乘（Dot-Product）"><a href="#点乘（Dot-Product）" class="headerlink" title="点乘（Dot Product）"></a>点乘（Dot Product）</h4><p>$\mathbf{a} \cdot \mathbf{b} &#x3D; \vert a \vert \vert b\vert \cos {\theta}$</p>
+<p>$\theta &#x3D; \cos ^{-1} \frac {\mathbf{a} \cdot \mathbf{b} }{\vert a \vert \vert b\vert}$</p>
 <p>实际上在笛卡尔坐标系中求解两个向量的点乘是非常容易的：</p>
-<p>$\mathbf{a} = x_a \mathbf{x} + y_a \mathbf{y},\mathbf{b} = x_b \mathbf{x} + y_b \mathbf{y}$</p>
-<p>则：$\mathbf{a} \cdot \mathbf{b} = x_a x_b + y_a y_b$</p>
+<p>$\mathbf{a} &#x3D; x_a \mathbf{x} + y_a \mathbf{y},\mathbf{b} &#x3D; x_b \mathbf{x} + y_b \mathbf{y}$</p>
+<p>则：$\mathbf{a} \cdot \mathbf{b} &#x3D; x_a x_b + y_a y_b$</p>
 <p>因此点乘可以用来求两个向量的夹角。</p>
-<p>另一个点乘的应用是求某个向量到另一个向量上的投影，如$\mathbf{a}$在$\mathbf{b}$上的投影长度实际上是$\vert \mathbf{a} \vert \cos \theta$，而$\vert \mathbf{a} \vert \cos \theta = \frac {\vert \mathbf{b}\vert\vert \mathbf{a} \vert \cos \theta}{\mathbf{b} } = \frac {\mathbf{a} \cdot \mathbf{b} }{\vert \mathbf{b}\vert}$.</p>
-<p>同样的想要求投影之后的向量也很简单，只要用长度乘上$\mathbf{b}$方向的单位向量即可：<br>$\mathbf{p} =  \frac {\mathbf{a} \cdot \mathbf{b} \mathbf{b} }{\vert \mathbf{b}\vert ^2}$.</p>
-<h4 id="叉乘（Cross-Product）"><a href="#叉乘（Cross-Product）" class="headerlink" title="叉乘（Cross Product）"></a>叉乘（Cross Product）</h4><p>$\vert \mathbf{a} \times \mathbf{b} \vert= \vert \mathbf{a} \vert \vert \mathbf{b}\vert \sin \theta$</p>
+<p>另一个点乘的应用是求某个向量到另一个向量上的投影，如$\mathbf{a}$在$\mathbf{b}$上的投影长度实际上是$\vert \mathbf{a} \vert \cos \theta$，而$\vert \mathbf{a} \vert \cos \theta &#x3D; \frac {\vert \mathbf{b}\vert\vert \mathbf{a} \vert \cos \theta}{\mathbf{b} } &#x3D; \frac {\mathbf{a} \cdot \mathbf{b} }{\vert \mathbf{b}\vert}$.</p>
+<p>同样的想要求投影之后的向量也很简单，只要用长度乘上$\mathbf{b}$方向的单位向量即可：<br>$\mathbf{p} &#x3D;  \frac {\mathbf{a} \cdot \mathbf{b} \mathbf{b} }{\vert \mathbf{b}\vert ^2}$.</p>
+<h4 id="叉乘（Cross-Product）"><a href="#叉乘（Cross-Product）" class="headerlink" title="叉乘（Cross Product）"></a>叉乘（Cross Product）</h4><p>$\vert \mathbf{a} \times \mathbf{b} \vert&#x3D; \vert \mathbf{a} \vert \vert \mathbf{b}\vert \sin \theta$</p>
 <p>上面为叉乘的长度，除此之外，叉乘得到的是一个向量，它的方向符合右手定则，也与原来两个向量垂直。</p>
-<p>从右手定则可以很容易推导出：$\mathbf{a} \times \mathbf{b} = - \mathbf{b} \times \mathbf{a}$.</p>
-<p>同时也有以下的一些等式：</p>
-<script type="math/tex; mode=display">
-\mathbf{x} \times \mathbf{y} = \mathbf{z},\mathbf{y} \times \mathbf{x} = -\mathbf{z}</script><script type="math/tex; mode=display">
-\mathbf{a} \times \mathbf{a} = \mathbf{0}</script><script type="math/tex; mode=display">
-\mathbf{a} \times (\mathbf{b} + \mathbf{c}) = \mathbf{a} \times \mathbf{b}+ \mathbf{a} \times \mathbf{c}</script><script type="math/tex; mode=display">
-\mathbf{a} \times (k\mathbf{b}) = k(\mathbf{a} \times \mathbf{b})</script><p>在笛卡尔坐标系下，叉乘的计算也不算困难：</p>
-<script type="math/tex; mode=display">
-\mathbf{a}\times \mathbf{b} = 
-\begin{vmatrix} 
-\mathbf{x}&\mathbf{y}&\mathbf{z}\\
-x_a&y_a&z_a\\
-x_b&y_b&z_b
-\end{vmatrix} = 
-\begin{pmatrix} 
-y_az_b - y_bz_a,\\
-z_ax_b - x_az_b,\\
-x_ay_b - y_ax_b 
-\end{pmatrix}</script><p>而且也可以写成下面的形式：</p>
-<script type="math/tex; mode=display">
-\mathbf{a}\times \mathbf{b} = A^* \mathbf{b}
-\begin{pmatrix}
-0&-z_a&y_a\\
-z_a&0&-x_a\\
--y_a&x_a&0
-\end{pmatrix} 
-\begin{pmatrix}
-x_b\\
-y_b\\
-z_b\\
-\end{pmatrix}</script><p>上式中$A^*$被成为向量$\mathbf{a}$的对偶矩阵。</p>
+<p>从右手定则可以很容易推导出：$\mathbf{a} \times \mathbf{b} &#x3D; - \mathbf{b} \times \mathbf{a}$.</p>
+<p>同时也有以下的一些等式：<br>$$<br>\mathbf{x} \times \mathbf{y} &#x3D; \mathbf{z},\mathbf{y} \times \mathbf{x} &#x3D; -\mathbf{z}<br>$$<br>$$<br>\mathbf{a} \times \mathbf{a} &#x3D; \mathbf{0}<br>$$<br>$$<br>\mathbf{a} \times (\mathbf{b} + \mathbf{c}) &#x3D; \mathbf{a} \times \mathbf{b}+ \mathbf{a} \times \mathbf{c}<br>$$<br>$$<br>\mathbf{a} \times (k\mathbf{b}) &#x3D; k(\mathbf{a} \times \mathbf{b})<br>$$</p>
+<p>在笛卡尔坐标系下，叉乘的计算也不算困难：</p>
+<p>$$<br>\mathbf{a}\times \mathbf{b} &#x3D;<br>\begin{vmatrix}<br>\mathbf{x}&amp;\mathbf{y}&amp;\mathbf{z}\<br>x_a&amp;y_a&amp;z_a\<br>x_b&amp;y_b&amp;z_b<br>\end{vmatrix} &#x3D;<br>\begin{pmatrix}<br>y_az_b - y_bz_a,\<br>z_ax_b - x_az_b,\<br>x_ay_b - y_ax_b<br>\end{pmatrix}<br>$$<br>而且也可以写成下面的形式：<br>$$<br>\mathbf{a}\times \mathbf{b} &#x3D; A^* \mathbf{b}<br>\begin{pmatrix}<br>0&amp;-z_a&amp;y_a\<br>z_a&amp;0&amp;-x_a\<br>-y_a&amp;x_a&amp;0<br>\end{pmatrix}<br>\begin{pmatrix}<br>x_b\<br>y_b\<br>z_b\<br>\end{pmatrix}<br>$$</p>
+<p>上式中$A^*$被成为向量$\mathbf{a}$的对偶矩阵。</p>
 <h3 id="坐标系-Coordinate-Frames"><a href="#坐标系-Coordinate-Frames" class="headerlink" title="坐标系(Coordinate Frames)"></a>坐标系(Coordinate Frames)</h3><p>坐标系并不是只有XYZ，XYZ只是标识而已。任何满足下面条件的三个向量，都可以作为坐标系：</p>
 <ul>
-<li>$\vert \mathbf{u} \vert = \vert \mathbf{v} \vert = \vert \mathbf{w} \vert = 1$</li>
-<li>$\mathbf{u} \cdot \mathbf{v} = \mathbf{v} \cdot \mathbf{w} = \mathbf{u} \cdot \mathbf{w} = 0$</li>
-<li>$\mathbf{w} = \mathbf{u} \times \mathbf{v}$</li>
+<li>$\vert \mathbf{u} \vert &#x3D; \vert \mathbf{v} \vert &#x3D; \vert \mathbf{w} \vert &#x3D; 1$</li>
+<li>$\mathbf{u} \cdot \mathbf{v} &#x3D; \mathbf{v} \cdot \mathbf{w} &#x3D; \mathbf{u} \cdot \mathbf{w} &#x3D; 0$</li>
+<li>$\mathbf{w} &#x3D; \mathbf{u} \times \mathbf{v}$</li>
 </ul>
-<p>任何一个向量可以写成各个坐标系的投影之和：</p>
-<script type="math/tex; mode=display">
-\mathbf{p}  = (\mathbf{p} \cdot \mathbf{u} ) \mathbf{u} + (\mathbf{p} \cdot \mathbf{v}) \mathbf{v} + (\mathbf{p} \cdot \mathbf{w})\mathbf{w}</script><p>如何使用两个非零非同方向的向量创造一个坐标系（在三维重建中可能会经常碰到）？</p>
-<script type="math/tex; mode=display">
- \mathbf{u} = \frac {\mathbf{a} }{ \vert \mathbf{a}\vert},\mathbf{w} = \frac {\mathbf{a} \times \mathbf{b} }{\vert \mathbf{a} \times \mathbf{b} \vert}, \mathbf{v}= \mathbf{w} \times \mathbf{v}.</script><p>从上面我们可以看到叉乘对于创建一个坐标系的作用。</p>
-<h3 id="矩阵（Matrix）"><a href="#矩阵（Matrix）" class="headerlink" title="矩阵（Matrix）"></a>矩阵（Matrix）</h3><p>$(AB)^{-1} = B^{-1}A^{-1}$,因为$ AB B^{-1} A^{-1} = I$.</p>
+<p>任何一个向量可以写成各个坐标系的投影之和：<br>$$<br>\mathbf{p}  &#x3D; (\mathbf{p} \cdot \mathbf{u} ) \mathbf{u} + (\mathbf{p} \cdot \mathbf{v}) \mathbf{v} + (\mathbf{p} \cdot \mathbf{w})\mathbf{w}<br>$$</p>
+<p>如何使用两个非零非同方向的向量创造一个坐标系（在三维重建中可能会经常碰到）？<br>$$<br> \mathbf{u} &#x3D; \frac {\mathbf{a} }{ \vert \mathbf{a}\vert},\mathbf{w} &#x3D; \frac {\mathbf{a} \times \mathbf{b} }{\vert \mathbf{a} \times \mathbf{b} \vert}, \mathbf{v}&#x3D; \mathbf{w} \times \mathbf{v}.<br>$$</p>
+<p>从上面我们可以看到叉乘对于创建一个坐标系的作用。</p>
+<h3 id="矩阵（Matrix）"><a href="#矩阵（Matrix）" class="headerlink" title="矩阵（Matrix）"></a>矩阵（Matrix）</h3><p>$(AB)^{-1} &#x3D; B^{-1}A^{-1}$,因为$ AB B^{-1} A^{-1} &#x3D; I$.</p>
 <p>通过矩阵可以实现空间点的各种转换。</p>
 
     </div>

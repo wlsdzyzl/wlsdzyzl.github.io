@@ -136,7 +136,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -161,7 +161,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Review"><span class="nav-number">1.</span> <span class="nav-text">Review</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HGR-amp-Softmax"><span class="nav-number">2.</span> <span class="nav-text">HGR &amp; Softmax</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Review"><span class="nav-number">1.</span> <span class="nav-text">Review</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HGR-Softmax"><span class="nav-number">2.</span> <span class="nav-text">HGR &amp; Softmax</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -291,108 +291,37 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>这周的数据学习课更不知道该起什么题目了。主要是加上一些假设，从Softmax函数开始推导，最后得到一个非常简单的形式，从而大大简化了算法。这次的derivation和上篇讲得东西还是有一些相关的。<br><span id="more"></span></p>
-<h2 id="Review"><a href="#Review" class="headerlink" title="Review"></a>Review</h2><p>首先回顾一下上篇博客介绍的内容，从HGR maximal correlation开始推导。依然是离散变量$X$与$Y$。不过稍微做点拓展，我们在提取ｘ，ｙ的信息时，把他们映射到一个ｋ维度的向量，也就是：</p>
-<script type="math/tex; mode=display">f(x) \rightarrow \mathbb{R}^k,g(x) \rightarrow \mathbb{R}^k.</script><p>这时候，和之前一样，做一些推导吧。这时候的相关系数变成了相关矩阵：</p>
-<script type="math/tex; mode=display">
-\max ρ_ {XY}=\max 𝔼 p_ {XY}[f(x) g(y)^T]</script><p>我们的约束变成：</p>
-<script type="math/tex; mode=display">
-\mathbb{E}[f (x)] = \mathbb{E}[ g(y)] = \mathbf{0}\\
-\mathbb{E}[ f^2(x)] = \mathbb{E}[ g^2(y)] = I_ {k \times k}</script><p>问题描述变为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\max \Psi^T B \Phi,s.t. &\langle\sqrt{P_X},\Phi\rangle = \langle\sqrt{P_Y},\Psi\rangle = \mathbf{0};\\
-&\Phi^T \Phi  =  \Psi^T \Psi  = I_ {k \times k}.
-\end{aligned}</script><p>其中：</p>
-<script type="math/tex; mode=display">
-\Phi = \begin{bmatrix}
-\phi(x_1),\phi(x_2),...,\phi(x_ {|X|})
-\end{bmatrix}^T_ {|X|\times k},\\
-\Psi = \begin{bmatrix}
-\psi(y_1),\psi(y_2),...,\psi(y_ {|Y|})
-\end{bmatrix}^T_ {|Y|\times k},\\
-B_ {y,x} =  \frac{p_ {XY}(x,y)}{\sqrt{p_X(x)p_Y(y)} },B_ {|Y| \times |X|}.</script><p>而这时候的$\Phi$与$\Psi$实际上是由Ｂ的第$2，…,k+1$右左特征向量组成:</p>
-<script type="math/tex; mode=display">
-\Phi = \begin{bmatrix}
-\upsilon_2,...,\upsilon_ {k+1}
-\end{bmatrix}\\
-\Psi = \begin{bmatrix}
-\mu_2,...,\mu_ {k+1}
-\end{bmatrix}</script><p>$f(x)=\frac{\phi(x)}{\sqrt{p_X(x)} } ,g(y) = \frac{\psi(y)}{\sqrt{p_Y(y)} }$.</p>
-<h2 id="HGR-amp-Softmax"><a href="#HGR-amp-Softmax" class="headerlink" title="HGR &amp; Softmax"></a>HGR &amp; Softmax</h2><p>假设$X,Y$是离散的，并且几乎独立(weakly dependent),也就是$p_ {XY}(xy) - p_ {X}(x)p_ {Y}(y)$非常小。</p>
-<p>还记得softmax function:</p>
-<script type="math/tex; mode=display">
-Q_ {Y|X}(y|X) = \frac{e^{X^TW_y + b_y)} }{\sum_ {y' \in \mathcal{Y} } e^{X^TW_ {y'}+b_ {y'} } }</script><p>在这里，我们把$X,Y$再次进行信息提取，分布为$f(X),g(Y)$. 由于$W_y$与Y值相关，我们可以将$W_y$看作是g(y)。因此写成更通用的形式：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-Q_ {Y|X}(y|x) &= \frac{e^{f^T(x)g(y) + b(y)} }{\sum_ {y' \in \mathcal{Y} }e^{f^T(x)g(y')+b(y')} }\\
-&= \frac{p_Y(y)e^{f^T(x)g(y) + b(y) - \log p_Y(y)} }{\sum_ {y' \in \mathcal{Y} }p_Y(y')e^{f^T(x)g(y')+b(y') - \log p_Y(y)} }
-\end{aligned}</script><p>现在我们定义：$d(y) \triangleq b(y)-\log p_Y(y)$，则：</p>
-<script type="math/tex; mode=display">
-Q_ {Y|X}(y|x) = \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum_ {y' \in \mathcal{Y} } p_Y(y')e^{f^T(x)g(y')+d(y')} }</script><p>可以看到，如果$f = g = d =  0$，$Q_ {Y|X}(y|x) = p_Y(y)$.</p>
-<p>由于我们的假设可以知道,$p_Y(y) \approx Q_ {Y|X}(y|x)$，则$f^T(x)g(y)+ d(y) \approx 0$,根据泰勒展开:</p>
-<script type="math/tex; mode=display">
-\begin{align}
-e^{f^T(x)g(y) + d(y)} \approx 1 + f^T(x)g(y)+ d(y)
-\end{align}</script><p>而:</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\sum_ {y' \in \mathcal{Y} } p_Y(y')e^{f^T(x)g(y')+d(y')} &\approx \sum_ {y' \in \mathcal{Y} } p_Y(y')[ 1+f^T(x)g(y')+d(y')]\\
-&= 1 + f^T(x)\sum_ {y' \in \mathcal Y} p_Y(y')g(y') + \sum_ {y' \in \mathcal Y}p_Y(y')d(y')\\
-&= 1 +f^T(x)\mathbb{E}_Y[g(Y) ] + \mathbb{E}_Y[d(Y) ] 
-\end{aligned}</script><p>而由泰勒展开$\frac{1}{1+x} \approx  1-x$得到：</p>
-<script type="math/tex; mode=display">
-\begin{align}
-\frac{1}{\sum_ { y'\in \mathcal{Y} } p_Y(y' )e^{f^T(x)g(y' )+d(y' )} } \approx 1 -f^T(x)\mathbb{E}_Y[g(Y )] -\mathbb{E}_Y[d(Y )]
-\end{align}</script><p>结合上面的(1),(2)，我们得到：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-Q_ {Y|X}(y|x) &= \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum_ {y' \in \mathcal{Y} } p_Y(y')e^{f^T(x)g(y')+d(y')} }\\
-&\approx p_Y(y)(1 + f^T(x)g(y)+ d(y) )( 1 -f^T(x)\mathbb{E}_Y[g(Y )] -\mathbb{E}_Y[d(Y )])\\
-& \approx p_Y(y)[1 + f^T(x)g(y) +d(y) - f^T(x)\mathbb{E}_Y[g(Y) ] - \mathbb{E}_Y[d(Y) ]]\\
-&= p_Y(y)[1+f^T(x)(g(y)-\mathbb{E}_Y[g(Y) ]) + (d(y) - \mathbb{E}_Y[d(Y) ])]
-\end{aligned}</script><p>现在我们令$\tilde{g}(y) = g(y) - \mathbb{E}_Y[g(Y)]，s.t. \mathbb{E}_Y[\tilde {g}(Y)] = 0$.得到：</p>
-<script type="math/tex; mode=display">
-Q_ {Y|X}(y|x) = p_Y(y)[1+ f^T(x)\tilde g (y) + \tilde d (y)]</script><p>现在我们利用这个式子构建$empirical risk$，实际上也就是$-\frac{1}{n} \sum_ {i=1}^n \log Q_ {Y|X}(y_i|x_i)$.最小化经验风险(empirical risk)实际上也就是最大化$\mathbb{E}_ {p_ {XY} } [ Q_ {Y|X}(y|x)]$，也是极大似然估计。</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\log Q_ {Y|X}(y|x) &= \log p_Y(y) + \log (1+ f^T(x)\tilde{g}(y) + \tilde{d} (y))\\
-& \approx \log p_Y(y) + f^T(x)\tilde{g}(y) + \tilde{d}(y) -  \frac{1}{2} [(f^T(x)\tilde{g}(y))^2 + \tilde{d^2}(y) + 2 f^T(x)\tilde{g}(y)\tilde{d}(y)]
-\end{aligned}</script><p>上述过程用到了泰勒展开：$\log(1+x) \approx x - \frac{x^2}{2}$.</p>
-<p>$\mathbb{E}[\log Q_ {Y|X}(Y|X)] = \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X)\tilde{g}(Y) ] + \mathbb{E}[\tilde{d}(Y) ] - \mathbb{E}[\frac{1}{2} [(f^T(X)\tilde{g}(Y))^2 + \tilde{d^2}(Y) + 2 f^T(X)\tilde{g}(Y)\tilde{d}(Y)]] $</p>
-<p>现在，我们来说明一些必要的东西：由假设得到$p_ {XY}(x,y) - p_X(x)p_Y(y) = \epsilon \cdot \square = o(\epsilon)$，$o(\epsilon)$表示$\epsilon$的无穷小量（这么说其实不准确，因为我们最后要最大化这种无穷小量，显然不合理，可以当作为衡量有多小的量级）。</p>
-<p>因为<script type="math/tex">Q_ {Y|X}(y|x) = P_Y(y)[1+f^T(x)\tilde{g}(y) + \tilde{d}(y)] \approx p_ {Y},</script><br>同理可以得到$f^T(x)\tilde g (y)  = o(\epsilon),\tilde d (y) = o(\epsilon)$，我们假设对所有的$f,\tilde g,\tilde d$都进行了normalize，也就是$\mathbb{E}f = \mathbb{E}\tilde{g} = \mathbb{E}\tilde{d} = 0$,则：</p>
+    <div class="post-body" itemprop="articleBody"><p>这周的数据学习课更不知道该起什么题目了。主要是加上一些假设，从Softmax函数开始推导，最后得到一个非常简单的形式，从而大大简化了算法。这次的derivation和上篇讲得东西还是有一些相关的。</p>
+<span id="more"></span>
+<h2 id="Review"><a href="#Review" class="headerlink" title="Review"></a>Review</h2><p>首先回顾一下上篇博客介绍的内容，从HGR maximal correlation开始推导。依然是离散变量$X$与$Y$。不过稍微做点拓展，我们在提取ｘ，ｙ的信息时，把他们映射到一个ｋ维度的向量，也就是：<br>$$f(x) \rightarrow \mathbb{R}^k,g(x) \rightarrow \mathbb{R}^k.$$</p>
+<p>这时候，和之前一样，做一些推导吧。这时候的相关系数变成了相关矩阵：<br>$$<br>\max ρ_ {XY}&#x3D;\max 𝔼 p_ {XY}[f(x) g(y)^T]<br>$$</p>
+<p>我们的约束变成：<br>$$<br>\mathbb{E}[f (x)] &#x3D; \mathbb{E}[ g(y)] &#x3D; \mathbf{0}\<br>\mathbb{E}[ f^2(x)] &#x3D; \mathbb{E}[ g^2(y)] &#x3D; I_ {k \times k}<br>$$</p>
+<p>问题描述变为：<br>$$<br>\begin{aligned}<br>\max \Psi^T B \Phi,s.t. &amp;\langle\sqrt{P_X},\Phi\rangle &#x3D; \langle\sqrt{P_Y},\Psi\rangle &#x3D; \mathbf{0};\<br>&amp;\Phi^T \Phi  &#x3D;  \Psi^T \Psi  &#x3D; I_ {k \times k}.<br>\end{aligned}<br>$$</p>
+<p>其中：<br>$$<br>\Phi &#x3D; \begin{bmatrix}<br>\phi(x_1),\phi(x_2),…,\phi(x_ {|X|})<br>\end{bmatrix}^T_ {|X|\times k},\<br>\Psi &#x3D; \begin{bmatrix}<br>\psi(y_1),\psi(y_2),…,\psi(y_ {|Y|})<br>\end{bmatrix}^T_ {|Y|\times k},\<br>B_ {y,x} &#x3D;  \frac{p_ {XY}(x,y)}{\sqrt{p_X(x)p_Y(y)} },B_ {|Y| \times |X|}.<br>$$</p>
+<p>而这时候的$\Phi$与$\Psi$实际上是由Ｂ的第$2，…,k+1$右左特征向量组成:<br>$$<br>\Phi &#x3D; \begin{bmatrix}<br>\upsilon_2,…,\upsilon_ {k+1}<br>\end{bmatrix}\<br>\Psi &#x3D; \begin{bmatrix}<br>\mu_2,…,\mu_ {k+1}<br>\end{bmatrix}<br>$$</p>
+<p>$f(x)&#x3D;\frac{\phi(x)}{\sqrt{p_X(x)} } ,g(y) &#x3D; \frac{\psi(y)}{\sqrt{p_Y(y)} }$.</p>
+<h2 id="HGR-Softmax"><a href="#HGR-Softmax" class="headerlink" title="HGR &amp; Softmax"></a>HGR &amp; Softmax</h2><p>假设$X,Y$是离散的，并且几乎独立(weakly dependent),也就是$p_ {XY}(xy) - p_ {X}(x)p_ {Y}(y)$非常小。</p>
+<p>还记得softmax function:<br>$$<br>Q_ {Y|X}(y|X) &#x3D; \frac{e^{X^TW_y + b_y)} }{\sum_ {y’ \in \mathcal{Y} } e^{X^TW_ {y’}+b_ {y’} } }<br>$$</p>
+<p>在这里，我们把$X,Y$再次进行信息提取，分布为$f(X),g(Y)$. 由于$W_y$与Y值相关，我们可以将$W_y$看作是g(y)。因此写成更通用的形式：<br>$$<br>\begin{aligned}<br>Q_ {Y|X}(y|x) &amp;&#x3D; \frac{e^{f^T(x)g(y) + b(y)} }{\sum_ {y’ \in \mathcal{Y} }e^{f^T(x)g(y’)+b(y’)} }\<br>&amp;&#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + b(y) - \log p_Y(y)} }{\sum_ {y’ \in \mathcal{Y} }p_Y(y’)e^{f^T(x)g(y’)+b(y’) - \log p_Y(y)} }<br>\end{aligned}<br>$$</p>
+<p>现在我们定义：$d(y) \triangleq b(y)-\log p_Y(y)$，则：<br>$$<br>Q_ {Y|X}(y|x) &#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum_ {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} }<br>$$<br>可以看到，如果$f &#x3D; g &#x3D; d &#x3D;  0$，$Q_ {Y|X}(y|x) &#x3D; p_Y(y)$.</p>
+<p>由于我们的假设可以知道,$p_Y(y) \approx Q_ {Y|X}(y|x)$，则$f^T(x)g(y)+ d(y) \approx 0$,根据泰勒展开:<br>$$<br>\begin{align}<br>e^{f^T(x)g(y) + d(y)} \approx 1 + f^T(x)g(y)+ d(y)<br>\end{align}<br>$$</p>
+<p>而:<br>$$<br>\begin{aligned}<br>\sum_ {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} &amp;\approx \sum_ {y’ \in \mathcal{Y} } p_Y(y’)[ 1+f^T(x)g(y’)+d(y’)]\<br>&amp;&#x3D; 1 + f^T(x)\sum_ {y’ \in \mathcal Y} p_Y(y’)g(y’) + \sum_ {y’ \in \mathcal Y}p_Y(y’)d(y’)\<br>&amp;&#x3D; 1 +f^T(x)\mathbb{E}_Y[g(Y) ] + \mathbb{E}<em>Y[d(Y) ]<br>\end{aligned}<br>$$<br>而由泰勒展开$\frac{1}{1+x} \approx  1-x$得到：<br>$$<br>\begin{align}<br>\frac{1}{\sum</em> { y’\in \mathcal{Y} } p_Y(y’ )e^{f^T(x)g(y’ )+d(y’ )} } \approx 1 -f^T(x)\mathbb{E}<em>Y[g(Y )] -\mathbb{E}<em>Y[d(Y )]<br>\end{align}<br>$$<br>结合上面的(1),(2)，我们得到：<br>$$<br>\begin{aligned}<br>Q</em> {Y|X}(y|x) &amp;&#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum</em> {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} }\<br>&amp;\approx p_Y(y)(1 + f^T(x)g(y)+ d(y) )( 1 -f^T(x)\mathbb{E}_Y[g(Y )] -\mathbb{E}_Y[d(Y )])\<br>&amp; \approx p_Y(y)[1 + f^T(x)g(y) +d(y) - f^T(x)\mathbb{E}_Y[g(Y) ] - \mathbb{E}_Y[d(Y) ]]\<br>&amp;&#x3D; p_Y(y)[1+f^T(x)(g(y)-\mathbb{E}_Y[g(Y) ]) + (d(y) - \mathbb{E}_Y[d(Y) ])]<br>\end{aligned}<br>$$</p>
+<p>现在我们令$\tilde{g}(y) &#x3D; g(y) - \mathbb{E}_Y[g(Y)]，s.t. \mathbb{E}<em>Y[\tilde {g}(Y)] &#x3D; 0$.得到：<br>$$<br>Q</em> {Y|X}(y|x) &#x3D; p_Y(y)[1+ f^T(x)\tilde g (y) + \tilde d (y)]<br>$$</p>
+<p>现在我们利用这个式子构建$empirical risk$，实际上也就是$-\frac{1}{n} \sum_ {i&#x3D;1}^n \log Q_ {Y|X}(y_i|x_i)$.最小化经验风险(empirical risk)实际上也就是最大化$\mathbb{E}_ {p_ {XY} } [ Q_ {Y|X}(y|x)]$，也是极大似然估计。<br>$$<br>\begin{aligned}<br>\log Q_ {Y|X}(y|x) &amp;&#x3D; \log p_Y(y) + \log (1+ f^T(x)\tilde{g}(y) + \tilde{d} (y))\<br>&amp; \approx \log p_Y(y) + f^T(x)\tilde{g}(y) + \tilde{d}(y) -  \frac{1}{2} [(f^T(x)\tilde{g}(y))^2 + \tilde{d^2}(y) + 2 f^T(x)\tilde{g}(y)\tilde{d}(y)]<br>\end{aligned}<br>$$<br>上述过程用到了泰勒展开：$\log(1+x) \approx x - \frac{x^2}{2}$.</p>
+<p>$\mathbb{E}[\log Q_ {Y|X}(Y|X)] &#x3D; \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X)\tilde{g}(Y) ] + \mathbb{E}[\tilde{d}(Y) ] - \mathbb{E}[\frac{1}{2} [(f^T(X)\tilde{g}(Y))^2 + \tilde{d^2}(Y) + 2 f^T(X)\tilde{g}(Y)\tilde{d}(Y)]] $</p>
+<p>现在，我们来说明一些必要的东西：由假设得到$p_ {XY}(x,y) - p_X(x)p_Y(y) &#x3D; \epsilon \cdot \square &#x3D; o(\epsilon)$，$o(\epsilon)$表示$\epsilon$的无穷小量（这么说其实不准确，因为我们最后要最大化这种无穷小量，显然不合理，可以当作为衡量有多小的量级）。</p>
+<p>因为$$Q_ {Y|X}(y|x) &#x3D; P_Y(y)[1+f^T(x)\tilde{g}(y) + \tilde{d}(y)] \approx p_ {Y},$$<br>同理可以得到$f^T(x)\tilde g (y)  &#x3D; o(\epsilon),\tilde d (y) &#x3D; o(\epsilon)$，我们假设对所有的$f,\tilde g,\tilde d$都进行了normalize，也就是$\mathbb{E}f &#x3D; \mathbb{E}\tilde{g} &#x3D; \mathbb{E}\tilde{d} &#x3D; 0$,则：</p>
 <ul>
-<li><script type="math/tex; mode=display">
-\begin{aligned}
-\mathbb{E}[f^T(X)\tilde g(Y) ] &= \sum_ {x,y} p_ {XY}(x,y)f^T(x)\tilde g(y)\\
-&= \sum_ {x,y}(p_ {X}(x)p_ {Y}(y)f^T(x)\tilde g(y) + o(\epsilon)f^T(x)\tilde g(y))\\
-&= \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) + o(\epsilon^2)\\
-&= o(\epsilon^2).
-\end{aligned}</script></li>
-<li><script type="math/tex; mode=display">
-\begin{aligned}
-\mathbb{E}[(f^T(x)g(y) )^2] &= \sum_ {x,y}p_ {X}(x)p_ {Y}(y)(f^T(x)\tilde g(y))^2 + \sum_ {x,y} o(\epsilon)(f^T(x)\tilde g(y))^2\\
-&= \sum_ {x,y}p_ {XY}(x,y)(f^T(x)\tilde g(y))^2 + o(\epsilon^3)
-\end{aligned}</script></li>
-<li><script type="math/tex; mode=display">
-\begin{aligned}
-\mathbb{E}[f^T(x) \tilde{g}(y)\tilde{d}(y)] &= \sum_ {x,y}p_ {X}(x)p_Y(y) f^T(x)\tilde g (y) \tilde d (y) + o(\epsilon)\sum_ {x,y}f^T(x)\tilde g (y) \tilde d (y)\\
-&= \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) \tilde d(y) + o(\epsilon^3)\\
-&=  o(\epsilon^3)
-\end{aligned}</script></li>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[f^T(X)\tilde g(Y) ] &amp;&#x3D; \sum_ {x,y} p_ {XY}(x,y)f^T(x)\tilde g(y)\<br>&amp;&#x3D; \sum_ {x,y}(p_ {X}(x)p_ {Y}(y)f^T(x)\tilde g(y) + o(\epsilon)f^T(x)\tilde g(y))\<br>&amp;&#x3D; \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) + o(\epsilon^2)\<br>&amp;&#x3D; o(\epsilon^2).<br>\end{aligned}<br>$$</li>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[(f^T(x)g(y) )^2] &amp;&#x3D; \sum_ {x,y}p_ {X}(x)p_ {Y}(y)(f^T(x)\tilde g(y))^2 + \sum_ {x,y} o(\epsilon)(f^T(x)\tilde g(y))^2\<br>&amp;&#x3D; \sum_ {x,y}p_ {XY}(x,y)(f^T(x)\tilde g(y))^2 + o(\epsilon^3)<br>\end{aligned}<br>$$</li>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[f^T(x) \tilde{g}(y)\tilde{d}(y)] &amp;&#x3D; \sum_ {x,y}p_ {X}(x)p_Y(y) f^T(x)\tilde g (y) \tilde d (y) + o(\epsilon)\sum_ {x,y}f^T(x)\tilde g (y) \tilde d (y)\<br>&amp;&#x3D; \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) \tilde d(y) + o(\epsilon^3)\<br>&amp;&#x3D;  o(\epsilon^3)<br>\end{aligned}<br>$$</li>
 </ul>
-<p>而我们知道$o(\epsilon^3)$在$o(\epsilon^2)$之前是可以被忽略的。因此最终：</p>
-<script type="math/tex; mode=display">
-\mathbb{E}[\log Q_ {Y|X}] = \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X) \tilde g (Y)] - \frac 1 2 \mathbb{E}[(f^T(X) \tilde g (Y))^2] - \frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]</script><p>上式中，第一项为常数，最后一项为非负值，且与前面几项没有约束关系，因此为了最大化上式只需简单令$\frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]=0$，因此最终我们要做的是：</p>
-<script type="math/tex; mode=display">
-\max_ {f,\tilde g} (\underbrace{\mathbb{E}[f^T(x)\tilde g(y)] - \frac{1}{2}\mathbb{E} [(f^T(x)\tilde g(y))^2]}_ {\Delta})</script><p>如果我们将$ \mathbb{E}[f^T(x)\tilde g(y)] $对$f(x)$求导，可以得到：</p>
-<script type="math/tex; mode=display">
-\frac{\partial \Delta}{\partial f(x)} = 0\\
-f(x) = \land ^{-1}_ {\tilde g (Y)} \mathbb{E}[\tilde g(Y)|X = x]</script><p>其中$\land ^{-1}_ {\tilde g (Y)}=(\mathbb{E}_ {p_Y}[\tilde g(Y){\tilde g}^T(Y)])^{-1}$，也就是我们得到了最佳的$f,\tilde g$.</p>
-<p>同理我们也得到：</p>
-<script type="math/tex; mode=display">
-\tilde {g ^*}(y) = \land ^{-1}_ {f(X)} \mathbb{E}[f(X)|Y = y]</script><p>也就是如果我们向softmax函数中喂入$f(x)$（形式固定）,那么softmax尽量在学的东西，也就是$W$实际上是$g^*$，当然不一定能成功学到这样的形式。</p>
+<p>而我们知道$o(\epsilon^3)$在$o(\epsilon^2)$之前是可以被忽略的。因此最终：<br>$$<br>\mathbb{E}[\log Q_ {Y|X}] &#x3D; \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X) \tilde g (Y)] - \frac 1 2 \mathbb{E}[(f^T(X) \tilde g (Y))^2] - \frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]<br>$$</p>
+<p>上式中，第一项为常数，最后一项为非负值，且与前面几项没有约束关系，因此为了最大化上式只需简单令$\frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]&#x3D;0$，因此最终我们要做的是：<br>$$<br>\max_ {f,\tilde g} (\underbrace{\mathbb{E}[f^T(x)\tilde g(y)] - \frac{1}{2}\mathbb{E} [(f^T(x)\tilde g(y))^2]}_ {\Delta})<br>$$</p>
+<p>如果我们将$ \mathbb{E}[f^T(x)\tilde g(y)] $对$f(x)$求导，可以得到：<br>$$<br>\frac{\partial \Delta}{\partial f(x)} &#x3D; 0\<br>f(x) &#x3D; \land ^{-1}_ {\tilde g (Y)} \mathbb{E}[\tilde g(Y)|X &#x3D; x]<br>$$</p>
+<p>其中$\land ^{-1}_ {\tilde g (Y)}&#x3D;(\mathbb{E}_ {p_Y}[\tilde g(Y){\tilde g}^T(Y)])^{-1}$，也就是我们得到了最佳的$f,\tilde g$.</p>
+<p>同理我们也得到：<br>$$<br>\tilde {g ^*}(y) &#x3D; \land ^{-1}_ {f(X)} \mathbb{E}[f(X)|Y &#x3D; y]<br>$$</p>
+<p>也就是如果我们向softmax函数中喂入$f(x)$（形式固定）,那么softmax尽量在学的东西，也就是$W$实际上是$g^*$，当然不一定能成功学到这样的形式。</p>
 <p>同样的，利用神经网络进行softmax可以看作是在寻找Ｘ的特征，它找到的最佳形式应该是$f*$.</p>
 <p>简直是头大。实际上我不能保证这篇博客的正确性。</p>
 

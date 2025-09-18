@@ -135,7 +135,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
   </ul>
 </nav>
 
@@ -296,7 +296,7 @@
 <p>从另一个简单的例子来说：假如我们有一个罐子里装了红球和绿球，我们想要测的是红球的占比。每次取出N个球，则这N个球中红球占比为$\nu$，而总体红球占比为$\upsilon$，我们假设可以接受的误差范围为$\epsilon$，那么这几个量满足霍夫丁不等式。总体球中取出N个有m中不同的组合，而这些组合中红球占比误差很大的组合占了所有组合的比重是小于$2 e^{-2\epsilon ^2N}$的。而这些误差很大的样本组合就是所谓的Bad Data。因为从它测出来的值与实际值偏差很大。</p>
 <p>从另一方面来讲，如果我们测试的数目足够多，依然很有可能选到错误样本。就像你我是天才的概率很小，但这个世界总会出现天才。用霍夫丁不等式来说，假如我们测试了t次，那么出现一次bad data 的概率是小于$2te^{-2\epsilon ^2N}$，为什么可以简单相加？如下：</p>
 <p>假如一件事发生的概率是p，那么n次它至少发生一次的概率是$1-(1-p)^n$。</p>
-<p> 令 $g(p) = 1- (1-p)^n - np, g’(p) = n(1-p)^{n-1} - n = n[(1-p)^{n-1} - 1];$<br> 令$g’(p) = 0$,则$p = 0;$<br> 当p$∈[0,1]$时候， $g’(p) \leq 0, g(0) = 0$,所以$g(p)\leq 0$;<br> 因此 $1- (1-p)^n \leq np$</p>
+<p> 令 $g(p) &#x3D; 1- (1-p)^n - np, g’(p) &#x3D; n(1-p)^{n-1} - n &#x3D; n[(1-p)^{n-1} - 1];$<br> 令$g’(p) &#x3D; 0$,则$p &#x3D; 0;$<br> 当p$∈[0,1]$时候， $g’(p) \leq 0, g(0) &#x3D; 0$,所以$g(p)\leq 0$;<br> 因此 $1- (1-p)^n \leq np$</p>
 <p>上述是一个简单的证明，而实际上独立随机变量至少发生一件的概率是小于它们各自发生的概率之和的。在概率论中这相当于是个常识。</p>
 <p>应用到机器学习当中，如果H是有限的，也就是我们可选假说个数是有限的，只要选取足够大的测试样本量（Hoeffding不等式中的N足够大），出现错误估计的概率依然是非常小的，该test dataset有很大的概率对每个假说都能正确评估它在总体样本上的性能，因此我们可以选择一个表现最好的来当做g，它对大多数样本都会使用，相比之下也就更接近f。</p>
 <p>这就说明学习是可行的。</p>
