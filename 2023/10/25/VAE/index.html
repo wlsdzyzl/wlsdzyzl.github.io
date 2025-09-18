@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="这篇文章来介绍一个经典的生成模型，Variational Auto Encoder，也被称为VAE。它有着比较好的效果和比较优美的理论推导，也是理解最近大放异彩的模型diffusion model的基础。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Variational Autoencoder">
+<meta property="og:url" content="http://wlsdzyzl.com/2023/10/25/VAE/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这篇文章来介绍一个经典的生成模型，Variational Auto Encoder，也被称为VAE。它有着比较好的效果和比较优美的理论推导，也是理解最近大放异彩的模型diffusion model的基础。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://lilianweng.github.io/posts/2018-08-12-vae/autoencoder-architecture.png">
+<meta property="og:image" content="https://lilianweng.github.io/posts/2018-08-12-vae/vae-gaussian.png">
+<meta property="article:published_time" content="2023-10-25T13:32:22.000Z">
+<meta property="article:modified_time" content="2025-09-18T14:46:14.188Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="deep learning">
+<meta property="article:tag" content="generative model">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lilianweng.github.io/posts/2018-08-12-vae/autoencoder-architecture.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2023/10/25/VAE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2023/10/25/VAE/","path":"2023/10/25/VAE/","title":"Variational Autoencoder"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Variational Autoencoder | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Auto-Encoder"><span class="nav-number">1.</span> <span class="nav-text">Auto-Encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Variational-Auto-Encoder"><span class="nav-number">2.</span> <span class="nav-text">Variational Auto-Encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lower-bound%E6%8E%A8%E5%AF%BC"><span class="nav-number">3.</span> <span class="nav-text">Lower bound推导</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reparameterization"><span class="nav-number">4.</span> <span class="nav-text">Reparameterization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Log-Variance"><span class="nav-number">4.1.</span> <span class="nav-text">Log-Variance</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">157</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">89</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2023/10/25/VAE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Variational Autoencoder | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Variational Autoencoder
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-10-25 21:32:22" itemprop="dateCreated datePublished" datetime="2023-10-25T21:32:22+08:00">2023-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 22:46:14" itemprop="dateModified" datetime="2025-09-18T22:46:14+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">深度学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这篇文章来介绍一个经典的生成模型，Variational Auto Encoder，也被称为VAE。它有着比较好的效果和比较优美的理论推导，也是理解最近大放异彩的模型diffusion model的基础。</p>
+<span id="more"></span>
+
+<h2 id="Auto-Encoder"><a href="#Auto-Encoder" class="headerlink" title="Auto-Encoder"></a>Auto-Encoder</h2><p>介绍VAE之前，首先来了解一下什么是Auto-Encoder。Auto-Encoder的结构非常简单，就是将一个目标编码到更低维的空间，然后再解码回原有空间的过程。编码过程被称为encode，解码过程被称为decode，被广泛应用于数据压缩等，而物体编码后一般得到的是一个向量，被称为embedding vector，编码后的空间被称为embedding space，或者说latent space。</p>
+<p><img src="https://lilianweng.github.io/posts/2018-08-12-vae/autoencoder-architecture.png" alt="Auto Encoder的Pipe，taken from https:&#x2F;&#x2F;lilianweng.github.io&#x2F;posts&#x2F;2018-08-12-vae&#x2F;"></p>
+<p>上图中，输入被标记为$x$，重建后的结果被标记为$x’$，而latent embedding被标记为$z$。而训练auto encoder的loss function也是可以有多种选择的，只要能衡量$x$与$x’$之间的距离就可以，比如最简单的MSE，或者对于二进制的图像也可以用BCE。</p>
+<p>Auto Encoder一般对于训练集中的图像编码重建效果是很好的，但是它的生成效果却不太行。这是因为Auto Encoder的编码其实是一对一地训练出来的，很容易overfitting，对于处于二者”中间“的物体就没有被考虑到。它仿佛就是考虑”是“或者”不是“两个问题，而不会考虑到物体之间的”相似距离“。如果我们对Auto Encoder的embedding space进行采样或者插值，得到的结果就比较差了。</p>
+<h2 id="Variational-Auto-Encoder"><a href="#Variational-Auto-Encoder" class="headerlink" title="Variational Auto-Encoder"></a>Variational Auto-Encoder</h2><p>VAE的诞生被用来很好地去解决AE的缺点。VAE的架构和AE的架构非常像。它的想法很简单：既然Auto-Encoder是一个one-to-one的编码过程，所以有了上面的问题，那么是不是可以将对象不要进行这样严格的一对一映射，而是将其映射到一个分布上。而知道一个embedding vector在不同的分布下被sample出的概率，就可以得到其与不同的物体之间的”相似性“。因此这样的方法应该能更好的面对没有见过的样本，也应该有更好的生成效果。</p>
+<p>以上的这些其实只是一个intuition，并不是很严格的表达。下面我们来看一下VAE的架构图，已经它应该被怎样去训练（Loss function）。</p>
+<p><img src="https://lilianweng.github.io/posts/2018-08-12-vae/vae-gaussian.png" alt="Auto Encoder的Pipe，taken from https:&#x2F;&#x2F;lilianweng.github.io&#x2F;posts&#x2F;2018-08-12-vae&#x2F;"></p>
+<h2 id="Lower-bound推导"><a href="#Lower-bound推导" class="headerlink" title="Lower bound推导"></a>Lower bound推导</h2><p>当有两个分布$P_\theta$与$P_ {\text{data}}$，且有一堆sample：$x_1, x_2,…,x_n \sim P_ {\text{data}}$, 我们假设根据我们的网络参数$\theta$所生成的数据的分布为$P_\theta$，那么我们当然希望的是生成这些已知sample的概率是最大的，也就是：</p>
+<p>$$<br>\theta^* &#x3D; {\arg\max}_ {\theta}\prod p_\theta(x) &#x3D; {\arg\max}_ {\theta} \prod_x \log p_\theta(x)<br>$$</p>
+<p>但是 $p_\theta(x)$是什么样子我们不知道，因为它并不是简单的正态分布这样的，有一个很明确的数学表达式。但是我们可以通过下面的方式去计算它：</p>
+
+$$
+\begin{aligned}
+\log p_{\theta}(x) &= \log p_\theta(x) \cdot \int_z q(z|x)dz \\
+                  &= \int_z \log p_\theta(x) \cdot q(z|x)dz \\ 
+                  &= \int_z q(z|x) \log \frac{p(x, z)} {p(z|x)} dz \\ 
+                  &= \int_z q(z|x)\log\frac{q(z|x)p(x,z)} {p(z|x)q(z|x)}dz \\ 
+                  &=\int_z q(z|x)\log\frac{q(z|x)} {p(z|x)}dz + \int_z q(z|x)\log \frac{p(x,z)} {q(z|x)}dz \\ 
+                  &= D_{\text{KL}}\left(q(z|x) \| p(z|x)\right) + \int_z q(z|x)\log \frac{p(x,z)} {q(z|x)}dz \\ 
+                  &\geq \int_z q(z|x)\log \frac{p(x,z)} {q(z|x)}dz \\
+                  &= \int_z q(z|x)\log \frac{p(z) p(x|z)} {q(z|x)}dz \\ 
+                  &= \int_z q(z|x)\log \frac{p(z)} {q(z|x)}dz + \int_z q(z|x)\log p(x|z)dz\\ 
+                  &= - D_{\text{KL}}\left(q(z|x)\| p(z)\right) + \mathbb{E}_{q(z|x)}\left[\log p(x|z)\right]
+\end{aligned}
+$$
+
+<p>上述推导中，$\theta$部分被省略。最后得到的结果实际上是一个下界（lower bound）。我们可以通过最大化其lower bound从而最大化我们想要的目标。首先我们要知道，$q(z|x)$可以是任何分布，自然也可以是我们的encoder得到的分布。而$P(z)$我们希望它是一个标准的正态分布，因此式中的第一项告诉我们，如果想要最大化我们的目标，实际上是需要最小化每一个sample输入到编码器以后得到的分布与标准整体分布之间的KL divergence。而第二项呢，其实是想要最大化在$q(z|x)$的分布下，计算条件概率$\log p(x|z)$的期望值。直观来说就是如何让$p(x|z)$最大，那么自然就是让解码器能尽可能从$z$恢复出给定的$x$，因此第二项实际上可以用reconstruction loss来代替（这样的说法可能并不严格）。</p>
+<p>最终VAE的loss是由一个KL divergence与一个reconstruction loss相加得到的。</p>
+<h2 id="Reparameterization"><a href="#Reparameterization" class="headerlink" title="Reparameterization"></a>Reparameterization</h2><p>在计算loss的时候，要计算reconstruction loss，我们就需要从$q(z|x)$中sample一个z出来。如果我们直接sample，这个过程是无法求导的。因此我们可以通过reparameterization技巧来计算，背后的原理就是任何一个高斯分布都可以用一个标准正太分布去表示，因此对于原有分布的采样$z$可以进一步表示为：</p>
+<p>$$<br>z &#x3D; \mu + \sigma \cdot \epsilon, \epsilon \sim N(0, 1) .<br>$$</p>
+<p>另外，对两个高斯分布$\mathcal N(\mu_1, \sigma_1^2),  \mathcal N(\mu_2, \sigma_2^2)$之间的KL divergence，我们也可以通过下式去计算:<br>$$<br>D_ {\textbf{KL}}\left(\mathcal N(\mu_1, \sigma_1^2)\Vert \mathcal N(\mu_2, \sigma_2^2)\right) &#x3D; \log \frac{\sigma_2} {\sigma_1} + \frac{\sigma_1^2 +(\mu_1 - \mu_2)^2} {2 \sigma_2^2} - \frac{1} {2}<br>$$<br>所以最终的loss 就变得很简单了。</p>
+<h3 id="Log-Variance"><a href="#Log-Variance" class="headerlink" title="Log-Variance"></a>Log-Variance</h3><p>在具体的实现中，我们经常会发现神经网络去拟合的并不直接是$\sigma$或者$\sigma^2$，而是叫做<code>logvar</code> ，也就是$\log \sigma^2 &#x3D; 2\log\sigma$，这样其实是为了方便计算，因为$\sigma^2$总是大于零的，但是网络的拟合并不能总是保证这一点。通过加上一个对数，就能使得其范围拓展到负数了。相应的loss也会根据其进行调整。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+              <a href="/tags/generative-model/" rel="tag"># generative model</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/10/21/%E7%BA%AA%E5%BF%B5%E4%BA%B2%E5%84%BF%E5%AD%90%E2%80%94%E2%80%94EVOLUTION/" rel="prev" title="纪念亲儿子——EVOLUTION">
+                  <i class="fa fa-angle-left"></i> 纪念亲儿子——EVOLUTION
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/11/30/%E5%86%99%E7%BB%99%E8%88%85%E8%88%85/" rel="next" title="写给舅舅">
+                  写给舅舅 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

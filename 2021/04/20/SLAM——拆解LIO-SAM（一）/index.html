@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="本文为拆解LIO-SAM代码的第一部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——拆解LIO-SAM（一）">
+<meta property="og:url" content="http://wlsdzyzl.com/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="本文为拆解LIO-SAM代码的第一部分。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-04-19T22:21:28.000Z">
+<meta property="article:modified_time" content="2023-10-22T23:20:43.956Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%B8%80%EF%BC%89/","path":"2021/04/20/SLAM——拆解LIO-SAM（一）/","title":"SLAM——拆解LIO-SAM（一）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——拆解LIO-SAM（一） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Image-Projection"><span class="nav-number">1.</span> <span class="nav-text">Image Projection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Get-Undistorted-Points"><span class="nav-number">1.1.</span> <span class="nav-text">Get Undistorted Points</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%B9%E4%BA%91%E6%8F%90%E5%8F%96"><span class="nav-number">1.2.</span> <span class="nav-text">点云提取</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">157</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">89</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——拆解LIO-SAM（一） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——拆解LIO-SAM（一）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-04-20 06:21:28" itemprop="dateCreated datePublished" datetime="2021-04-20T06:21:28+08:00">2021-04-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-23 07:20:43" itemprop="dateModified" datetime="2023-10-23T07:20:43+08:00">2023-10-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文为拆解LIO-SAM代码的第一部分。<span id="more"></span></p>
+<h2 id="Image-Projection"><a href="#Image-Projection" class="headerlink" title="Image Projection"></a>Image Projection</h2><p>LIO-SAM的lidar odometry部分与LeGO-LOAM是类似的。在LeGO-LOAM中，会把点云投影到range image上，进行ground提取，我们先来看一下这部分的内容。</p>
+<p>range image的行数取决于雷达的线数，而列数取决于雷达的水平分辨率，在lio-sam中为1800。Image Projection是一个预处理的过程。下面是点云投影的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">projectPointCloud</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> cloudSize = laserCloudIn-&gt;points.<span class="built_in">size</span>();</span><br><span class="line">        <span class="comment">// range image projection</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; cloudSize; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            PointType thisPoint;</span><br><span class="line">            thisPoint.x = laserCloudIn-&gt;points[i].x;</span><br><span class="line">            thisPoint.y = laserCloudIn-&gt;points[i].y;</span><br><span class="line">            thisPoint.z = laserCloudIn-&gt;points[i].z;</span><br><span class="line">            thisPoint.intensity = laserCloudIn-&gt;points[i].intensity;</span><br><span class="line"></span><br><span class="line">            <span class="type">float</span> range = <span class="built_in">pointDistance</span>(thisPoint);</span><br><span class="line">            <span class="keyword">if</span> (range &lt; lidarMinRange || range &gt; lidarMaxRange)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> rowIdn = laserCloudIn-&gt;points[i].ring;</span><br><span class="line">            <span class="comment">// out of range</span></span><br><span class="line">            <span class="keyword">if</span> (rowIdn &lt; <span class="number">0</span> || rowIdn &gt;= N_SCAN)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">if</span> (rowIdn % downsampleRate != <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            <span class="comment">//( -180,  180]</span></span><br><span class="line">            <span class="type">float</span> horizonAngle = <span class="built_in">atan2</span>(thisPoint.x, thisPoint.y) * <span class="number">180</span> / M_PI;</span><br><span class="line"></span><br><span class="line">            <span class="type">static</span> <span class="type">float</span> ang_res_x = <span class="number">360.0</span>/<span class="built_in">float</span>(Horizon_SCAN);</span><br><span class="line">            <span class="comment">// compute the column id</span></span><br><span class="line">						<span class="comment">// i don&#x27;t understand here. (90, 360] (0, 90)</span></span><br><span class="line">            <span class="type">int</span> columnIdn = -<span class="built_in">round</span>((horizonAngle<span class="number">-90.0</span>)/ang_res_x) + Horizon_SCAN/<span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (columnIdn &gt;= Horizon_SCAN)</span><br><span class="line">                columnIdn -= Horizon_SCAN;</span><br><span class="line">						</span><br><span class="line">            <span class="keyword">if</span> (columnIdn &lt; <span class="number">0</span> || columnIdn &gt;= Horizon_SCAN)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            <span class="comment">// multiple points are projected on the same pixel</span></span><br><span class="line">            <span class="keyword">if</span> (rangeMat.<span class="built_in">at</span>&lt;<span class="type">float</span>&gt;(rowIdn, columnIdn) != FLT_MAX)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            <span class="comment">// undistorted points</span></span><br><span class="line">            thisPoint = <span class="built_in">deskewPoint</span>(&amp;thisPoint, laserCloudIn-&gt;points[i].time);</span><br><span class="line"></span><br><span class="line">            rangeMat.<span class="built_in">at</span>&lt;<span class="type">float</span>&gt;(rowIdn, columnIdn) = range;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> index = columnIdn + rowIdn * Horizon_SCAN;</span><br><span class="line">            fullCloud-&gt;points[index] = thisPoint;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，在投影过程中可能会出现多个点投影到一个pixel上的情况，这时候我们直接忽略后来的点。在投影过程中，还会对点云进行去扰动，也就是下面要说的内容。</p>
+<h3 id="Get-Undistorted-Points"><a href="#Get-Undistorted-Points" class="headerlink" title="Get Undistorted Points"></a>Get Undistorted Points</h3><p>在之前的介绍中了解到了，由于雷达的测距原理，当雷达运动时，雷达的点是会有扰动的。在A-LOAM中，去除distortion使用的是球面线性差值（旋转）以及（平移）线性差值，假设在扫描一圈过程中雷达的运动是匀速的。但是实际上往往并非如此，有了IMU数据，我们可以使用IMU的状态来直接估计各个时刻的相机的transforamtion，从而直接进行去扰动(在计算机中)。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PointType <span class="title">deskewPoint</span><span class="params">(PointType *point, <span class="type">double</span> relTime)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (deskewFlag == <span class="number">-1</span> || cloudInfo.imuAvailable == <span class="literal">false</span>)</span><br><span class="line">            <span class="keyword">return</span> *point;</span><br><span class="line"></span><br><span class="line">        <span class="type">double</span> pointTime = timeScanCur + relTime;</span><br><span class="line"></span><br><span class="line">        <span class="type">float</span> rotXCur, rotYCur, rotZCur;</span><br><span class="line">        <span class="built_in">findRotation</span>(pointTime, &amp;rotXCur, &amp;rotYCur, &amp;rotZCur);</span><br><span class="line">				<span class="comment">// position is ignored acturally</span></span><br><span class="line">        <span class="type">float</span> posXCur, posYCur, posZCur;</span><br><span class="line">        <span class="built_in">findPosition</span>(relTime, &amp;posXCur, &amp;posYCur, &amp;posZCur);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (firstPointFlag == <span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            transStartInverse = (pcl::<span class="built_in">getTransformation</span>(posXCur, posYCur, posZCur, rotXCur, rotYCur, rotZCur)).<span class="built_in">inverse</span>();</span><br><span class="line">            firstPointFlag = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// transform points to start</span></span><br><span class="line">        Eigen::Affine3f transFinal = pcl::<span class="built_in">getTransformation</span>(posXCur, posYCur, posZCur, rotXCur, rotYCur, rotZCur);</span><br><span class="line">        Eigen::Affine3f transBt = transStartInverse * transFinal;</span><br><span class="line"></span><br><span class="line">        PointType newPoint;</span><br><span class="line">        newPoint.x = <span class="built_in">transBt</span>(<span class="number">0</span>,<span class="number">0</span>) * point-&gt;x + <span class="built_in">transBt</span>(<span class="number">0</span>,<span class="number">1</span>) * point-&gt;y + <span class="built_in">transBt</span>(<span class="number">0</span>,<span class="number">2</span>) * point-&gt;z + <span class="built_in">transBt</span>(<span class="number">0</span>,<span class="number">3</span>);</span><br><span class="line">        newPoint.y = <span class="built_in">transBt</span>(<span class="number">1</span>,<span class="number">0</span>) * point-&gt;x + <span class="built_in">transBt</span>(<span class="number">1</span>,<span class="number">1</span>) * point-&gt;y + <span class="built_in">transBt</span>(<span class="number">1</span>,<span class="number">2</span>) * point-&gt;z + <span class="built_in">transBt</span>(<span class="number">1</span>,<span class="number">3</span>);</span><br><span class="line">        newPoint.z = <span class="built_in">transBt</span>(<span class="number">2</span>,<span class="number">0</span>) * point-&gt;x + <span class="built_in">transBt</span>(<span class="number">2</span>,<span class="number">1</span>) * point-&gt;y + <span class="built_in">transBt</span>(<span class="number">2</span>,<span class="number">2</span>) * point-&gt;z + <span class="built_in">transBt</span>(<span class="number">2</span>,<span class="number">3</span>);</span><br><span class="line">        newPoint.intensity = point-&gt;intensity;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> newPoint;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>具体的做法是，点云中的每个点，记录的是捕获到该点的时间到捕获第一个点的时间间隔，因此根据该点的时间戳来找到IMU的状态。由于IMU的时间戳与点的时间戳不会严格一样，因此我们可能遇到两种情况：</p>
+<ol>
+<li>点的时间戳在两个IMU状态之间，则用这两个IMU的状态进行插值；</li>
+<li>点的时间戳是大于最新的IMU状态的时间戳，则直接用离得最近的IMU状态。</li>
+</ol>
+<p>具体实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">findRotation</span><span class="params">(<span class="type">double</span> pointTime, <span class="type">float</span> *rotXCur, <span class="type">float</span> *rotYCur, <span class="type">float</span> *rotZCur)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        *rotXCur = <span class="number">0</span>; *rotYCur = <span class="number">0</span>; *rotZCur = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> imuPointerFront = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (imuPointerFront &lt; imuPointerCur)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pointTime &lt; imuTime[imuPointerFront])</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            ++imuPointerFront;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pointTime &gt; imuTime[imuPointerFront] || imuPointerFront == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            *rotXCur = imuRotX[imuPointerFront];</span><br><span class="line">            *rotYCur = imuRotY[imuPointerFront];</span><br><span class="line">            *rotZCur = imuRotZ[imuPointerFront];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">int</span> imuPointerBack = imuPointerFront - <span class="number">1</span>;</span><br><span class="line">            <span class="type">double</span> ratioFront = (pointTime - imuTime[imuPointerBack]) / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);</span><br><span class="line">            <span class="type">double</span> ratioBack = (imuTime[imuPointerFront] - pointTime) / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);</span><br><span class="line">            *rotXCur = imuRotX[imuPointerFront] * ratioFront + imuRotX[imuPointerBack] * ratioBack;</span><br><span class="line">            *rotYCur = imuRotY[imuPointerFront] * ratioFront + imuRotY[imuPointerBack] * ratioBack;</span><br><span class="line">            *rotZCur = imuRotZ[imuPointerFront] * ratioFront + imuRotZ[imuPointerBack] * ratioBack;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="点云提取"><a href="#点云提取" class="headerlink" title="点云提取"></a>点云提取</h3><p>接下来的操作是提取出可用的点，存储range image，并且根据所属的SCAN来进行划分。可以看到这里的startRingIndex与endRingIndex与A-LOAM中一致，都忽略了两端的部分点：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">cloudExtraction</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// extract segmented cloud for lidar odometry</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N_SCAN; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            cloudInfo.startRingIndex[i] = count - <span class="number">1</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; Horizon_SCAN; ++j)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (rangeMat.<span class="built_in">at</span>&lt;<span class="type">float</span>&gt;(i,j) != FLT_MAX)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">// mark the points&#x27; column index for marking occlusion later</span></span><br><span class="line">                    cloudInfo.pointColInd[count] = j;</span><br><span class="line">                    <span class="comment">// save range info</span></span><br><span class="line">                    cloudInfo.pointRange[count] = rangeMat.<span class="built_in">at</span>&lt;<span class="type">float</span>&gt;(i,j);</span><br><span class="line">                    <span class="comment">// save extracted cloud</span></span><br><span class="line">                    extractedCloud-&gt;<span class="built_in">push_back</span>(fullCloud-&gt;points[j + i*Horizon_SCAN]);</span><br><span class="line">                    <span class="comment">// size of extracted cloud</span></span><br><span class="line">                    ++count;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            cloudInfo.endRingIndex[i] = count <span class="number">-1</span> - <span class="number">5</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最后就是将整理后的点（论文中称为segmented points）发布出去了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/19/SLAM%E2%80%94%E2%80%94LIO-SAM/" rel="prev" title="SLAM——LIO-SAM">
+                  <i class="fa fa-angle-left"></i> SLAM——LIO-SAM
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="SLAM——拆解LIO-SAM（二）">
+                  SLAM——拆解LIO-SAM（二） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

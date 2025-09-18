@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="回顾一下SLAM中的几何基础。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——Geometry">
+<meta property="og:url" content="http://wlsdzyzl.com/2021/04/21/SLAM%E2%80%94%E2%80%94Geometry/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="回顾一下SLAM中的几何基础。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-04-20T22:14:55.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:49:02.457Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="geometry">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2021/04/21/SLAM%E2%80%94%E2%80%94Geometry/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2021/04/21/SLAM%E2%80%94%E2%80%94Geometry/","path":"2021/04/21/SLAM——Geometry/","title":"SLAM——Geometry"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——Geometry | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%8E%E7%BE%A4%E6%9D%8E%E4%BB%A3%E6%95%B0%EF%BC%88-text-SO-3-amp-mathfrak-so-3-%EF%BC%89%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">李群李代数（$\text{SO(3) } \&amp; ~\mathfrak{so}(3)$）：</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">157</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">89</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2021/04/21/SLAM%E2%80%94%E2%80%94Geometry/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——Geometry | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——Geometry
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-04-21 06:14:55" itemprop="dateCreated datePublished" datetime="2021-04-21T06:14:55+08:00">2021-04-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 19:49:02" itemprop="dateModified" datetime="2025-09-18T19:49:02+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>回顾一下SLAM中的几何基础。<span id="more"></span></p>
+<h2 id="李群李代数（-text-SO-3-amp-mathfrak-so-3-）："><a href="#李群李代数（-text-SO-3-amp-mathfrak-so-3-）：" class="headerlink" title="李群李代数（$\text{SO(3) } \&amp; ~\mathfrak{so}(3)$）："></a>李群李代数（$\text{SO(3) } \&amp; ~\mathfrak{so}(3)$）：</h2><ul>
+<li>李群李代数对应的都是三维矩阵，在SLAM中，李群$\text{SO(3) }$ 对应旋转矩阵（方向余弦阵,3×3 正交阵），而李代数$\mathfrak{so}(3)$对应的为三维向量的反对称矩阵，只不过任何一个反对称矩阵都和一个三维向量是一一对应的，因此有时候也会直接用三维向量来指代$\mathfrak {so}(3)$的元素。</li>
+<li>一般来说反对称矩阵与向量之间的转换用$\wedge$与$\vee$运算符表示。有三维向量$\mathbf w$，则它与其对应的反对称矩阵$\mathbf W$转化关系为：</li>
+</ul>
+<script type="math/tex; mode=display">
+\mathbf w^{\wedge}=\left[\begin{array}{l}w_ {1} \\w_ {2} \\w_ {3}\end{array}\right]^{^{\wedge}}=\left[\begin{array}{ccc}0 & -w_ {3} & w_ {2} \\w_ {3} & 0 & -w_ {1} \\-w_ {2} & w_ {1} & 0\end{array}\right]=\mathbf{W}\\\mathbf{W}^{\vee}=\mathbf w</script><p>关于反对称矩阵的一个性质：</p>
+<script type="math/tex; mode=display">
+\mathbf{a}^{\wedge} \cdot \mathbf{b}=-\mathbf{b}^{\wedge} \cdot \mathbf{a}, \quad \forall \mathbf{a}, \mathbf{b} \in \mathbb R^{3}</script><ul>
+<li>指数映射$\exp(\cdot)$将$\mathfrak{so}(3)$映射到$\text{SO(3)}$：</li>
+</ul>
+<script type="math/tex; mode=display">
+\exp \left(\vec{\phi}^{\wedge}\right)=\mathbf{I}+\frac{\sin (\|\vec{\phi}\|)}{\|\vec{\phi}\|} \vec{\phi}^{\wedge}+\frac{1-\cos (\|\vec{\phi}\|)}{\|\vec{\phi}\|^{2}}\left(\vec{\phi}^{\wedge}\right)^{2}</script><p>特别，当$\phi$很小的时，有一阶近似：</p>
+<script type="math/tex; mode=display">
+\exp \left(\vec{\phi}^{\wedge}\right) \approx \mathbf{I}+\vec{\phi}^{\wedge}</script><ul>
+<li>对数映射$\log(\cdot)$将$\text{SO}(3)$映射到$\mathfrak{so}(3)$：</li>
+</ul>
+<script type="math/tex; mode=display">
+\log (\mathbf{R})=\frac{\varphi \cdot\left(\mathbf{R}-\mathbf{R}^{T}\right)}{2 \sin (\varphi)}</script><p>其中：$\varphi=\cos ^{-1}\left(\frac{\operatorname{tr}(R)-1}{2}\right)$。有$\log (\mathbf{R})^{\vee}=\varphi \cdot \mathbf{a}$，其中$\varphi$是旋转角，而$\mathbf a$为旋转轴的单位向量，且$\mathbf{a}=\left(\frac{\mathbf{R}-\mathbf{R}^{T}}{2 \sin (\varphi)}\right)^{\vee}$。因此，每一个旋转矩阵对应一个旋转向量。很奇妙的事情是一个旋转向量对应的旋转矩阵，也就是罗德里格斯公式求得的旋转矩阵（从几何关系上推导出来并不难），正是该旋转向量的反对称矩阵$\left(\mathfrak{so}(3)\right)$在$\text{SO(3)}$上的映射。</p>
+<p><em>有意思的事情，任何一个三维向量实际上都可以看作是一个旋转向量（方向为旋转轴，而大小为旋转角度），因此任何一个三维向量都可以对应到一个旋转矩阵。但是不是所有的三维矩阵都是旋转矩阵，因此尽管三维向量与三维矩阵都是无穷多个，但是三维矩阵的个数就是比三维向量“多”，这个也是非常直观的，因为三维矩阵有9个变量，同时，旋转矩阵所在的这个空间实际上就“摊”满了三维向量的空间。</em></p>
+<ul>
+<li>当$\left\Vert \vec{\phi}\right\Vert&lt;\pi$时（或者$\left\Vert\vec{\phi} \right\Vert$被限制在一个连续的$2\pi$范围内），指数映射与对数映射是双射，而$\left\Vert\vec{\phi} \right\Vert$也就是旋转角度$\varphi$。</li>
+<li>从上面的内容可以得知，实际上任何一个旋转矩阵都和一个三维向量是对应的，因此为了方便，我们规定$\text{Exp}(\cdot)$把$\mathbb R^3$映射到$\text{SO(3)}$，而$\text{Log}(\cdot)$把$\text{SO(3)}$映射到$\mathbb R^3$，也就是：</li>
+</ul>
+<script type="math/tex; mode=display">
+\text{Exp}(\vec\phi) =  \exp(\vec\phi^{\wedge}) , ~\text{Log}(\mathbf R) = \log^\vee(\mathbf R)</script><ul>
+<li>对于$\vec\phi$以及一个微小量$\delta\vec\phi$，有：</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{array}{l}\operatorname{Exp}(\vec{\phi}+\delta \vec{\phi}) \approx \operatorname{Exp}(\vec{\phi}) \cdot \operatorname{Exp}\left(\mathbf{J}_ {r}(\vec{\phi}) \cdot \delta \vec{\phi}\right) \\\text{Log} (\operatorname{Exp}(\vec{\phi}) \cdot \operatorname{Exp}(\delta \vec{\phi}))=\vec{\phi}+\mathbf{J}_ {r}^{-1}(\vec{\phi}) \cdot \delta \vec{\phi}\end{array}</script><p>也就是三维向量上加一个微小量，对应了$\text{SO(3)}$上乘一个$\operatorname{Exp}\left(\mathbf{J}_ {r}(\vec{\phi}) \cdot \delta \vec{\phi}\right)$，而在$\text{SO(3)}$上乘一个$\operatorname{Exp}(\delta \vec{\phi})$也就对应了在$\mathbb R^3$上加一个$\mathbf{J}_ {r}^{-1}(\vec{\phi}) \cdot \delta \vec{\phi}$。其中，$\mathbf{J}_ {r}(\vec{\phi})$ 是属于$\text{SO(3)}$空间的右Jacobian，有：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}\mathbf{J}_ {r}(\vec{\phi})=\mathbf{I}-\frac{1-\cos (\|\vec{\phi}\|)}{\|\vec{\phi}\|^{2}} \vec{\phi}^{\wedge}+\frac{\|\vec{\phi}\|-\sin (\|\vec{\phi}\|)}{\|\vec{\phi}\|^{3}}\left(\vec{\phi}^{\wedge}\right)^{2} \\\mathbf{J}_ {r}^{-1}(\vec{\phi})=\mathbf{I}+\frac{1}{2} \vec{\phi}^{\wedge}+\left(\frac{1}{\|\vec{\phi}\|^{2}}-\frac{1+\cos (\|\vec{\phi}\|)}{2 \cdot\|\vec{\phi}\| \cdot \sin (\|\vec{\phi}\|)}\right)\left(\vec{\phi}^{\wedge}\right)^{2}\end{array}</script><p>当$\delta\vec\phi$很小时，有</p>
+<script type="math/tex; mode=display">
+\mathbf{J}_ {r}(\delta\vec{\phi}) \approx\mathbf{J}^{-1}_ {r}(\delta\vec{\phi})\approx \mathbf I\\\operatorname{Exp}\left(\delta \vec{\phi}_ {i}\right) \approx \mathbf{I}+(\delta\vec\phi_i)^{\wedge}</script><ul>
+<li>指数映射的伴随（Adjoint）性质：</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{array}{l}\mathbf{R} \cdot \operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}^{T}=\exp \left(\mathbf{R} \vec{\phi}^{\wedge} \mathbf{R}^{T}\right)=\operatorname{Exp}(\mathbf{R} \vec{\phi}) \\\Leftrightarrow \operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}=\mathbf{R} \cdot \operatorname{Exp}\left(\mathbf{R}^{T} \vec{\phi}\right)\end{array}</script><p>为了证明伴随性质，我们首先要知道一个前提：$(\mathbf{R} \vec{\phi})^{\wedge}=\mathbf{R} \vec{\phi}^{\wedge} \mathbf{R}^{T}$。令$\vec \phi = \theta \mathbf a$，根据罗德里格斯公式，可得：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}\operatorname{Exp}(\vec{\phi})=\exp \left(\vec{\phi}^{\wedge}\right)=\exp \left(\theta \mathbf{a}^{\wedge}\right) \\=\cos \theta \cdot \mathbf{I}+(1-\cos \theta) \mathbf{a} \mathbf{a}^{T}+\sin \theta \cdot \mathbf{a}^{\wedge}\end{array}</script><p>那么有（伴随性质第一行的证明）：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}\mathbf{R} \cdot \operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}^{T} \\=\mathbf{R} \cdot\left[\cos \theta \cdot \mathbf{I}+(1-\cos \theta) \mathbf{a} \mathbf{a}^{T}+\sin \theta \cdot \mathbf{a}^{\wedge}\right] \cdot \mathbf{R}^{T} \\=\cos \theta \cdot \mathbf{R} \mathbf{R}^{T}+(1-\cos \theta) \cdot \mathbf{R a a}^{T} \mathbf{R}^{T}+\sin \theta \cdot \mathbf{R} \mathbf{a}^{\wedge} \mathbf{R}^{T} \\=\cos \theta \cdot \mathbf{I}+(1-\cos \theta) \cdot(\mathbf{R a}) \cdot(\mathbf{R} \mathbf{a})^{T}+\sin \theta \cdot(\mathbf{R} \mathbf{a})^{\wedge} \\=\exp \left(\theta(\mathbf{R} \mathbf{a})^{\wedge}\right)=\exp \left((\mathbf{R} \vec{\phi})^{\wedge}\right)\\=\exp \left(\mathbf{R} \vec{\phi}^{\wedge} \mathbf{R}^{T}\right)\\ = \text{Exp}(\mathbf{R\vec\phi})\end{array}</script><p>对于第二行：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}&\mathbf{R} \cdot \operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}^{T}=\operatorname{Exp}(\mathbf{R} \vec{\phi})\\\Leftrightarrow&\mathbf{R}^T \cdot \operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}=\operatorname{Exp}(\mathbf{R}^T \vec{\phi})\\\Leftrightarrow&\operatorname{Exp}(\vec{\phi}) \cdot \mathbf{R}=\mathbf R\operatorname{Exp}(\mathbf{R}^T \vec{\phi})\end{aligned}</script>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/geometry/" rel="tag"># geometry</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/20/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LIO-SAM%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="SLAM——拆解LIO-SAM（二）">
+                  <i class="fa fa-angle-left"></i> SLAM——拆解LIO-SAM（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/30/SLAM%E2%80%94%E2%80%94IMU%E9%A2%84%E7%A7%AF%E5%88%86/" rel="next" title="SLAM——IMU预积分">
+                  SLAM——IMU预积分 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
