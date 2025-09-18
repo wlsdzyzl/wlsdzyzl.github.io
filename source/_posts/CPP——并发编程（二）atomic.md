@@ -1,0 +1,153 @@
+---
+title: CPP——并发编程（二）atomic
+date: 2019-03-29 00:00:00
+tags: [cpp,concurrent programming,Programming language]
+categories: 程序设计语言
+mathjax: true
+---   
+
+
+上一篇文章介绍了线程thread，这一次我们介绍atomic，也就是原子操作。  
+
+<!--more-->
+
+
+了解并发编程的都知道原子操作的重要性，因为有些步骤是不能打断的。比如下面两个函数，第一个函数老公赚了100元，如果这个家有1000块了，标识这个家为富翁（人穷志短呀！）。第二个函数老婆花钱，如果资产不到1000元，标识这个家为普通家庭。  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*enum rich, ordinary, and asset_value is a global variable*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">income</span><span class="params">(<span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    asset_value += n;</span><br><span class="line">    <span class="keyword">if</span>(asset_value&gt;<span class="number">1000</span>) identity = rich;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">outcome</span><span class="params">(<span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    asset_value -=n;</span><br><span class="line">    <span class="keyword">if</span>(asset_value&lt;<span class="number">1000</span>) identity = ordinary;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+下面情况是有可能发生的，老公挣钱的时候，老婆在花钱。这时候，就会并发执行income和outcome两个函数，如果income执行的一半，恰好asset_value满足了条件，但是还没执行变rich的操作，线程调度到了outcome，使得asset_value又变得不满足条件了。执行完了outcome，回到income，因为已经进行过判断了，所以会直接将identity设置为rich，这就导致了错误。类似的情况还有很多。
+
+因此我们需要将income，outcome都设定为原子操作。
+
+原子类型是封装了一个值的类型，该值的访问保证不会导致数据争用，并且可以用于同步不同线程之间的内存访问。对于atomic头文件包含了两个类：atomic和atomic_flag。
+
+### [](about:blank#atomic-flag "atomic_flag")atomic_flag
+
+atomic_flag是一种简单原子布尔类型，只支持两种操作，test_and_set和clear。它的构造函数如下：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">atomic_flag() <span class="keyword">noexcept</span> = <span class="keyword">default</span>;</span><br><span class="line">atomic_flag (<span class="keyword">const</span> atomic_flag&amp;T) = <span class="keyword">delete</span>;</span><br></pre></td></tr></tbody></table>
+
+它只有默认构造函数，而且拷贝构造函数被禁用，也不会有移动构造。但是，atomic_flag却可以用一个常量ATOMIC_FLAG_INIT来指定。
+
+test_and_set()函数检查并且设置flag的值，返回一个布尔值，如果flag是true，则返回true，如果flag为false，则设置flag为true，返回false。它的这两个操作都是原子操作。
+
+clear()函数简单设置flag为false。
+
+如何使用这两个函数？比如某个资源某一刻只能让一个线程访问，那么可以这样安排：使用flag来标识资源是否正在被利用，用test_and_set()来阻塞访问。利用资源的线程结束之后，使用clear释放资源。下面是一个官方的例子：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// atomic_flag as a spinning lock</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;       // std::cout</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;atomic&gt;         // std::atomic_flag</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;         // std::thread</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;         // std::vector</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;        // std::stringstream</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::atomic_flag lock_stream = ATOMIC_FLAG_INIT;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">stringstream</span> stream;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">append_number</span><span class="params">(<span class="keyword">int</span> x)</span> </span>{</span><br><span class="line">  <span class="keyword">while</span> (lock_stream.test_and_set()) {}</span><br><span class="line">  stream &lt;&lt; <span class="string">"thread #"</span> &lt;&lt; x &lt;&lt; <span class="string">'\n'</span>;</span><br><span class="line">  lock_stream.clear();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::thread&gt; threads;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;=<span class="number">10</span>; ++i) threads.push_back(<span class="built_in">std</span>::thread(append_number,i));</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; th : threads) th.join();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; stream.str();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table>
+
+观察上述代码，如果没有lock_stream，那么多个线程同时运行，可能无法正常输出“thread # x”这种情况，而可能非常混乱。使用atomic_flag就可以对append_number加锁，使得输出变得正常。下面是运行结果：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//right</span></span><br><span class="line">thread #<span class="number">1</span></span><br><span class="line">thread #<span class="number">2</span></span><br><span class="line">thread #<span class="number">3</span></span><br><span class="line">thread #<span class="number">4</span></span><br><span class="line">thread #<span class="number">5</span></span><br><span class="line">thread #<span class="number">6</span></span><br><span class="line">thread #<span class="number">7</span></span><br><span class="line">thread #<span class="number">8</span></span><br><span class="line">thread #<span class="number">9</span></span><br><span class="line">thread #<span class="number">10</span></span><br><span class="line"><span class="comment">//wrong</span></span><br><span class="line">thread #<span class="number">1</span></span><br><span class="line">threathread #<span class="number">3</span></span><br><span class="line">thread #<span class="number">4</span></span><br><span class="line"> #<span class="number">2</span></span><br><span class="line">thread #<span class="number">5</span></span><br><span class="line">thread #<span class="number">6</span></span><br><span class="line">thread #<span class="number">7</span></span><br><span class="line">thread #<span class="number">8</span>thread #<span class="number">9</span></span><br><span class="line">thread #<span class="number">10</span></span><br><span class="line"></span><br><span class="line">d</span><br></pre></td></tr></tbody></table>
+
+在错误的情况下会运行出来什么样的结果是未定义的。
+
+### [](about:blank#atomic "atomic")atomic
+
+atomic类相对于atomic_flag来说复杂很多。它是一个模板类，一个模板类型为T的原子对象中封装了一个T的值。它的作用和atomic_flag类似，保证对于T类型的该值的访问都是原子操作，而不会引起数据竞争。
+
+C++11标准中，对于atomic模板类的定义如下：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt; <span class="class"><span class="keyword">class</span> <span class="title">T</span> &gt; <span class="title">struct</span> <span class="title">atomic</span> {</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">is_lock_free</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">is_lock_free</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">store</span><span class="params">(T, memory_order = memory_order_seq_cst)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">store</span><span class="params">(T, memory_order = memory_order_seq_cst)</span></span>;</span><br><span class="line">    <span class="function">T <span class="title">load</span><span class="params">(memory_order = memory_order_seq_cst)</span> <span class="keyword">const</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function">T <span class="title">load</span><span class="params">(memory_order = memory_order_seq_cst)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">operator</span>  <span class="title">T</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">operator</span>  <span class="title">T</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function">T <span class="title">exchange</span><span class="params">(T, memory_order = memory_order_seq_cst)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function">T <span class="title">exchange</span><span class="params">(T, memory_order = memory_order_seq_cst)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span><span class="params">(T &amp;, T, memory_order, memory_order)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span><span class="params">(T &amp;, T, memory_order, memory_order)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span><span class="params">(T &amp;, T, memory_order, memory_order)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span><span class="params">(T &amp;, T, memory_order, memory_order)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span><span class="params">(T &amp;, T, memory_order = memory_order_seq_cst)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span><span class="params">(T &amp;, T, memory_order = memory_order_seq_cst)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span><span class="params">(T &amp;, T, memory_order = memory_order_seq_cst)</span> <span class="keyword">volatile</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span><span class="params">(T &amp;, T, memory_order = memory_order_seq_cst)</span></span>;</span><br><span class="line">    atomic() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">constexpr</span> <span class="title">atomic</span><span class="params">(T)</span></span>;</span><br><span class="line">    atomic(<span class="keyword">const</span> atomic &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    atomic &amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> atomic &amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    atomic &amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> atomic &amp;) <span class="keyword">volatile</span> = <span class="keyword">delete</span>;</span><br><span class="line">    T <span class="keyword">operator</span>=(T) <span class="keyword">volatile</span>;</span><br><span class="line">    T <span class="keyword">operator</span>=(T);</span><br><span class="line">};</span><br></pre></td></tr></tbody></table>
+
+此外，atomic对于整型（integral）和指针类型有特殊实现。整型包含了：char, signed char, unsigned char, short, unsigned short, int, unsigned int, long, unsigned long, long long, unsigned long long, char16_t, char32_t, wchar_t。对于这些类型实现了下面几个成员函数:  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">atomic::fetch_add</span><br><span class="line">atomic::fetch_sub</span><br><span class="line">atomic::fetch_and</span><br><span class="line">atomic::fetch_or</span><br><span class="line">atomic::fetch_xor</span><br><span class="line">atomic::<span class="keyword">operator</span>++</span><br><span class="line">atomic::<span class="keyword">operator</span>--</span><br><span class="line"><span class="keyword">operator</span> (comp. assign.)</span><br></pre></td></tr></tbody></table>
+
+对于指针类型实现了下面的函数：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">atomic::fetch_add</span><br><span class="line">atomic::fetch_sub</span><br><span class="line">atomic::<span class="keyword">operator</span>++</span><br><span class="line">atomic::<span class="keyword">operator</span>--</span><br><span class="line"><span class="keyword">operator</span> (comp. assign.)</span><br></pre></td></tr></tbody></table>
+
+其中operator包含了很多其他如+=，-=等operator函数的实现，简化为[operator(comp. assign.)](http://www.cplusplus.com/reference/atomic/atomic/operatororequal/)(了解更多点击这个链接)。
+
+atomic的构造函数包括默认构造和初始化，它的拷贝构造函数被删除了，也没有移动构造。  
+类型|函数  
+—-|—-  
+default (1)|atomic() noexcept = default;  
+initialization (2)|constexpr atomic (T val) noexcept;  
+copy [deleted] (3)|atomic (const atomic&) = delete;
+
+既然拷贝构造函数被禁用了，那么对于赋值也是一样。因为赋值实际上与拷贝和移动构造差别不大，只不过不是构造函数。但是，atomic对于赋值操作operator=有别的定义：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T <span class="keyword">operator</span>= (T val) <span class="keyword">noexcept</span>;</span><br><span class="line">T <span class="keyword">operator</span>= (T val) <span class="keyword">volatile</span> <span class="keyword">noexcept</span>;</span><br></pre></td></tr></tbody></table>
+
+通过这个可以设定atomic对象封装的T的值，因此它是set value，而不是copy。
+
+下面介绍几个atomic的一般成员函数。
+
+**is_lock_free**  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">is_lock_free</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">is_lock_free</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+判断该 std::atomic 对象是否具备 lock-free 的特性。如果某个对象满足 lock-free 特性，在多个线程访问该对象时不会导致线程阻塞。  
+**store**  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">store</span> <span class="params">(T val, memory_order sync = memory_order_seq_cst)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">store</span> <span class="params">(T val, memory_order sync = memory_order_seq_cst)</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+修改被封装的值，std::atomic::store 函数将类型为T的参数val复制给原子对象所封装的值。另外参数sync指定内存序(Memory Order)，可能的取值如下：
+
+| Memory Order 值 | Memory Order 类型 |
+| --- | --- |
+| memory_order_relaxed | Relaxed |
+| memory_order_release | Release |
+| memory_order_seq_cst | Sequentially consistent |
+
+对于内存序稍后介绍。
+
+**load**  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">T <span class="title">load</span> <span class="params">(memory_order sync = memory_order_seq_cst)</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function">T <span class="title">load</span> <span class="params">(memory_order sync = memory_order_seq_cst)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+读取所封装的值，依然指定了内存序。
+
+| Memory Order 值 | Memory Order 类型 |
+| --- | --- |
+| memory_order_relaxed | Relaxed |
+| memory_order_consume | Consume |
+| memory_order_acquire | Acquire |
+| memory_order_seq_cst | Sequentially consistent |
+
+**operator T**
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">operator</span> <span class="title">T</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">operator</span> <span class="title">T</span><span class="params">()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+与load类似，读取封装的值。
+
+**exchange**  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">T <span class="title">exchange</span> <span class="params">(T val, memory_order sync = memory_order_seq_cst)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function">T <span class="title">exchange</span> <span class="params">(T val, memory_order sync = memory_order_seq_cst)</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+读取并修改封装的值。将val赋值给封装的值，返回原值。内存序可能取值如下：
+
+| Memory Order 值 | Memory Order 类型 |
+| --- | --- |
+| memory_order_relaxed | Relaxed |
+| memory_order_consume | Consume |
+| memory_order_acquire | Acquire |
+| memory_order_release | Release |
+| memory_order_acq_rel | Acquire/Release |
+| memory_order_seq_cst | Sequentially consistent |
+
+**compare_exchange_weak**  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//(1)</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order sync = memory_order_seq_cst)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order sync = memory_order_seq_cst)</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="comment">//(2)</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order success, memory_order failure)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_weak</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order success, memory_order failure)</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+比较被封装的值与expected值是否相等，相等则返回true，不相等返回false，并且将expected的值改成被封装的旧值，而被封装的值变成expected的值。两种不同的类型主要是内存序的选择不同。第二种情况下，内存序的选择取决于比较结果，如果比较结果为true，使用success，如果比较结构为false，使用failure作为内存序。
+
+与compare_exchange_strong不同, weak版本的compare-and-exchange操作允许(spuriously地)返回false(即原子对象所封装的值与参数expected的物理内容相同，但却仍然返回false)，不过在某些需要循环操作的算法下这是可以接受的，并且在一些平台下compare_exchange_weak的性能更好 。如果compare_exchange_weak 的判断确实发生了伪失败(spurious failures)——即使原子对象所封装的值与参数expected的物理内容相同，但判断操作的结果却为false，compare_exchange_weak函数返回false，并且参数expected的值不会改变。
+
+**compare_exchange_strong**
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//(1)</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order sync = memory_order_seq_cst)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order sync = memory_order_seq_cst)</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="comment">//(2) 	</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order success, memory_order failure)</span> <span class="keyword">volatile</span> <span class="keyword">noexcept</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">compare_exchange_strong</span> <span class="params">(T&amp; expected, T val,</span></span></span><br><span class="line"><span class="function"><span class="params">           memory_order success, memory_order failure)</span> <span class="keyword">noexcept</span></span>;</span><br></pre></td></tr></tbody></table>
+
+对于某些不需要采用循环操作的算法而言, 通常采用compare_exchange_strong更好。初次之外二者基本一致。
+
+除了上面共有的成员函数，对于指针类型和整型会有自己的特化函数。简单介绍一下：  
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">atomic::fetch_add <span class="comment">//加法。对于整型参数类型为T，对于指针参数类型则不能再是指针了，而是指针移动的距离</span></span><br><span class="line">atomic::fetch_sub <span class="comment">//减法，同上</span></span><br><span class="line">atomic::fetch_and <span class="comment">//指针没有，按位与</span></span><br><span class="line">atomic::fetch_or <span class="comment">//指针没有，按位或</span></span><br><span class="line">atomic::fetch_xor <span class="comment">//指针没有，按位异或</span></span><br><span class="line">atomic::<span class="keyword">operator</span>++ <span class="comment">//自增一，有两种：integral operator++(int);integral operator++();有参和无参，分别对应i++,++i</span></span><br><span class="line">atomic::<span class="keyword">operator</span>-- <span class="comment">//自减一，同上</span></span><br><span class="line">atomic::<span class="keyword">operator</span>(comp. assign.) <span class="comment">//包含了+=,-=,&amp;=,|=,^=，分布对应了加，减，与，或，异或，除了没有选择内存序的作用，其余与上面各个对应的函数一致。</span></span><br><span class="line"><span class="comment">//指针没有与，或，异或</span></span><br></pre></td></tr></tbody></table>
+
+最后简单介绍一下**memory_order**，它是几个枚举量，用作执行原子操作的函数的参数，以指定如何同步不同线程上的其他操作。不同线程的执行顺序可以根据这几个枚举量来调整。对于执行顺序的要求，可能会降低并行的运行效率，但是在某些情况下却是必要的。
+
+<table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> memory_order {</span><br><span class="line">    memory_order_relaxed,    <span class="comment">// 不对执行顺序做保证</span></span><br><span class="line">    memory_order_acquire,    <span class="comment">// 本线程中,所有后续的读操作必须在本条原子操作完成后执行</span></span><br><span class="line">    memory_order_release,    <span class="comment">// 本线程中,所有之前的写操作完成后才能执行本条原子操作</span></span><br><span class="line">    memory_order_acq_rel,    <span class="comment">// 同时包含 memory_order_acquire 和 memory_order_release</span></span><br><span class="line">    memory_order_consume,    <span class="comment">// 本线程中,所有后续的有关本原子类型的操作,必须在本条原子操作完成之后执行</span></span><br><span class="line">    memory_order_seq_cst    <span class="comment">// 全部存取都按顺序执行</span></span><br><span class="line">} memory_order;</span><br></pre></td></tr></tbody></table>
