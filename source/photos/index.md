@@ -24,6 +24,9 @@ type: "photos"
 <!-- jQuery LazyLoad（可选，如果你想懒加载图片） -->
 <script src="https://cdn.jsdelivr.net/npm/jquery-lazyload/jquery.lazyload.min.js"></script>
 
+
+<script src="/photos/tool.js"></script>
+
 <script>
 var photo = {
     page: 1,
