@@ -25,26 +25,23 @@ type: "photos"
 <script src="https://cdn.jsdelivr.net/npm/jquery-lazyload/jquery.lazyload.min.js"></script>
 
 
-<script src="tool.js"></script>
+<!-- 先加载数据 -->
+<script src="/js/photos.js"></script>
 
+<!-- 再加载你的逻辑 -->
 <script>
 var photo = {
     page: 1,
     offset: 20,
+
     init: function () {
-        var that = this;
-        fetch('/photos/photoslist.json')
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            that.render(that.page, data);
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-        });
+        if (!window.PHOTOS) {
+            console.error("PHOTOS 数据未加载");
+            return;
+        }
+        this.render(this.page, window.PHOTOS);
     },
+
     render: function (page, data) {
         var begin = (page - 1) * this.offset;
         var end = page * this.offset;
@@ -55,23 +52,22 @@ var photo = {
             var parts = data[i].split(' ');
             var imgNameWithPattern = parts[1];
             var imgName = imgNameWithPattern.split('.')[0];
+
             li += '<div class="card">' +
                       '<div class="TextInCard">' + imgName + '</div>' +
                       '<div class="ImageInCard" style="width:100%">' +
-                        '<a href="/photos/uploaded/' + imgNameWithPattern + '?raw=true" data-caption="' + imgName + '">' +
+                        '<a href="/photos/uploaded/' + imgNameWithPattern + '?raw=true">' +
                           '<img class="lazy" data-original="/photos/uploaded/' + imgNameWithPattern + '?raw=true" />' +
                         '</a>' +
                       '</div>' +
                   '</div>';
         }
+
         $(".ImageGrid").append(li);
-
-        // 初始化 LazyLoad
         $(".lazy").lazyload({ effect: "fadeIn" });
-
-        // 初始化 Minigrid
         this.minigrid();
     },
+
     minigrid: function() {
         var grid = new Minigrid({
             container: '.ImageGrid',
@@ -83,8 +79,7 @@ var photo = {
             grid.mount();
         });
     }
-}
+};
 
-// 执行初始化
 photo.init();
 </script>
