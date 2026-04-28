@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="这周的数据学习课更不知道该起什么题目了。主要是加上一些假设，从Softmax函数开始推导，最后得到一个非常简单的形式，从而大大简化了算法。这次的derivation和上篇讲得东西还是有一些相关的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——derive something from Softmax">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这周的数据学习课更不知道该起什么题目了。主要是加上一些假设，从Softmax函数开始推导，最后得到一个非常简单的形式，从而大大简化了算法。这次的derivation和上篇讲得东西还是有一些相关的。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-12-05T05:58:52.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:49:02.457Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="softmax regression">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/","path":"2018/12/05/Learning-From-Data——derive-something-from-Softmax/","title":"Learning From Data——derive something from Softmax"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——derive something from Softmax | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Review"><span class="nav-number">1.</span> <span class="nav-text">Review</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HGR-Softmax"><span class="nav-number">2.</span> <span class="nav-text">HGR &amp; Softmax</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">90</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94derive-something-from-Softmax/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——derive something from Softmax | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——derive something from Softmax
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-05 13:58:52" itemprop="dateCreated datePublished" datetime="2018-12-05T13:58:52+08:00">2018-12-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 19:49:02" itemprop="dateModified" datetime="2025-09-18T19:49:02+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这周的数据学习课更不知道该起什么题目了。主要是加上一些假设，从Softmax函数开始推导，最后得到一个非常简单的形式，从而大大简化了算法。这次的derivation和上篇讲得东西还是有一些相关的。</p>
+<span id="more"></span>
+<h2 id="Review"><a href="#Review" class="headerlink" title="Review"></a>Review</h2><p>首先回顾一下上篇博客介绍的内容，从HGR maximal correlation开始推导。依然是离散变量$X$与$Y$。不过稍微做点拓展，我们在提取ｘ，ｙ的信息时，把他们映射到一个ｋ维度的向量，也就是：<br>$$f(x) \rightarrow \mathbb{R}^k,g(x) \rightarrow \mathbb{R}^k.$$</p>
+<p>这时候，和之前一样，做一些推导吧。这时候的相关系数变成了相关矩阵：<br>$$<br>\max ρ_ {XY}&#x3D;\max 𝔼 p_ {XY}[f(x) g(y)^T]<br>$$</p>
+<p>我们的约束变成：<br>$$<br>\mathbb{E}[f (x)] &#x3D; \mathbb{E}[ g(y)] &#x3D; \mathbf{0}\<br>\mathbb{E}[ f^2(x)] &#x3D; \mathbb{E}[ g^2(y)] &#x3D; I_ {k \times k}<br>$$</p>
+<p>问题描述变为：<br>$$<br>\begin{aligned}<br>\max \Psi^T B \Phi,s.t. &amp;\langle\sqrt{P_X},\Phi\rangle &#x3D; \langle\sqrt{P_Y},\Psi\rangle &#x3D; \mathbf{0};\<br>&amp;\Phi^T \Phi  &#x3D;  \Psi^T \Psi  &#x3D; I_ {k \times k}.<br>\end{aligned}<br>$$</p>
+<p>其中：<br>$$<br>\Phi &#x3D; \begin{bmatrix}<br>\phi(x_1),\phi(x_2),…,\phi(x_ {|X|})<br>\end{bmatrix}^T_ {|X|\times k},\<br>\Psi &#x3D; \begin{bmatrix}<br>\psi(y_1),\psi(y_2),…,\psi(y_ {|Y|})<br>\end{bmatrix}^T_ {|Y|\times k},\<br>B_ {y,x} &#x3D;  \frac{p_ {XY}(x,y)}{\sqrt{p_X(x)p_Y(y)} },B_ {|Y| \times |X|}.<br>$$</p>
+<p>而这时候的$\Phi$与$\Psi$实际上是由Ｂ的第$2，…,k+1$右左特征向量组成:<br>$$<br>\Phi &#x3D; \begin{bmatrix}<br>\upsilon_2,…,\upsilon_ {k+1}<br>\end{bmatrix}\<br>\Psi &#x3D; \begin{bmatrix}<br>\mu_2,…,\mu_ {k+1}<br>\end{bmatrix}<br>$$</p>
+<p>$f(x)&#x3D;\frac{\phi(x)}{\sqrt{p_X(x)} } ,g(y) &#x3D; \frac{\psi(y)}{\sqrt{p_Y(y)} }$.</p>
+<h2 id="HGR-Softmax"><a href="#HGR-Softmax" class="headerlink" title="HGR &amp; Softmax"></a>HGR &amp; Softmax</h2><p>假设$X,Y$是离散的，并且几乎独立(weakly dependent),也就是$p_ {XY}(xy) - p_ {X}(x)p_ {Y}(y)$非常小。</p>
+<p>还记得softmax function:<br>$$<br>Q_ {Y|X}(y|X) &#x3D; \frac{e^{X^TW_y + b_y)} }{\sum_ {y’ \in \mathcal{Y} } e^{X^TW_ {y’}+b_ {y’} } }<br>$$</p>
+<p>在这里，我们把$X,Y$再次进行信息提取，分布为$f(X),g(Y)$. 由于$W_y$与Y值相关，我们可以将$W_y$看作是g(y)。因此写成更通用的形式：<br>$$<br>\begin{aligned}<br>Q_ {Y|X}(y|x) &amp;&#x3D; \frac{e^{f^T(x)g(y) + b(y)} }{\sum_ {y’ \in \mathcal{Y} }e^{f^T(x)g(y’)+b(y’)} }\<br>&amp;&#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + b(y) - \log p_Y(y)} }{\sum_ {y’ \in \mathcal{Y} }p_Y(y’)e^{f^T(x)g(y’)+b(y’) - \log p_Y(y)} }<br>\end{aligned}<br>$$</p>
+<p>现在我们定义：$d(y) \triangleq b(y)-\log p_Y(y)$，则：<br>$$<br>Q_ {Y|X}(y|x) &#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum_ {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} }<br>$$<br>可以看到，如果$f &#x3D; g &#x3D; d &#x3D;  0$，$Q_ {Y|X}(y|x) &#x3D; p_Y(y)$.</p>
+<p>由于我们的假设可以知道,$p_Y(y) \approx Q_ {Y|X}(y|x)$，则$f^T(x)g(y)+ d(y) \approx 0$,根据泰勒展开:<br>$$<br>\begin{align}<br>e^{f^T(x)g(y) + d(y)} \approx 1 + f^T(x)g(y)+ d(y)<br>\end{align}<br>$$</p>
+<p>而:<br>$$<br>\begin{aligned}<br>\sum_ {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} &amp;\approx \sum_ {y’ \in \mathcal{Y} } p_Y(y’)[ 1+f^T(x)g(y’)+d(y’)]\<br>&amp;&#x3D; 1 + f^T(x)\sum_ {y’ \in \mathcal Y} p_Y(y’)g(y’) + \sum_ {y’ \in \mathcal Y}p_Y(y’)d(y’)\<br>&amp;&#x3D; 1 +f^T(x)\mathbb{E}_Y[g(Y) ] + \mathbb{E}<em>Y[d(Y) ]<br>\end{aligned}<br>$$<br>而由泰勒展开$\frac{1}{1+x} \approx  1-x$得到：<br>$$<br>\begin{align}<br>\frac{1}{\sum</em> { y’\in \mathcal{Y} } p_Y(y’ )e^{f^T(x)g(y’ )+d(y’ )} } \approx 1 -f^T(x)\mathbb{E}<em>Y[g(Y )] -\mathbb{E}<em>Y[d(Y )]<br>\end{align}<br>$$<br>结合上面的(1),(2)，我们得到：<br>$$<br>\begin{aligned}<br>Q</em> {Y|X}(y|x) &amp;&#x3D; \frac{p_Y(y)e^{f^T(x)g(y) + d(y)} }{\sum</em> {y’ \in \mathcal{Y} } p_Y(y’)e^{f^T(x)g(y’)+d(y’)} }\<br>&amp;\approx p_Y(y)(1 + f^T(x)g(y)+ d(y) )( 1 -f^T(x)\mathbb{E}_Y[g(Y )] -\mathbb{E}_Y[d(Y )])\<br>&amp; \approx p_Y(y)[1 + f^T(x)g(y) +d(y) - f^T(x)\mathbb{E}_Y[g(Y) ] - \mathbb{E}_Y[d(Y) ]]\<br>&amp;&#x3D; p_Y(y)[1+f^T(x)(g(y)-\mathbb{E}_Y[g(Y) ]) + (d(y) - \mathbb{E}_Y[d(Y) ])]<br>\end{aligned}<br>$$</p>
+<p>现在我们令$\tilde{g}(y) &#x3D; g(y) - \mathbb{E}_Y[g(Y)]，s.t. \mathbb{E}<em>Y[\tilde {g}(Y)] &#x3D; 0$.得到：<br>$$<br>Q</em> {Y|X}(y|x) &#x3D; p_Y(y)[1+ f^T(x)\tilde g (y) + \tilde d (y)]<br>$$</p>
+<p>现在我们利用这个式子构建$empirical risk$，实际上也就是$-\frac{1}{n} \sum_ {i&#x3D;1}^n \log Q_ {Y|X}(y_i|x_i)$.最小化经验风险(empirical risk)实际上也就是最大化$\mathbb{E}_ {p_ {XY} } [ Q_ {Y|X}(y|x)]$，也是极大似然估计。<br>$$<br>\begin{aligned}<br>\log Q_ {Y|X}(y|x) &amp;&#x3D; \log p_Y(y) + \log (1+ f^T(x)\tilde{g}(y) + \tilde{d} (y))\<br>&amp; \approx \log p_Y(y) + f^T(x)\tilde{g}(y) + \tilde{d}(y) -  \frac{1}{2} [(f^T(x)\tilde{g}(y))^2 + \tilde{d^2}(y) + 2 f^T(x)\tilde{g}(y)\tilde{d}(y)]<br>\end{aligned}<br>$$<br>上述过程用到了泰勒展开：$\log(1+x) \approx x - \frac{x^2}{2}$.</p>
+<p>$\mathbb{E}[\log Q_ {Y|X}(Y|X)] &#x3D; \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X)\tilde{g}(Y) ] + \mathbb{E}[\tilde{d}(Y) ] - \mathbb{E}[\frac{1}{2} [(f^T(X)\tilde{g}(Y))^2 + \tilde{d^2}(Y) + 2 f^T(X)\tilde{g}(Y)\tilde{d}(Y)]] $</p>
+<p>现在，我们来说明一些必要的东西：由假设得到$p_ {XY}(x,y) - p_X(x)p_Y(y) &#x3D; \epsilon \cdot \square &#x3D; o(\epsilon)$，$o(\epsilon)$表示$\epsilon$的无穷小量（这么说其实不准确，因为我们最后要最大化这种无穷小量，显然不合理，可以当作为衡量有多小的量级）。</p>
+<p>因为$$Q_ {Y|X}(y|x) &#x3D; P_Y(y)[1+f^T(x)\tilde{g}(y) + \tilde{d}(y)] \approx p_ {Y},$$<br>同理可以得到$f^T(x)\tilde g (y)  &#x3D; o(\epsilon),\tilde d (y) &#x3D; o(\epsilon)$，我们假设对所有的$f,\tilde g,\tilde d$都进行了normalize，也就是$\mathbb{E}f &#x3D; \mathbb{E}\tilde{g} &#x3D; \mathbb{E}\tilde{d} &#x3D; 0$,则：</p>
+<ul>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[f^T(X)\tilde g(Y) ] &amp;&#x3D; \sum_ {x,y} p_ {XY}(x,y)f^T(x)\tilde g(y)\<br>&amp;&#x3D; \sum_ {x,y}(p_ {X}(x)p_ {Y}(y)f^T(x)\tilde g(y) + o(\epsilon)f^T(x)\tilde g(y))\<br>&amp;&#x3D; \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) + o(\epsilon^2)\<br>&amp;&#x3D; o(\epsilon^2).<br>\end{aligned}<br>$$</li>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[(f^T(x)g(y) )^2] &amp;&#x3D; \sum_ {x,y}p_ {X}(x)p_ {Y}(y)(f^T(x)\tilde g(y))^2 + \sum_ {x,y} o(\epsilon)(f^T(x)\tilde g(y))^2\<br>&amp;&#x3D; \sum_ {x,y}p_ {XY}(x,y)(f^T(x)\tilde g(y))^2 + o(\epsilon^3)<br>\end{aligned}<br>$$</li>
+<li>$$<br>\begin{aligned}<br>\mathbb{E}[f^T(x) \tilde{g}(y)\tilde{d}(y)] &amp;&#x3D; \sum_ {x,y}p_ {X}(x)p_Y(y) f^T(x)\tilde g (y) \tilde d (y) + o(\epsilon)\sum_ {x,y}f^T(x)\tilde g (y) \tilde d (y)\<br>&amp;&#x3D; \sum_ {x}p_ {X}(x)f^T(x) \sum_ {y}p_ {Y}(y)\tilde g(y) \tilde d(y) + o(\epsilon^3)\<br>&amp;&#x3D;  o(\epsilon^3)<br>\end{aligned}<br>$$</li>
+</ul>
+<p>而我们知道$o(\epsilon^3)$在$o(\epsilon^2)$之前是可以被忽略的。因此最终：<br>$$<br>\mathbb{E}[\log Q_ {Y|X}] &#x3D; \mathbb{E}[\log p_Y(Y)] + \mathbb{E}[f^T(X) \tilde g (Y)] - \frac 1 2 \mathbb{E}[(f^T(X) \tilde g (Y))^2] - \frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]<br>$$</p>
+<p>上式中，第一项为常数，最后一项为非负值，且与前面几项没有约束关系，因此为了最大化上式只需简单令$\frac{1}{2} \mathbb{E}[\tilde{d^2} (y)]&#x3D;0$，因此最终我们要做的是：<br>$$<br>\max_ {f,\tilde g} (\underbrace{\mathbb{E}[f^T(x)\tilde g(y)] - \frac{1}{2}\mathbb{E} [(f^T(x)\tilde g(y))^2]}_ {\Delta})<br>$$</p>
+<p>如果我们将$ \mathbb{E}[f^T(x)\tilde g(y)] $对$f(x)$求导，可以得到：<br>$$<br>\frac{\partial \Delta}{\partial f(x)} &#x3D; 0\<br>f(x) &#x3D; \land ^{-1}_ {\tilde g (Y)} \mathbb{E}[\tilde g(Y)|X &#x3D; x]<br>$$</p>
+<p>其中$\land ^{-1}_ {\tilde g (Y)}&#x3D;(\mathbb{E}_ {p_Y}[\tilde g(Y){\tilde g}^T(Y)])^{-1}$，也就是我们得到了最佳的$f,\tilde g$.</p>
+<p>同理我们也得到：<br>$$<br>\tilde {g ^*}(y) &#x3D; \land ^{-1}_ {f(X)} \mathbb{E}[f(X)|Y &#x3D; y]<br>$$</p>
+<p>也就是如果我们向softmax函数中喂入$f(x)$（形式固定）,那么softmax尽量在学的东西，也就是$W$实际上是$g^*$，当然不一定能成功学到这样的形式。</p>
+<p>同样的，利用神经网络进行softmax可以看作是在寻找Ｘ的特征，它找到的最佳形式应该是$f*$.</p>
+<p>简直是头大。实际上我不能保证这篇博客的正确性。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/softmax-regression/" rel="tag"># softmax regression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/" rel="prev" title="数学——EVD与SVD">
+                  <i class="fa fa-angle-left"></i> 数学——EVD与SVD
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/05/Learning-From-Data%E2%80%94%E2%80%94Multi-Dimensional-ACE/" rel="next" title="Learning From Data——Multivariate ACE">
+                  Learning From Data——Multivariate ACE <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

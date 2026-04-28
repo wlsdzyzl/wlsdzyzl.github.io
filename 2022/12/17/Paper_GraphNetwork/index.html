@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="本篇文章记录一下图神经网络的基本内容，是看了李沐老师讲的一篇博客。博客连接如下：https:&#x2F;&#x2F;distill.pub&#x2F;2021&#x2F;gnn-intro&#x2F;。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图神经网络（Graph Neural Network）">
+<meta property="og:url" content="http://wlsdzyzl.com/2022/12/17/Paper_GraphNetwork/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="本篇文章记录一下图神经网络的基本内容，是看了李沐老师讲的一篇博客。博客连接如下：https:&#x2F;&#x2F;distill.pub&#x2F;2021&#x2F;gnn-intro&#x2F;。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%201.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%202.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%203.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%204.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%205.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%206.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%207.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%208.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%209.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2010.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2011.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2012.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2013.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2014.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2015.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2016.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2017.png">
+<meta property="article:published_time" content="2022-12-16T22:07:36.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:49:02.457Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="deep learning">
+<meta property="article:tag" content="neural network">
+<meta property="article:tag" content="graph">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2022/12/17/Paper_GraphNetwork/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2022/12/17/Paper_GraphNetwork/","path":"2022/12/17/Paper_GraphNetwork/","title":"图神经网络（Graph Neural Network）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图神经网络（Graph Neural Network） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9B%BE%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是图？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E7%9A%84%E8%A1%A8%E7%A4%BA%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">图的表示方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="nav-number">3.</span> <span class="nav-text">图神经网络</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">90</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2022/12/17/Paper_GraphNetwork/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图神经网络（Graph Neural Network） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图神经网络（Graph Neural Network）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-12-17 06:07:36" itemprop="dateCreated datePublished" datetime="2022-12-17T06:07:36+08:00">2022-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 19:49:02" itemprop="dateModified" datetime="2025-09-18T19:49:02+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">深度学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本篇文章记录一下图神经网络的基本内容，是看了李沐老师讲的一篇博客。博客连接如下：<a target="_blank" rel="noopener" href="https://distill.pub/2021/gnn-intro/">https://distill.pub/2021/gnn-intro/</a>。</p>
+<span id="more"></span>
+
+<p>大家都知道图是一种比较复杂的数据结构，用神经网络来处理图数据也是最近比较火热的研究方向。在本文中，不会对图神经网络的应用等等做太多的介绍，详细可以看原博客，有很多可交互的图片。本文主要介绍什么是图神经网络，如何将神经网络应用到图这种特殊的数据结构上，以及一些比较常用的调节的参数。</p>
+<h3 id="什么是图？"><a href="#什么是图？" class="headerlink" title="什么是图？"></a>什么是图？</h3><p>图一般用来描绘不同实体之间的关系，它的数据结构包含顶点和边，有时候也会有一个全局的信息，如下图：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled.png" alt="Untitled"></p>
+<p>一般基于图的任务可能有三种：</p>
+<ul>
+<li><p>对于整张图来做预测，例如对于一个分子结构对他的属性进行预测；</p>
+<p>  <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%201.png" alt="Untitled"></p>
+</li>
+<li><p>对顶点做预测，例如我们有社交网络图，想要对里面成员进行分类；</p>
+<p>  <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%202.png" alt="Untitled"></p>
+</li>
+<li><p>对边进行预测，这样的任务不算常见，但是也有，例如文章中给的例子，对各个人之间的行为进行预测；</p>
+<p>  <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%203.png" alt="Untitled"></p>
+<p>  <img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%204.png" alt="Untitled"></p>
+</li>
+</ul>
+<p>但是很明显，一般这样的数据并不适合放到神经网络中去处理，神经网络最适合处理的是矩阵和向量，这个就是用神经网络来处理图数据的挑战。</p>
+<h3 id="图的表示方式"><a href="#图的表示方式" class="headerlink" title="图的表示方式"></a>图的表示方式</h3><p><strong>邻接矩阵</strong>是最直观的表示方法，它的问题就是当图比较大的时候，邻接矩阵会非常大。如果一个图有很多顶点，但是边比较少，那么该矩阵会非常稀疏，大部分的空间被浪费掉了。第二个问题就是，多个邻接矩阵可能表示的是同一张图，但是如果将不同的矩阵放入神经网络，我们不能期望他们会得到一样的结果，虽然这些矩阵表示的可能是同一张图。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%205.png" alt="Untitled"></p>
+<p><strong>邻接表</strong>是更好的表示方式，首先在空间上会更高效，其次我们会固定一下顺序，用一个列表来表示边以及顶点的label或者属性（<em>如果将顺序固定了，其实邻接矩阵也是唯一的</em>）。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%206.png" alt="Untitled"></p>
+<p>但是邻接表的表示方式也是无法直接放入神经网络的。一般来说，我们需要对图的顶点，边等用embedding来表示（如何生成顶点，边，以及全局信息的embedding?）：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%207.png" alt="Untitled"></p>
+<h3 id="图神经网络"><a href="#图神经网络" class="headerlink" title="图神经网络"></a>图神经网络</h3><p>图神经网络可以对图的顶点，边或者整个图进行预测，但是它不会改变图的连接性。一个最简单的图神经网络如下，实际上它没有做任何有意义的事情，但是它是一个图神经网络：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%208.png" alt="Untitled"></p>
+<p>上图显示的就是图神经网络的第n层，每个f就是一个MLP，可以看到每层输入是一个图，输出后也是一张图，图的连接性不会改变，但是输出图有新的embedding。这里我们会有一个问题，那就是$f_ {U_n}, f_ {V_n}, f_ {E_n}$之间毫无联系，并没有用到图的连接性。例如，有时候我们可能没有什么顶点的属性，而只有边的信息，但是我们依然想对顶点做预测，那么如何用到连接的信息呢？</p>
+<p><strong>Pooling （graph中的message passing）</strong></p>
+<p>这里就要介绍pooling。Pooling操作也就是把一个顶点的临边信息聚合起来再利用。下图展示的是最简单的pooling操作，也就是聚合起来后相加。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%209.png" alt="Untitled"></p>
+<p>下图就是将边的信息聚合后，对顶点预测：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2010.png" alt="Untitled"></p>
+<p>同样的，如果我们有顶点信息相对边预测，也可以将顶点信息聚合：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2011.png" alt="Untitled"></p>
+<p>实际上，顶点也有邻接的顶点，一层一层地用到邻接顶点的信息，有点类似于卷积的操作，最后每一个pixel都能感知到周围的信息，也是一种特殊的graph pooling操作，而它和标准的卷积是非常类似的，都是为了聚合neighbor的信息。但是标准卷积，卷积核的大小是一定的。而在图中，是由邻接点的个数决定的。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2012.png" alt="Untitled"></p>
+<p>下面是一个用到上述操作的层：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2013.png" alt="Untitled"></p>
+<p>实际上，message passing的方式是非常灵活的。我们也可以将顶点与边的信息，甚至是global embedding的信息聚合。下面给出几种不同的message passing的方式：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2014.png" alt="Some of the different ways we might combine edge and node representation in a GNN layer."></p>
+<p>Some of the different ways we might combine edge and node representation in a GNN layer.</p>
+<p>也可以利用global information，他和每个顶点每条边相连。这也就意味着，通过几层message passing，每个顶点实际上就能感知到其他的所有顶点。否则的话，在一些很大的图上，一些顶点可能很难感知到据它较远的顶点。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2015.png" alt="Schematic of a Graph Nets architecture leveraging global representations."></p>
+<p>Schematic of a Graph Nets architecture leveraging global representations.</p>
+<p>上述方法的一个问题是，不同属性之间的feature vector长度可能不同，但是这个困难可以轻松通过一个线性的transformation解决，或者对他们concatenate。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2016.png" alt="Untitled"></p>
+<p>上述就是一些对于GNN的基本介绍。原博客中还给出了一个实例，并且对各个参数的影响进行了分析。可以看到message passing实际上有着非常重要的影响，可以大大提升模型的准确率，该模型具体如何pass message，我们并不知道，但是可以看到所有的message passing打开似乎有最好的效果。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88Graph%20Neural%20Network%EF%BC%89%20c3afe36d752b4d0f957c59f23c82a974/Untitled%2017.png" alt="Untitled"></p>
+<p>目前，图神经网络就已经介绍差不多了，更多信息请阅读原博客。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+              <a href="/tags/neural-network/" rel="tag"># neural network</a>
+              <a href="/tags/graph/" rel="tag"># graph</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/27/Paper%E2%80%94%E2%80%94Need/" rel="prev" title="Paper——Attention is All You Need">
+                  <i class="fa fa-angle-left"></i> Paper——Attention is All You Need
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/07/30/%E4%BA%BA%E6%B0%91%E7%9A%84%E5%86%A0%E5%86%9B%E2%80%94%E2%80%94%E6%89%98%E5%B0%BC%E5%BC%97%E6%A0%BC%E6%A3%AE/" rel="next" title="人民的冠军——托尼弗格森">
+                  人民的冠军——托尼弗格森 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

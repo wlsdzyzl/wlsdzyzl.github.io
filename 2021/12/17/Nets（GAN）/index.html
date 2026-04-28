@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="GAN现在已经开创了一个新的领域了，但是惭愧的是我一直没有去读它。今天看了一下李沐老师的解读，简单介绍一下它的思想。Paper链接：https:&#x2F;&#x2F;arxiv.org&#x2F;pdf&#x2F;1406.2661.pdf。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper——Generative Adversarial Nets（GAN）">
+<meta property="og:url" content="http://wlsdzyzl.com/2021/12/17/Nets%EF%BC%88GAN%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="GAN现在已经开创了一个新的领域了，但是惭愧的是我一直没有去读它。今天看了一下李沐老师的解读，简单介绍一下它的思想。Paper链接：https:&#x2F;&#x2F;arxiv.org&#x2F;pdf&#x2F;1406.2661.pdf。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/GAN%20(Generative%20Adversarial%20Nets)%2069c0a25f9fce4110b22495c57c386172/Untitled.png">
+<meta property="og:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/GAN%20(Generative%20Adversarial%20Nets)%2069c0a25f9fce4110b22495c57c386172/Untitled%201.png">
+<meta property="article:published_time" content="2021-12-16T22:13:22.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:49:02.457Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="deep learning">
+<meta property="article:tag" content="neural networks">
+<meta property="article:tag" content="generative model">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/GAN%20(Generative%20Adversarial%20Nets)%2069c0a25f9fce4110b22495c57c386172/Untitled.png">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2021/12/17/Nets%EF%BC%88GAN%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2021/12/17/Nets%EF%BC%88GAN%EF%BC%89/","path":"2021/12/17/Nets（GAN）/","title":"Paper——Generative Adversarial Nets（GAN）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Paper——Generative Adversarial Nets（GAN） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">90</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2021/12/17/Nets%EF%BC%88GAN%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Paper——Generative Adversarial Nets（GAN） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper——Generative Adversarial Nets（GAN）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-12-17 06:13:22" itemprop="dateCreated datePublished" datetime="2021-12-17T06:13:22+08:00">2021-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 19:49:02" itemprop="dateModified" datetime="2025-09-18T19:49:02+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>GAN现在已经开创了一个新的领域了，但是惭愧的是我一直没有去读它。今天看了一下李沐老师的解读，简单介绍一下它的思想。Paper链接：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1406.2661.pdf">https://arxiv.org/pdf/1406.2661.pdf</a>。</p>
+<span id="more"></span>
+
+<p>首先看一下名字，第一个是Generative。一般Generative model，也就是生成模型，就是要学习到一个分布$P(x|y)$， 也许没有$y$，但是重点是我们需要学习到$x$的分布。根据这个分布，就可以生成得到新的samples（对应的，discriminative model，判别模型，就是希望得到$P(y|x)$）。第二个是Adversarial，也就是对抗的意思。既然有对抗，那就说明有两个模型在博弈了。</p>
+<p>一般看到GAN最多的地方，也就是生成虚拟的图片。生成部分就是用generative model来实现。假如我们想要生成虚拟的人物照片，这个照片的大小可以是1920*1080，有大约200w个pixel，可以拉成一维的200w维的向量。在统计学的视角来说，任何样本都是基于分布生成的。所以也有那么一个分布，而这些人物的照片，都是来自这个分布的样本。</p>
+<p>一个直接的想法，就是使用普通的generative model，也就是学习到$P(x)$，但是这个计算量巨大（200万的维度）。而且比较naive的那种做法，将每个维度分开学习，不合理，考虑到pixel之间的关系，又会变得很复杂。总之是非常难以实现的。而在GAN中，他的想法很简单。我不需要知道$P(x)$，而是学习一个映射。虽然人物照片的维度是200w维，但是因为它们有共性，基于一个分布出来的，自由度是远远小于200w的。在这里，我们假设我们只需要100个维度（假设为$x’$）就能建立起来映射。所以，这里就会学习一个$x’\rightarrow x$的映射。对于$x’$，可以是用任意的噪声得到，但是它就会对应到人物照片空间的一个样本。这个就是GAN中Generative部分的思路。这些映射通过一个MLP来学习。</p>
+<p>直接这样得到的结果当然也不会太好。也许是因为，我们的样本个数相对于维度比起来太渺小了（欠拟合）。在GAN中，同时训练了一个Discriminative model，相当于警察。给定一个样本，我们使用Discriminative model来判断这个模型是虚拟生成的，还是真实的人物图片。神经网络来做这个事情那是相当擅长的，就是一个简单的二分类问题，也可以用一个MLP来做。所以，原始的GAN中的两个模型，就是简单的两个MLP模型。想法必然是，让警察的能力越来越强，造假的没办法，只能提升自己的造假能力，不断不断的互相迭代，最后造假的工艺已经可以和真的媲美了，也就是得到了最终的Generative model。</p>
+<p>那这里的loss如何设计呢？我们使用$G, D$来分别表示Generative model以及Discriminative model，</p>
+<p>这两个模型，实际上就对应了博弈论中两个玩家在进行minimax game（game theory），对应的会有一个Value function，而game theory是想寻找到一个鞍点，也就是纳什均衡（是不是鞍点还需要看max min与min max是不是一致）：</p>
+<p>$$<br>\min _ {G} \max _ {D} V(D, G)&#x3D;\mathbb{E}_ {\boldsymbol{x} \sim p_ {\text {data }}(\boldsymbol{x})}[\log D(\boldsymbol{x})]+\mathbb{E}_ {\boldsymbol{z} \sim p_ {\boldsymbol{z}}(\boldsymbol{z})}[\log (1-D(G(\boldsymbol{z})))]<br>$$</p>
+<p>这个函数的主题，是很像Logistic loss的，只不过在logistic正负样本都在$X$中，而这里我们实际上是将他们区分开了。第一步，先让警察变得更强，那就是让来自真实的尽量大，而来自虚拟的尽量小，分别对应了第一项和第二项，总之这一步是一个maximization的问题，区分得越好，value越大。</p>
+<p>接着就是让造假能力更强，也就是让警察越来越无法区分，所以又变成了一个最小化问题。下面的这张图，就给出了训练的过程，可以看到，黑色的点是映射后的结果，它最终会越来越趋向于真实的分布。</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/GAN%20(Generative%20Adversarial%20Nets)%2069c0a25f9fce4110b22495c57c386172/Untitled.png" alt="Untitled"></p>
+<p>算法的步骤如下：</p>
+<p><img src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/GAN%20(Generative%20Adversarial%20Nets)%2069c0a25f9fce4110b22495c57c386172/Untitled%201.png" alt="Untitled"></p>
+<p>第一步是Gradient ascent，到了第二步变成了gradient decent，也就对应了最大化以及最小化。由于第一项不会变，在训练generative model的时候就将它忽略了。</p>
+<p>论文中还有一些理论的证明，这里也简单看一下。第一个，证明了最优的Discriminator：</p>
+<p>$$<br>D_ {G}^{*}(\boldsymbol{x})&#x3D;\frac{p_ {\text {data }}(\boldsymbol{x})}{p_ {\text {data }}(\boldsymbol{x})+p_ {g}(\boldsymbol{x})}<br>$$</p>
+<p>这个也是很符合只觉得，如果给一个样本，它可能来自于两个分布，discriminator就是判断它到底来自于第一个分布的概率，显然，如果两个分布产生这个样本的概率是一样的，那么它来自于两个分布的概率就是等可能的，其他情况下，如果第一个分布产生这个样本的概率更大，那么Discriminator输出的概率也应该更大。具体的证明如下：</p>
+<p>我们有</p>
+<p>$$<br>\begin{aligned}V(G, D) &amp;&#x3D;\int_ {\boldsymbol{x}} p_ {\text {data }}(\boldsymbol{x}) \log (D(\boldsymbol{x})) d x+\int_ {\boldsymbol{z}} p_ {\boldsymbol{z}}(\boldsymbol{z}) \log (1-D(g(\boldsymbol{z}))) d z \&amp;&#x3D;\int_ {\boldsymbol{x}} p_ {\text {data }}(\boldsymbol{x}) \log (D(\boldsymbol{x}))+p_ {g}(\boldsymbol{x}) \log (1-D(\boldsymbol{x})) d x\end{aligned}<br>$$</p>
+<p>上式中，进行了简单替换：令$\boldsymbol x &#x3D; g(\boldsymbol z)$。在对两个积分相加时候，如果他们的积分域一样，我们可以不用在乎具体的符号。例如这里替换之后，本来是100维度，映射之后变成200w维度，它们积分域就可以看作是一样的了。因为$z$和$g(z)$是有映射关系的，所以这两个是等价的。而对于这里的$V(G,D)$求最大化，在我们这种情况下，等价于对每一个$\boldsymbol x$，最大化：</p>
+<p>$$<br>p_ {\text {data }}(\boldsymbol{x}) \log (D(\boldsymbol{x}))+p_ {g}(\boldsymbol{x}) \log (1-D(\boldsymbol{x}))<br>$$</p>
+<p>求导后，就可以得到：</p>
+<p>$$<br>\frac{\partial L}{\partial D(\boldsymbol x)} &#x3D; \frac{p_ {\text{data}}(\boldsymbol x)}{D(\boldsymbol x)} - \frac{p_g(\boldsymbol x)}{1 - D(\boldsymbol x)}<br>$$</p>
+<p>从而得到最佳的$D(\boldsymbol x)$.</p>
+<p>同时文章利用KL散度证明了，最优解是在$p_\text{data}(\boldsymbol x) &#x3D; p_g(\boldsymbol x)$时候取得，也就是算法收敛的理论保证（现实却不见得会那么好，由于GAN中的Value function有最大最小，这使得它如何判断收敛很难。这是原始GAN中的一个问题），具体就不多说了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+              <a href="/tags/neural-networks/" rel="tag"># neural networks</a>
+              <a href="/tags/generative-model/" rel="tag"># generative model</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/31/Paper%E2%80%94%E2%80%94LeGO-LOAM/" rel="prev" title="Paper——LeGO LOAM">
+                  <i class="fa fa-angle-left"></i> Paper——LeGO LOAM
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/12/27/Paper%E2%80%94%E2%80%94Need/" rel="next" title="Paper——Attention is All You Need">
+                  Paper——Attention is All You Need <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

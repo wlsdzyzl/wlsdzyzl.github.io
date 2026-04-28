@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="在SLAM中，我们需要对姿态进行估计和优化。但是旋转矩阵自身是有约束的，增加优化难度。因此我们需要引入李群和李代数，可以将位姿估计转换为无约束的优化问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——李群和李代数">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="在SLAM中，我们需要对姿态进行估计和优化。但是旋转矩阵自身是有约束的，增加优化难度。因此我们需要引入李群和李代数，可以将位姿估计转换为无约束的优化问题。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-09T05:06:47.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:49:02.457Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="sophus">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/","path":"2018/11/09/SLAM——李群和李代数/","title":"SLAM——李群和李代数"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——李群和李代数 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BE%A4-Group"><span class="nav-number">1.</span> <span class="nav-text">群(Group)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%8E%E7%BE%A4%EF%BC%88Lie-Group%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">李群（Lie Group）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BA%E6%9D%8E%E4%BB%A3%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">引出李代数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%8E%E4%BB%A3%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">李代数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%8E%E4%BB%A3%E6%95%B0-so-3-%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">李代数$so(3)$ ###：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%8E%E4%BB%A3%E6%95%B0-se-3"><span class="nav-number">3.2.</span> <span class="nav-text">李代数$se(3)$</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E6%95%B0%E4%B8%8E%E5%AF%B9%E6%95%B0%E6%98%A0%E5%B0%84"><span class="nav-number">4.</span> <span class="nav-text">指数与对数映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%8E%E4%BB%A3%E6%95%B0%E7%9A%84%E6%B1%82%E5%AF%BC%E4%B8%8E%E6%89%B0%E5%8A%A8%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.</span> <span class="nav-text">李代数的求导与扰动模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BCH%E5%85%AC%E5%BC%8F"><span class="nav-number">5.1.</span> <span class="nav-text">BCH公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#so-3-%E6%B1%82%E5%AF%BC"><span class="nav-number">5.2.</span> <span class="nav-text">so(3)求导</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%BC%E6%95%B0%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.2.1.</span> <span class="nav-text">导数模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B0%E5%8A%A8%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.2.2.</span> <span class="nav-text">扰动模型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#se-3-%E6%B1%82%E5%AF%BC"><span class="nav-number">5.3.</span> <span class="nav-text">se(3)求导</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sophus%E5%BA%93"><span class="nav-number">6.</span> <span class="nav-text">Sophus库</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">90</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——李群和李代数 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——李群和李代数
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-09 13:06:47" itemprop="dateCreated datePublished" datetime="2018-11-09T13:06:47+08:00">2018-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-09-18 19:49:02" itemprop="dateModified" datetime="2025-09-18T19:49:02+08:00">2025-09-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在SLAM中，我们需要对姿态进行估计和优化。但是旋转矩阵自身是有约束的，增加优化难度。因此我们需要引入李群和李代数，可以将位姿估计转换为无约束的优化问题。</p>
+<span id="more"></span>
+
+<h2 id="群-Group"><a href="#群-Group" class="headerlink" title="群(Group)"></a>群(Group)</h2><p>群是一种集合加上一种运算的代数结构。如果记集合为$A$，运算为$\cdot$,如果满足以下性质，则称$(A,\cdot)$为群：</p>
+<ol>
+<li>封闭性： $\forall a_1,a_2\in A,a_1 \cdot a_2 \in A$.</li>
+<li>结合律：$\forall a_1,a_2,a_3 \in A (a_1 \cdot a_2) \cdot a_3 &#x3D; a_1 \cdot (a_2 \cdot a_3)$.</li>
+<li>幺元：$\exists a_0 \in A, s.t. \forall a \in A,a_0\cdot a &#x3D; a \cdot a_0 &#x3D; a$.</li>
+<li>逆：$\forall a\in A,\exists a^{-1} \in A, a\cdot a^{-1} &#x3D; a_0$.</li>
+</ol>
+<p>可以验证旋转矩阵和转换矩阵与矩阵乘法运算都可以构成群。其中旋转矩阵与乘法构成的群为$SO(3)$,特殊正交群，欧式转换矩阵与乘法构成特殊欧氏群$SE(3)$.</p>
+<h3 id="李群（Lie-Group）"><a href="#李群（Lie-Group）" class="headerlink" title="李群（Lie Group）"></a>李群（Lie Group）</h3><p>具有连续（光滑）性质的群。李群既是群也是流形。SO(3),SE(3)都是李群，但是只有定义良好的乘法，没有加法，所以难以进行极限求导（$+\Delta x$）等操作。</p>
+<h2 id="引出李代数"><a href="#引出李代数" class="headerlink" title="引出李代数"></a>引出李代数</h2><p>一种李群，对应一个李代数。李代数用小写表示，如$so(3),se(3)$.</p>
+<p>任意旋转矩阵，则$RR^T &#x3D; I$.</p>
+<p>考虑R随时间变化，有$R(t)R(t)^T &#x3D; I$.</p>
+<p>两侧对t求导：$R’(t)R(t)^T + R(t)R’(t)^T &#x3D; 0$.</p>
+<p>则：$R’(t)R(t)^T &#x3D; -(R’(t)^T R(t)^T)^T$.</p>
+<p>所以我们可以知道：$R’(t)R(t)^T$是一个反对称矩阵。反对称矩阵都会有一个对应的向量，假设$R’(t)R(t)^T$对应的向量为$\phi(t)$,则：</p>
+<p>$R’(t)R(t)^T &#x3D; \phi(t)$</p>
+<p>两侧同时右乘$R(t)$，得到：</p>
+<p>$R’(t) &#x3D; \phi(t)^{\hat{} } R(t)$</p>
+<p>所以我们可以看到对R求导之海，多出来一个$\phi(t)$.</p>
+<p>假如$t_0&#x3D;0,R(t_0) &#x3D; I$，对于$R(t)$进行泰勒展开：<br>$$<br>R(t) \approx R(t_0) + R’(t_0)(t - t_0) &#x3D; I+\phi(0)t.<br>$$</p>
+<p>在很短的时间($t&#x3D;t_0+\Delta t$)里，假设$\phi(t_0)$不会变化。</p>
+<p>$R’(t) &#x3D; \phi(t_0)^{\hat{} }R(t) &#x3D; \phi_0^{\hat{} }R(t)$</p>
+<p>如果解上述微分方程（$R(0) &#x3D; I$），可以得到：$R(t) &#x3D; exp(\phi_0^{\hat{} } t)$</p>
+<p>所以我们就得到了一个在$t_0$附近的近似估计。</p>
+<p>实际上$phi$就是$SO(3)$对应的李代数。</p>
+<h2 id="李代数"><a href="#李代数" class="headerlink" title="李代数"></a>李代数</h2><p>李代数由一个集合$\mathbb{V}$，一个数域$\mathbb{F}$,一个二元运算$[ ,]$组成。这个运算某一定程度上反映了两个数的差异。李代数满足下面几个性质：</p>
+<ol>
+<li>封闭性：$\forall X,Y \in \mathbb{V},[X,Y ] \in \mathbb{V}$</li>
+<li>双线性：$\forall X,Y,Z \in \mathbb{V},a,b \in \mathbb{F}$,有：<br>$$<br>[aX+bY,Z ]&#x3D; a[X,Z ] + b[Y,Z ],[Z,aX+bY ] &#x3D; a[Z,X ]+b[Z,Y ].<br>$$</li>
+<li>自反性：$\forall X \in \mathbb{V},[X, X] &#x3D; 0$</li>
+<li>雅科比等价：$\forall X,Y,Z \in \mathbb{V},[X, [Y,Z ]] + [Z, [X,Y ]]+ [Y, [Z,X ]] &#x3D; 0$</li>
+</ol>
+<p>其中二元运算被称为李括号。</p>
+<h3 id="李代数-so-3-："><a href="#李代数-so-3-：" class="headerlink" title="李代数$so(3)$ ###："></a>李代数$so(3)$ ###：</h3><p>$so(3) &#x3D; {\phi \in \mathbb{R}^3 ,\Phi &#x3D; \phi ^{\hat{} } \in \mathbb{R}^{3 \times 3} }$.</p>
+<p>李括号：$[\phi_1,\phi_2 ]&#x3D; (\Phi_1\Phi_2 - \Phi_2 \Phi_1)^{\hat{} }$.</p>
+<p>Note: $\Phi &#x3D; \phi^{\hat{} },\phi &#x3D; \Phi^{\hat{} }$.</p>
+<h3 id="李代数-se-3"><a href="#李代数-se-3" class="headerlink" title="李代数$se(3)$"></a>李代数$se(3)$</h3><p>$se(3) &#x3D; \left{<br>    \xi &#x3D; \begin{bmatrix}<br>    \rho\<br>    \phi<br>    \end{bmatrix} \in \mathbb{R}^6,\rho \in \mathbb{R}^3,\phi \in so(3),\xi ^{\hat{} } &#x3D; \begin{bmatrix}<br>    \phi^{\hat{} }&amp;\rho\<br>    0&amp;0<br>    \end{bmatrix}<br>    \right}$</p>
+<h2 id="指数与对数映射"><a href="#指数与对数映射" class="headerlink" title="指数与对数映射"></a>指数与对数映射</h2><p>之前引出李代数中推导的$R(t) &#x3D; exp(\phi_0t)$,R是李群SO(3)，而$\phi$是李代数so(3).他们之间是有一一对应的关系的。恩，从上面的推导中并不能保证R就是$\phi$的exp映射，但是实际上就是这样做的。</p>
+<p>但是如何对一个$\phi$进行指数映射？映射还需转换为$\Phi$.对于一个矩阵，我们是没法进行exp运算的。因此我们使用泰勒展开：<br>$$<br>exp(A) &#x3D; \sum_ {n&#x3D;0}^\infty \frac{1}{n!}A^n<br>$$</p>
+<p>同样上述展开也没那么容易进行，好在还有一些别的方法。</p>
+<p>任何一个向量，我们都可以分解成方向和长度，也就是$\theta \mathbf{a}$.其中$\mathbf{a}$为单位向量。</p>
+<p>然后，我们可以验证的是：</p>
+<p>$\mathbf{a}^{\hat{} }\mathbf{a}^{\hat{} } &#x3D; \mathbf{aa}^T -I$</p>
+<p>$\mathbf{a}^{\hat{} }\mathbf{a}^{\hat{} }\mathbf{a}^{\hat{} } &#x3D; -\mathbf{a}^{\hat{} }$</p>
+<p>因为我们$\Phi &#x3D; \phi^{\hat{} }$,所以上式提供了很好的办法来解决exp问题。经过推导，我们可以得到：</p>
+<p>$$<br>\begin{aligned}<br>exp(\phi^{\hat{} }) &amp;&#x3D; exp(\theta \mathbf{a}^T) &#x3D; \sum_ {n&#x3D;0}^\infty \frac {1} {n!} (\theta \mathbf{a}^{\hat{} })^n\<br>&amp;&#x3D;\cos \theta I + (1 - \cos \theta)\mathbf{aa}^T + \sin \theta \mathbf{a}^{\hat{} }<br>\end{aligned}<br>$$</p>
+<p>很神奇的事情，上面竟然就是罗德里克斯公式（推导过程实际上不复杂，省略掉了）。</p>
+<p>对应的还有一个对数映射：</p>
+<p>$\phi$ &#x3D; \ln(R)^{\hat{} } &#x3D; \left (\sum_ {n&#x3D;0}^\infty \frac{(-1)^n}{n+1}(R-I)^{n+1} \right)$</p>
+<p>当然，既然我们已经知道罗德里克斯公式了，就不用上式这么复杂的式子去求对数映射了。</p>
+<p>旋转角，和旋转矩阵不是一一对应的，因为旋转矩阵唯一的情况下，旋转角可能有多个（角度多了$2\pi$）。这意味着指数映射是满射的。如果角度限制到$[-\pi,\pi ]$，那么李群和李代数元素就是一一对映的了。</p>
+<p>同样，我们也可以得到$SE(3)$与$se(3)$的指数映射和对数映射:<br>$$<br>\begin{aligned}<br>exp(\xi^{\hat{} }) &amp;&#x3D; \begin{bmatrix}<br>\sum_ {n&#x3D;0}^\infty \frac{1}{n!}(\phi ^{\hat{} })^n&amp; \sum_ {n&#x3D;0}^\infty \frac{1}{(n+1)!}(\phi^{\hat{} })^n \rho\<br>0&amp;1<br>\end{bmatrix}<br>&amp; \triangleq \begin{bmatrix}<br>R&amp;J\rho\<br>0&amp;1<br>\end{bmatrix} &#x3D; T<br>\end{aligned}<br>$$</p>
+<p>上式中$J &#x3D; \frac{\sin \theta}{\theta}I + \left(1 - \frac {\sin\theta}{\theta}\right)\mathbf{aa}^T + \frac{1 - \cos \theta}{\theta} \mathbf{a}^{\hat{} }$</p>
+<p>它的对数映射，右上角与之前一样，而这里的$t &#x3D; J\rho$,通过$\phi$可以计算出来J，从而解线性方程得到$\rho$.</p>
+<p>J为雅克比矩阵。</p>
+<h2 id="李代数的求导与扰动模型"><a href="#李代数的求导与扰动模型" class="headerlink" title="李代数的求导与扰动模型"></a>李代数的求导与扰动模型</h2><p>之所以要学习李群和李代数，是因为我们的SO(3)和SE(3)都是没有定义加法的。所以无法求导，对于优化非常难办。因此我们想做的是能否将李群和李代数上对应关系运用到求导中，把对李群的求导，转化为对李代数的求导。</p>
+<p>所以我们希望的是：$exp(\Phi_1 +\Phi_2) &#x3D; exp(\Phi_1)exp(\Phi_2)$.</p>
+<p>很遗憾的是，上面的式子不成立。（告辞）</p>
+<h3 id="BCH公式"><a href="#BCH公式" class="headerlink" title="BCH公式"></a>BCH公式</h3><p>有一个BCH公式，它是对于矩阵来说的以及李群李代数相关的指数相乘展开：</p>
+<p>$<br>\ln(exp(A)exp(B)) \approx A+B+\frac 1 2 [A,B ]+\frac 1 {12} [A, [A ,B]]+…<br>$</p>
+<p>可以看到，在数学上，它会有这么多的余项存在的。不过我们做近似的估计。如果$\phi_1$或者$\phi_2$有一个量是小量，我们可以忽略其二次项。直接考虑到李代数的转换：</p>
+<p>$<br>\ln(exp(\phi_1^{\hat{} })exp(\phi_2^{\hat{} }))^{\hat{} } \approx<br>\left {\begin{matrix}<br>J_l(\phi_2)^{-1}\phi_1 +\phi_2&amp;\phi_1为小量\<br>J_r(\phi_1)^{-1}\phi_2 +\phi_1&amp;\phi_2为小量\<br>\end{matrix}<br>\right .<br>$</p>
+<p>既然导数模型左或者右加上一个小量，上式中，第一个对应的是$\phi_2$为R对应的李代数，而$\phi_1$为小量，对应到李群，就是R左乘一个小量，第二个式子对应的就是右乘一个小量了。我们后面规定使用为左乘，实际上右乘的J和左乘也相差不多。</p>
+<p>$$<br>J_l &#x3D; J &#x3D; \frac {\sin\theta}{\theta} I + (1 - \frac {\sin \theta}{\theta})\mathbf{aa}^T + \frac{1 - \cos \theta}{\theta} \mathbf{a}^{\hat{} }<br>$$</p>
+<p>$$<br>J_l^{-1} &#x3D; \frac{\theta}{2} \cot \frac{\theta}{2}I + (1 - \frac{\theta}{2}\cot\frac{\theta}{2})\mathbf{aa}^T - \frac{\theta}{2}\mathbf{a}^{\hat{} }<br>$$</p>
+<p>右乘的雅科比矩阵：$J_r (\phi) &#x3D; J_l(-\phi)$.</p>
+<p>也就是：$\exp(\Delta \phi ^{\hat{} })\exp(\phi^{\hat{} }) \approx \exp ((\phi + J_l^{-1}(\phi)\Delta \phi)^{\hat{} })$.</p>
+<p>同理，如果我们在李代数上进行加法：<br>$$<br>\exp((\phi+\Delta \phi)^{\hat{} }) &#x3D; \exp((J\Delta \phi)^{\hat{} })\exp(\phi^{\hat{} })<br>$$<br>上述都是左乘模型。</p>
+<p>同样的，对于SE(3)也有类似的BCH近似公式：<br>$$<br>\exp(\Delta \xi ^{\hat{} }) \exp(\xi^{\hat{} }) \approx \exp((\mathcal{J}_l^{-1}\Delta \xi + \xi)^{\hat{} }),\<br>\exp(\xi^{\hat{} })\exp(\Delta \xi ^{\hat{} })  \approx \exp((\mathcal{J}_r^{-1}\Delta \xi + \xi)^{\hat{} }).<br>$$</p>
+<p>$\mathcal{J}_l$的形式比较复杂，我们也用不上，就不提了。</p>
+<h3 id="so-3-求导"><a href="#so-3-求导" class="headerlink" title="so(3)求导"></a>so(3)求导</h3><p>我们想要实现对旋转矩阵的求导，由于旋转矩阵是乘法定义的，所以直接在SO(3)上无法定义出来导数。因此要转换到对应的李代数上来求得导数。</p>
+<p>为了得到so(3)上的导数，有两种办法。第一种，是通过so(3)来实现，另一种是给SO(3)左乘一个矩阵来实现。</p>
+<h4 id="导数模型"><a href="#导数模型" class="headerlink" title="导数模型"></a>导数模型</h4><p>根据导数的定义：<br>$$<br>\begin{aligned}<br>\frac{\partial (\exp(\phi^{\hat{} })p)} {\partial \phi}&amp;&#x3D; \lim_ {\delta \phi \rightarrow 0} \frac{\exp((\phi + \delta \phi)^{\hat{} })p - exp(\phi^{\hat{} })p} {\delta \phi}\<br>&amp;&#x3D; \lim_ {\delta \phi \rightarrow 0} \frac{exp((J_l\delta \phi)^{\hat{} })exp(\phi^{\hat{} })p - \exp(\phi^{\hat{} })p}{\delta \phi}\<br>&amp;\approx \lim_ {\delta \phi \rightarrow 0} \frac{(I+(J_l\delta \phi)^{\hat{} })exp(\phi^{\hat{} })p - \exp(\phi^{\hat{} })p}{\delta \phi}\<br>&amp;&#x3D; \lim_ {\delta \phi \rightarrow 0} \frac{(J_l\delta\phi)^{\hat{} }\exp(\phi^{\hat{} })p}{\delta \phi}\<br>&amp;&#x3D; \lim_ {\delta \phi \rightarrow 0} \frac{-(\exp(\phi^{\hat{} })p)^{\hat{} }J_l\delta\phi}{\delta \phi}\<br>&amp;&#x3D; -(Rp)^{\hat{} } J_l<br>\end{aligned}<br>$$<br>上面的过程用到了BCH展开，泰勒近似，以及$\hat{}$的性质：$a^{\hat{} }b &#x3D; -b^{\hat{} }a $.<br>这里有形式比较复杂的$J_l$,我们不想计算它。所以看看扰动模型。</p>
+<h4 id="扰动模型"><a href="#扰动模型" class="headerlink" title="扰动模型"></a>扰动模型</h4><p>扰动模型是在李群上左乘一个很小的矩阵$\Delta R$,假设它对应的李代数为$\theta$。通过扰动模型得到的导数为$-(Rp)^{\hat{} }$.<br>\begin{aligned}<br>\frac{\partial (Rp)} {\partial \phi}&amp;&#x3D; \lim_ {\theta \rightarrow 0} \frac{\exp(\theta^{\hat{} })\exp(\phi)^{\hat{} })p - exp(\phi^{\hat{} })p} {\theta}\<br>&amp;&#x3D;-(Rp)^{\hat{} }<br>\end{aligned}<br>扰动模型求导和上面导数模型可以使用同样的套路，而且更简单。因此就不详细写出来了。</p>
+<p>可以看到扰动模型的比导数模型得到的结果更加简便一些。因此扰动模型相对于导数模型来说更加的实用。</p>
+<h3 id="se-3-求导"><a href="#se-3-求导" class="headerlink" title="se(3)求导"></a>se(3)求导</h3><p>对于se(3)的求导，我们直接给出扰动模型：<br>$$<br>\begin{aligned}<br>\frac{\partial (Tp)}{\partial \delta \xi} &amp;&#x3D; \lim_ {\delta \xi \rightarrow 0} \frac{\begin{bmatrix}<br>\delta \phi^{\hat{} }(Rp+t) + \delta p\<br>0<br>\end{bmatrix} }{\delta \xi}\<br>&amp;&#x3D; \begin{bmatrix}<br>I&amp;-(Rp+t)^{\hat{} }\<br>0&amp;0<br>\end{bmatrix}\<br>&amp;\triangleq (Tp)^{\bigodot}<br>\end{aligned}<br>$$</p>
+<p>如果没有李群和李代数的提出，求导就没有理论依据了。而因为有了李群和李代数这种映射关系，我们可以通过将李群用李代数来表示，而李代数是可以进行求导的。从而实现对旋转矩阵的求导。</p>
+<h2 id="Sophus库"><a href="#Sophus库" class="headerlink" title="Sophus库"></a>Sophus库</h2><p>李群李代数听得人头大。不过，我们不用自己去完成这些东西。对于李群李代数支持比较好的库是sophus，我们就使用这个库来实现SLAM中李群李代数需要的应用。</p>
+<p>sophus是eigen的一个扩展，它在eigen的基础上实现了一些李群李代数的操作，没有任何别的依赖项。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std; </span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Eigen/Core&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Eigen/Geometry&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 李群李代数 库 </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;sophus/so3.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;sophus/se3.h&quot;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">( <span class="type">int</span> argc, <span class="type">char</span>** argv )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="comment">/*******************************************/</span></span><br><span class="line">　</span><br><span class="line">    Eigen::Matrix3d R = Eigen::<span class="built_in">AngleAxisd</span>(M_PI/<span class="number">2</span>, Eigen::<span class="built_in">Vector3d</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>)).<span class="built_in">toRotationMatrix</span>();</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;RotationMatrix R: \n&quot;</span>&lt;&lt;R&lt;&lt;endl;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/***李群*****/</span></span><br><span class="line">    <span class="function">Sophus::SO3 <span class="title">SO3_R</span><span class="params">(R)</span></span>;               <span class="comment">// Sophus::SO(3)可以直接从旋转矩阵构造</span></span><br><span class="line">    <span class="function">Sophus::SO3 <span class="title">SO3_v</span><span class="params">( <span class="number">0</span>, <span class="number">0</span>, M_PI/<span class="number">2</span> )</span></span>;  <span class="comment">// 亦可从旋转向量构造  这里注意，不是旋转向量的三个坐标值，有点像欧拉角构造。</span></span><br><span class="line">    <span class="function">Eigen::Quaterniond <span class="title">q</span><span class="params">(R)</span></span>;            <span class="comment">// 或者四元数(从旋转矩阵构造)</span></span><br><span class="line">    <span class="function">Sophus::SO3 <span class="title">SO3_q</span><span class="params">( q )</span></span>;</span><br><span class="line">    <span class="comment">// 上述表达方式都是等价的</span></span><br><span class="line">    <span class="comment">// 输出SO(3)时，以so(3)形式输出</span></span><br><span class="line">    <span class="comment">//从输出的形式可以看出，虽然SO3是李群，是旋转矩阵，但是输出形式还是向量（被转化成李代数输出）。</span></span><br><span class="line">    <span class="comment">// 重载了 &lt;&lt; 运算符  out_str &lt;&lt; so3.log().transpose() &lt;&lt; std::endl;  </span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SO(3) from matrix: &quot;</span>&lt;&lt;SO3_R&lt;&lt;endl;  <span class="comment">//SO(3) from matrix:      0      0 1.5708  </span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SO(3) from vector: &quot;</span>&lt;&lt;SO3_v&lt;&lt;endl;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SO(3) from quaternion :&quot;</span>&lt;&lt;SO3_q&lt;&lt;endl;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/****李代数*****/</span></span><br><span class="line">    <span class="comment">// 使用对数映射获得它的李代数</span></span><br><span class="line">    <span class="comment">// 所以，李代数 so3的本质就是个三维向量，直接Eigen::Vector3d定义。</span></span><br><span class="line">    Eigen::Vector3d so3 = SO3_R.<span class="built_in">log</span>();</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;so3 = &quot;</span>&lt;&lt;so<span class="number">3.</span><span class="built_in">transpose</span>()&lt;&lt;endl;</span><br><span class="line">    <span class="comment">// hat 为向量 到反对称矩阵  相当于　^　运算。</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;so3 hat=\n&quot;</span>&lt;&lt;Sophus::SO3::<span class="built_in">hat</span>(so3)&lt;&lt;endl;</span><br><span class="line">    <span class="comment">// 相对的，vee为 反对称矩阵 到 向量  相当于下尖尖运算 </span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;so3 hat vee= &quot;</span>&lt;&lt;Sophus::SO3::<span class="built_in">vee</span>( Sophus::SO3::<span class="built_in">hat</span>(so3) ).<span class="built_in">transpose</span>()&lt;&lt;endl; <span class="comment">// transpose纯粹是为了输出美观一些</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/****李代数求导　更新*****/</span></span><br><span class="line">    <span class="comment">// 增量扰动模型的更新</span></span><br><span class="line">    <span class="function">Eigen::Vector3d <span class="title">update_so3</span><span class="params">(<span class="number">1e-4</span>, <span class="number">0</span>, <span class="number">0</span>)</span></span>; <span class="comment">//假设更新量为这么多</span></span><br><span class="line">    Sophus::SO3 SO3_updated = Sophus::SO3::<span class="built_in">exp</span>(update_so3)*SO3_R;<span class="comment">// 增量指数映射×原李代数</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SO3 updated = &quot;</span>&lt;&lt;SO3_updated&lt;&lt;endl;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/********************萌萌的分割线*****************************/</span></span><br><span class="line">    <span class="comment">/************特殊欧式群　变换矩阵群　有旋转有平移*********************/</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;************我是分割线*************&quot;</span>&lt;&lt;endl;</span><br><span class="line">    <span class="comment">// 李群 对SE(3)操作大同小异</span></span><br><span class="line">    <span class="function">Eigen::Vector3d <span class="title">t</span><span class="params">(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>)</span></span>;           <span class="comment">// 沿X轴平移1</span></span><br><span class="line">    <span class="function">Sophus::SE3 <span class="title">SE3_Rt</span><span class="params">(R, t)</span></span>;           <span class="comment">// 从R,t构造SE(3)</span></span><br><span class="line">    <span class="function">Sophus::SE3 <span class="title">SE3_qt</span><span class="params">(q,t)</span></span>;            <span class="comment">// 从q,t构造SE(3)</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SE3 from R,t= &quot;</span>&lt;&lt;endl&lt;&lt;SE3_Rt&lt;&lt;endl;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SE3 from q,t= &quot;</span>&lt;&lt;endl&lt;&lt;SE3_qt&lt;&lt;endl;</span><br><span class="line">    <span class="comment">// 李代数se(3) 是一个六维向量，方便起见先typedef一下</span></span><br><span class="line">    <span class="keyword">typedef</span> Eigen::Matrix&lt;<span class="type">double</span>,<span class="number">6</span>,<span class="number">1</span>&gt; Vector6d;<span class="comment">// Vector6d指代　Eigen::Matrix&lt;double,6,1&gt;</span></span><br><span class="line">    Vector6d se3 = SE3_Rt.<span class="built_in">log</span>();</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;se3 = &quot;</span>&lt;&lt;se<span class="number">3.</span><span class="built_in">transpose</span>()&lt;&lt;endl;</span><br><span class="line">    <span class="comment">// 观察输出，会发现在Sophus中，se(3)的平移在前，旋转在后.</span></span><br><span class="line">    <span class="comment">// 同样的，有hat和vee两个算符</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;se3 hat = &quot;</span>&lt;&lt;endl&lt;&lt;Sophus::SE3::<span class="built_in">hat</span>(se3)&lt;&lt;endl;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;se3 hat vee = &quot;</span>&lt;&lt;Sophus::SE3::<span class="built_in">vee</span>( Sophus::SE3::<span class="built_in">hat</span>(se3) ).<span class="built_in">transpose</span>()&lt;&lt;endl;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 最后，演示一下更新</span></span><br><span class="line">    Vector6d update_se3; <span class="comment">//更新量</span></span><br><span class="line">    update_se<span class="number">3.</span><span class="built_in">setZero</span>();</span><br><span class="line">    <span class="built_in">update_se3</span>(<span class="number">0</span>,<span class="number">0</span>) = <span class="number">1e-4</span>d;</span><br><span class="line">    Sophus::SE3 SE3_updated = Sophus::SE3::<span class="built_in">exp</span>(update_se3)*SE3_Rt;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;SE3 updated = &quot;</span>&lt;&lt;endl&lt;&lt;SE3_updated.<span class="built_in">matrix</span>()&lt;&lt;endl;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/sophus/" rel="tag"># sophus</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/07/SLAM%E2%80%94%E2%80%94%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8%E4%BB%A5%E5%8F%8AEigen/" rel="prev" title="SLAM——刚体运动以及Eigen">
+                  <i class="fa fa-angle-left"></i> SLAM——刚体运动以及Eigen
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/10/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94vnc+SSH%20tunnel%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%86%85%E7%BD%91%E6%9C%BA%E5%99%A8/" rel="next" title="踩过的坑——vnc+SSH tunnel远程控制内网机器">
+                  踩过的坑——vnc+SSH tunnel远程控制内网机器 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

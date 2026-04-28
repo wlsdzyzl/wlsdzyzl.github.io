@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+<!-- 引入Mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- 可选：自定义Mathjax配置 -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\(','\)']],
+      displayMath: [['$$','$$'], ['\[','\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    CommonHTML: {
+      linebreaks: { automatic: true }
+    },
+    messageStyle: "none",
+    MathMenu: { showLocale: false, showRenderer: false }
+  });
+</script>
+    <meta name="description" content="本文为拆解LOAM代码的第二部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——拆解LOAM（二）">
+<meta property="og:url" content="http://wlsdzyzl.com/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="本文为拆解LOAM代码的第二部分。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-03-30T22:17:13.000Z">
+<meta property="article:modified_time" content="2023-10-22T23:20:43.956Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM%EF%BC%88%E4%BA%8C%EF%BC%89/","path":"2021/03/31/SLAM——拆解LOAM（二）/","title":"SLAM——拆解LOAM（二）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——拆解LOAM（二） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li><li class="menu-item menu-item-photos"><a href="/photos/" rel="section"><i class="fa fa-camera fa-fw"></i>Photos</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#LaserOdometry"><span class="nav-number">1.</span> <span class="nav-text">LaserOdometry</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="wlsdzyzl"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">90</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/wlsdzyzl" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;wlsdzyzl" rel="noopener me" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/275872287" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;275872287" rel="noopener me" target="_blank"><i class="youtube fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://yakult.fun/" title="https:&#x2F;&#x2F;yakult.fun&#x2F;" rel="noopener" target="_blank">yakult.fun</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——拆解LOAM（二） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——拆解LOAM（二）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-03-31 06:17:13" itemprop="dateCreated datePublished" datetime="2021-03-31T06:17:13+08:00">2021-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-10-23 07:20:43" itemprop="dateModified" datetime="2023-10-23T07:20:43+08:00">2023-10-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文为拆解LOAM代码的第二部分。<span id="more"></span></p>
+<h2 id="LaserOdometry"><a href="#LaserOdometry" class="headerlink" title="LaserOdometry"></a>LaserOdometry</h2><p>接下来到了重头戏，也就是计算Odometry的部分，位于文件<code>LaserOdometry.cpp</code>中。这一部分是相对复杂的，有600多行代码。我们继续按照执行的顺序来分析。首先查看Odometry订阅的以及发布的消息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">ros::Subscriber subCornerPointsSharp = nh.<span class="built_in">subscribe</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_sharp&quot;</span>, <span class="number">100</span>, laserCloudSharpHandler);</span><br><span class="line"></span><br><span class="line">  ros::Subscriber subCornerPointsLessSharp = nh.<span class="built_in">subscribe</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_less_sharp&quot;</span>, <span class="number">100</span>, laserCloudLessSharpHandler);</span><br><span class="line"></span><br><span class="line">  ros::Subscriber subSurfPointsFlat = nh.<span class="built_in">subscribe</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_flat&quot;</span>, <span class="number">100</span>, laserCloudFlatHandler);</span><br><span class="line"></span><br><span class="line">  ros::Subscriber subSurfPointsLessFlat = nh.<span class="built_in">subscribe</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_less_flat&quot;</span>, <span class="number">100</span>, laserCloudLessFlatHandler);</span><br><span class="line"></span><br><span class="line">  ros::Subscriber subLaserCloudFullRes = nh.<span class="built_in">subscribe</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/velodyne_cloud_2&quot;</span>, <span class="number">100</span>, laserCloudFullResHandler);</span><br><span class="line"></span><br><span class="line">  ros::Publisher pubLaserCloudCornerLast = nh.<span class="built_in">advertise</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_corner_last&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">  ros::Publisher pubLaserCloudSurfLast = nh.<span class="built_in">advertise</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/laser_cloud_surf_last&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">  ros::Publisher pubLaserCloudFullRes = nh.<span class="built_in">advertise</span>&lt;sensor_msgs::PointCloud2&gt;(<span class="string">&quot;/velodyne_cloud_3&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">  ros::Publisher pubLaserOdometry = nh.<span class="built_in">advertise</span>&lt;nav_msgs::Odometry&gt;(<span class="string">&quot;/laser_odom_to_init&quot;</span>, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">  ros::Publisher pubLaserPath = nh.<span class="built_in">advertise</span>&lt;nav_msgs::Path&gt;(<span class="string">&quot;/laser_odom_path&quot;</span>, <span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+
+<p>从代码中可以看到，Odometry订阅的消息为<code>/laser_cloud_sharp</code>, <code>/laser_cloud_less_sharp</code>, <code>/laser_cloud_flat</code>, <code>/laser_cloud_less_flat</code>, <code>/velodyne_cloud_2</code></p>
+<p>这些消息也就是<code>scanRegistration.cpp</code>中发布出去的内容。而这些订阅函数的callback函数很简单：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">laserCloudSharpHandler</span><span class="params">(<span class="type">const</span> sensor_msgs::PointCloud2ConstPtr &amp;cornerPointsSharp2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mBuf.<span class="built_in">lock</span>();</span><br><span class="line">    cornerSharpBuf.<span class="built_in">push</span>(cornerPointsSharp2);</span><br><span class="line">    mBuf.<span class="built_in">unlock</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">laserCloudLessSharpHandler</span><span class="params">(<span class="type">const</span> sensor_msgs::PointCloud2ConstPtr &amp;cornerPointsLessSharp2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mBuf.<span class="built_in">lock</span>();</span><br><span class="line">    cornerLessSharpBuf.<span class="built_in">push</span>(cornerPointsLessSharp2);</span><br><span class="line">    mBuf.<span class="built_in">unlock</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">laserCloudFlatHandler</span><span class="params">(<span class="type">const</span> sensor_msgs::PointCloud2ConstPtr &amp;surfPointsFlat2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mBuf.<span class="built_in">lock</span>();</span><br><span class="line">    surfFlatBuf.<span class="built_in">push</span>(surfPointsFlat2);</span><br><span class="line">    mBuf.<span class="built_in">unlock</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">laserCloudLessFlatHandler</span><span class="params">(<span class="type">const</span> sensor_msgs::PointCloud2ConstPtr &amp;surfPointsLessFlat2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mBuf.<span class="built_in">lock</span>();</span><br><span class="line">    surfLessFlatBuf.<span class="built_in">push</span>(surfPointsLessFlat2);</span><br><span class="line">    mBuf.<span class="built_in">unlock</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//receive all point cloud</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">laserCloudFullResHandler</span><span class="params">(<span class="type">const</span> sensor_msgs::PointCloud2ConstPtr &amp;laserCloudFullRes2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mBuf.<span class="built_in">lock</span>();</span><br><span class="line">    fullPointsBuf.<span class="built_in">push</span>(laserCloudFullRes2);</span><br><span class="line">    mBuf.<span class="built_in">unlock</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>之是把消息push到一个队列中，因此可以看到主要的逻辑并不是在callback函数中实现的，而是在main函数中实现。写成这样的好处就是提供了一个buffer，即使Odometry处理得不够及时，也能处理完所有的帧，而不是丢掉来不及处理的帧。</p>
+<p>此外，还有两个函数需要我们注意：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// undistort lidar point</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">TransformToStart</span><span class="params">(PointType <span class="type">const</span> *<span class="type">const</span> pi, PointType *<span class="type">const</span> po)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//interpolation ratio</span></span><br><span class="line">    <span class="type">double</span> s;</span><br><span class="line">    <span class="keyword">if</span> (DISTORTION)</span><br><span class="line">        s = (pi-&gt;intensity - <span class="built_in">int</span>(pi-&gt;intensity)) / SCAN_PERIOD;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        s = <span class="number">1.0</span>;</span><br><span class="line">    <span class="comment">//s = 1;</span></span><br><span class="line">    Eigen::Quaterniond q_point_last = Eigen::Quaterniond::<span class="built_in">Identity</span>().<span class="built_in">slerp</span>(s, q_last_curr);</span><br><span class="line">    Eigen::Vector3d t_point_last = s * t_last_curr;</span><br><span class="line">    <span class="function">Eigen::Vector3d <span class="title">point</span><span class="params">(pi-&gt;x, pi-&gt;y, pi-&gt;z)</span></span>;</span><br><span class="line">    Eigen::Vector3d un_point = q_point_last * point + t_point_last;</span><br><span class="line"></span><br><span class="line">    po-&gt;x = un_point.<span class="built_in">x</span>();</span><br><span class="line">    po-&gt;y = un_point.<span class="built_in">y</span>();</span><br><span class="line">    po-&gt;z = un_point.<span class="built_in">z</span>();</span><br><span class="line">    po-&gt;intensity = pi-&gt;intensity;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// transform all lidar points to the start of the next frame</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">TransformToEnd</span><span class="params">(PointType <span class="type">const</span> *<span class="type">const</span> pi, PointType *<span class="type">const</span> po)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// undistort point first</span></span><br><span class="line">    pcl::PointXYZI un_point_tmp;</span><br><span class="line">    <span class="built_in">TransformToStart</span>(pi, &amp;un_point_tmp);</span><br><span class="line"></span><br><span class="line">    <span class="function">Eigen::Vector3d <span class="title">un_point</span><span class="params">(un_point_tmp.x, un_point_tmp.y, un_point_tmp.z)</span></span>;</span><br><span class="line">    Eigen::Vector3d point_end = q_last_curr.<span class="built_in">inverse</span>() * (un_point - t_last_curr);</span><br><span class="line"></span><br><span class="line">    po-&gt;x = point_end.<span class="built_in">x</span>();</span><br><span class="line">    po-&gt;y = point_end.<span class="built_in">y</span>();</span><br><span class="line">    po-&gt;z = point_end.<span class="built_in">z</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//Remove distortion time info</span></span><br><span class="line">    po-&gt;intensity = <span class="built_in">int</span>(pi-&gt;intensity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数用于生成undistorted point。<code>TransformToStart</code>将当前点投到当前帧的初始时间，而<code>TransformToEnd</code>将当前点投到下一帧的初始时间。这里有一个问题就是，投影到不同的时间是假设在雷达旋转时，车辆的运动是匀速的，但是我们依然需要知道车辆的一个运动状态，那么这个初始估计的位姿是如何得到的？在函数中，我们可以看到的是使用了idendity到q_last_curr以及t_last_curr的插值，这个q_last_curr很明显是current到last的一个初始估计（q_last_curr是从current→last，那么endOri的s对应1才合理），这个值在一开始进行了一个设定，因此可以看到，初始估计就是没有运动（identity，在不知道运动的情况下，其实也算是一个比较好的估计）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> para_q[<span class="number">4</span>] = &#123;<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>&#125;;</span><br><span class="line"><span class="type">double</span> <span class="type">para_t</span>[<span class="number">3</span>] = &#123;<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line"><span class="function">Eigen::Map&lt;Eigen::Quaterniond&gt; <span class="title">q_last_curr</span><span class="params">(para_q)</span></span>;</span><br><span class="line"><span class="function">Eigen::Map&lt;Eigen::Vector3d&gt; <span class="title">t_last_curr</span><span class="params">(<span class="type">para_t</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在之后的代码可以看到，<code>q_last_curr</code>与<code>t_last_curr</code>会被更新，也就是初始的估计是由上一次的odometry的运动估计决定的。</p>
+<p>接下来我们分析main函数中的处理逻辑。首先是拿到队列首部，并且将其弹出，这部分就不说了。我们重点看优化部分的内容，也就是下面循环中的内容（可以看到求解Odometry只迭代两次）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">size_t</span> opti_counter = <span class="number">0</span>; opti_counter &lt; <span class="number">2</span>; ++opti_counter)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/**/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>首先，查看一些变量的设定：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">corner_correspondence = <span class="number">0</span>;</span><br><span class="line">          plane_correspondence = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">          <span class="comment">//ceres::LossFunction *loss_function = NULL;</span></span><br><span class="line">          ceres::LossFunction *loss_function = <span class="keyword">new</span> ceres::<span class="built_in">HuberLoss</span>(<span class="number">0.1</span>);</span><br><span class="line">          ceres::LocalParameterization *q_parameterization =</span><br><span class="line">              <span class="keyword">new</span> ceres::<span class="built_in">EigenQuaternionParameterization</span>();</span><br><span class="line">          ceres::Problem::Options problem_options;</span><br><span class="line"></span><br><span class="line">          <span class="function">ceres::Problem <span class="title">problem</span><span class="params">(problem_options)</span></span>;</span><br><span class="line">          problem.<span class="built_in">AddParameterBlock</span>(para_q, <span class="number">4</span>, q_parameterization);</span><br><span class="line">          problem.<span class="built_in">AddParameterBlock</span>(<span class="type">para_t</span>, <span class="number">3</span>);</span><br><span class="line"><span class="comment">// temp variables, for to store undistorted points</span></span><br><span class="line">pcl::PointXYZI pointSel;</span><br><span class="line"><span class="comment">// kdtree index and dists</span></span><br><span class="line">          std::vector&lt;<span class="type">int</span>&gt; pointSearchInd;</span><br><span class="line">          std::vector&lt;<span class="type">float</span>&gt; pointSearchSqDis;</span><br></pre></td></tr></table></figure>
+
+<p>这里优化使用的是<code>ceres</code>库。这里的使用的HuberLoss，可以抑制错误的匹配点对最后结果的影响。接着，优化分成了两部分，分别考虑的是edge points的约束以及plane points的约束。</p>
+<ul>
+<li><p>Edge Points</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; cornerPointsSharpNum; ++i)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">TransformToStart</span>(&amp;(cornerPointsSharp-&gt;points[i]), &amp;pointSel);</span><br><span class="line">    kdtreeCornerLast-&gt;<span class="built_in">nearestKSearch</span>(pointSel, <span class="number">1</span>, pointSearchInd, pointSearchSqDis);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> closestPointInd = <span class="number">-1</span>, minPointInd2 = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">if</span> (pointSearchSqDis[<span class="number">0</span>] &lt; DISTANCE_SQ_THRESHOLD)</span><br><span class="line">    &#123;</span><br><span class="line">        closestPointInd = pointSearchInd[<span class="number">0</span>];</span><br><span class="line">        <span class="type">int</span> closestPointScanID = <span class="built_in">int</span>(laserCloudCornerLast-&gt;points[closestPointInd].intensity);</span><br><span class="line"></span><br><span class="line">        <span class="type">double</span> minPointSqDis2 = DISTANCE_SQ_THRESHOLD;</span><br><span class="line">        <span class="comment">// search in the direction of increasing scan line</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = closestPointInd + <span class="number">1</span>; j &lt; (<span class="type">int</span>)laserCloudCornerLast-&gt;points.<span class="built_in">size</span>(); ++j)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// if in the same scan line, continue</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudCornerLast-&gt;points[j].intensity) &lt;= closestPointScanID)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// if not in nearby scans, end the loop</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudCornerLast-&gt;points[j].intensity) &gt; (closestPointScanID + NEARBY_SCAN))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="type">double</span> pointSqDis = (laserCloudCornerLast-&gt;points[j].x - pointSel.x) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].x - pointSel.x) +</span><br><span class="line">                                (laserCloudCornerLast-&gt;points[j].y - pointSel.y) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].y - pointSel.y) +</span><br><span class="line">                                (laserCloudCornerLast-&gt;points[j].z - pointSel.z) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].z - pointSel.z);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (pointSqDis &lt; minPointSqDis2)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// find nearer point</span></span><br><span class="line">                minPointSqDis2 = pointSqDis;</span><br><span class="line">                minPointInd2 = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// search in the direction of decreasing scan line</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = closestPointInd - <span class="number">1</span>; j &gt;= <span class="number">0</span>; --j)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// if in the same scan line, continue</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudCornerLast-&gt;points[j].intensity) &gt;= closestPointScanID)</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// if not in nearby scans, end the loop</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudCornerLast-&gt;points[j].intensity) &lt; (closestPointScanID - NEARBY_SCAN))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="type">double</span> pointSqDis = (laserCloudCornerLast-&gt;points[j].x - pointSel.x) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].x - pointSel.x) +</span><br><span class="line">                                (laserCloudCornerLast-&gt;points[j].y - pointSel.y) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].y - pointSel.y) +</span><br><span class="line">                                (laserCloudCornerLast-&gt;points[j].z - pointSel.z) *</span><br><span class="line">                                    (laserCloudCornerLast-&gt;points[j].z - pointSel.z);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (pointSqDis &lt; minPointSqDis2)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// find nearer point</span></span><br><span class="line">                minPointSqDis2 = pointSqDis;</span><br><span class="line">                minPointInd2 = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (minPointInd2 &gt;= <span class="number">0</span>) <span class="comment">// both closestPointInd and minPointInd2 is valid</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">Eigen::Vector3d <span class="title">curr_point</span><span class="params">(cornerPointsSharp-&gt;points[i].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                   cornerPointsSharp-&gt;points[i].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                   cornerPointsSharp-&gt;points[i].z)</span></span>;</span><br><span class="line">        <span class="function">Eigen::Vector3d <span class="title">last_point_a</span><span class="params">(laserCloudCornerLast-&gt;points[closestPointInd].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     laserCloudCornerLast-&gt;points[closestPointInd].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     laserCloudCornerLast-&gt;points[closestPointInd].z)</span></span>;</span><br><span class="line">        <span class="function">Eigen::Vector3d <span class="title">last_point_b</span><span class="params">(laserCloudCornerLast-&gt;points[minPointInd2].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     laserCloudCornerLast-&gt;points[minPointInd2].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     laserCloudCornerLast-&gt;points[minPointInd2].z)</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">double</span> s;</span><br><span class="line">        <span class="keyword">if</span> (DISTORTION)</span><br><span class="line">            s = (cornerPointsSharp-&gt;points[i].intensity - <span class="built_in">int</span>(cornerPointsSharp-&gt;points[i].intensity)) / SCAN_PERIOD;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            s = <span class="number">1.0</span>;</span><br><span class="line">        ceres::CostFunction *cost_function = LidarEdgeFactor::<span class="built_in">Create</span>(curr_point, last_point_a, last_point_b, s);</span><br><span class="line">        problem.<span class="built_in">AddResidualBlock</span>(cost_function, loss_function, para_q, <span class="type">para_t</span>);</span><br><span class="line">        corner_correspondence++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  Edge Point的一大段代码，实际上在做的东西已经被我们分析得很清楚了：</p>
+<ul>
+<li>首先根据当前的关键点$i$，在上一帧的edge points中利用KDTree找到一个最近点$j$，那么根据假设，他们是位于同一条线上的。</li>
+<li>接着我们还需要在上一帧中找到另外一个点$l$，和$j$位于同一条直线上。从代码中可以看到，做法是遍历相邻scan的关键点，并且找到距离最近的点。在论文中也提到了，在寻找$l$的时候，要排除同一个scan中的点，这是因为一般的Edge通过每个scan只能扫到一个点，除非这个Edge与扫描平面平行，这种情况被称为degenerated edge，在系统中不会作处理。</li>
+<li>找到line correspondence之后，会利用LidarFactor中的类建立得到cost function，最后会将这一部分也放到优化块中，而这里的<code>para_q, para_t</code>就是初始位姿估计。</li>
+</ul>
+</li>
+<li><p>Plane Points</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; surfPointsFlatNum; ++i)</span><br><span class="line"> &#123;</span><br><span class="line">     <span class="built_in">TransformToStart</span>(&amp;(surfPointsFlat-&gt;points[i]), &amp;pointSel);</span><br><span class="line">     kdtreeSurfLast-&gt;<span class="built_in">nearestKSearch</span>(pointSel, <span class="number">1</span>, pointSearchInd, pointSearchSqDis);</span><br><span class="line">    </span><br><span class="line">     <span class="type">int</span> closestPointInd = <span class="number">-1</span>, minPointInd2 = <span class="number">-1</span>, minPointInd3 = <span class="number">-1</span>;</span><br><span class="line">     <span class="keyword">if</span> (pointSearchSqDis[<span class="number">0</span>] &lt; DISTANCE_SQ_THRESHOLD)</span><br><span class="line">     &#123;</span><br><span class="line">         closestPointInd = pointSearchInd[<span class="number">0</span>];</span><br><span class="line">    </span><br><span class="line">         <span class="comment">// get closest point&#x27;s scan ID</span></span><br><span class="line">         <span class="type">int</span> closestPointScanID = <span class="built_in">int</span>(laserCloudSurfLast-&gt;points[closestPointInd].intensity);</span><br><span class="line">         <span class="type">double</span> minPointSqDis2 = DISTANCE_SQ_THRESHOLD, minPointSqDis3 = DISTANCE_SQ_THRESHOLD;</span><br><span class="line">    </span><br><span class="line">         <span class="comment">// search in the direction of increasing scan line</span></span><br><span class="line">         <span class="keyword">for</span> (<span class="type">int</span> j = closestPointInd + <span class="number">1</span>; j &lt; (<span class="type">int</span>)laserCloudSurfLast-&gt;points.<span class="built_in">size</span>(); ++j)</span><br><span class="line">         &#123;</span><br><span class="line">             <span class="comment">// if not in nearby scans, end the loop</span></span><br><span class="line">             <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &gt; (closestPointScanID + NEARBY_SCAN))</span><br><span class="line">                 <span class="keyword">break</span>;</span><br><span class="line">    </span><br><span class="line">             <span class="type">double</span> pointSqDis = (laserCloudSurfLast-&gt;points[j].x - pointSel.x) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].x - pointSel.x) +</span><br><span class="line">                                 (laserCloudSurfLast-&gt;points[j].y - pointSel.y) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].y - pointSel.y) +</span><br><span class="line">                                 (laserCloudSurfLast-&gt;points[j].z - pointSel.z) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].z - pointSel.z);</span><br><span class="line">    </span><br><span class="line">             <span class="comment">// if in the same or lower scan line</span></span><br><span class="line">             <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &lt;= closestPointScanID &amp;&amp; pointSqDis &lt; minPointSqDis2)</span><br><span class="line">             &#123;</span><br><span class="line">                 minPointSqDis2 = pointSqDis;</span><br><span class="line">                 minPointInd2 = j;</span><br><span class="line">             &#125;</span><br><span class="line">             <span class="comment">// if in the higher scan line</span></span><br><span class="line">             <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &gt; closestPointScanID &amp;&amp; pointSqDis &lt; minPointSqDis3)</span><br><span class="line">             &#123;</span><br><span class="line">                 minPointSqDis3 = pointSqDis;</span><br><span class="line">                 minPointInd3 = j;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">    </span><br><span class="line">         <span class="comment">// search in the direction of decreasing scan line</span></span><br><span class="line">         <span class="keyword">for</span> (<span class="type">int</span> j = closestPointInd - <span class="number">1</span>; j &gt;= <span class="number">0</span>; --j)</span><br><span class="line">         &#123;</span><br><span class="line">             <span class="comment">// if not in nearby scans, end the loop</span></span><br><span class="line">             <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &lt; (closestPointScanID - NEARBY_SCAN))</span><br><span class="line">                 <span class="keyword">break</span>;</span><br><span class="line">    </span><br><span class="line">             <span class="type">double</span> pointSqDis = (laserCloudSurfLast-&gt;points[j].x - pointSel.x) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].x - pointSel.x) +</span><br><span class="line">                                 (laserCloudSurfLast-&gt;points[j].y - pointSel.y) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].y - pointSel.y) +</span><br><span class="line">                                 (laserCloudSurfLast-&gt;points[j].z - pointSel.z) *</span><br><span class="line">                                     (laserCloudSurfLast-&gt;points[j].z - pointSel.z);</span><br><span class="line">    </span><br><span class="line">             <span class="comment">// if in the same or higher scan line</span></span><br><span class="line">             <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &gt;= closestPointScanID &amp;&amp; pointSqDis &lt; minPointSqDis2)</span><br><span class="line">             &#123;</span><br><span class="line">                 minPointSqDis2 = pointSqDis;</span><br><span class="line">                 minPointInd2 = j;</span><br><span class="line">             &#125;</span><br><span class="line">             <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">int</span>(laserCloudSurfLast-&gt;points[j].intensity) &lt; closestPointScanID &amp;&amp; pointSqDis &lt; minPointSqDis3)</span><br><span class="line">             &#123;</span><br><span class="line">                 <span class="comment">// find nearer point</span></span><br><span class="line">                 minPointSqDis3 = pointSqDis;</span><br><span class="line">                 minPointInd3 = j;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">    </span><br><span class="line">         <span class="keyword">if</span> (minPointInd2 &gt;= <span class="number">0</span> &amp;&amp; minPointInd3 &gt;= <span class="number">0</span>)</span><br><span class="line">         &#123;</span><br><span class="line">    </span><br><span class="line">             <span class="function">Eigen::Vector3d <span class="title">curr_point</span><span class="params">(surfPointsFlat-&gt;points[i].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                         surfPointsFlat-&gt;points[i].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                         surfPointsFlat-&gt;points[i].z)</span></span>;</span><br><span class="line">             <span class="function">Eigen::Vector3d <span class="title">last_point_a</span><span class="params">(laserCloudSurfLast-&gt;points[closestPointInd].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[closestPointInd].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[closestPointInd].z)</span></span>;</span><br><span class="line">             <span class="function">Eigen::Vector3d <span class="title">last_point_b</span><span class="params">(laserCloudSurfLast-&gt;points[minPointInd2].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[minPointInd2].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[minPointInd2].z)</span></span>;</span><br><span class="line">             <span class="function">Eigen::Vector3d <span class="title">last_point_c</span><span class="params">(laserCloudSurfLast-&gt;points[minPointInd3].x,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[minPointInd3].y,</span></span></span><br><span class="line"><span class="params"><span class="function">                                             laserCloudSurfLast-&gt;points[minPointInd3].z)</span></span>;</span><br><span class="line">    </span><br><span class="line">             <span class="type">double</span> s;</span><br><span class="line">             <span class="keyword">if</span> (DISTORTION)</span><br><span class="line">                 s = (surfPointsFlat-&gt;points[i].intensity - <span class="built_in">int</span>(surfPointsFlat-&gt;points[i].intensity)) / SCAN_PERIOD;</span><br><span class="line">             <span class="keyword">else</span></span><br><span class="line">                 s = <span class="number">1.0</span>;</span><br><span class="line">             ceres::CostFunction *cost_function = LidarPlaneFactor::<span class="built_in">Create</span>(curr_point, last_point_a, last_point_b, last_point_c, s);</span><br><span class="line">               problem.<span class="built_in">AddResidualBlock</span>(cost_function, loss_function, para_q, <span class="type">para_t</span>);</span><br><span class="line">               plane_correspondence++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>  Plane Points的分析与Edge Point很类似，上述代码在做的是</p>
+<ul>
+<li>首先根据当前的关键点$i$，在上一帧的plane points中利用KDTree找到一个最近点$j$，那么根据假设，他们是位于同一个平面上的。</li>
+<li>接着我们还需要在上一帧中找到另外两个点$l, m$，和$j$位于同一个平面上。从代码中可以看到，做法是遍历相邻scan的关键点，并且找到距离最近的点。与edge不同的是，这个时候我们不排除同一个scan中的点。两个点分别选在scan id大于该点scan id的scan中，以及小于等于该点scan id的scans中，$l,m$分别对应的是<code>minPointInd2</code>与<code>minPointInd3</code>。</li>
+<li>找到plane correspondence之后，会利用LidarFactor中的类建立得到cost function，最后会将这一部分也放到优化块中，而这里的<code>para_q, para_t</code>是初始位姿估计。</li>
+</ul>
+</li>
+</ul>
+<p>之后的代码就是一些其他的处理。</p>
+<p>求解：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TicToc t_solver;</span><br><span class="line">ceres::Solver::Options options;</span><br><span class="line">options.linear_solver_type = ceres::DENSE_QR;</span><br><span class="line">options.max_num_iterations = <span class="number">4</span>;</span><br><span class="line">options.minimizer_progress_to_stdout = <span class="literal">false</span>;</span><br><span class="line">ceres::Solver::Summary summary;</span><br><span class="line">ceres::<span class="built_in">Solve</span>(options, &amp;problem, &amp;summary);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;solver time %f ms \n&quot;</span>, t_solver.<span class="built_in">toc</span>());</span><br></pre></td></tr></table></figure>
+
+<p>两次迭代后，更新位姿（<code>para_q</code>以及<code>para_t</code> 发生了变化，因此对应的<code>q_last_curr</code>与<code>t_last_curr</code>也就发生了变化，而<code>q_w_curr</code>与<code>t_w_curr</code>就是一个不断根据odometry累计的位姿，算是只靠odometry得到的位姿。这里的位姿与flashfusion中定义的是相反的）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">t_w_curr = t_w_curr + q_w_curr * t_last_curr;</span><br><span class="line">q_w_curr = q_w_curr * q_last_curr;</span><br></pre></td></tr></table></figure>
+
+<p>发布Odometry：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// publish odometry</span></span><br><span class="line">nav_msgs::Odometry laserOdometry;</span><br><span class="line">laserOdometry.header.frame_id = <span class="string">&quot;/camera_init&quot;</span>;</span><br><span class="line">laserOdometry.child_frame_id = <span class="string">&quot;/laser_odom&quot;</span>;</span><br><span class="line">laserOdometry.header.stamp = ros::<span class="built_in">Time</span>().<span class="built_in">fromSec</span>(timeSurfPointsLessFlat);</span><br><span class="line">laserOdometry.pose.pose.orientation.x = q_w_curr.<span class="built_in">x</span>();</span><br><span class="line">laserOdometry.pose.pose.orientation.y = q_w_curr.<span class="built_in">y</span>();</span><br><span class="line">laserOdometry.pose.pose.orientation.z = q_w_curr.<span class="built_in">z</span>();</span><br><span class="line">laserOdometry.pose.pose.orientation.w = q_w_curr.<span class="built_in">w</span>();</span><br><span class="line">laserOdometry.pose.pose.position.x = t_w_curr.<span class="built_in">x</span>();</span><br><span class="line">laserOdometry.pose.pose.position.y = t_w_curr.<span class="built_in">y</span>();</span><br><span class="line">laserOdometry.pose.pose.position.z = t_w_curr.<span class="built_in">z</span>();</span><br><span class="line">pubLaserOdometry.<span class="built_in">publish</span>(laserOdometry);</span><br><span class="line"></span><br><span class="line">geometry_msgs::PoseStamped laserPose;</span><br><span class="line">laserPose.header = laserOdometry.header;</span><br><span class="line">laserPose.pose = laserOdometry.pose.pose;</span><br><span class="line">laserPath.header.stamp = laserOdometry.header.stamp;</span><br><span class="line">laserPath.poses.<span class="built_in">push_back</span>(laserPose);</span><br><span class="line">laserPath.header.frame_id = <span class="string">&quot;/camera_init&quot;</span>;</span><br><span class="line">pubLaserPath.<span class="built_in">publish</span>(laserPath);</span><br></pre></td></tr></table></figure>
+
+<p>将当前帧变成上一帧（可以看到上一帧的Edge points变成了该帧的less sharp points）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pcl::PointCloud&lt;PointType&gt;::Ptr laserCloudTemp = cornerPointsLessSharp;</span><br><span class="line">            cornerPointsLessSharp = laserCloudCornerLast;</span><br><span class="line">            laserCloudCornerLast = laserCloudTemp;</span><br><span class="line"></span><br><span class="line">            laserCloudTemp = surfPointsLessFlat;</span><br><span class="line">            surfPointsLessFlat = laserCloudSurfLast;</span><br><span class="line">            laserCloudSurfLast = laserCloudTemp;</span><br><span class="line"></span><br><span class="line">            laserCloudCornerLastNum = laserCloudCornerLast-&gt;points.<span class="built_in">size</span>();</span><br><span class="line">            laserCloudSurfLastNum = laserCloudSurfLast-&gt;points.<span class="built_in">size</span>();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// std::cout &lt;&lt; &quot;the size of corner last is &quot; &lt;&lt; laserCloudCornerLastNum &lt;&lt; &quot;, and the size of surf last is &quot; &lt;&lt; laserCloudSurfLastNum &lt;&lt; &#x27;\n&#x27;;</span></span><br><span class="line"></span><br><span class="line">            kdtreeCornerLast-&gt;<span class="built_in">setInputCloud</span>(laserCloudCornerLast);</span><br><span class="line">            kdtreeSurfLast-&gt;<span class="built_in">setInputCloud</span>(laserCloudSurfLast);</span><br></pre></td></tr></table></figure>
+
+<p>并且间隔一定的数目，发布当前帧作为上一帧：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (frameCount % skipFrameNum == <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    frameCount = <span class="number">0</span>;</span><br><span class="line">    sensor_msgs::PointCloud2 laserCloudCornerLast2;</span><br><span class="line">    pcl::<span class="built_in">toROSMsg</span>(*laserCloudCornerLast, laserCloudCornerLast2);</span><br><span class="line">    laserCloudCornerLast<span class="number">2.</span>header.stamp = ros::<span class="built_in">Time</span>().<span class="built_in">fromSec</span>(timeSurfPointsLessFlat);</span><br><span class="line">    laserCloudCornerLast<span class="number">2.</span>header.frame_id = <span class="string">&quot;/camera&quot;</span>;</span><br><span class="line">    pubLaserCloudCornerLast.<span class="built_in">publish</span>(laserCloudCornerLast2);</span><br><span class="line"></span><br><span class="line">    sensor_msgs::PointCloud2 laserCloudSurfLast2;</span><br><span class="line">    pcl::<span class="built_in">toROSMsg</span>(*laserCloudSurfLast, laserCloudSurfLast2);</span><br><span class="line">    laserCloudSurfLast<span class="number">2.</span>header.stamp = ros::<span class="built_in">Time</span>().<span class="built_in">fromSec</span>(timeSurfPointsLessFlat);</span><br><span class="line">    laserCloudSurfLast<span class="number">2.</span>header.frame_id = <span class="string">&quot;/camera&quot;</span>;</span><br><span class="line">    pubLaserCloudSurfLast.<span class="built_in">publish</span>(laserCloudSurfLast2);</span><br><span class="line"></span><br><span class="line">    sensor_msgs::PointCloud2 laserCloudFullRes3;</span><br><span class="line">    pcl::<span class="built_in">toROSMsg</span>(*laserCloudFullRes, laserCloudFullRes3);</span><br><span class="line">    laserCloudFullRes<span class="number">3.</span>header.stamp = ros::<span class="built_in">Time</span>().<span class="built_in">fromSec</span>(timeSurfPointsLessFlat);</span><br><span class="line">    laserCloudFullRes<span class="number">3.</span>header.frame_id = <span class="string">&quot;/camera&quot;</span>;</span><br><span class="line">    pubLaserCloudFullRes.<span class="built_in">publish</span>(laserCloudFullRes3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM/" rel="prev" title="SLAM——拆解LOAM">
+                  <i class="fa fa-angle-left"></i> SLAM——拆解LOAM
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/31/SLAM%E2%80%94%E2%80%94%E6%8B%86%E8%A7%A3LOAM%EF%BC%88%E4%B8%89%EF%BC%89/" rel="next" title="SLAM——拆解LOAM（三）">
+                  SLAM——拆解LOAM（三） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
