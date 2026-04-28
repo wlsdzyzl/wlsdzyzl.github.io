@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "tool": "node source/js/tool.js",
     "build": "hexo generate",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
