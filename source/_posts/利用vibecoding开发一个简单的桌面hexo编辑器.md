@@ -6,3 +6,5 @@ tags: [vibe coding]
 categories: Vibe Coding
 ---
 Vibe coding is coming ... 你准备好了吗？
+
+作为一个人工智能相关的学生，我居然一直坚持“古法”编程至今。
