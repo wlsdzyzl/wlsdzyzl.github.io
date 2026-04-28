@@ -1,21 +1,13 @@
 ---
-title: about
+title: Guoqing Zhang
 date: 2023-10-21 17:17:14
 type: "about"
 ---
 
-Currently I'm a PhD candidate at Tsinghua University.
+I am a final year PhD student at [Tsinghua Shenzhen International Graduate School](https://www.sigs.tsinghua.edu.cn/en/), Tsinghua University, advised by [Prof. Yang Li](https://yangli-feasibility.com/home/). I am also affiliated with [Peng Cheng Laboratory](https://www.pcl.ac.cn/), where I am advised by Dr. Fan Zhang. I received my B.Sc. degree in Computer Science and Technology from Xidian University, and my M.Sc. degree in Data Science and Information Technology from Tsinghua University, advised by [Prof. Lu Fang](https://www.luvision.net/).
 
-Receive bachelor's degree from Xidian University and master's degree from Tsinghua University.
+My research interests include deep learning, 3D vision, computer graphics, and robotics. I am particularly interested in building virtual representations of the physical world and exploring their real-world applications, especially in medical image analysis.
 
-菜不怪学校，狗熊不问出处。
+E-mail: wlsdzyzl@gmail.com
 
-正在思考人生。
-
-情绪不太稳定。
-
-我不想做人啦！
-
-想了解我请关注我的b站。
-
-email:wlsdzyzl@gmail.com
+[Curriculum Vitae](/cv/cv_gq.pdf)
