@@ -5,4 +5,4 @@ date: 2026-4-28 20:51:31
 tags: [vibe coding]
 categories: Vibe Coding
 ---
-test ok
+Vibe coding is coming ... 你准备好了吗？
