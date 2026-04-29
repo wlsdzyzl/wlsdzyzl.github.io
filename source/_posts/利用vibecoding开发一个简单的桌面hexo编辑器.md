@@ -10,14 +10,7 @@ Vibe coding is coming ... 你准备好了吗？作为一个人工智能相关的
 <!--more-->
 请看VCR
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0;">
-  <iframe 
-    src="//player.bilibili.com/player.html?isOutside=true&aid=116489495518704&bvid=BV15f94BKE4L&cid=37955962746&p=1"
-    style="position: absolute; top:0; left:0; width:100%; height:100%;"
-    frameborder="no"
-    allowfullscreen>
-  </iframe>
-</div>
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=116489495518704&bvid=BV15f94BKE4L&cid=37955962746&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
 《Vibe Coding 势不可挡》
 代码如潮涌，指尖生万象。
