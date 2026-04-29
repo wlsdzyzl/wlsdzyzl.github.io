@@ -8,6 +8,16 @@ categories: Vibe Coding
 Vibe coding is coming ... 你准备好了吗？作为一个人工智能相关的学生，我居然一直坚持“古法”编程至今。近期冲动消费购买了一年的gpt，同时deepseek v4势不可挡发布，再不尝试一下就说不过去了。于是，我想到了很久没有更新的博客。
 
 <!--more-->
+请看VCR
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0;">
+  <iframe 
+    src="//player.bilibili.com/player.html?isOutside=true&aid=116489495518704&bvid=BV15f94BKE4L&cid=37955962746&p=1"
+    style="position: absolute; top:0; left:0; width:100%; height:100%;"
+    frameborder="no"
+    allowfullscreen>
+  </iframe>
+</div>
 
 《Vibe Coding 势不可挡》
 代码如潮涌，指尖生万象。
