@@ -10,4 +10,6 @@ My research interests include deep learning, 3D vision, computer graphics, and r
 
 E-mail: wlsdzyzl@gmail.com
 
+🎉I passed my PhD defense!
+
 [Curriculum Vitae](/cv/cv_gq.pdf)
