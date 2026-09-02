@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="空间域的算法很多，也容易理解，但是有时候却很难设计。而有时候一些问题，转化到频域上，就变得迎刃而解了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字图像处理——频域滤波">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="空间域的算法很多，也容易理解，但是有时候却很难设计。而有时候一些问题，转化到频域上，就变得迎刃而解了。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-04-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.681Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="digital image processing">
+<meta property="article:tag" content="filtering">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/","path":"2019/04/29/数字图像处理——频域滤波/","title":"数字图像处理——频域滤波"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数字图像处理——频域滤波 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">傅里叶变换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">常见的傅里叶变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#translation"><span class="nav-number">1.2.</span> <span class="nav-text">Translation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#multiplication-and-convolution"><span class="nav-number">1.3.</span> <span class="nav-text">Multiplication and
+Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scaling"><span class="nav-number">1.4.</span> <span class="nav-text">Scaling</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2"><span class="nav-number">2.</span> <span class="nav-text">频域滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8E%E9%80%9A%E6%BB%A4%E6%B3%A2"><span class="nav-number">2.1.</span> <span class="nav-text">低通滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9A%E6%BB%A4%E6%B3%A2"><span class="nav-number">2.2.</span> <span class="nav-text">高通滤波</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%9F%9F%E5%92%8C%E9%A2%91%E5%9F%9F"><span class="nav-number">3.</span> <span class="nav-text">空间域和频域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E4%B8%80%E4%BA%9B%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.</span> <span class="nav-text">其他一些频域滤波</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9A%E9%87%8F%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.1.</span> <span class="nav-text">高通量滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%80%81%E6%BB%A4%E6%B3%A2"><span class="nav-number">4.2.</span> <span class="nav-text">同态滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fsftdft"><span class="nav-number">4.3.</span> <span class="nav-text">FS，FT，DFT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zero-padding"><span class="nav-number">4.4.</span> <span class="nav-text">Zero padding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dc-component"><span class="nav-number">4.5.</span> <span class="nav-text">DC component</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数字图像处理——频域滤波 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字图像处理——频域滤波
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-04-29 00:00:00" itemprop="dateCreated datePublished" datetime="2019-04-29T00:00:00+08:00">2019-04-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">数字图像处理</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>空间域的算法很多，也容易理解，但是有时候却很难设计。而有时候一些问题，转化到频域上，就变得迎刃而解了。</p>
+<span id="more"></span>
+<p>从空间域到频域，不得不提的是傅里叶变换(一般信号处理上，从时域到频域)。这里首先说明下什么是变换，也就是将原有的函数，转换成另外的一些更容易分析的函数之和。变换给了我们不同看事物的角度。比较有名的变换有傅里叶变换，拉普拉斯变换，小波变换等等。</p>
+<h2 id="傅里叶变换"><a
+href="about:blank#%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2"
+title="傅里叶变换"></a>傅里叶变换</h2>
+<p>我们这里主要用到的是傅里叶变换。傅里叶变换的原始定义如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>ω</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo>∫</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>j</mi><mi>ω</mi><mi>t</mi></mrow></msup><mi>d</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">
+f(t) \rightarrow F(\omega)=\int f(t) e^{-j \omega t} d t
+</annotation></semantics></math>
+这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>,</mo><mi>ω</mi></mrow><annotation encoding="application/x-tex">t, \omega</annotation></semantics></math>可以是标量，也可以是向量。</p>
+<p>如果值是离散的，那么有离散傅里叶变化（DFT，Discrete Fourier
+Transformation）。离散傅里叶变换和连续傅里叶变化形式上差距还是挺大的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>x</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>i</mi><mfrac><mrow><mn>2</mn><mi>π</mi></mrow><mi>M</mi></mfrac><mi>x</mi><mi>u</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
+F(u)=\sum_ {x=0}^{N-1} f(x) \cdot e^{-i \frac{2 \pi}{M} x u}
+</annotation></semantics></math> 从矩阵视角：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mover><mi>v</mi><mo accent="true">→</mo></mover><mo>=</mo><mi>A</mi><mover><mi>u</mi><mo accent="true">→</mo></mover></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mover><mi>u</mi><mo accent="true">→</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>u</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>⋯</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup><mo>,</mo><mover><mi>v</mi><mo accent="true">→</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>v</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>⋯</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>A</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>,</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><msub><mo stretchy="false" form="postfix">]</mo><mrow><mi>N</mi><mo>×</mo><mi>N</mi></mrow></msub><mo>,</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> where </mtext><mspace width="0.333em"></mspace></mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>,</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mi>N</mi></msqrt></mfrac><msup><mi>e</mi><mrow><mi>−</mi><mi>j</mi><mfrac><mrow><mn>2</mn><mi>π</mi></mrow><mi>N</mi></mfrac><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{array}{c}{\vec{v}=A \vec{u} } \\ {\vec{u}=[u(0), u[1], \cdots, u(N-1)]^{T}, \vec{v}=[v(0), v[1], \cdots, v(N-1)]^{T} } \\ {A=[a(I, m)]_ {N \times N}, \text { where } a(l, m)=\frac{1}{\sqrt{N} } e^{-j \frac{2 \pi}{N}(l-1)(m-1)} }\end{array}
+</annotation></semantics></math>
+为什么长这个样子，离散傅里叶变换背后的数学推倒是比较复杂的，幸运的是我们也不需要了解太多，因此在这里就不多说了。这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>矩阵是酋矩阵（unitary
+matrix）：</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo>=</mo><msup><mi>A</mi><mrow><mi>*</mi><mi>T</mi></mrow></msup><mo>=</mo><msup><mi>A</mi><mi>H</mi></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">A^{-1}=A^{* T}=A^{H}.</annotation></semantics></math></p>
+<p>有了这个，IDFT（离散傅里叶逆变换）就很容易计算了。因为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>u</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>v</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>u</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi>A</mi><mi>H</mi></msup><mi>v</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mo>⇒</mo><mi>u</mi><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><mi>v</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><msup><mi>a</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} u &amp;=A^{-1} v \\ u &amp;=A^{H} v \\ \Rightarrow u[n] &amp;=\sum_ {k=0}^{N-1} v[k] a^{*}(k, n) \end{aligned}
+</annotation></semantics></math>
+这里，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v(k)</annotation></semantics></math>是加权系数，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>a</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a^{*}(k, n)</annotation></semantics></math>为基函数。</p>
+<p>上面提到的是一维的DFT，对于二维的DFT会更麻烦一点。</p>
+<p>原始的图像我们用U表示，如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mi>u</mi><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mn>0</mn><mo>≤</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo>≤</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+U=\{u[m, n], 0 \leq m, n \leq N-1\}
+</annotation></semantics></math> 转换系数：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>,</mo><mi>l</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><mi>u</mi><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><msub><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+v[k, l]=\sum_ {m=0}^{N-1} \sum_ {n=0}^{N-1} u[m, n] a_ {k l}[m, n]
+</annotation></semantics></math> 因为A是酋矩阵：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><munderover><mo>∑</mo><mrow><mi>l</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><mi>v</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>,</mo><mi>l</mi><mo stretchy="false" form="postfix">]</mo><msubsup><mi>a</mi><mrow><mi>k</mi><mi>/</mi></mrow><mo>*</mo></msubsup><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+u[m, n]=\sum_ {k=0}^{N-1} \sum_ {l=0}^{N-1} v[k, l] a_ {k /}^{*}[m, n]
+</annotation></semantics></math>
+基函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">a_ {kl}[m,n]</annotation></semantics></math>以及<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow><mo>*</mo></msubsup><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">a_ {kl}^*[m,n]</annotation></semantics></math>满足：</p>
+<ul>
+<li>特殊域正交：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><msubsup><mi>a</mi><mrow><msup><mi>k</mi><mi>′</mi></msup><mi>/</mi><mi>l</mi></mrow><mo>*</mo></msubsup><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>δ</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>k</mi><mo>−</mo><msup><mi>k</mi><mi>′</mi></msup><mo>,</mo><mi>I</mi><mo>−</mo><msup><mi>l</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\sum_ {m=0}^{N-1} \sum_ {n=0}^{N-1} a_ {k l}[m, n] a_ {k^{\prime} / l}^{*}[m, n]=\delta\left[k-k^{\prime}, I-l^{\prime}\right]</annotation></semantics></math></li>
+<li>空间域的完备性：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><munderover><mo>∑</mo><mrow><mi>l</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><msubsup><mi>a</mi><mrow><mi>k</mi><mi>l</mi></mrow><mo>*</mo></msubsup><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>m</mi><mi>′</mi></msup><mo>,</mo><msup><mi>n</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>δ</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>m</mi><mo>−</mo><msup><mi>m</mi><mi>′</mi></msup><mo>,</mo><mi>n</mi><mo>−</mo><msup><mi>n</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\sum_ {k=0}^{N-1} \sum_ {l=0}^{N-1} a_ {k l}[m, n] a_ {k l}^{*}\left[m^{\prime}, n^{\prime}\right]=\delta\left[m-m^{\prime}, n-n^{\prime}\right]</annotation></semantics></math></li>
+</ul>
+<p>可以看到这里任何一个系数估计都是全局计算，需要<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>N</mi><mn>2</mn></msup><annotation encoding="application/x-tex">N^2</annotation></semantics></math>个乘法以及<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>N</mi><mn>2</mn></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N^2-1</annotation></semantics></math>个加法。而所有系数计算需要<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>N</mi><mn>4</mn></msup><annotation encoding="application/x-tex">N^4</annotation></semantics></math>的复杂度。这个复杂度是难以接受的。因此我们需要快速傅里叶变换（FFT），对于快速傅里叶变换的具体算法这里就不多介绍了，但是它已经被嵌入到各种各样的程序包中了，可以随时调用。</p>
+<h3 id="常见的傅里叶变换"><a
+href="about:blank#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2"
+title="常见的傅里叶变换"></a>常见的傅里叶变换</h3>
+<p>为了介绍离散傅里叶变换的性质，我们先认识下面一些函数：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f0.png" /></p>
+<p>对于傅里叶变换：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x,y) \rightarrow F(x,y)</annotation></semantics></math>，那么一些常见的函数的傅里叶变换有（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\delta(x, y )</annotation></semantics></math>为冲激函数）：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x,y)</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x,y)</annotation></semantics></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\delta(x, y)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>±</mo><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo>±</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\delta\left(x \pm x_ {0}, y \pm y_ {0}\right)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><mi>±</mi><mi>j</mi><mn>2</mn><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mn>0</mn></msub><msub><mi>ξ</mi><mn>1</mn></msub><mo>+</mo><msub><mi>y</mi><mn>0</mn></msub><msub><mi>ξ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><annotation encoding="application/x-tex">e^{ \pm j 2 \pi\left(x_ {0} \xi_ {1}+y_ {0} \xi_ {2}\right)}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><mi>−</mi><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><annotation encoding="application/x-tex">e^{-\pi\left(x^{2}+y^{2}\right)}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><mi>−</mi><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>ξ</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>ξ</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><annotation encoding="application/x-tex">e^{-\pi\left(\xi_ {1}^{2}+\xi_ {2}^{2}\right)}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">rect</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">rect</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">rect</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\operatorname{rect}(x, y)=\operatorname{rect}(x) \operatorname{rect}(y)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">sinc</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ξ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ξ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">sinc</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ξ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi mathvariant="normal">sinc</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ξ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{sinc}\left(\xi_ {1}, \xi_ {2}\right)=\operatorname{sinc}\left(\xi_ {1}\right) \operatorname{sinc}\left(\xi_ {2}\right)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">tri</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\operatorname{tri}(x, y)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><msup><mi>c</mi><mn>2</mn></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ξ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ξ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sin c^{2}\left(\xi_ {1}, \xi_ {2}\right)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">comb</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\operatorname{comb}(x, y)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">comb</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ξ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ξ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{comb}\left(\xi_ {1}, \xi_ {2}\right)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<h3 id="translation"><a href="about:blank#Translation"
+title="Translation"></a>Translation</h3>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">{f(x, y) \rightarrow F(u, v)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><msub><mi>u</mi><mn>0</mn></msub><mi>x</mi><mo>+</mo><mi>j</mi><msub><mi>v</mi><mn>0</mn></msub><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>→</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>−</mo><msub><mi>u</mi><mn>0</mn></msub><mo>,</mo><mi>v</mi><mo>−</mo><msub><mi>v</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">{f(x, y) e^{\left(j u_ {0} x+j v_ {0} y\right)} \rightarrow F\left(u-u_ {0}, v-v_ {0}\right)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>−</mo><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>→</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mi>j</mi><mi>u</mi><msub><mi>x</mi><mn>0</mn></msub><mo>−</mo><mi>j</mi><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">{f\left(x-x_ {0}, y-y_ {0}\right) \rightarrow F(u, v) e^{\left(-j u x_ {0}-j y_ {0}\right)} }</annotation></semantics></math></li>
+</ul>
+<h3 id="multiplication-and-convolution"><a
+href="about:blank#Multiplication-and-Convolution"
+title="Multiplication and Convolution"></a>Multiplication and
+Convolution</h3>
+<ul>
+<li>${f(x, y) g(x, y) F(u, v) G(u, v)} $</li>
+<li>${f(x, y) g(x, y) F(u, v) G(u, v)} $</li>
+</ul>
+<h3 id="scaling"><a href="about:blank#Scaling"
+title="Scaling"></a>Scaling</h3>
+<p>f(a t) F(), a , a </p>
+<p>对于傅里叶，必须要提的是高斯函数。它有很多优秀的性质：</p>
+<ol type="1">
+<li>在空间和频域上都有一定的跨度。</li>
+<li>高斯的傅里叶变换依然是高斯函数</li>
+<li>高斯函数乘以高斯函数还是一个高斯函数，只是标准差不同</li>
+<li>高斯函数的标准差是一个尺度参数</li>
+<li>我们经常需要在不同尺度上观察图片，而高斯金字塔是一个很好的工具</li>
+</ol>
+<p>高斯金字塔是著名的SIFT特征必不可少的预处理步骤。不同尺寸的高斯金字塔，模拟了场景离我们眼睛越来越远时候看到的效果，想对高斯金字塔有详细了解的可以参考论文：<a
+target="_blank" rel="noopener" href="http://persci.mit.edu/pub_pdfs/pyramid83.pdf">Gaussian
+Pyramid</a>.</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s13.png" /></p>
+<h2 id="频域滤波"><a
+href="about:blank#%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2"
+title="频域滤波"></a>频域滤波</h2>
+<p>在频域上滤波，能够多个看图片的视角，也很容易设计滤波器的形状。它的缺点是计算量较大，由于数字化，使得算法也较为复杂，比如上面的傅里叶变换，我就没完全理解。但是有一些问题，在频域下就非常直观。比如下图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f1.png" /></p>
+<p>可以看到原图的去噪（很有规律）在空间域上是几乎无法去除的，但是在频域上就可以看出，是多余的一些异常点造成了这样的噪声。频域滤波的一般过程如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f2.png" /></p>
+<p>在空间域上的卷积，对应着频域的乘积，因此频域中使用的是乘积操作。频域上一般有高通滤波，低通滤波以及带通滤波。</p>
+<p>下面是一张图片的原始图和频域图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f4.png" /></p>
+<h3 id="低通滤波"><a
+href="about:blank#%E4%BD%8E%E9%80%9A%E6%BB%A4%E6%B3%A2"
+title="低通滤波"></a>低通滤波</h3>
+<p>低通滤波可以用来平滑或者模糊图像。关于低通滤波，这里介绍三种滤波器，理想的低通滤波，巴特沃斯滤波，高斯低通滤波。它们都是各向同性的，它们之间的关系是：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f25.png" /></p>
+<p><strong>理想的低通滤波</strong>数学形式如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>D</mi><mn>0</mn></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><msub><mi>D</mi><mn>0</mn></msub></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+H(u, v)=\left\{\begin{array}{ll}{1} &amp; {\text { if } D(u, v) \leq D_ {0} } \\ {0} &amp; {\text { if } D(u, v)&gt;D_ {0} }\end{array}\right.
+</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">D(u, v )</annotation></semantics></math>代表的是到原点的欧几里得距离，低通滤波如下图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f3.png" /></p>
+<p>这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mn>0</mn></msub><annotation encoding="application/x-tex">D_0</annotation></semantics></math>是截断频率，如果确定截断频率是非常重要的一件事，它和我们想滤掉多少频分以及图像的分布有关。下面是一个低通滤波的例子：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f5.png" /></p>
+<p>低通滤波很明显可以模糊图像，但是它会带来振铃效应（ringing
+effect）:</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f26.png" /></p>
+<p><strong>高斯低通滤波（Gaussian Low-Pass
+Filter）</strong>的做法是用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mn>0</mn></msub><annotation encoding="application/x-tex">D_0</annotation></semantics></math>代替高斯滤波中的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>e</mi><mrow><mi>−</mi><mfrac><mrow><msup><mi>D</mi><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>2</mn><msubsup><mi>D</mi><mn>0</mn><mn>2</mn></msubsup></mrow></mfrac></mrow></msup></mrow><annotation encoding="application/x-tex">
+H(u, v)=e^{-\frac{D^{2}(u, v)}{2 D_ {0}^{2} } }
+</annotation></semantics></math> <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f6.png" /></p>
+<p>高斯低通滤波的好处在于它在空间域内也容易得到解析形式，而不需要傅里叶变换，而且与理想的低通滤波器相比，在空间域它没有振铃效应。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f7.png" /></p>
+<p>但是高斯低通滤波的缺点是有时候它不够sharp。因为我们知道，理想低通滤波是直接截断，而高斯滤波则是有比较缓慢的过渡过程。</p>
+<p><strong>巴特沃斯低通滤波(Butterworth Low-Pass Filter)</strong>,
+是介于低通滤波与高斯滤波中间的滤波器。它的数学形式如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><msub><mi>D</mi><mn>0</mn></msub></mfrac><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mn>2</mn><mi>n</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+H(u, v)=\frac{1}{1+\left[\frac{D(u, v)}{D_ {0} }\right]^{2 n} }
+</annotation></semantics></math> <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f8.png" /></p>
+<p>它的振铃效应和次数n有关。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f9.png" /></p>
+<p>效果图如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f10.png" /></p>
+<h3 id="高通滤波"><a
+href="about:blank#%E9%AB%98%E9%80%9A%E6%BB%A4%E6%B3%A2"
+title="高通滤波"></a>高通滤波</h3>
+<p>有时候我们需要锐化特征的滤波器，高通滤波可以做到这一点。类似于低通滤波，它也有三种类型，理想高通滤波（Ideal
+High Pass Filter），高斯高通滤波（Gaussian High Pass
+Filter）以及巴特沃斯高通滤波（Butterworth High Pass）。</p>
+<p><strong>理想高通滤波</strong>数学形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>D</mi><mn>0</mn></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if </mtext><mspace width="0.333em"></mspace></mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><msub><mi>D</mi><mn>0</mn></msub></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+H(u, v)=\left\{\begin{array}{ll}{0} &amp; {\text { if } D(u, v) \leq D_ {0} } \\ {1} &amp; {\text { if } D(u, v)&gt;D_ {0} }\end{array}\right.
+</annotation></semantics></math> <strong>高斯高通滤波</strong>数学形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mfrac><mrow><msup><mi>D</mi><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>2</mn><msubsup><mi>D</mi><mn>0</mn><mn>2</mn></msubsup></mrow></mfrac></mrow></msup></mrow><annotation encoding="application/x-tex">
+H(u, v)=1-e^{-\frac{D^{2}(u, v)}{2 D_ {0}^{2} } }
+</annotation></semantics></math>
+<strong>巴特沃斯高通滤波</strong>数学形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><msub><mi>D</mi><mn>0</mn></msub><mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mn>2</mn><mi>n</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+H(u, v)=\frac{1}{1+\left[\frac{D_ {0} }{D(u, v)}\right]^{2 n} }
+</annotation></semantics></math> 下图分别是IHPF，GHPF，BHPF的图像：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f11.png" /></p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f12.png" /></p>
+<p>滤波效果：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f13.png" /></p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f14.png" /></p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f15.png" /></p>
+<h2 id="空间域和频域"><a
+href="about:blank#%E7%A9%BA%E9%97%B4%E5%9F%9F%E5%92%8C%E9%A2%91%E5%9F%9F"
+title="空间域和频域"></a>空间域和频域</h2>
+<p>在空间域的滤波可以转换成设计在频域的滤波，比如拉普拉斯算子。在空间域中，它的推导如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi></mrow><mrow><mi>∂</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi></mrow><mrow><mi>∂</mi><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi></mrow><mrow><mi>∂</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi></mrow><mrow><mi>∂</mi><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mn>4</mn><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} \nabla^{2} f &amp;=\frac{\partial^{2} f}{\partial x^{2} }+\frac{\partial^{2} f}{\partial y^{2} } \\ \frac{\partial^{2} f}{\partial x^{2} } &amp;=f(x+1, y)+f(x-1, y)-2 f(x, y) \\ \frac{\partial^{2} f}{\partial y^{2} } &amp;=f(x, y+1)+f(x, y-1)-2 f(x, y) \\ \nabla^{2} f &amp;=[f(x+1, y)+f(x-1, y)+f(x, y+1)+f(x, y-1)]-4 f(x, y) \end{aligned}
+</annotation></semantics></math> 由此得到下面的滤波器：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_s6.png" /></p>
+<p>而在频域中，我们可以计算：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="fraktur">𝔉</mi><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><mrow><msup><mi>d</mi><mi>n</mi></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>d</mi><msup><mi>x</mi><mi>n</mi></msup></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>u</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mover><mi mathvariant="fraktur">𝔉</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>∂</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>∂</mi><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>u</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>v</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>u</mi><mn>2</mn></msup><mo>+</mo><msup><mi>v</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="fraktur">𝔉</mi><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>u</mi><mn>2</mn></msup><mo>+</mo><msup><mi>v</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} \mathfrak{F}\left[\frac{d^{n} f(x)}{d x^{n} }\right] &amp;=(j u)^{n} F(u) \\ \widetilde{\mathfrak{F} }\left[\frac{\partial^{2} f(x, y)}{\partial x^{2} }+\frac{\partial^{2} f(x, y)}{\partial y^{2} }\right] &amp;=(j u)^{2} F(u, v)+(j v)^{2} F(u, v) \\ &amp;=-\left(u^{2}+v^{2}\right) F(u, v) \\ \mathfrak{F}\left[\nabla^{2} f(x, y)\right] &amp;=-\left(u^{2}+v^{2}\right) F(u, v) \end{aligned}
+</annotation></semantics></math>
+因此在频域中，滤波器形状为：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>u</mi><mn>2</mn></msup><mo>+</mo><msup><mi>v</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H(u, v)=-\left(u^{2}+v^{2}\right)</annotation></semantics></math>.</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f16.png" /></p>
+<p>在之前，我们介绍到锐化特征时候的做法，就是先通过原图与模糊图相减得到边缘，然后再加到原始图像上。使用拉普拉斯算子也可以这样做，将使用拉普拉斯算子滤波后的图加到原始图像上，可以得到锐化的效果。数学形式如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if the center coefficient of the Laplacian mask is negative</mtext></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if the center coefficient of the Laplacian mask is positive.</mtext></mrow></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+g(x, y)=\left\{\begin{array}{ll}{f(x, y)-\nabla^{2} f(x, y)} &amp; {\text { if the center coefficient of the Laplacian mask is negative} } \\ {f(x, y)+\nabla^{2} f(x, y)} &amp; {\text { if the center coefficient of the Laplacian mask is positive.} }\end{array}\right.
+</annotation></semantics></math> 效果如图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f17.png" /></p>
+<p>在频域上我们这样做，也可以实现锐化的效果：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f18.png" /></p>
+<p>在空间域上，我们做非锐化屏蔽（unsharp masking）是这样的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>f</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f_ {\mathrm{hp} }(x, y)=f(x, y)-f_ {\mathrm{lp} }(x, y)
+</annotation></semantics></math> 在频域上，需要下面这样做：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>F</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+F_ {\mathrm{hp} }(u, v)=F(u, v)-F_ {\mathrm{lp} }(u, v)
+</annotation></semantics></math>
+因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>H</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F_ {\mathrm{lp} }(u, v)=H_ {\mathrm{lp} }(u, v) F(u, v)</annotation></semantics></math>，所以我们得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>H</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+H_ {\mathrm{hp} }(u, v)=1-H_ {\mathrm{lp} }(u, v)
+</annotation></semantics></math>
+一般来说，空间域易于计算，频域更容易理解和设计算法，但是相对复杂，计算量也较大，DFT是实现频域算法的关键步骤。</p>
+<h2 id="其他一些频域滤波"><a
+href="about:blank#%E5%85%B6%E4%BB%96%E4%B8%80%E4%BA%9B%E9%A2%91%E5%9F%9F%E6%BB%A4%E6%B3%A2"
+title="其他一些频域滤波"></a>其他一些频域滤波</h2>
+<h3 id="高通量滤波"><a
+href="about:blank#%E9%AB%98%E9%80%9A%E9%87%8F%E6%BB%A4%E6%B3%A2"
+title="高通量滤波"></a>高通量滤波</h3>
+<p>上一篇文章介绍了，在空间域中，高通量滤波（High-boosting
+filtering）的做法，首先计算非锐化屏蔽（unsharp masking）的图：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>s</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mover><mi>f</mi><mo accent="true">¯</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f_ {s}(x, y)=f(x, y)-\overline{f}(x, y)
+</annotation></semantics></math>
+然后让原图加上计算的图（这里的A可能和之前的k相关）：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>f</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">b</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>A</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mover><mi>f</mi><mo accent="true">¯</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>f</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">b</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mover><mi>f</mi><mo accent="true">¯</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>f</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">b</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>f</mi><mi>s</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} f_ {\mathrm{hb} }(x, y) &amp;=A f(x, y)-\overline{f}(x, y) \\ f_ {\mathrm{hb} }(x, y) &amp;=(A-1) f(x, y)+f(x, y)-\overline{f}(x, y) \\ f_ {\mathrm{hb} }(x, y) &amp;=(A-1) f(x, y)+f_ {s}(x, y) \end{aligned}
+</annotation></semantics></math> 而在频域上的高通量滤波如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">b</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>H</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+H_ {\mathrm{hb} }(u, v)=(A-1)+H_ {\mathrm{hp} }(u, v)
+</annotation></semantics></math> ### <a
+href="about:blank#%E9%AB%98%E9%A2%91%E5%BC%BA%E8%B0%83%E6%BB%A4%E6%B3%A2"
+title="高频强调滤波"></a>高频强调滤波</p>
+<p>除了高通量滤波，这里再介绍一个类似于高通量滤波的滤波器：高频强调滤波（High-Frequency
+Emphasis Filtering）。它可以增强高频成分。数学形式如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">e</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><msub><mi>H</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">p</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+H_ {\mathrm{hfe} }(u, v)=a+b H_ {\mathrm{hp} }(u, v)
+</annotation></semantics></math>
+可以看到的是，当上式中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>b</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = (A-1),b=1</annotation></semantics></math>时，它与高通量滤波一致。一般来说这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>会大于1，可以强调高频的成分。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f19.png" /></p>
+<h3 id="同态滤波"><a
+href="about:blank#%E5%90%8C%E6%80%81%E6%BB%A4%E6%B3%A2"
+title="同态滤波"></a>同态滤波</h3>
+<p>同态滤波（Homomorphic
+Filtering）想法来源于illumination-reflectance模型：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>i</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f(x, y)=i(x, y) r(x, y)
+</annotation></semantics></math>
+但是在频域上是很难实现的，因为空间域中的乘积意味着频域中的卷积。解决方法是，在转化到频域之前，先利用log函数，然后经过滤波之后回到空间域，再使用log的逆达到想要的效果。流程如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f20.png" /></p>
+<p>同态滤波应用在于减少光照变化并且锐化边缘，它可以减少低频增加高频。因为显示中光照变化缓慢，属于低频，而反射变化比较突然，属于高频信息。同态滤波的函数曲线应该如下图，低频的信息给较低的权重，而高频的信息给较高的权重。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f21.png" /></p>
+<p>下面是同态滤波效果图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f22.png" /></p>
+<p>实现上图的效果的滤波器数学形式如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>γ</mi><mi>H</mi></msub><mo>−</mo><msub><mi>γ</mi><mi>L</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>D</mi><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><msubsup><mi>D</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><msub><mi>γ</mi><mi>L</mi></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> where </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>γ</mi><mi>L</mi></msub><mo>=</mo><mn>0.5</mn><mo>,</mo><msub><mi>γ</mi><mi>H</mi></msub><mo>=</mo><mn>2.0</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{array}{l}{H(u, v)=\left(\gamma_ {H}-\gamma_ {L}\right)\left[1-e^{-c\left(\frac{D^{2}(u, y)}{D_ {0}^{2} }\right)}\right]+\gamma_ {L} } \\ {\text { where } \gamma_ {L}=0.5, \gamma_ {H}=2.0}\end{array}
+</annotation></semantics></math> <a
+href="about:blank#%E5%AE%9E%E7%8E%B0%E4%B8%AD%E4%B8%80%E4%BA%9B%E5%80%BC%E5%BE%97%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98"
+title="实现中一些值得注意的问题"></a>实现中一些值得注意的问题
+——————————————————————————————————————————————————-</p>
+<h3 id="fsftdft"><a href="about:blank#FS%EF%BC%8CFT%EF%BC%8CDFT"
+title="FS，FT，DFT"></a>FS，FT，DFT</h3>
+<p>对于不同的信号，空间域中，非周期的连续信号，使用FT，周期连续信号，使用FT，FS（傅里叶级数），周期离散信号，使用DFT。而使用DFT时，我们暗示假设了周期性，因此总是会使用循环卷积。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f23.png" /></p>
+<h3 id="zero-padding"><a href="about:blank#Zero-padding"
+title="Zero padding"></a>Zero padding</h3>
+<p>补零操作细节如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>e</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left"><mn>0</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mi>A</mi><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>A</mi><mo>≤</mo><mi>x</mi><mo>≤</mo><mi>P</mi></mtd></mtr></mtable></mrow><msub><mi>g</mi><mi>e</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left"><mn>0</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mi>B</mi><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>B</mi><mo>≤</mo><mi>x</mi><mo>≤</mo><mi>P</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+f_ {e}(x)=\left\{\begin{array}{ll}{f(x)} &amp; {0 \leq x \leq A-1} \\ {0} &amp; {A \leq x \leq P}\end{array}\right. g_ {e}(x)=\left\{\begin{array}{ll}{g(x)} &amp; {0 \leq x \leq B-1} \\ {0} &amp; {B \leq x \leq P}\end{array}\right.
+</annotation></semantics></math>
+上式中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>≥</mo><mi>A</mi><mo>+</mo><mi>B</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">P\ge A +B - 1</annotation></semantics></math>。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/filter_f24.png" /></p>
+<h3 id="dc-component"><a href="about:blank#DC-component"
+title="DC component"></a>DC component</h3>
+<p>DFT中直流分量占据了大量的位置，一般来说，我们会把直流分量放在图的中间。如果实现这个？在matlab中使用fftshift，它利用了DFT的性质：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>−</mo><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>↔</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>j</mi><mn>2</mn><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mfrac><msub><mi>x</mi><mn>0</mn></msub><mi>M</mi></mfrac><mo>+</mo><mi>v</mi><mfrac><msub><mi>y</mi><mn>0</mn></msub><mi>N</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mrow><annotation encoding="application/x-tex">
+f\left(x-x_ {0}, y-y_ {0}\right) \longleftrightarrow F(u, v) e^{-j 2 \pi\left(u \frac{x_ {0} }{M}+v \frac{y_ {0} }{N}\right)}
+</annotation></semantics></math>
+当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>0</mn></msub><mo>=</mo><mfrac><mi>M</mi><mn>2</mn></mfrac><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo>=</mo><mfrac><mi>N</mi><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">x_0=\frac{M}{2},y_0=\frac{N}{2}</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>−</mo><mfrac><mi>M</mi><mn>2</mn></mfrac><mo>,</mo><mi>y</mi><mo>−</mo><mfrac><mi>N</mi><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>↔</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>+</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+f\left(x-\frac{M}{2}, y-\frac{N}{2}\right) \longleftrightarrow F(u, v)(-1)^{(u+v)}
+</annotation></semantics></math> 类似的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mi>j</mi><mn>2</mn><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mfrac><msub><mi>x</mi><mn>0</mn></msub><mi>M</mi></mfrac><mo>+</mo><mi>v</mi><mfrac><msub><mi>y</mi><mn>0</mn></msub><mi>N</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><mo>↔</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>−</mo><msub><mi>u</mi><mn>0</mn></msub><mo>,</mo><mi>v</mi><mo>−</mo><msub><mi>v</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+f(x, y) e^{j 2 \pi\left(u \frac{x_ {0} }{M}+v \frac{y_ {0} }{N}\right)} \longleftrightarrow F\left(u-u_ {0}, v-v_ {0}\right)
+</annotation></semantics></math>
+当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mn>0</mn></msub><mo>=</mo><mfrac><mi>M</mi><mn>2</mn></mfrac><mo>,</mo><msub><mi>v</mi><mn>0</mn></msub><mo>=</mo><mfrac><mi>N</mi><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">u_0=\frac{M}{2},v_0 = \frac{N}{2}</annotation></semantics></math>，
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>↔</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>−</mo><mfrac><mi>M</mi><mn>2</mn></mfrac><mo>,</mo><mi>v</mi><mo>−</mo><mfrac><mi>N</mi><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+f(x, y)(-1)^{(x+y)} \longleftrightarrow F\left(u-\frac{M}{2}, v-\frac{N}{2}\right)
+</annotation></semantics></math></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/digital-image-processing/" rel="tag"># digital image processing</a>
+              <a href="/tags/filtering/" rel="tag"># filtering</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/04/22/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/" rel="prev" title="数字图像处理——图像增强">
+                  <i class="fa fa-angle-left"></i> 数字图像处理——图像增强
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/04/29/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E2%80%94%E2%80%94%E7%A9%BA%E9%97%B4%E5%9F%9F%E6%BB%A4%E6%B3%A2/" rel="next" title="数字图像处理——空间域滤波">
+                  数字图像处理——空间域滤波 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

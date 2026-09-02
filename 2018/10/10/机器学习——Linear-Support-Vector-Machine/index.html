@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Linear Support Vector Machine">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-10T14:39:25.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.682Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/","path":"2018/10/10/机器学习——Linear-Support-Vector-Machine/","title":"机器学习——Linear Support Vector Machine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Linear Support Vector Machine | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/10/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Linear-Support-Vector-Machine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Linear Support Vector Machine | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Linear Support Vector Machine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-10 22:39:25" itemprop="dateCreated datePublished" datetime="2018-10-10T22:39:25+08:00">2018-10-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这个名字真是很奇怪。想要了解为何叫这么奇怪的名字，就要深入了解这个东西。
+<span id="more"></span> 首先需要回顾的是之前的Perceptron Learning
+Algorithm。如果这个资料线性可分，使用PLA算法，一定可以找到一个很好的线或者超平面（hyperplane）来将这个资料分开，但是这个线或者是超平面的个数可能是无数个，它们是否是一样好的？如下图：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/JRN%5BZGK%29K_J5YLHU4I3EBGF.png" /></p>
+<p>上面3条线，对于PLA算法来说是一样好的，因此运行到哪一条，都是无法预测的。但是从我们的角度来看，我们会选择第三条，因为这条线更robust，可以容忍更多测量误差，如第一条，有一个离红色点很近的样本的话，它更大概率是negative的，但是第一条就会将它归类到positive。因此，选择第三条线，可以更好地避免overfitting。</p>
+<p>为了想解决这个问题，我们需要将问题提炼成数学语言。首先我们想要求的是灰色区域最大的：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9Y%60%60IZO%7BW%285P%28RI%24KPP14LP.png" /></p>
+<p>我们称灰色区域为margin。而这个margin，实际上是最近的两个点到中间这条线的距离。</p>
+<p>那么我们就要先想象，点到平面（或者超平面）的距离如何计算？</p>
+<p>如果一个超平面的方程为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>+</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">W^TX + b = 0</annotation></semantics></math>,则任意两个在该平面的点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mo>′</mo></msup><annotation encoding="application/x-tex">x&#39;</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mo>″</mo></msup><annotation encoding="application/x-tex">x&#39;&#39;</annotation></semantics></math>都应该满足上式，也就是
+<span class="math display">$$
+\left\{
+\begin{array}
+W^TX'+b = 0\\
+W^TX''+b = 0
+\end{array}
+\right
+$$</span>
+因此可以得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mo>′</mo></msup><mo>−</mo><msup><mi>X</mi><mo>″</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">W^T(X&#39;-X&#39;&#39;) = 0</annotation></semantics></math>.
+而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mo>′</mo></msup><mo>−</mo><msup><mi>X</mi><mo>″</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X&#39;-X&#39;&#39;)</annotation></semantics></math>可以表示平面上的任何一个向量，这说明了，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>是该平面的法向量。</p>
+<p>而一个点到平面的距离，实际上就是该点到任何平面上一点连接得到的向量对该平面法向量的一个投影。计算投影长度的办法其实很简单,首先我们有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mi>a</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>b</mi><mo stretchy="false" form="prefix">|</mo><mi>c</mi><mi>o</mi><mi>s</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">ab = |a||b|cos\theta</annotation></semantics></math>,因此只要规定a的长度为1，那么这两个向量的数量积的绝对值就是向量的长度。因此我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mfrac><msup><mi>W</mi><mi>T</mi></msup><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>−</mo><msup><mi>X</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+d = |\frac {W^T }{||W||}(X - X&#39;)| = |\frac 1 {||W||}(W^TX + b)|.
+</annotation></semantics></math></p>
+<p>这样，我们就得到了一个点到一个超平面的距离。</p>
+<p>实际上一个超平面的表示方法是无穷的，比如<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>T</mi><mi>X</mi><mo>+</mo><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">WTX+b = 0</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>+</mo><mn>2</mn><mi>b</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">2W^TX+2b= 0</annotation></semantics></math>是一个平面，如果我们将经过距离超平面最近的点的与超平面平行的平面表示为:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>X</mi></msup><mo>+</mo><mi>b</mi><mo>=</mo><mi>±</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">W^X+b = ±1</annotation></semantics></math>，那么d的形式就更简单了：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">d = \frac 1 {||W||}</annotation></semantics></math>.</p>
+<p>上面的距离中还是加了绝对值，但是因为这个问题的前提是将所有的点都分类正确，因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>W</mi><msub><mi>X</mi><mi>i</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y_i(WX_i+b)\ge 0</annotation></semantics></math>.</p>
+<p>所以用数学语言描述我们的问题如下：</p>
+<p>max
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><annotation encoding="application/x-tex">\frac 1 {||W||}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>.</mi><mi>t</mi><mi>.</mi><mi>m</mi><mi>i</mi><msub><mi>n</mi><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>N</mi></mrow></msub><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">s.t. min_ {n = 1,...,N} y_n(W^TX_n+b) = 1</annotation></semantics></math>.</p>
+<p>注意的是为什么最小的点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b) = 1</annotation></semantics></math>,因为距离较远的话，根据距离公式<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(W^TX+b)</annotation></semantics></math>会更大。</p>
+<p>上面的问题依然是很难解决的，我们希望可以继续放松这个约束。如果是所有点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b) \ge 1</annotation></semantics></math>如何呢？</p>
+<p>这里利用反证法证明，放宽到上面的约束依然没有问题，距离直线最近的点依然是满足<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b) = 1</annotation></semantics></math>：</p>
+<p>如果我们找到最近的点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>n</mi></msub><annotation encoding="application/x-tex">X_n</annotation></semantics></math>，它满足的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>&gt;</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b) =a (a&gt;1)</annotation></semantics></math>，而且得到了最大的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><annotation encoding="application/x-tex">\frac 1 {||W||}</annotation></semantics></math>，那么对上式左右同时除以a,而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mi>W</mi><mi>a</mi></mfrac><annotation encoding="application/x-tex">\frac W a</annotation></semantics></math>比<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>更小，也就是这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><annotation encoding="application/x-tex">\frac 1 {||W||}</annotation></semantics></math>并不是最大的。这就矛盾了。因此依然只有在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b) =1</annotation></semantics></math>的时候才能取得最大值。所以放大这个约束，我们依然可以得到一样的最终结果。</p>
+<p>之前我们一直在求得是最小值，我们希望在这里也可以转换成为求最小值，同时范数是需要根号的，而因为范数和范数的平方是单调递增的，因此转化为范数的平方不会影响结果，同时再添上一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mn>2</mn></mfrac><annotation encoding="application/x-tex">\frac 1 2</annotation></semantics></math>，为了以后计算的方便。</p>
+<p>因此，最终的用数学语言描述我们的问题的版本如下：</p>
+<p>min
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi></mrow><annotation encoding="application/x-tex">\frac 1 2W^TW</annotation></semantics></math></p>
+<p>$s.t. y_n(W^TX_n+b) ,n =1,2,…,N $.</p>
+<p>这个问题实际上是一个QP（二次规划）问题。而二次规划问题，我们可以借助很多工具，提供必要的参数，求得最佳解。</p>
+<p>上术问题就是svm问题。为什么叫support vector
+machine？我们需要注意的是，实际上决定最终线的，只有可能是最边上的点，而决定最终结果的点，就叫做支持向量。</p>
+<p>当我们面对线性无法可分的情况，就需要使用之前介绍的特征转换（nonlinear
+transform），将当前的点转换到更高维度的空间中去，使其成为线性可分。</p>
+<p>最后，我们在这里想要简单说明一下这背后的理论基础，为什么寻找最粗的那条线，可以获得更好的robustness？</p>
+<p>这就又回到了vc
+dimension.假设我们找到的比较粗的线（margin较大），是我们要的标准。那么具有这么大margin的线，能将空间中的N个样本分成的dichotomy的个数就会少很多，也就是有效vc
+dimension会变低。当然，这个问题无法像PLA时候那样分析，因为具体能分多少，与样本之间的距离也很重要，具体样本得到的结果也不同，但是可以证明的是,如果这些样本在一个半径为R的圆内，margin长度为ρ：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mrow><mi>v</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="script">𝒜</mi><mi>ρ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>m</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mfrac><msup><mi>R</mi><mn>2</mn></msup><msup><mi>ρ</mi><mn>2</mn></msup></mfrac><mo>,</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn><mo>≤</mo><mi>d</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+d_ {vc}(\mathcal{A}_ {\rho}) \leq min(\frac {R^2}{ρ^2} ,d)+1 \leq d+1
+</annotation></semantics></math></p>
+<p>之前介绍的feature transform有个问题是太过于复杂导致vc
+dimension会变得很大，而我们可以看出来通过SVM我们某种程度上可以处理好这种情况。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/" rel="prev" title="数学——Lagrange Multiplier">
+                  <i class="fa fa-angle-left"></i> 数学——Lagrange Multiplier
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Dual-Support-Vector-Machine/" rel="next" title="机器学习——Dual Support Vector Machine">
+                  机器学习——Dual Support Vector Machine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

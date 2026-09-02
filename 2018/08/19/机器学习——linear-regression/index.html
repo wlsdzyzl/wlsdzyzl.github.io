@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——linear regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear regression）。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-19T15:25:05.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.683Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="regression">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/","path":"2018/08/19/机器学习——linear-regression/","title":"机器学习——linear regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——linear regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——linear regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——linear regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-08-19 23:25:05" itemprop="dateCreated datePublished" datetime="2018-08-19T23:25:05+08:00">2018-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>终于完成了机器学习基石相对理论的部分，可以开始一些具体的算法的学习了。首先学习的第一个算法就是线性回归（linear
+regression）。 <span id="more"></span>
+线性回归想做到的事情是，给出一堆点，使用一条直线（平面或者其他）来拟合这个dataset。而在之前的noise
+and
+error中提到了，它用来衡量错误的办法是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><msup><mi>y</mi><mo>′</mo></msup><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">(y - y&#39;)^2</annotation></semantics></math>。</p>
+<p>和之前的机器学习算法也一致，因为VC
+bound在线性回归的例子中也一样适用，所以我们想做的是保证<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>越小越好。</p>
+<p>对于线性回归的H集合是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mo>′</mo></msup><mo>=</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">y&#39; = W^TX</annotation></semantics></math>，当然<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>都是列向量，向量的维度是d+1（d为特征量的个数）.为了minimize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>，首先我们应该写出来<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的表达式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow></munder><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>y</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow></munder><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>−</mo><msub><mi>y</mi><mi>n</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+E_ {in} = \frac 1 n \sum _ {i =
+ 1} (h(X_n) - y)^2 =  \frac 1 n \sum _ {i = 1} (W^TX_n - y_n)^2
+</annotation></semantics></math></p>
+<p>这个表达式看着还比较复杂，有个求和符号在里面。首先，这后面有N个平方和，我们可以很轻松的想到向量的范数求法。因此，我们可以将原式写成对向量求范数的形式：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mi>W</mi><mo>−</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+E_ {in} = \frac 1 n || XW - Y||^2 
+</annotation></semantics></math> 上式中
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><msubsup><mi>X</mi><mn>1</mn><mi>T</mi></msubsup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><msubsup><mi>X</mi><mn>2</mn><mi>T</mi></msubsup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><msubsup><mi>X</mi><mi>n</mi><mi>T</mi></msubsup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+X = \begin{bmatrix}
+...X_1^T... \\
+...X_2^T... \\
+..........\\
+...X_n ^T ...
+\end{bmatrix}
+</annotation></semantics></math>
+X是一个n*（d+1）的矩阵，n是样本个数，d是特征量个数。</p>
+<p>因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>可以说是一个关于W的函数，而且可以证明的是，这个函数是连续的（continuous），可导的（differentiable）,并且是凸函数（convex）。因此我们一定可以求得最低点，也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的最小值。与实数的函数一样（实际上求的是W的各个方向的偏导数），在取最小值的那个点的时候，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>关于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的导数是0，表明取得是极值，也就是梯度是0。</p>
+<p>将上式展开可以得到：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><mi>W</mi><mo>−</mo><mn>2</mn><msup><mi>Y</mi><mi>T</mi></msup><mi>X</mi><mi>W</mi><mo>+</mo><msup><mi>Y</mi><mi>T</mi></msup><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mi>，</mi></mrow><annotation encoding="application/x-tex">
+E_ {in} = \frac 1 n (W^TX^TXW -2Y^TXW +Y^TY)，
+</annotation></semantics></math>
+将除了W之外的矩阵或者数字看成常量，则可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><mi>A</mi><mi>W</mi><mo>−</mo><mn>2</mn><mi>B</mi><mi>W</mi><mo>+</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+E_ {in} =  \frac 1 n (W^TAW-2BW+c)
+</annotation></semantics></math>
+为了求关于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的导数，我们首先想象一下如果是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>一维的话的样子。
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mi>a</mi><msup><mi>W</mi><mn>2</mn></msup><mo>−</mo><mn>2</mn><mi>b</mi><mi>W</mi><mo>+</mo><mi>c</mi><mo>;</mo><mfrac><mrow><mi>d</mi><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><mrow><mi>d</mi><mi>W</mi></mrow></mfrac><mo>=</mo><mn>2</mn><mi>a</mi><mi>W</mi><mo>−</mo><mn>2</mn><mi>b</mi></mrow><annotation encoding="application/x-tex">
+E_ {in} = aW^2-2bW+c ; \frac {dE_ {in} } {dW} = 2aW-2b
+</annotation></semantics></math></p>
+<p>对应到矩阵上来说:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><mrow><mi>d</mi><mi>W</mi></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mn>2</mn><mi>A</mi><mi>W</mi><mo>−</mo><mn>2</mn><mi>B</mi></mrow><annotation encoding="application/x-tex">
+\frac {dE_ {in} } {dW} = \frac 1 n 2AW-2B
+</annotation></semantics></math></p>
+<p>可以看到的是梯度是一个向量。</p>
+<p>为了使得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>取得最小值，那么<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><mi>W</mi><mo>=</mo><msup><mi>X</mi><mi>T</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">X^TXW = X^TY</annotation></semantics></math>,如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X^TX)</annotation></semantics></math>的反矩阵存在，那么很简单:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>X</mi><mi>T</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">
+W = (X^TX)^{-1}X^TY
+</annotation></semantics></math></p>
+<p>我们称<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>X</mi><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">(X^TX)^{-1}X^T</annotation></semantics></math>为pseudo-inverse
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mo>+</mo></msup><annotation encoding="application/x-tex">X^{+}</annotation></semantics></math>。而且大多数时候我们遇到的都是可逆的，因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mo>&gt;</mo><mi>d</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n&gt;&gt;d+1</annotation></semantics></math>，这意味着首先对于X矩阵来说，它的秩很可能就是等于d+1的.这样它们相乘的秩很大可能也是d+1，也就是可逆。</p>
+<p>但是如果遇到另外的情况，如不可逆，我们可以使用其他的方式来定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mo>+</mo></msup><annotation encoding="application/x-tex">X^{+}</annotation></semantics></math>，具体的数学原理需要更详细的线性代数知识，但是我们知道很多程序包里都实现了这些东西，用它一样可以得到比较好的结果。</p>
+<p>综上，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><msup><mi>X</mi><mo>+</mo></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">W = X^{+}Y</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mo>′</mo></msup><mo>=</mo><mi>X</mi><mi>W</mi><mo>=</mo><mi>X</mi><msup><mi>X</mi><mo>+</mo></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">Y&#39; = XW = XX^{+}Y</annotation></semantics></math>.</p>
+<p>最后，这个算法之所以可以学习，我们可以使用VC
+bound来证明。但是还有另一种方法，也可以证明它泛化能力不错，可以取得良好的学习效果，当然，与VC
+bound一样，严格的证明需要更严密的数学推导，下面只是简要介绍。</p>
+<p>首先，我们推导<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">¯</mo></mover><annotation encoding="application/x-tex">\overline {E_ {in} }</annotation></semantics></math>是很接近噪声的（噪声意味着我们无法通过学习进行改善的部分），而同样的步骤可以用在对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo accent="true">¯</mo></mover><annotation encoding="application/x-tex">\overline {E_ {out} }</annotation></semantics></math>的分析上，这样就说明了，平均来说我们的算法是可以取得很好的学习效果的。</p>
+<p>首先，我们应该定义一下<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">¯</mo></mover><annotation encoding="application/x-tex">\overline {E_ {in} }</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">¯</mo></mover><mo>=</mo><msub><mi>ϵ</mi><mrow><mi>D</mi><mspace width="0.222em"></mspace><msup><mi>P</mi><mi>N</mi></msup></mrow></msub><mrow><mo stretchy="true" form="prefix">{</mo><mspace width="0.222em"></mspace><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>L</mi><mi>I</mi><mi>N</mi></mrow></msub><mi>w</mi><mi>.</mi><mi>r</mi><mi>.</mi><mi>t</mi><mi>.</mi><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow><mo>=</mo><mi>n</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>e</mi><mi>l</mi><mi>e</mi><mi>v</mi><mi>e</mi><mi>l</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi>d</mi><mo>+</mo><mn>1</mn></mrow><mi>N</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\overline {E_ {in} } = \epsilon _ {D~P^N}\left\{\ E_ {in}(W_ {LIN} w.r.t. D)  \right\} = noise  level \cdot (1-\frac {d+1}{N})
+</annotation></semantics></math></p>
+<p>具体的含义就是多个样本的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>平均值，大概看起来会接近noise
+level，而当样本量越大，与noise level越接近。</p>
+<p>首先，我们应该将线性回归得到的结果带入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的表达式中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>Y</mi><mo>−</mo><mover><mi>Y</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>Y</mi><mo>−</mo><mi>X</mi><msup><mi>X</mi><mo>+</mo></msup><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mi>X</mi><msup><mi>X</mi><mo>+</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+E_ {in} = \frac 1 N ||Y - \hat Y||^2 = \frac 1 N ||Y - XX^{+}Y ||^2 = \frac 1 N ||(I - X X^{+})Y||^2
+</annotation></semantics></math></p>
+<p>我们称<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><msup><mi>X</mi><mo>+</mo></msup></mrow><annotation encoding="application/x-tex">XX^{+}</annotation></semantics></math>为hat
+matrix。</p>
+<p>这里我们思考<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>Y</mi><mo accent="true">̂</mo></mover><mo>=</mo><mi>X</mi><mi>W</mi></mrow><annotation encoding="application/x-tex">\hat Y = XW</annotation></semantics></math>在做什么。Y是一个N维向量，而X可以看做是m个N维向量构成的矩阵，而实际上W的作用，是给每个矩阵中的N维向量分配一个参数，让他们做线性组合，最终得到一个新的N维向量。为了使得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>Y</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat Y</annotation></semantics></math>尽量接近于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>，从另一个方面来说，就是让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>−</mo><mover><mi>Y</mi><mo accent="true">̂</mo></mover><mi>⊥</mi><msup><mi>X</mi><mo>′</mo></msup><mi>s</mi><mi>s</mi><mi>p</mi><mi>a</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">Y - \hat Y \bot X&#39;s span</annotation></semantics></math>，也就是让他们的差尽量垂直于X所展开的空间，当垂直时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>Y</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat Y</annotation></semantics></math>等于Y在X上的投影，这时候二者相差是最小的.</p>
+<p>实际上，Y一般不可能被X完美表示，因为一般来讲<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&gt;</mo><mo>&gt;</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">N&gt;&gt;d</annotation></semantics></math>.所以我们能做的就是上面说的。</p>
+<p>所以，Hat的作用就是将Y投影到X上。而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mi>H</mi><mi>a</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(I-Hat)</annotation></semantics></math>就是将Y转换为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>−</mo><mover><mi>Y</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(Y-\hat Y)</annotation></semantics></math>的矩阵。
+而且我们可以计算出来<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mi>H</mi><mi>a</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">trace (I - Hat) = n - (d+1)</annotation></semantics></math>，意味着<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mi>H</mi><mi>a</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(I- Hat)</annotation></semantics></math>有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mi>d</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N - d- 1</annotation></semantics></math>个自由度。</p>
+<p>如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>来自与一些理想的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(X)</annotation></semantics></math>与噪声的组合，那么如果只是理想的函数，则上述得到的差距实际上是由噪声造成的，因此：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>Y</mi><mo>−</mo><mover><mi>Y</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mi>H</mi><mi>a</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mi>n</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>e</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>−</mo><mi>d</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>n</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>e</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+E_ {in} = \frac 1 N ||Y - \hat Y||^2  = \frac 1 N ||(I - Hat)noise||^2 = \frac 1 N (N - d - 1)||noise||^2
+</annotation></semantics></math>
+而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">¯</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi>d</mi><mo>+</mo><mn>1</mn></mrow><mi>N</mi></mfrac><mo stretchy="false" form="postfix">)</mo><mi>n</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>e</mi><mi>l</mi><mi>e</mi><mi>v</mi><mi>e</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">\overline {E_ {in} } = ( 1 - \frac{d+1}{N})noise level</annotation></semantics></math>
+利用类似的办法，可以推断出来，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo accent="true">¯</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>d</mi><mo>+</mo><mn>1</mn></mrow><mi>N</mi></mfrac><mo stretchy="false" form="postfix">)</mo><mi>n</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>e</mi><mi>l</mi><mi>e</mi><mi>v</mi><mi>e</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">\overline {E_ {out} } = ( 1 + \frac{d+1}{N})noise level</annotation></semantics></math>.</p>
+<p>也就是平均来说，我们通过拟合样本，可以得到更小的错误率，但是泛化之后的错误率往往更大一点。</p>
+<p>因此平均来说，我们可以将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>画在一张图上：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8P%292%25K%7DDKX0VSSRIW5WS%29JU.png" /></p>
+<p>如果对应到实际的机器学习，对于一些很少的样本量的机器学习过程，很容易拟合成功，得到很好的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>，甚至是0，但是这时候泛化能力却很差。机器学习，不是一味地增加特征量减少<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>，而纠正过拟合的一种办法，就是增加样本量。</p>
+<p>最后，我想说的是，上面的”证明”非常不严格，甚至有些地方让人费解。对于机器学习，理论部分严格的证明更多是数学和统计的事情，而学习计算机的人更多的是掌握各种算法，学习利用它来解决问题。即使这样，尽可能多地了解理论部分，对于实际的应用有很大的帮助。这个世界很复杂，永远保持一个好奇心吧。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/08/14/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A2/" rel="prev" title="机器学习——（基石）作业二">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）作业二
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/08/27/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression%E4%B8%8Elinear-classification/" rel="next" title="机器学习——linear regression与linear classification">
+                  机器学习——linear regression与linear classification <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="位置编码在transformer中主要是给序列中的向量加上位置的信息，因为attention本身是无法感知位置信息的。两个长度为ll的序列：Q&#x3D;[𝒒0,⋯,𝒒l−1],K&#x3D;[𝒌0,⋯,𝒌l−1]Q&#x3D;[\mathbf q_0, \cdots, \mathbf q_{l-1}],~ K &#x3D; [\mathbf k_0, \cdots, \mathbf k_{l-1}]，有𝒒m,𝒌n∈ℝd\m">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RoPE位置编码">
+<meta property="og:url" content="http://wlsdzyzl.com/2026/09/02/RoPE%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="位置编码在transformer中主要是给序列中的向量加上位置的信息，因为attention本身是无法感知位置信息的。两个长度为ll的序列：Q&#x3D;[𝒒0,⋯,𝒒l−1],K&#x3D;[𝒌0,⋯,𝒌l−1]Q&#x3D;[\mathbf q_0, \cdots, \mathbf q_{l-1}],~ K &#x3D; [\mathbf k_0, \cdots, \mathbf k_{l-1}]，有𝒒m,𝒌n∈ℝd\m">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-09-01T17:18:10.000Z">
+<meta property="article:modified_time" content="2026-09-02T14:41:12.386Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="llm">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2026/09/02/RoPE%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2026/09/02/RoPE%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/","path":"2026/09/02/RoPE位置编码/","title":"RoPE位置编码"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RoPE位置编码 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E7%9F%A9%E9%98%B5%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">参数矩阵位置编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sinusoidal-position-embeddings"><span class="nav-number">2.</span> <span class="nav-text">Sinusoidal Position
+Embeddings</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rotary-position-embeddings-rope"><span class="nav-number">3.</span> <span class="nav-text">Rotary Position Embeddings
+(RoPE)</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2026/09/02/RoPE%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RoPE位置编码 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RoPE位置编码
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-09-02 01:18:10 / Modified: 22:41:12" itemprop="dateCreated datePublished" datetime="2026-09-02T01:18:10+08:00">2026-09-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/LLM/" itemprop="url" rel="index"><span itemprop="name">LLM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>位置编码在transformer中主要是给序列中的向量加上位置的信息，因为attention本身是无法感知位置信息的。两个长度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>l</mi><annotation encoding="application/x-tex">l</annotation></semantics></math>的序列：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi mathvariant="bold-italic">𝒒</mi><mn>0</mn></msub><mo>,</mo><mi>⋯</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒒</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mspace width="0.222em"></mspace><mi>K</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mn>0</mn></msub><mo>,</mo><mi>⋯</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">Q=[\mathbf q_0, \cdots, \mathbf q_{l-1}],~ K = [\mathbf k_0, \cdots, \mathbf k_{l-1}]</annotation></semantics></math>，有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf q_{m}, \mathbf k_n \in \mathbb R^{d}</annotation></semantics></math>。我们在计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf q_{m}, \mathbf k_n</annotation></semantics></math>的score时候会对它们做内积，这个内积和它们的序号是完全没关系的。</p>
+<span id="more"></span>
+<h2 id="参数矩阵位置编码">参数矩阵位置编码</h2>
+<p>最简单的做法就是建立一个与序列向量同样大小的可学习参数矩阵作为位置编码，实际上很多有名的工作中都是这么做的，是一个比较简单有效的做法。不过它的坏处在于训练时候的序列长度决定了参数矩阵的大小，实际中推理可能遇到更长的上下文，导致外推性不足（训练与推理文本长度不一致）。</p>
+<h2 id="sinusoidal-position-embeddings">Sinusoidal Position
+Embeddings</h2>
+<p>Attention的论文中利用Sinusoidal Position
+Embeddings对序列进行绝对位置的编码。这个思路其实也被广泛应用于diffusion
+model中，用于对time
+step进行编码。对于向量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><annotation encoding="application/x-tex">\mathbf q_m</annotation></semantics></math>，其对应的位置编码为：</p>
+<p><span class="math display">$$
+p_{m, 2i} = \sin\left( \frac{m}{10000^{\frac{2i}{d}}} \right),\\
+p_{m, 2i + 1} = \cos\left( \frac{m}{10000^{\frac{2i}{d}}} \right)
+$$</span></p>
+<p>其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mfrac><mi>d</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">i \in [0, \frac{d}{2})</annotation></semantics></math>有的工作中为了简化计算，将维度划分为两段，前半段为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">sin</mi><annotation encoding="application/x-tex">\sin</annotation></semantics></math>，后半段为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">cos</mi><annotation encoding="application/x-tex">\cos</annotation></semantics></math>。最后得到的位置编码也是一个向量，与原向量相加即可。在实际的实现中，由于数值稳定一般会用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mi mathvariant="normal">log</mi></mrow><annotation encoding="application/x-tex">\exp\log</annotation></semantics></math>去计算指数函数，也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>⋅</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>10000</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">m\cdot \exp(-\frac{2i}{d}\log(10000))</annotation></semantics></math>。</p>
+<p>Sinusoidal Position
+Embeddings得益于三角函数的特性有很多好处，包括数值范围，不同维度对应着不同的频率。可以看到不同序列之间的角度间隔是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><msub><mi mathvariant="normal">Δ</mi><mi>i</mi></msub></msub><mo>=</mo><msup><mn>10000</mn><mrow><mi>−</mi><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></mrow></msup></mrow><annotation encoding="application/x-tex">\theta_{\Delta_i} = 10000^{-\frac{2i}{d}}</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>只与维度有关系。</p>
+<h2 id="rotary-position-embeddings-rope">Rotary Position Embeddings
+(RoPE)</h2>
+<p>很多时候相对位置的信息也是重要的。相对位置编码要做到，在绝对位置发生变化但是相对位置不变时结果能不变。用数学语言描述一下，假如现在有一个相对位置编码是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(\mathbf q_m, m)</annotation></semantics></math>，由于attention会做内积，它应该满足：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub><mo>,</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+f( \mathbf q_m, m) \cdot f(\mathbf k_n, n)= g( \mathbf q_m, \mathbf k_n, n-m).
+</annotation></semantics></math></p>
+<p>RoPE现在是大模型最常用的一种相对位置编码策略了，它是通过绝对位置编码去实现相对位置的感知的。对于RoPE的思考过程可以参考苏神的博文<a
+target="_blank" rel="noopener" href="https://spaces.ac.cn/archives/8265">https://spaces.ac.cn/archives/8265</a>。这里我们用一个几何的角度去考虑。</p>
+<p>首先假设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf q_m, \mathbf k_n</annotation></semantics></math>都是二维向量，二维向量的内积只和向量之间的角度与向量的长度相关，即：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒂</mi><mi mathvariant="bold-italic">𝒃</mi><mo>=</mo><mo stretchy="false" form="postfix">‖</mo><mi mathvariant="bold-italic">𝒂</mi><mo stretchy="false" form="postfix">‖</mo><mo stretchy="false" form="postfix">‖</mo><mi mathvariant="bold-italic">𝒃</mi><mo stretchy="false" form="postfix">‖</mo><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{a} \mathbf{b} =   \Vert  \mathbf a\Vert \Vert \mathbf b \Vert\cos \theta.
+</annotation></semantics></math></p>
+<p>而旋转不改变向量长度，且相对旋转一定时，两个旋转后的向量之间的角度也不会变化，因此它们的内积就不会改变。举个例子，两个向量本身的一个角度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>q</mi></msub><mo>,</mo><msub><mi>θ</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\theta_q, \theta_k</annotation></semantics></math>。我们根据其在序列中的位置对其进行旋转，角度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>m</mi></msub><mo>,</mo><msub><mi>θ</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\theta_m, \theta_n</annotation></semantics></math>，因此旋转后的向量角度就变成了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>q</mi></msub><mo>+</mo><msub><mi>θ</mi><mi>m</mi></msub><mo>,</mo><msub><mi>θ</mi><mi>k</mi></msub><mo>+</mo><msub><mi>θ</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\theta_q + \theta_m, \theta_k + \theta_n</annotation></semantics></math>。而它们之间的角度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>q</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>m</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\theta_q  - \theta_k)+(\theta_m -  \theta_n)</annotation></semantics></math>。这其中前半段由向量本身决定，而后半段即相对旋转角度。因此只要保证<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>m</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msub><mi>θ</mi><mi mathvariant="normal">Δ</mi></msub></mrow><annotation encoding="application/x-tex">(\theta_m -  \theta_n) = (m-n) \cdot \theta_\Delta</annotation></semantics></math>就可以进行相对位置编码，非常直接的设计就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>m</mi></msub><mo>=</mo><mi>m</mi><msub><mi>θ</mi><mi mathvariant="normal">Δ</mi></msub></mrow><annotation encoding="application/x-tex">\theta_m = m \theta_\Delta</annotation></semantics></math>。</p>
+<p>已知旋转矩阵定义为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>θ</mi></msub><mi mathvariant="bold-italic">𝒒</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mn>0</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mn>1</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mn>0</mn></msub><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi><mo>−</mo><msub><mi>q</mi><mn>1</mn></msub><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mn>0</mn></msub><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mi>θ</mi><mo>+</mo><msub><mi>q</mi><mn>1</mn></msub><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+R_\theta \mathbf q = \begin{bmatrix}
+\cos \theta &amp; -\sin\theta\\
+\sin\theta &amp; \cos\theta
+\end{bmatrix}  \begin{bmatrix}
+q_0 \\
+q_1
+\end{bmatrix}= \begin{bmatrix}
+ q_0 \cos \theta - q_1\sin\theta\\
+q_0\sin\theta + q_1 \cos\theta
+\end{bmatrix}.
+</annotation></semantics></math></p>
+<p>则上述过程写成旋转矩阵就是：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>m</mi></msub><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mi>⊤</mi></msup><msub><mi>R</mi><mi>n</mi></msub><msub><mi mathvariant="bold-italic">𝒒</mi><mi>n</mi></msub><mo>=</mo><msubsup><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi><mi>⊤</mi></msubsup><msubsup><mi>R</mi><mi>m</mi><mi>⊤</mi></msubsup><msub><mi>R</mi><mi>n</mi></msub><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub><mo>=</mo><msubsup><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi><mi>⊤</mi></msubsup><msub><mi>R</mi><mrow><mi>n</mi><mo>−</mo><mi>m</mi></mrow></msub><msub><mi mathvariant="bold-italic">𝒌</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">
+(R_m \mathbf q_m)^\top R_n \mathbf q_n = \mathbf q_m^\top R_m^\top R_n \mathbf k_n = \mathbf q_m^\top R_{n - m} \mathbf k_n
+</annotation></semantics></math></p>
+<p>于是相对编码可以设计为对序列中每一个向量都进行等间隔的旋转，而且间隔角度可以直接从Sin编码中拿过来用，所以说RoPE和Sin编码有着千丝万缕的关系。对于向量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒒</mi><mi>m</mi></msub><annotation encoding="application/x-tex">\mathbf q_m</annotation></semantics></math>，我们对它进行编码的方式就是对每一个二维子向量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒒</mi><mrow><mi>m</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{q}_{m, i}</annotation></semantics></math>进行旋转，旋转角度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>⋅</mo><msub><mi>θ</mi><msub><mi mathvariant="normal">Δ</mi><mi>i</mi></msub></msub><mo>=</mo><mfrac><mi>m</mi><msup><mn>10000</mn><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></msup></mfrac></mrow><annotation encoding="application/x-tex">m \cdot \theta_{\Delta_i} = \frac{m}{10000^{\frac{2i}{d}}}</annotation></semantics></math>。因此RoPE编码实际上是：</p>
+$$ R_{m, i} =
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>m</mi><msup><mn>10000</mn><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>m</mi><msup><mn>10000</mn><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>m</mi><msup><mn>10000</mn><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>m</mi><msup><mn>10000</mn><mfrac><mrow><mn>2</mn><mi>i</mi></mrow><mi>d</mi></mfrac></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix}
+ \cos\left( \frac{m}{10000^{\frac{2i}{d}}} \right) &amp; -\sin\left( \frac{m}{10000^{\frac{2i}{d}}}\right)\\
+\sin\left( \frac{m}{10000^{\frac{2i}{d}}}\right) &amp;  \cos\left( \frac{m}{10000^{\frac{2i}{d}}} \right)
+
+\end{bmatrix}</annotation></semantics></math>
+<p>. $$</p>
+<p>由于旋转矩阵是做乘法，所以RoPE也是乘性位置编码。为什么Sin编码无法包含相对信息，因为向量相加改变了向量的长度和角度。</p>
+<p>对于整个向量来说，这个矩阵是非常稀疏的，做矩阵运算是比较浪费的，可以通过转成向量的点乘去加速计算。而且RoPE位置编码一般放在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>,</mo><mi>Q</mi></mrow><annotation encoding="application/x-tex">K, Q</annotation></semantics></math>的linear
+layer之后，因为这样它们的旋转信息才不会被破坏。而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>是被查询的内容，对其进行编码一般来说是无意义的。</p>
+<figure>
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/blog/2026/09/02/1788360060980-e80f58bb975c.png"
+alt="image" />
+<figcaption aria-hidden="true">image</figcaption>
+</figure>
+<p>最后思考另外一个小问题。如果将向量看成3维子向量呢？三维向量旋转的自由度为3，进行相同次数的等间隔旋转无法保证相对旋转一定。如果限制在一个平面旋转，又会退化为二维的情况了，也就有点多此一举。不过似乎确实有一些三维RoPE的工作，可以有机会再研究。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/llm/" rel="tag"># llm</a>
+              <a href="/tags/AI/" rel="tag"># AI</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/28/%E5%88%A9%E7%94%A8vibecoding%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%A1%8C%E9%9D%A2hexo%E7%BC%96%E8%BE%91%E5%99%A8/" rel="prev" title="利用vibe coding搭建一个简单的桌面hexo系统">
+                  <i class="fa fa-angle-left"></i> 利用vibe coding搭建一个简单的桌面hexo系统
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

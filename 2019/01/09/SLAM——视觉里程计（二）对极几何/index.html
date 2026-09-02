@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="上次介绍了特征，现在我们已经得到了特征匹配后的点对，现在我们需要用这些东西来估计相机运动。由于相机原理不同，估计的方法也不同。现在我们考虑的是单目相机，使用的方法为对极几何。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——视觉里程计（二）对极几何">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次介绍了特征，现在我们已经得到了特征匹配后的点对，现在我们需要用这些东西来估计相机运动。由于相机原理不同，估计的方法也不同。现在我们考虑的是单目相机，使用的方法为对极几何。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.678Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="computer vision">
+<meta property="article:tag" content="geometry">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/","path":"2019/01/09/SLAM——视觉里程计（二）对极几何/","title":"SLAM——视觉里程计（二）对极几何"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——视觉里程计（二）对极几何 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E6%9E%81%E7%BA%A6%E6%9D%9F"><span class="nav-number">1.</span> <span class="nav-text">对极约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E8%B4%A8%E7%9F%A9%E9%98%B5e"><span class="nav-number">2.</span> <span class="nav-text">本质矩阵E</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%82%B9%E7%AE%97%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">8点算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5homography-matrix"><span class="nav-number">3.</span> <span class="nav-text">单应矩阵（Homography
+Matrix）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E8%A7%92%E6%B5%8B%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">三角测量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#note"><span class="nav-number">5.</span> <span class="nav-text">Note</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/09/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%BA%8C%EF%BC%89%E5%AF%B9%E6%9E%81%E5%87%A0%E4%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——视觉里程计（二）对极几何 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——视觉里程计（二）对极几何
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-09 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-09T00:00:00+08:00">2019-01-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次介绍了特征，现在我们已经得到了特征匹配后的点对，现在我们需要用这些东西来估计相机运动。由于相机原理不同，估计的方法也不同。现在我们考虑的是单目相机，使用的方法为对极几何。</p>
+<span id="more"></span>
+<h3 id="对极约束"><a
+href="about:blank#%E5%AF%B9%E6%9E%81%E7%BA%A6%E6%9D%9F"
+title="对极约束"></a>对极约束</h3>
+<p>如下图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/djjh1.png" /></p>
+<p>我们希望求得是两帧图像<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mn>1</mn></msub><mo>,</mo><msub><mi>I</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">I_1,I_2</annotation></semantics></math>之间的运动，设第一帧到第二帧的旋转为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>，平移为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>向量，两个相机的位置分别为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>1</mn></msub><mo>,</mo><msub><mi>O</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">O_1,O_2</annotation></semantics></math>。假如<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">p_1,p_2</annotation></semantics></math>为一对匹配正确的特征点，那么他们是同一个空间点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>在两个平面上的投影。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>1</mn></msub><msub><mi>p</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">O_1p_1</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>2</mn></msub><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">O_2p_2</annotation></semantics></math>会相交于点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>。这时候点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Q</mi><mn>2</mn></msub><mo>,</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">Q_1,Q_2,P</annotation></semantics></math>三个点可以确定一个平面，称为极平面（epipolar
+plane）。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>1</mn></msub><msub><mi>O</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">O_1O_2</annotation></semantics></math>连线与像平面<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mn>1</mn></msub><mo>,</mo><msub><mi>I</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">I_1,I_2</annotation></semantics></math>的交点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mn>1</mn></msub><mo>,</mo><msub><mi>e</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">e_1,e_2</annotation></semantics></math>为极点（epipoles），<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>1</mn></msub><msub><mi>O</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">O_1O_2</annotation></semantics></math>为基线（baseline）。</p>
+<p>我们可以看到，如果只看第一帧<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mn>1</mn></msub><annotation encoding="application/x-tex">I_1</annotation></semantics></math>，射线<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>O</mi><mn>1</mn></msub><msub><mi>p</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">O_1p_1</annotation></semantics></math>上是任何一点都是这个像素点可能对应的空间位置，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mn>2</mn></msub><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">e_2p_2</annotation></semantics></math>是这个射线则是对应的可能的投影位置。因此，只有通过正确的特征匹配才能保证这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>点的确定位置，否则的话我们需要在这个极线上搜索。</p>
+<p>现在我们从代数角度来看一下这其中的几何关系。假设在第一帧的相机坐标系下，P的坐标为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Z</mi><mn>1</mn></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>X</mi><mn>2</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo>,</mo><msub><mi>Z</mi><mn>2</mn></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+P_1 = [X_1,Y_1,Z_1]^T, P_2 = [X_2,Y_2,Z_2]^T
+</annotation></semantics></math> 上式中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo>=</mo><mi>R</mi><msub><mi>P</mi><mn>1</mn></msub><mo>+</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">
+P_2 = RP_1 + t
+</annotation></semantics></math>
+根据之前介绍的针孔相机模型，我们可以得到两个像素点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">p_1,p_2</annotation></semantics></math>的位置:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>1</mn></msub></mfrac><mi>K</mi><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>p</mi><mn>2</mn></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>K</mi><msub><mi>P</mi><mn>2</mn></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mo stretchy="false" form="prefix">(</mo><mi>R</mi><msub><mi>P</mi><mn>1</mn></msub><mo>+</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p_1 = \frac 1 {Z_1}KP_1, p_2 = \frac 1 {Z_2 }KP_2 = \frac{1}{Z_2}(RP_1+t).
+</annotation></semantics></math>
+这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>为相机内参矩阵。现在取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">x_1 = K^{-1}p_1, x_2 = K^{-1}p_2</annotation></semantics></math>，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">x_1,x_2</annotation></semantics></math>分别为在空间的归一化坐标，即：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mfrac><msub><mi>X</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>1</mn></msub></mfrac><mo>,</mo><mfrac><msub><mi>Y</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>1</mn></msub></mfrac><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mfrac><msub><mi>X</mi><mn>2</mn></msub><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mo>,</mo><mfrac><msub><mi>Y</mi><mn>2</mn></msub><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+x_1 = [\frac{X_1}{Z_1},\frac{Y_1}{Z_1},1],x_2 = [\frac{X_2}{Z_2},\frac{Y_2}{Z_2},1]
+</annotation></semantics></math> 我们知道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo>=</mo><mi>R</mi><msub><mi>P</mi><mn>1</mn></msub><mo>+</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">
+P_2 = RP_1 + t
+</annotation></semantics></math> 则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>2</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mi>R</mi><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">
+Z_2x_2 = RZ_1 x_1 + t
+</annotation></semantics></math>
+在上式两侧左乘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><annotation encoding="application/x-tex">t^{\hat {} }</annotation></semantics></math>，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>2</mn></msub><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><msub><mi>Z</mi><mn>1</mn></msub><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">
+Z_2t^{\hat{} } x_2 = Z_1t^{\hat{} } Rx_1
+</annotation></semantics></math>
+如果再将两侧左乘<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><annotation encoding="application/x-tex">x_2^T</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>2</mn></msub><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><msub><mi>Z</mi><mn>1</mn></msub><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">
+Z_2x_2^T t^{\hat{} } x_2 =Z_1 x_2^T t^{\hat{} } R x_1
+</annotation></semantics></math>
+由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><msub><mi>x</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">t^{\hat{} } x_2</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">t,x_2</annotation></semantics></math>都是垂直的，因此得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>1</mn></msub><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+Z_1x_2^T t^{\hat{} } R x_1 = 0.
+</annotation></semantics></math> 即：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+x_2^T t^{\hat{} } R x_1 = 0.
+</annotation></semantics></math>
+重新代回<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">p_1,p_2</annotation></semantics></math>，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>p</mi><mn>2</mn><mi>T</mi></msubsup><mo stretchy="false" form="prefix">(</mo><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msub><mi>p</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+p_2^T(K^{-1})^Tt^{\hat{} }RK^{-1}p_1 = 0
+</annotation></semantics></math>
+上式就是对极约束。对极约束中包含了平移和旋转，我们把中间部分记为两个矩阵：基础矩阵（Fundamental
+Matrix）F与本质矩阵（Essential Matrix）E，据说可以进一步简化对极约束：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>x</mi><mn>2</mn><mi>T</mi></msubsup><mi>E</mi><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><msubsup><mi>p</mi><mn>2</mn><mi>T</mi></msubsup><mi>F</mi><msub><mi>p</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+x_2^T E x_1 = p_2^T F p_1 = 0
+</annotation></semantics></math>
+上式中：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><mo>,</mo><mi>F</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>E</mi><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">E = t^{\hat{} }R,F = (K^{-1})^T E K^{-1}</annotation></semantics></math>。</p>
+<p>对极约束简洁地给出了两个匹配点的空间位置关系，于是相机位姿的估计问题变成了下面两步：</p>
+<ol type="1">
+<li>根据配对点像素求出E或者F</li>
+<li>根据E或者F求出R和t。</li>
+</ol>
+<p>由于E和F只相差一个相机内参，而内参一般来说是已知的。实践中往往使用形式更简单的E。</p>
+<h3 id="本质矩阵e"><a
+href="about:blank#%E6%9C%AC%E8%B4%A8%E7%9F%A9%E9%98%B5E"
+title="本质矩阵E"></a>本质矩阵E</h3>
+<p>根据定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi></mrow><annotation encoding="application/x-tex">E= t^{\hat{} }R</annotation></semantics></math>，它是一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">3\times 3</annotation></semantics></math>矩阵，有9个元素。它有下面几个性质：</p>
+<ul>
+<li>本质矩阵是由对极约束定义的，由于对极约束是等式为0的约束，因此对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>乘以任意非0常数，对极约束依然满足，这说明<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>在不同尺度下是等价的。</li>
+<li>根据定义可以证明，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的奇异值必定是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>σ</mi><mo>,</mo><mi>σ</mi><mo>,</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">[\sigma,\sigma,0]^T</annotation></semantics></math>的形式，这是本质矩阵的内在性质。</li>
+<li>由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>各有3个自由度，故<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi></mrow><annotation encoding="application/x-tex">t^{\hat{} }R</annotation></semantics></math>共有6个自由度，而由于尺度等价性，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>实际上有5个自由度。</li>
+<li>E的秩为2</li>
+</ul>
+<p>由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的自由度有5个，可以用5个匹配点就可以求出<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>，但是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的内在性质是一种非线性性质，在求解时候会带来麻烦。可以只考虑它的制度等价性，使用8对点来估计<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>，这就是8点算法。它只使用了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的线性性质，因此求解更加容易。通常来说，我们匹配点的个数不会少于8个。</p>
+<h4 id="点算法"><a href="about:blank#8%E7%82%B9%E7%AE%97%E6%B3%95"
+title="8点算法"></a>8点算法</h4>
+<p>考虑到一对匹配点，它们的归一化坐标分别为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>u</mi><mn>1</mn></msub><mo>,</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>u</mi><mn>2</mn></msub><mo>,</mo><msub><mi>v</mi><mn>2</mn></msub><mo>,</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">x_1 = [u_1,v_1,1]^T,x_2 = [u_2,v_2,1]^T</annotation></semantics></math>。根据对极约束有：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>u</mi><mn>1</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>v</mi><mn>1</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>1</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>2</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>3</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>4</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>5</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>6</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>7</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>8</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>9</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>u</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>v</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\begin{pmatrix} u_1&amp;v_1&amp;1 \end{pmatrix}\begin{pmatrix} e_1&amp;e_2&amp;e_3\\ e_4&amp;e_5&amp;e_6\\ e_7&amp;e_8&amp;e_9 \end{pmatrix}\begin{pmatrix} u_2\\ v_2\\ 1 \end{pmatrix}
+</annotation></semantics></math>
+我们把矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>展开写成向量形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>e</mi><mn>1</mn></msub><mo>,</mo><msub><mi>e</mi><mn>2</mn></msub><mo>,</mo><msub><mi>e</mi><mn>3</mn></msub><mo>,</mo><msub><mi>e</mi><mn>4</mn></msub><mo>,</mo><msub><mi>e</mi><mn>5</mn></msub><mo>,</mo><msub><mi>e</mi><mn>6</mn></msub><mo>,</mo><msub><mi>e</mi><mn>7</mn></msub><mo>,</mo><msub><mi>e</mi><mn>8</mn></msub><mo>,</mo><msub><mi>e</mi><mn>9</mn></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+e = [e_1,e_2,e_3,e_4,e_5,e_6,e_7,e_8,e_9]^T
+</annotation></semantics></math>
+那么对极约束可以写成与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>有关的线性形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>u</mi><mn>1</mn></msub><msub><mi>u</mi><mn>2</mn></msub><mo>,</mo><msub><mi>u</mi><mn>1</mn></msub><msub><mi>v</mi><mn>2</mn></msub><mo>,</mo><msub><mi>u</mi><mn>1</mn></msub><mo>,</mo><msub><mi>v</mi><mn>1</mn></msub><msub><mi>u</mi><mn>2</mn></msub><mo>,</mo><msub><mi>v</mi><mn>1</mn></msub><msub><mi>v</mi><mn>2</mn></msub><mo>,</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><msub><mi>u</mi><mn>2</mn></msub><mo>,</mo><msub><mi>v</mi><mn>2</mn></msub><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>⋅</mo><mi>e</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+[u_1u_2,u_1v_2,u_1,v_1u_2,v_1v_2,v_1,u_2,v_2,1]\cdot e = 0
+</annotation></semantics></math>
+同理，对其他的7对点也有这样类似的形式，于是我们就有一个线性方程组：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>1</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>1</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>1</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>1</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>2</mn><mn>1</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>2</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>8</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>8</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>1</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>8</mn></msubsup><msubsup><mi>u</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>8</mn></msubsup><msubsup><mi>v</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>1</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>u</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>v</mi><mn>2</mn><mn>8</mn></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>3</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>4</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>5</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>6</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>7</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>8</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>e</mi><mn>9</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+\begin{pmatrix} u^1_1u^1_2&amp;u^1_1v^1_2&amp;u^1_1&amp;v^1_1u^1_2&amp;v^1_1v^1_2&amp;v^1_1&amp;u^1_2&amp;v^1_2&amp;1\\ u^2_1u^2_2&amp;u^2_1v^2_2&amp;u^2_1&amp;v^2_1u^2_2&amp;v^2_1v^2_2&amp;v^2_1&amp;u^2_2&amp;v^2_2&amp;1\\ \vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\vdots\\ u^8_1u^8_2&amp;u^8_1v^8_2&amp;u^8_1&amp;v^8_1u^8_2&amp;v^8_1v^8_2&amp;v^8_1&amp;u^8_2&amp;v^8_2&amp;1 \end{pmatrix} \begin{pmatrix} e_1\\ e_2\\ e_3\\ e_4\\ e_5\\ e_6\\ e_7\\ e_8\\ e_9 \end{pmatrix} = 0
+</annotation></semantics></math>
+如果这个系数矩阵是满秩的（秩为8），那么它的零空间维数为1,也就是e构成一条线，这和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>的尺度等价性是一致的（不明白这段话在说什么）。总之如果是满秩的，我们可以通过上面的方程组解出<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>的值。它们和e共同构成了一组9维空间的基。</p>
+<p>有了e的值，我们就得到了本质矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>。接下来的问题是如何根据<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>求得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi>E</mi><mo>=</mo><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mi>R</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R,t(E = t^{\hat {} }R)</annotation></semantics></math>。</p>
+<p>这时候我们需要用到奇异值分解（SVD）。假如：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mi>U</mi><mi mathvariant="normal">Σ</mi><msup><mi>V</mi><mi>T</mi></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+E = U\Sigma V^T,
+</annotation></semantics></math>
+由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的内在性质，我们知道<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mtext mathvariant="normal">diag</mtext><mo stretchy="false" form="prefix">(</mo><mi>σ</mi><mo>,</mo><mi>σ</mi><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma = \text{diag}(\sigma,\sigma,0)</annotation></semantics></math>。在SVD中，对于任何一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>，存在有两个可能的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>,</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">t,R</annotation></semantics></math>与他们对应：
+<span class="math display">$$
+t^{\hat{} }_1 = UR_Z(\frac{\pi}{2})\Sigma U^T, R_1 =
+UR_Z^T(\frac{\pi}{2})V^T\\ t^{\hat{} }_2 = UR_Z(-\frac{\pi}{2})\Sigma
+U^T, R_2 = UR_Z^T(-\frac{\pi}{2})V^T
+$$</span>
+上式中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mfrac><mi>π</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R_Z(\frac{\pi}{2})</annotation></semantics></math>表示沿Z轴旋转90度得到的旋转矩阵。为什么要这样算？首先我们知道，得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>t</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><annotation encoding="application/x-tex">t^{\hat{} }</annotation></semantics></math>必须得是一个反对称矩阵，同时得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>要是一个旋转矩阵，因此这说明求解<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>,</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">R,t</annotation></semantics></math>时候是有约束的。而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mfrac><mi>π</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R_Z(\frac{\pi}{2})</annotation></semantics></math>得到的解则是满足上面的条件的。同时由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>E</mi></mrow><annotation encoding="application/x-tex">-E</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>是等价的，因此对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>取负号,也是有一样的结果。所以就会得到4个解。想看更多的内容，可以查看wiki：<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Essential_matrix#Determining_R_and_t_from_E">determine
+R and t</a>。下图形象得展示了分解本质矩阵得到的4个解：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/djjh3.jpg" /></p>
+<p>可以从上图看出只有第一个是正确的，它的深度都是正值，因此排除其他3个解并不算困难。</p>
+<p>由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的内在性质，还有一种算法是五点算法，不过这个做法会更加复杂。由于我们每次匹配的个数一般都会成百上千，因此他们的区别不是很大。对于五点算法有兴趣的可以看着篇论文：<a
+target="_blank" rel="noopener" href="http://www.ee.oulu.fi/research/imag/courses/Sturm/nister04.pdf">五点算法</a>。</p>
+<p>最后还有一个问题，根据线性方程组解得的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>可能不满足<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>的性质，因为现实世界总是充满噪声的。这时候在做SVD时，我们会刻意将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>矩阵调整成上面的样子，如<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mtext mathvariant="normal">diag</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>σ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>2</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma=\text{diag}(\sigma_1,\sigma_2,\sigma_3)</annotation></semantics></math>，设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mn>1</mn></msub><mo>&gt;</mo><msub><mi>σ</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>σ</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">\sigma_1&gt;\sigma_2&gt;\sigma_3</annotation></semantics></math>，那么我们取：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mi>U</mi><mtext mathvariant="normal">diag</mtext><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><msub><mi>σ</mi><mn>1</mn></msub><mo>+</mo><msub><mi>σ</mi><mn>2</mn></msub></mrow><mn>2</mn></mfrac><mo>,</mo><mfrac><mrow><msub><mi>σ</mi><mn>1</mn></msub><mo>+</mo><msub><mi>σ</mi><mn>2</mn></msub></mrow><mn>2</mn></mfrac><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><msup><mi>V</mi><mi>T</mi></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+E = U\text{diag}(\frac{\sigma_1+\sigma_2}{2},\frac{\sigma_1+\sigma_2}{2},0)V^T.
+</annotation></semantics></math>
+其实更简单的做法是取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Sigma = (1,1,0)</annotation></semantics></math>，由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>具有出度等价性，这样做也是没什么错误的。</p>
+<h3 id="单应矩阵homography-matrix"><a
+href="about:blank#%E5%8D%95%E5%BA%94%E7%9F%A9%E9%98%B5%EF%BC%88Homography-Matrix%EF%BC%89"
+title="单应矩阵（Homography Matrix）"></a>单应矩阵（Homography
+Matrix）</h3>
+<p>除了基本矩阵与本质矩阵，还有一个单应矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>需要我们注意。若场景中的特征点都落在同一平面上，则可以通过单应性来进行运动估计。</p>
+<p>单应矩阵通常描述处于共同平面上的一些点在两张图像之间的变换关系。考虑在图像<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mn>1</mn></msub><mo>,</mo><msub><mi>I</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">I_1,I_2</annotation></semantics></math>有一对匹配好的特征点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>。这些特征点落在平面<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>上，设这个平面满足：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>n</mi><mi>T</mi></msup><mi>P</mi><mo>+</mo><mi>d</mi><mo>=</mo><mn>0</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+n^TP + d = 0.
+</annotation></semantics></math> 稍加整理可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mfrac><mrow><msup><mi>n</mi><mi>T</mi></msup><mi>P</mi></mrow><mi>d</mi></mfrac><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+-\frac{n^TP}{d} = 1
+</annotation></semantics></math> 我们知道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>p</mi><mn>2</mn></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>K</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mi>P</mi><mo>+</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>K</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mi>P</mi><mo>+</mo><mi>t</mi><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mrow><msup><mi>n</mi><mi>T</mi></msup><mi>P</mi></mrow><mi>d</mi></mfrac><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>R</mi><mo>−</mo><mfrac><mrow><mi>t</mi><msup><mi>n</mi><mi>T</mi></msup></mrow><mi>d</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>P</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>R</mi><mo>−</mo><mfrac><mrow><mi>t</mi><msup><mi>n</mi><mi>T</mi></msup></mrow><mi>d</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msup><mi>K</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><msub><mi>p</mi><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>2</mn></msub></mfrac><mi>H</mi><msub><mi>p</mi><mn>1</mn></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} p_2 &amp;= \frac{1}{Z_2}K(RP+t)\\ &amp;= \frac{1}{Z_2}K(RP + t \cdot\left(-\frac{n^TP}{d})\right )\\ &amp;= \frac{1}{Z_2}K\left(R - \frac{tn^T}{d}\right)P\\ &amp;=\frac{Z_1}{Z_2}K\left(R - \frac{tn^T}{d}\right)K^{-1}p_1\\ &amp;= \frac{Z_1}{Z_2}Hp_1 \end{aligned}
+</annotation></semantics></math>
+当然，这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>2</mn></msub></mfrac><annotation encoding="application/x-tex">\frac{Z_1}{Z_2}</annotation></semantics></math>我们也是不知道的。我们可以忽略它到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>矩阵求解中。简单得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>2</mn></msub><mo>=</mo><mi>H</mi><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">p_2 = Hp_2</annotation></semantics></math><br />
+于是，我们得到了一个直接描述图像坐标<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mn>1</mn></msub><mo>,</mo><msub><mi>p</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">p_1,p_2</annotation></semantics></math>的变换<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>。它的定义与旋转，平移以及平面的参数有关。与基础矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>类似，单应矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>也是一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">3\times 3</annotation></semantics></math>的矩阵。根据匹配点，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>u</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>v</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>1</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>2</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>3</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>4</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>5</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>6</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>7</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>8</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>h</mi><mn>9</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>u</mi><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>v</mi><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\begin{pmatrix} u_2\\ v_2\\ 1 \end{pmatrix}= \begin{pmatrix} h_1&amp;h_2&amp;h_3\\ h_4&amp;h_5&amp;h_6\\ h_7&amp;h_8&amp;h_9 \end{pmatrix} \begin{pmatrix} u_1\\ v_1\\ 1 \end{pmatrix}
+</annotation></semantics></math>
+对上式右侧侧展开后，一般我们是无法得到准确地等于1的，因此将第三项变为1,得到：
+<span class="math display">$$
+u_2 = \frac{h_1u_1 +h_2v_1 + h_3}{h_7u_1+h_8v_1+h_9}\\ v_2 =
+\frac{h_4u_1+h_5v_1+h_6}{h_7u_1+h_8v_1+h_9}
+$$</span>
+实际中我们会对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mn>9</mn></msub><annotation encoding="application/x-tex">h_9</annotation></semantics></math>进行归一化，整理可以得到：
+<span class="math display">$$
+h_1u_1 +h_2v_1+h_3-h_7u_1u_2-h_8v_1v_2 = u_2\\
+h_4u_1+h_5v_1+h_6-h_7u_1v_2-h_8v_1v_2 = v_2
+$$</span>
+这样一组匹配点对就可以构造出来两项约束，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>的自由度为8,我们可以通过4对匹配特征点算出（不能有3点共线的情况）。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/djjh2.jpg" /></p>
+<p>下面的做法把<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>矩阵看成向量，通过解该向量的线性方程来恢复<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>，又称直接线性变换法。求出单应矩阵以后需要进行分解才能得到对应的旋转矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>与平移矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>。分解的方法包括数值法与解析法。单应矩阵的分解同样得到四组解，依照深度信息可以排除两组，剩下的两组需要用先验信息来完成。如，如果场景平面与相机平面平行，法向来的理论值为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn mathvariant="bold">𝟏</mn><mi>T</mi></msup><annotation encoding="application/x-tex">\mathbf{1}^T</annotation></semantics></math>。</p>
+<h3 id="三角测量"><a
+href="about:blank#%E4%B8%89%E8%A7%92%E6%B5%8B%E9%87%8F"
+title="三角测量"></a>三角测量</h3>
+<p>我们可以根据<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>,</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">R,t</annotation></semantics></math>来得到深度信息。首先，由之前的定义可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><msub><mi>Z</mi><mn>2</mn></msub><mi>R</mi><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">
+Z_1x_1 = Z_2Rx_2 +t
+</annotation></semantics></math>
+上式左侧乘以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>x</mi><mn>1</mn><mover><mrow></mrow><mo accent="true">̂</mo></mover></msubsup><annotation encoding="application/x-tex">x_1^{\hat{} }</annotation></semantics></math>，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mn>1</mn></msub><msubsup><mi>x</mi><mn>1</mn><mover><mrow></mrow><mo accent="true">̂</mo></mover></msubsup><mo>=</mo><msub><mi>Z</mi><mn>2</mn></msub><msubsup><mi>x</mi><mn>1</mn><mover><mrow></mrow><mo accent="true">̂</mo></mover></msubsup><mi>R</mi><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><msubsup><mi>x</mi><mn>1</mn><mover><mrow></mrow><mo accent="true">̂</mo></mover></msubsup><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+Z_1x_1^{\hat{} } = Z_2x_1^{\hat{} }Rx_2 +x_1^{\hat{} }t = 0
+</annotation></semantics></math>
+因此我们可以解出来<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Z</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Z_2</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Z</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Z_1</annotation></semantics></math>。当然由于尺度不确定性，这个求得只是三维坐标的相对位置。我们并无法得知它们真实的距离。</p>
+<h3 id="note"><a href="about:blank#Note" title="Note"></a>Note</h3>
+<ul>
+<li><p>为什么需要单应矩阵？当特征点共面或者相机发生纯旋转或者平移的时候，基础矩阵的自由度下降，此时继续使用8点算法，对于的自由度主要由噪声决定，这就出现了退化。为了避免这种现象，通常会估计基础矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>和单应矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>，选择重投误差较小的哪个作为最终的运动估计矩阵。</p></li>
+<li><p>单目相机具有尺度不确定性，我们求解出来的值并不能确定它的单位是多少，进行同比例的放大缩小结果都是一样的。同时，它需要进行初始化，再初始化时，不能进行纯旋转，如果平移为0,则无法根据8点算法来求解出旋转。之后的求解可以使用3D-2D来计算相机运动。</p></li>
+<li><p>在使用8点算法时候，由于噪声存在，往往构成超定问题。这是很可以通过最小二乘法来优化（SVD可以用来解最小二乘问题），当然误匹配情况下，也可以使用RANSAC来解决这个问题，实际上后者用得更多一点。</p></li>
+<li><p>在使用3角测量时，由于像素的不确定性（可以认为是相机分辨率不够对定位的误差），会造成深度的不确定性。想要增大深度估计的精度，我们需要增加相机分辨率，但这样会导致计算量以及需要的内存过大，或者是增加平移的距离。而平移距离加大会导致外观变化较大，使得特征提取和匹配变得困难。因此这就导致了三角化的矛盾：平移过小，深度精度不够，平移过大，匹配失败。如下图：</p></li>
+</ul>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/djjh4.jpg" /></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/computer-vision/" rel="tag"># computer vision</a>
+              <a href="/tags/geometry/" rel="tag"># geometry</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="信息论——信息速率失真函数与熵压缩编码（二）">
+                  <i class="fa fa-angle-left"></i> 信息论——信息速率失真函数与熵压缩编码（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/10/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E6%9C%80%E5%A4%A7%E7%86%B5%E5%8E%9F%E7%90%86%E4%B8%8E%E6%9C%80%E5%B0%8F%E9%89%B4%E5%88%AB%E4%BF%A1%E6%81%AF%E5%8E%9F%E7%90%86/" rel="next" title="信息论——最大熵原理与最小鉴别信息原理">
+                  信息论——最大熵原理与最小鉴别信息原理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

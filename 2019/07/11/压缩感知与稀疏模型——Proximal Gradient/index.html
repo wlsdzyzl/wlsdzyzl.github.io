@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="实际上这节课讲的内容也比较多，对应的是convex optimization，这里主要介绍一下lasso回归以及对应使用的Proximal Gradient Decent（PGD）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="压缩感知与稀疏模型——Proximal Gradient">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/07/11/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Proximal%20Gradient/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="实际上这节课讲的内容也比较多，对应的是convex optimization，这里主要介绍一下lasso回归以及对应使用的Proximal Gradient Decent（PGD）。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-07-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.680Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="sparse model">
+<meta property="article:tag" content="convex optimization">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/07/11/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Proximal%20Gradient/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/07/11/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Proximal%20Gradient/","path":"2019/07/11/压缩感知与稀疏模型——Proximal Gradient/","title":"压缩感知与稀疏模型——Proximal Gradient"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>压缩感知与稀疏模型——Proximal Gradient | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#lasso-regression"><span class="nav-number">1.</span> <span class="nav-text">Lasso Regression</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#from-gradient-to-proximal-gradient"><span class="nav-number">1.1.</span> <span class="nav-text">From gradient to proximal
+gradient</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#accelerate-proximal-gradientapg"><span class="nav-number">1.2.</span> <span class="nav-text">Accelerate Proximal
+Gradient(APG)</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/07/11/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Proximal%20Gradient/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="压缩感知与稀疏模型——Proximal Gradient | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          压缩感知与稀疏模型——Proximal Gradient
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-07-11 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-11T00:00:00+08:00">2019-07-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">压缩感知与稀疏模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>实际上这节课讲的内容也比较多，对应的是convex
+optimization，这里主要介绍一下lasso回归以及对应使用的Proximal Gradient
+Decent（PGD）。</p>
+<span id="more"></span>
+<h3 id="lasso-regression"><a href="about:blank#Lasso-Regression"
+title="Lasso Regression"></a>Lasso Regression</h3>
+<p>之前提到，对于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>0</mn></msup><annotation encoding="application/x-tex">l^0</annotation></semantics></math>范数问题，用来求解最稀疏的解，我们可以将最小化<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>0</mn></msup><annotation encoding="application/x-tex">l^0</annotation></semantics></math>范数放松到最小化<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>1</mn></msup><annotation encoding="application/x-tex">l^1</annotation></semantics></math>范数。假如现在有下面的问题：
+<span class="math display">$$
+\text{minimize }\Vert x \Vert_1\\ \text{subject to } Ax = y.
+$$</span> 这个问题是著名的BP(Basic
+Pursuit)问题，它的另外一个版本是考虑了高斯噪声：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>A</mi><msub><mi>x</mi><mn>0</mn></msub><mo>+</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">y = Ax_0 + z</annotation></semantics></math>，将这个问题的限制用一个惩罚函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>y</mi><mo>−</mo><mi>A</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">f(x) = \frac {1}{2} \Vert y-Ax \Vert_2^2</annotation></semantics></math>代替，可以得到下面的解决策略：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mi>x</mi></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>y</mi><mo>−</mo><mi>A</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>λ</mi><mo stretchy="false" form="postfix">‖</mo><mi>x</mi><msub><mo stretchy="false" form="postfix">‖</mo><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">
+\min_x \frac{1}{2} \Vert y - Ax \Vert ^2_2 + \lambda \Vert x\Vert_1
+</annotation></semantics></math> 这就是著名的Lasso回归。</p>
+<p>之前学习的优化方法大多数是对于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>2</mn></msup><annotation encoding="application/x-tex">l^2</annotation></semantics></math>范数的优化，因为它处处可导。而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>1</mn></msup><annotation encoding="application/x-tex">l^1</annotation></semantics></math>范数虽然也是凸函数，但是却不是平滑函数，在局部会出现不可导的情况。</p>
+<p>除此之外，有着类似形式的问题还有低秩矩阵的恢复问题。我们希望恢复低秩矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>L</mi><mn>0</mn></msub><annotation encoding="application/x-tex">L_0</annotation></semantics></math>，能观察到的量为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><msub><mi>L</mi><mn>0</mn></msub><mo>+</mo><msub><mi>S</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">Y = L_0 + S_0</annotation></semantics></math>。一个常用的方法是解决PCP（principal
+component pursuit）问题：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi mathvariant="normal">minimize</mi></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑳</mi><msub><mo stretchy="false" form="postfix">∥</mo><mo>*</mo></msub><mo>+</mo><mi>λ</mi><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑺</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>1</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> subject to </mtext><mspace width="0.333em"></mspace></mrow></mtd><mtd columnalign="left" style="text-align: left"><mi mathvariant="bold-italic">𝑳</mi><mo>+</mo><mi mathvariant="bold-italic">𝑺</mi><mo>=</mo><mi mathvariant="bold-italic">𝒀</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{array}{cl}{ {\operatorname{minimize} } }&amp; {\|\boldsymbol{L}\|_ {*}+\lambda\|\boldsymbol{S}\|_ {1} } \\ {\text { subject to } } &amp; {\boldsymbol{L}+\boldsymbol{S}=\boldsymbol{Y} } \end{array}
+</annotation></semantics></math>
+如果数据中包含噪声，那么一个更稳定的版本为:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">minimize</mi><mo>&#8289;</mo></mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒀</mi><mo>−</mo><mi mathvariant="bold-italic">𝑳</mi><mo>−</mo><mi mathvariant="bold-italic">𝑺</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mi>F</mi><mn>2</mn></msubsup><mo>+</mo><msub><mi>λ</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑳</mi><msub><mo stretchy="false" form="postfix">∥</mo><mo>*</mo></msub><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑺</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">
+\operatorname{minimize} \frac{1}{2}\|\boldsymbol{Y}-\boldsymbol{L}-\boldsymbol{S}\|_ {F}^{2}+\lambda_ {1}\|\boldsymbol{L}\|_ {*}+\lambda_ {2}\|\boldsymbol{S}\|_ {1}
+</annotation></semantics></math> ### <a
+href="about:blank#Proximal-Gradient-Methods"
+title="Proximal Gradient Methods"></a>Proximal Gradient Methods</p>
+<p>实际上，我们会遇到很多类似于lasso回归一样的优化问题，它们都有着下面的形式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+F(x) = f(x) + g(x)
+</annotation></semantics></math>
+其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>是一个平滑的凸函数，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x)</annotation></semantics></math>是一个凸函数但是却不是平滑的。在上面提到的Lasso问题中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>y</mi><mo>−</mo><mi>A</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>,</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mo stretchy="false" form="postfix">‖</mo><mi>x</mi><msub><mo stretchy="false" form="postfix">‖</mo><mn>1</mn></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+f(x) = \frac{1}{2} \Vert y - Ax \Vert ^2_2, g(x) = \lambda \Vert x\Vert_1.
+</annotation></semantics></math>
+我们希望能找到一种快速的方法来解决这样的优化问题。</p>
+<p>首先，由于局部不可导，因此我们没法使用梯度下降，最容易想到的是使用subgradient（次梯度）。</p>
+<p>使用次梯度下降：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msub><mi>γ</mi><mi>k</mi></msub><msub><mi>g</mi><mi>k</mi></msub><mo>,</mo><msub><mi>g</mi><mi>k</mi></msub><mo>∈</mo><mi>∂</mi><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+x_ {k+1} = x_k - \gamma_k g_k, g_k \in \partial F(x_k)
+</annotation></semantics></math>
+实际上是可以解决Lasso问题的，但是主要缺点是收敛得太慢了。一般来说，次梯度的收敛速率对于非平滑的目标函数是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mo>*</mo></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><msqrt><mi>k</mi></msqrt></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+F(x_k) - F(x_*) = O(\frac{1}{\sqrt k})
+</annotation></semantics></math> #### <a
+href="about:blank#convergence-rates-of-first-order-methods"
+title="convergence rates of first order methods"></a>convergence rates
+of first order methods</p>
+<p>这部分内容介绍一下一般梯度下降（使用一阶导数）的收敛速度是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><mi>k</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{k})</annotation></semantics></math>。对于convex函数来说，一阶导数估计实际上提供的是一个下界。</p>
+<p>我们知道梯度下降每次迭代规律为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><msub><mi>γ</mi><mi>k</mi></msub><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+x_ {k+1} = x_k - \gamma_k \nabla f(x_k)
+</annotation></semantics></math>
+而迭代后的代入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>真实值，实际上是大于根据梯度估计的值的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi>x</mi><mo>′</mo></msup><mo>−</mo><mi>x</mi><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">
+f(x&#39;) \ge f(x) + \langle\nabla f(x),x&#39;-x\rangle
+</annotation></semantics></math>
+梯度越大，步子就可以迈得更大一点，因为对于平滑函数来说，这意味着距离最低点还更远一点。引入新的概念：L-Lipschitz
+gradient，如果一个函数满足：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">‖</mo><mo>≤</mo><mi>L</mi><mo stretchy="false" form="postfix">‖</mo><msub><mi>x</mi><mn>1</mn></msub><mo>−</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">‖</mo><mo>,</mo><mo>∀</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">
+\Vert \nabla f(x_1) - \nabla f(x_2)\Vert \leq L\Vert x_1 - x_2\Vert, \forall x_1,x_2 \in \mathbb R^n
+</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">L&gt;0</annotation></semantics></math>,那么这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>被称为Lipschitz常量。有了这个条件，我们可以给线性下界补充一个二次上界。</p>
+<p><strong>引理</strong>：<br />
+如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>是可导函数，而且<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>f</mi></mrow><annotation encoding="application/x-tex">\nabla f</annotation></semantics></math>满足L-Lipschitz，那么对于任意<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>,</mo><mi>x</mi><mi>’</mi></mrow><annotation encoding="application/x-tex">x,x’</annotation></semantics></math>有
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi>x</mi><mo>′</mo></msup><mo>−</mo><mi>x</mi><mo stretchy="false" form="postfix">⟩</mo><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><msup><mi>x</mi><mo>′</mo></msup><mo>−</mo><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">
+f(x&#39;) \leq f(x) + \langle\nabla f(x),x&#39;-x\rangle + \frac{L}{2}\Vert x&#39; - x \Vert _2^2
+</annotation></semantics></math> 证明上面的结论：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><msub><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>+</mo><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">|</mo></mrow><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msubsup><mo>∫</mo><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><mn>1</mn></msubsup><mfrac><mi>d</mi><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>+</mo><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>d</mi><mi>t</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msubsup><mo>∫</mo><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><mn>1</mn></msubsup><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>+</mo><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow><mi>d</mi><mi>t</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mspace width="1.0em"></mspace><mo>+</mo><msubsup><mo>∫</mo><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><mn>1</mn></msubsup><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>+</mo><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow><mi>d</mi><mi>t</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} f\left(\boldsymbol{x}^{\prime}\right) &amp;=f\left.\left(\boldsymbol{x}+t\left(\boldsymbol{x}^{\prime}-\boldsymbol{x}\right)\right)\right|_ {t=1} \\ &amp;=f(\boldsymbol{x})+\int_ {t=0}^{1} \frac{d}{d t} f\left(\boldsymbol{x}+t\left(\boldsymbol{x}^{\prime}-\boldsymbol{x}\right)\right) d t \\ &amp;=f(\boldsymbol{x})+\int_ {t=0}^{1}\left\langle\nabla f\left(\boldsymbol{x}+t\left(\boldsymbol{x}^{\prime}-\boldsymbol{x}\right)\right), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle d t \\ &amp;=f(\boldsymbol{x})+\left\langle\nabla f(\boldsymbol{x}), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle \\ &amp; \quad+\int_ {t=0}^{1}\left\langle\nabla f\left(\boldsymbol{x}+t\left(\boldsymbol{x}^{\prime}-\boldsymbol{x}\right)\right)-\nabla f(\boldsymbol{x}), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle d t \\ &amp; \leq f(\boldsymbol{x})+\left\langle\nabla f(\boldsymbol{x}), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle+\frac{L}{2}\left\|\boldsymbol{x}^{\prime}-\boldsymbol{x}\right\|_ {2}^{2} \end{aligned}
+</annotation></semantics></math> 所以我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>,</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≐</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">
+f\left(\boldsymbol{x}^{\prime}\right) \leq \hat{f}\left(\boldsymbol{x}^{\prime}, \boldsymbol{x}\right) \doteq f(\boldsymbol{x})+\left\langle\nabla f(\boldsymbol{x}), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle+\frac{L}{2}\left\|\boldsymbol{x}^{\prime}-\boldsymbol{x}\right\|_ {2}^{2}
+</annotation></semantics></math> 如果我们想要最小化这个上界，可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><msup><mi>x</mi><mo>′</mo></msup></munder><mover><mi>f</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>′</mo></msup><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>x</mi><mo>−</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\arg\min _ {x&#39;} \hat f(x&#39;,x) = x - \frac{1}{L} \nabla f(x).
+</annotation></semantics></math>
+这就是一个很简单的梯度下降迭代。而且可以保证，这样的迭代不会增加目标函数的值，因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>f</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat f(x,x) = f(x)</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo><mi>′</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mover><mi>f</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo><mi>′</mi></msubsup><mo>,</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mover><mi>f</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f\left(\boldsymbol{x}_ {\star}^{\prime}\right) \leq \hat{f}\left(\boldsymbol{x}_ {\star}^{\prime}, \boldsymbol{x}\right) \leq \hat{f}(\boldsymbol{x}, \boldsymbol{x})=f(\boldsymbol{x})
+</annotation></semantics></math>
+可以证明的是，使用这种迭代方法到最佳值的收敛速度是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mfrac><mrow><mi>L</mi><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow><mrow><mn>2</mn><mi>k</mi></mrow></mfrac><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f\left(\boldsymbol{x}_ {k}\right)-f\left(\boldsymbol{x}_ {\star}\right) \leq \frac{L\left\|\boldsymbol{x}_ {0}-\boldsymbol{x}_ {\star}\right\|_ {2}^{2} }{2 k}=O(1 / k)
+</annotation></semantics></math> 这个收敛速度会比次梯度要快很多。</p>
+<h4 id="from-gradient-to-proximal-gradient"><a
+href="about:blank#From-gradient-to-proximal-gradient"
+title="From gradient to proximal gradient"></a>From gradient to proximal
+gradient</h4>
+<p>实际上，我们可以从上面的梯度下降算法来获得一点启发，来设计一个算法优化lasso回归这类的问题：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+F(x) = f(x) + g(x).
+</annotation></semantics></math>
+因为原函数是不可导的，因此梯度下降算法不能直接使用。尽管如此，如果目标函数中平滑的那一项<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>的导数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>f</mi></mrow><annotation encoding="application/x-tex">\nabla f</annotation></semantics></math>是Lipschitz，我们依然可以构造出一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>的简单上界：对平滑项<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>放大到上界，对于不可导项就什么也不做：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>,</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">⟩</mo></mrow><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>−</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\hat{F}\left(\boldsymbol{x}^{\prime}, \boldsymbol{x}\right)=f(\boldsymbol{x})+\left\langle\nabla f(\boldsymbol{x}), \boldsymbol{x}^{\prime}-\boldsymbol{x}\right\rangle+\frac{L}{2}\left\|\boldsymbol{x}^{\prime}-\boldsymbol{x}\right\|_ {2}^{2}+g\left(\boldsymbol{x}^{\prime}\right)
+</annotation></semantics></math>
+不断地最小化上式，可以得到类似于之前的梯度下降算法，这样的算法比次梯度下降有更好的收敛率。因此，我们要做的就是最小化<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>F</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat F</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\arg \min _ {\boldsymbol{x} } \hat{F}\left(\boldsymbol{x}, \boldsymbol{x}_ {k}\right)
+</annotation></semantics></math>
+将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>带入后补充全式，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\hat{F}\left(\boldsymbol{x}, \boldsymbol{x}_ {k}\right)=\frac{L}{2}\left\|\boldsymbol{x}-\left(\boldsymbol{x}_ {k}-\frac{1}{L} \nabla f\left(\boldsymbol{x}_ {k}\right)\right)\right\|_ {2}^{2}+g(\boldsymbol{x})+h\left(\boldsymbol{x}_ {k}\right)
+</annotation></semantics></math>
+这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h(x_k)</annotation></semantics></math>只与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>有关，因此每次迭代就变成了：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} \boldsymbol{x}_ {k+1} &amp;=\arg \min _ {\boldsymbol{x} } \frac{L}{2}\left\|\boldsymbol{x}-\left(\boldsymbol{x}_ {k}-\frac{1}{L} \nabla f\left(\boldsymbol{x}_ {k}\right)\right)\right\|_ {2}^{2}+g(\boldsymbol{x}) \\ &amp;=\arg \min _ {\boldsymbol{x} } g(\boldsymbol{x})+\frac{L}{2}\left\|\boldsymbol{x}-\boldsymbol{w}_ {k}\right\|_ {2}^{2} \end{aligned}
+</annotation></semantics></math>
+这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo>=</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mi>/</mi><mi>L</mi><mo stretchy="false" form="postfix">)</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\boldsymbol{w}_ {k}=\boldsymbol{x}_ {k}-(1 / L) \nabla f\left(\boldsymbol{x}_ {k}\right)</annotation></semantics></math>。也就是，我们希望让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>尽量小，同时<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>又不要离<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>k</mi></msub><annotation encoding="application/x-tex">w_k</annotation></semantics></math>太远。由于二范数是凸函数，因此它总会有一个唯一最优解。</p>
+<p>分析到这里，这个式子还是一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x) = f(x) + g(x)</annotation></semantics></math>的形式，但是这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>是二次方（quadratic）的。这样形式在凸优化中经常会遇到，它有个特殊的名字——近端（Proximal
+Operator）：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo><mo>≐</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mrow><mo stretchy="true" form="prefix">{</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><mi mathvariant="bold-italic">𝒘</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">
+\operatorname{prox}_ {g}(\boldsymbol{w}) \doteq \arg \min _ {\boldsymbol{x} }\left\{g(\boldsymbol{x})+\frac{1}{2}\|\boldsymbol{x}-\boldsymbol{w}\|_ {2}^{2}\right\}
+</annotation></semantics></math> 因此迭代步骤可以写为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mrow><mi>g</mi><mi>/</mi><mi>L</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\operatorname{prox}_ {g / L}\left(\boldsymbol{w}_ {k}\right).
+</annotation></semantics></math>
+比较幸运的是，一般我们遇到的凸函数，他们的近端都是有着固定的形式,或者可以很高效地被计算出来，下面将会举几个例子：</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>I</mi><mi>D</mi></msub></mrow><annotation encoding="application/x-tex">g(x) = I_D</annotation></semantics></math>，指示函数，也就是对于一个凸集<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>,如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>∈</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">x\in D</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">I_D(x) = 0</annotation></semantics></math>，否则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">I_D(x) = \infty</annotation></semantics></math>。那么:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>∈</mo><mi mathvariant="script">𝒟</mi></mrow></munder><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><mi mathvariant="bold-italic">𝒘</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo>=</mo><msub><mi mathvariant="script">𝒫</mi><mi mathvariant="script">𝒟</mi></msub><mo stretchy="false" form="prefix">[</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\operatorname{prox}_ {g}(\boldsymbol{w})=\arg \min _ {\boldsymbol{x} \in \mathcal{D} }\|\boldsymbol{x}-\boldsymbol{w}\|_ {2}^{2}=\mathcal{P}_ {\mathcal{D} }[\boldsymbol{w}]</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒙</mi><msub><mo stretchy="false" form="prefix">|</mo><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">g(\boldsymbol{x})=\lambda|\boldsymbol{x}|_ {1}</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>1</mn></msup><annotation encoding="application/x-tex">l^1</annotation></semantics></math>范数：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">soft</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>,</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≐</mo><mrow><mi mathvariant="normal">sign</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>−</mo><mi>λ</mi><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\operatorname{prox}_ {g}\left(u_ {i}\right)=\operatorname{soft}\left(u_ {i}, \lambda\right) \doteq \operatorname{sign}\left(u_ {i}\right) \max \left(\left|u_ {i}\right|-\lambda, 0\right)</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>λ</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝑿</mi><msub><mo stretchy="false" form="prefix">|</mo><mo>*</mo></msub></mrow><annotation encoding="application/x-tex">g(\boldsymbol{x})=\lambda|\boldsymbol{X}|_ {*}</annotation></semantics></math>，矩阵核范数，那么：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑾</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="script">𝒮</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑾</mi><mo>,</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo>≐</mo><mi mathvariant="bold-italic">𝑼</mi><mrow><mi mathvariant="normal">soft</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold">𝚺</mi><mo>,</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><msup><mi mathvariant="bold-italic">𝑽</mi><mo>*</mo></msup></mrow><annotation encoding="application/x-tex">
+\operatorname{prox}_ {g}(\boldsymbol{W})=\mathcal{S}(\boldsymbol{W}, \lambda) \doteq \boldsymbol{U} \operatorname{soft}(\boldsymbol{\Sigma}, \lambda) \boldsymbol{V}^{*}
+</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑼</mi><mo>,</mo><mi mathvariant="bold">𝚺</mi><mo>,</mo><mi mathvariant="bold-italic">𝑽</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\boldsymbol{U}, \boldsymbol{\Sigma}, \boldsymbol{V})</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝑾</mi><annotation encoding="application/x-tex">\mathbf W</annotation></semantics></math>的SVD分解。</li>
+</ol>
+<p>由以上这些，我们可以得到一个收敛速率为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><mi>K</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{K})</annotation></semantics></math>的Proximal
+Gradient算法。更正式的定理如下：<br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x) = f(x) + g(x)</annotation></semantics></math>，其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>是一个可导凸函数，并且导数符合Lipschitz，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>是一个凸函数，考虑下面的迭代方式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo>←</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>←</mo><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mrow><mi>g</mi><mi>/</mi><mi>L</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boldsymbol{w}_ {k} \leftarrow \boldsymbol{x}_ {k}-\frac{1}{L} \nabla f\left(\boldsymbol{x}_ {k}\right), \quad \boldsymbol{x}_ {k+1} \leftarrow \operatorname{prox}_ {g / L}\left(\boldsymbol{w}_ {k}\right).
+</annotation></semantics></math>
+假设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x)</annotation></semantics></math>在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mo>*</mo></msup><annotation encoding="application/x-tex">x^*</annotation></semantics></math>有最小值，那么对于任何<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k&gt;1</annotation></semantics></math>，都有：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mfrac><mrow><mi>L</mi><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow><mrow><mn>2</mn><mi>k</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+F\left(\boldsymbol{x}_ {k}\right)-F\left(\boldsymbol{x}_ {\star}\right) \leq \frac{L\left\|\boldsymbol{x}_ {0}-\boldsymbol{x}_ {\star}\right\|_ {2}^{2} }{2 k}
+</annotation></semantics></math> 因此，我们得到近端梯度下降：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg1.png" /></p>
+<p>对于不同的目标函数，因为有着不同的近端形式，它们的近端梯度算法在具体形式上也略微有所不同，因此下面介绍几种针对不同问题的具体的近端梯度下降算法。</p>
+<ol type="1">
+<li><strong>Proximal Gradient for the Lasso</strong><br />
+Lasso的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>l</mi><mn>1</mn></msup><annotation encoding="application/x-tex">l^1</annotation></semantics></math>范数形式，而它的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>可以是矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi></mrow><annotation encoding="application/x-tex">A^TA</annotation></semantics></math>的最大特征值，s
+可以提前计算得到的。有时候对于Lasso的PGD算法又被称为ISTA(iterative
+soft-thresholding algorithm)，具体算法流程如下图：<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg2.png" /></li>
+<li><strong>Proximal Gradient for Stable PCP</strong><br />
+观察之前不同形式的近端操作，可以看到对核范数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>X</mi><msub><mo stretchy="false" form="postfix">‖</mo><mo>*</mo></msub></mrow><annotation encoding="application/x-tex">\Vert X\Vert_*</annotation></semantics></math>也是有y一个简单的近端形式的。因此我们可以用PGD来解决恢复低秩矩阵的问题，比如稳定主成分追踪（stable
+principal<br />
+component pursuit,PCP）:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mrow><mi>L</mi><mo>,</mo><mi>S</mi></mrow></munder><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑳</mi><msub><mo stretchy="false" form="postfix">∥</mo><mo>*</mo></msub><mo>+</mo><mi>λ</mi><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑺</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>1</mn></msub><mo>+</mo><mfrac><mi>μ</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒀</mi><mo>−</mo><mi mathvariant="bold-italic">𝑳</mi><mo>−</mo><mi mathvariant="bold-italic">𝑺</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mi>F</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\min _ {L, S}\|\boldsymbol{L}\|_ {*}+\lambda\|\boldsymbol{S}\|_ {1}+\frac{\mu}{2}\|\boldsymbol{Y}-\boldsymbol{L}-\boldsymbol{S}\|_ {F}^{2}</annotation></semantics></math>
+上式中有两个不可导项：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑳</mi><msub><mo stretchy="false" form="postfix">∥</mo><mo>*</mo></msub><mo>+</mo><mi>λ</mi><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑺</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>1</mn></msub></mrow><annotation encoding="application/x-tex"> \|\boldsymbol{L}\|_ {*}+\lambda\|\boldsymbol{S}\|_ {1}</annotation></semantics></math>
+各自都有比较简单的近端形式。我们还需要知道下面的内容，假设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>;</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mtext mathvariant="normal">, </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>g</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>g</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\boldsymbol{x}=\left[\boldsymbol{x}_ {1} ; \boldsymbol{x}_ {2}\right] \text {, } g(\boldsymbol{x})=g_ {1}\left(\boldsymbol{x}_ {1}\right)+g_ {2}\left(\boldsymbol{x}_ {2}\right)</annotation></semantics></math>，那么:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><msub><mi>g</mi><mn>1</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><msub><mi>g</mi><mn>2</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{prox}_ {g}(\boldsymbol{w})=\left(\operatorname{prox}_ {g_ {1} }\left(\boldsymbol{w}_ {1}\right), \operatorname{prox}_ {g_ {2} }\left(\boldsymbol{w}_ {2}\right)\right)</annotation></semantics></math>
+对于该问题的具体优化算法如下图：<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg3.png" /></li>
+</ol>
+<h4 id="accelerate-proximal-gradientapg"><a
+href="about:blank#Accelerate-Proximal-Gradient-APG"
+title="Accelerate Proximal Gradient(APG)"></a>Accelerate Proximal
+Gradient(APG)</h4>
+<p>之前的PG算法可以让收敛速度达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><mi>k</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{k})</annotation></semantics></math>，但是如果我们需要解决的问题有更特殊的结构，可以生成更高效快速的梯度算法。在1970～1980年这段日子里，有很多俄国的优化理论学者，再思考一个问题：对于优化一个平滑函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>，梯度方法是不是一阶方法里最佳的优化方法（这里局限于一阶方法，二阶方法有更快的收敛速度，但是我们也知道，二阶方法需要求海森矩阵，而高维情况下对海森矩阵的求解需要很大的代价）？</p>
+<p>为了回答这个问题，首先需要一个计算模型。他们提出一个黑盒模型：模型中，算法会产生一个迭代序列<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mi>…</mi><mi>.</mi><mo>,</mo><msub><mi>x</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">x_0,….,x_k</annotation></semantics></math>。对应于每个迭代，又会有对应的值<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x_i)</annotation></semantics></math>以及梯度<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla f(x_i)</annotation></semantics></math>。通过这些来产生下一个迭代值，也就是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>φ</mi><mi>k</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>,</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\varphi_ {k}\left(\boldsymbol{x}_ {0}, \ldots, \boldsymbol{x}_ {k}, f\left(\boldsymbol{x}_ {0}\right), \ldots, f\left(\boldsymbol{x}_ {k}\right), \nabla f\left(\boldsymbol{x}_ {0}\right), \ldots, \nabla f\left(\boldsymbol{x}_ {k}\right)\right)
+</annotation></semantics></math>
+从上述模型中，我们可以从最坏的角度来研究。首先，固定一类函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">ℱ</mi><annotation encoding="application/x-tex">\mathcal F</annotation></semantics></math>，然后观察这个算法在最差的函数下能做到什么样子（这里更像是最好的情况下，sup上界，inf为下界）：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">sup</mi><mrow><mi>f</mi><mo>∈</mo><mi mathvariant="script">ℱ</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub></mrow></munder><mrow><mo stretchy="true" form="prefix">{</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><munder><mi mathvariant="normal">inf</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">
+\sup _ {f \in \mathcal{F}, \boldsymbol{x}_ {0} }\left\{f\left(\boldsymbol{x}_ {k}\right)-\inf _ {\boldsymbol{x} } f(\boldsymbol{x})\right\}
+</annotation></semantics></math>
+对于我们感兴趣的一类函数，也就是可导凸函数并且满足Lipschitz条件:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">ℱ</mi><mrow><mi>L</mi><mo>,</mo><mi>r</mi></mrow></msub><mo>≐</mo><mrow><mo stretchy="true" form="prefix">{</mo><mi>f</mi><mo>:</mo><mi mathvariant="fraktur">𝔅</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mi mathvariant="double-struck">ℝ</mi><mo stretchy="false" form="prefix">|</mo><mrow><mo stretchy="true" form="prefix">∥</mo><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">∥</mo></mrow><mo>≤</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo stretchy="true" form="postfix">∥</mo></mrow><mo>∀</mo><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo><msup><mi mathvariant="bold-italic">𝒙</mi><mi>′</mi></msup><mo>∈</mo><mi mathvariant="fraktur">𝔅</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mathcal{F}_ {L, r} \doteq\left\{f : \mathfrak{B}(0, r) \rightarrow \mathbb{R} |\left\|\nabla f(\boldsymbol{x})-\nabla f\left(\boldsymbol{x}^{\prime}\right)\right\| \leq L\left\|\boldsymbol{x}-\boldsymbol{x}^{\prime}\right\| \forall \boldsymbol{x}, \boldsymbol{x}^{\prime} \in \mathfrak{B}(0, r)\right\}
+</annotation></semantics></math>
+仅仅使用梯度下降也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><mi>k</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac 1 k)</annotation></semantics></math>的收敛速度，我们有：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">sup</mi><mrow><mi>f</mi><mo>∈</mo><msub><mi mathvariant="script">ℱ</mi><mrow><mi>L</mi><mo>,</mo><mi>r</mi></mrow></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub></mrow></munder><mrow><mo stretchy="true" form="prefix">{</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><munder><mi mathvariant="normal">inf</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow><mo>≤</mo><mfrac><mrow><mi>C</mi><mi>L</mi><msup><mi>r</mi><mn>2</mn></msup></mrow><mi>k</mi></mfrac></mrow><annotation encoding="application/x-tex">
+\sup _ {f \in \mathcal{F}_ {L, r}, \boldsymbol{x}_ {0} }\left\{f\left(\boldsymbol{x}_ {k}\right)-\inf _ {\boldsymbol{x} } f(\boldsymbol{x})\right\} \leq \frac{C L r^{2} }{k}
+</annotation></semantics></math>
+而对于这类函数，可以证明的最好的下界是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">sup</mi><mrow><mi>f</mi><mo>∈</mo><msub><mi mathvariant="script">ℱ</mi><mrow><mi>L</mi><mo>,</mo><mi>r</mi></mrow></msub><mo>,</mo><msub><mi>x</mi><mn>0</mn></msub></mrow></munder><mrow><mo stretchy="true" form="prefix">{</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><munder><mi mathvariant="normal">inf</mi><mi mathvariant="bold-italic">𝒙</mi></munder><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow><mo>≥</mo><mfrac><mrow><mi>c</mi><mi>L</mi><msup><mi>r</mi><mn>2</mn></msup></mrow><msup><mi>k</mi><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">
+\sup _ {f \in \mathcal{F}_ {L, r}, x_ {0} }\left\{f\left(\boldsymbol{x}_ {k}\right)-\inf _ {\boldsymbol{x} } f(\boldsymbol{x})\right\} \geq \frac{c L r^{2} }{k^{2} }
+</annotation></semantics></math>
+可以看到这之间还是有一个gap的。因此更快的收敛速度还是有可能做到的。</p>
+<p>首先考虑比较简单的迭代方式，依然使用梯度下降：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>−</mo><mi>α</mi><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+x_ {k+1} = x_k - \alpha \nabla f(x_k),
+</annotation></semantics></math>
+这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>是学习率，对于梯度符合Lipschitz条件的函数，取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mfrac><mn>1</mn><mi>L</mi></mfrac></mrow><annotation encoding="application/x-tex">\alpha = \frac{1}{L}</annotation></semantics></math>是一个很好的选择，而梯度<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla f(x_k)</annotation></semantics></math>是下降速度最快的方向。但是朝着当前最快的方向走并不一定就是最优的，因为梯度是局部的，因此梯度下降实际上是贪心算法，但是贪心算法不一定是最优的，另外一种保守的做法是参考之前迭代的方向，保留之前迭代的动量（momentum），被称为重量球方法：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><mi>α</mi><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>β</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\boldsymbol{x}_ {k}-\alpha \nabla f\left(\boldsymbol{x}_ {k}\right)+\beta\left(\boldsymbol{x}_ {k}-\boldsymbol{x}_ {k-1}\right)
+</annotation></semantics></math>
+重量球方法往往会带来更平滑的迭代策略以及更快的收敛。</p>
+<p>1983年，Yuri
+Nesterov提出了达到收敛速度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><msup><mi>k</mi><mn>2</mn></msup></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{k^2})</annotation></semantics></math>的算法。在算法中，他也使用到了动量这个步骤。它引入了一个新的辅助点（auxiliary
+point）<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">p_ {k+1}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒑</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>≐</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>+</mo><msub><mi>β</mi><mi>k</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\boldsymbol{p}_ {k+1} \doteq \boldsymbol{x}_ {k}+\beta_ {k}\left(\boldsymbol{x}_ {k}-\boldsymbol{x}_ {k-1}\right)
+</annotation></semantics></math> 而每一次迭代步骤就是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi mathvariant="bold-italic">𝒑</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><mi>α</mi><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒑</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\boldsymbol{p}_ {k+1}-\alpha \nabla f\left(\boldsymbol{p}_ {k+1}\right)
+</annotation></semantics></math>
+这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mfrac><mn>1</mn><mi>L</mi></mfrac></mrow><annotation encoding="application/x-tex">\alpha =\frac{1}{L}</annotation></semantics></math>，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\beta _k</annotation></semantics></math>的值要仔细选择，来达到最佳的收敛率：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><msqrt><mrow><mn>1</mn><mo>+</mo><mn>4</mn><msubsup><mi>t</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></msubsup></mrow></msqrt></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>β</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>t</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>1</mn></mrow><msub><mi>t</mi><mi>k</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">
+t_ {k}=\frac{1+\sqrt{1+4 t_ {k-1}^{2} } }{2}, \quad \beta_ {k}=\frac{t_ {k-1}-1}{t_ {k} }
+</annotation></semantics></math>
+使用这种迭代策略，可以达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><msup><mi>k</mi><mn>2</mn></msup></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{k^2})</annotation></semantics></math>的收敛率。</p>
+<p>到目前位置，我们说的都是建立在平滑函数上的，而对于有非平滑函数项的目标函数，还需要做别的改进，也就是APG算法。</p>
+<p>之前的PG算法，我们可以得到目标函数的一个上界：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mover><mi>F</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≐</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">⟨</mo><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">⟩</mo></mrow><mo>+</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≐</mo><mfrac><mi>L</mi><mn>2</mn></mfrac><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><mi mathvariant="bold-italic">𝒙</mi><mo>−</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> terms that do not depend on </mtext><mspace width="0.333em"></mspace></mrow><mi mathvariant="bold-italic">𝒙</mi><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} \hat{F}\left(\boldsymbol{x}, \boldsymbol{x}_ {k}\right) &amp; \doteq f\left(\boldsymbol{x}_ {k}\right)+\left\langle\nabla f\left(\boldsymbol{x}_ {k}\right), \boldsymbol{x}-\boldsymbol{x}_ {k}\right\rangle+\frac{L}{2}\left\|\boldsymbol{x}-\boldsymbol{x}_ {k}\right\|_ {2}^{2}+g(\boldsymbol{x}) \\ &amp; \doteq \frac{L}{2}\left\|\boldsymbol{x}-\boldsymbol{w}_ {k}\right\|_ {2}^{2}+g(\boldsymbol{x})+\text { terms that do not depend on } \boldsymbol{x}, \end{aligned}
+</annotation></semantics></math>
+每一次迭代，实际上是最小化这个上界。</p>
+<p>而对于Nesterov
+momentum来说，也可以按照类似的方法来得到它对应的迭代策略：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">prox</mi><mo>&#8289;</mo></mrow><mi>g</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒑</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><mfrac><mn>1</mn><mi>L</mi></mfrac><mi>∇</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒑</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\boldsymbol{x}_ {k+1}=\operatorname{prox}_ {g}\left(\boldsymbol{p}_ {k+1}-\frac{1}{L} \nabla f\left(\boldsymbol{p}_ {k+1}\right)\right).
+</annotation></semantics></math>
+这样我们就得到了APG算法的迭代策略：<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg4.png" /></p>
+<p>APG算法有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><msup><mi>k</mi><mn>2</mn></msup></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{1}{k^2})</annotation></semantics></math>的收敛速率，比普通的梯度方法会好很多，更正式的定理为：</p>
+<p>序列<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">{x_k}</annotation></semantics></math>是通过APG策略对凸函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x) = f(x) + g(x)</annotation></semantics></math>进行优化的迭代步骤，而且<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>的梯度是Lipschitz的，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(x)</annotation></semantics></math>有最小值对应的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mo>*</mo></msub><annotation encoding="application/x-tex">x_*</annotation></semantics></math>，那么对于任意的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k&gt;1</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mfrac><mrow><mn>2</mn><mi>L</mi><msubsup><mrow><mo stretchy="true" form="prefix">∥</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>0</mn></msub><mo>−</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+F\left(\boldsymbol{x}_ {k}\right)-F\left(\boldsymbol{x}_ {\star}\right) \leq \frac{2 L\left\|\boldsymbol{x}_ {0}-\boldsymbol{x}_ {\star}\right\|_ {2}^{2} }{(k+1)^{2} }
+</annotation></semantics></math> 1. APG for Basis Pursuit
+Denoising<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg5.png" /></p>
+<ol start="2" type="1">
+<li>APG for Stable Principal Component Pursuit<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/wlsdzyzl_hexo/pg6.png" /></li>
+</ol>
+<p>对于收敛性的证明，这里都不多赘述了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/sparse-model/" rel="tag"># sparse model</a>
+              <a href="/tags/convex-optimization/" rel="tag"># convex optimization</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/09/%E5%8E%8B%E7%BC%A9%E6%84%9F%E7%9F%A5%E4%B8%8E%E7%A8%80%E7%96%8F%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Convex%20Methods%20for%20Sparse%20Signal%20Recovery/" rel="prev" title="压缩感知与稀疏模型——Convex Methods for Sparse Signal Recovery">
+                  <i class="fa fa-angle-left"></i> 压缩感知与稀疏模型——Convex Methods for Sparse Signal Recovery
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/07/12/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%E2%80%94%E2%80%94OpenNI%E8%AF%BB%E5%8F%96%E5%A4%9A%E4%B8%AAxtion%E7%9A%84%E8%BE%93%E5%85%A5/" rel="next" title="踩过的坑——OpenNI读取多个xtion的输入">
+                  踩过的坑——OpenNI读取多个xtion的输入 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

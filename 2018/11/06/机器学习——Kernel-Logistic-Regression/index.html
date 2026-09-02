@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在我们的生活中，其实大部分使用的都是soft-margin SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——Kernel Logistic Regression">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="在我们的生活中，其实大部分使用的都是soft-margin SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-06T05:37:08.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.682Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="regression">
+<meta property="article:tag" content="SVM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/","path":"2018/11/06/机器学习——Kernel-Logistic-Regression/","title":"机器学习——Kernel Logistic Regression"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——Kernel Logistic Regression | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#platts-model"><span class="nav-number">1.</span> <span class="nav-text">Platt’s Model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kernal-logistic-regression"><span class="nav-number">2.</span> <span class="nav-text">Kernal Logistic Regression</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——Kernel Logistic Regression | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——Kernel Logistic Regression
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-06 13:37:08" itemprop="dateCreated datePublished" datetime="2018-11-06T13:37:08+08:00">2018-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在我们的生活中，其实大部分使用的都是soft-margin
+SVM，很少会有人真正去使用hard-margin，因为我们无法避免噪声。现在想想，能否将soft-margin
+svm与我们之前的losgistic regress结合起来，会得到什么样的学习算法？
+<span id="more"></span> 之前我们试着将soft-margin
+SVM的数学描述写成了另外一种形式：</p>
+<p><strong>min</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi><mo>+</mo><mi>C</mi><msubsup><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>−</mo><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">}</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac 1 2 W^TW + C\sum_ {n=1}^N max\{1-y_n(W^TX_n+b),0\}.</annotation></semantics></math></p>
+<p>实际上，这个形式如果你仔细观察这个形式，就会发现实际上它和losgistic
+regression加上L2正则化之后的形式非常的相似：</p>
+<table>
+<thead>
+<tr>
+<th>algorithm</th>
+<th>minimize</th>
+<th>constraint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>regularization by constraint</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi><mo>≤</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">W^TW \leq C</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>hard-margin SVM</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi></mrow><annotation encoding="application/x-tex">W^TW</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0</annotation></semantics></math>[and
+more]</td>
+</tr>
+<tr>
+<td>L2 regularization</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>λ</mi><mi>N</mi></mfrac><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi><mo>+</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\frac \lambda N W^TW + E_ {in}</annotation></semantics></math></td>
+<td></td>
+</tr>
+<tr>
+<td>soft-margin SVM</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi><mo>+</mo><mi>C</mi><mi>N</mi><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\frac 1 2 W^TW + CN\hat{E_ {in} }</annotation></semantics></math></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>只不过之前我们用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>，而现在采用的是一个常数C。我们知道，C越大，也就是对应的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>越小。在这里，我们将$
+max{1-y(W^TX_n+b),0}$看作为一种error measurement。</p>
+<p>如果画出这几个错误的曲线与0\1错误的对比： $$</p>
+<p>$$</p>
+<p>实际上，这两个函数是非常接近的。当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b)</annotation></semantics></math>很大的时候，logistic
+regression的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>y</mi><mi>s</mi></mrow></msup></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {in}(\log_2^{1+e^{-ys} })</annotation></semantics></math>和
+SVM的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{E_ {in} }(max\{1-y(W^TX_n+b),0\})</annotation></semantics></math>都是趋于0的,而当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_n(W^TX_n+b)</annotation></semantics></math>非常小（远小于0）的时候，它们的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>有都趋于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><msub><mi>X</mi><mi>n</mi></msub><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\vert y_n(W^TX_n+b) \vert</annotation></semantics></math>.</p>
+<p>所以我们可以觉得，实际上SVM和logistic regression with L2
+regularization几乎在做一样的事情。</p>
+<p>现在我们希望可以将二者结合，例如我们用SVM的值来预测概率，我们也可以得到不错的结果。但是这个实际上没有用到logistic。或者我们用SVM的结果来做Logitsitc
+regression的初始值，但是既然logistic
+regression的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>是凸函数，因此实际上得到的最终结果区别也不大，也就是实际上就像没有用到SVM。</p>
+<h3 id="platts-model">Platt’s Model</h3>
+<p>有一种这样的方法，将目标函数写为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>θ</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi>W</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow><mi>T</mi></msubsup><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>b</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(X) = \theta (A(W_ {SVM}^T \phi(X) + b_ {SVM}) +B)</annotation></semantics></math></p>
+<p>对上面的函数进行Logistic Regression。</p>
+<p>所以这时候的Cost Function变成：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>i</mi><msub><mi>n</mi><mrow><mi>A</mi><mo>,</mo><mi>B</mi></mrow></msub><mfrac><mn>1</mn><mi>N</mi></mfrac><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>W</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow><mi>T</mi></msubsup><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>b</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+min_ {A,B} \frac 1 N \sum_ {n=1}^N \log\left( 1+\exp\left( -y_n(A\cdot(W_ {SVM}^T\phi(X_n)+b_ {SVM})+B)\right)\right)
+</annotation></semantics></math></p>
+<p>这时候的cost funtion
+好像看上去非常复杂，但是仔细想一想的话，实际上既然我们已经有了SVM的结果，因此实际上<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>W</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow><mi>T</mi></msubsup><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>b</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub></mrow><annotation encoding="application/x-tex">W_ {SVM}^T\phi(X_n)+b_ {SVM}</annotation></semantics></math>就是一个值，而不再是一个向量，也就是我们只需要两个数的值：A，B。就可以融合SVM和Logistic
+Regression。</p>
+<p>当然，如果SVM做的好的话，A的值应该是大于0的，B的值应该是接近于0的，因为我们得到的最终的参数分别为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msubsup><mi>W</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow><mi>T</mi></msubsup></mrow><annotation encoding="application/x-tex">AW_ {SVM}^T</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mi>b</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub><mo>+</mo><mi>A</mi><mi>B</mi></mrow><annotation encoding="application/x-tex">Ab_ {SVM}+AB</annotation></semantics></math>，分别对应最终的W和b，如果SVM做的不错，意味着他们和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mrow><mi>S</mi><mi>V</mi><mi>M</mi></mrow></msub></mrow><annotation encoding="application/x-tex">W_ {SVM},b_ {SVM}</annotation></semantics></math>差距太大。</p>
+<p>上述中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi(X)</annotation></semantics></math>意味着利用了特征转换，也就是会使用kernel。可以得到比较不错的logistic
+regression在z空间不错的解。</p>
+<p>但是上面这个办法，不能保证这是logistic
+regression在Z空间（转换之后的空间）真正最好的解。</p>
+<h3 id="kernal-logistic-regression">Kernal Logistic Regression</h3>
+<p>想要找到logistic
+regression在Z空间真正最好的解，一个办法是在Z空间做logistic
+regression。但是我们的转换实际上是由kernel提供的，方便计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Z</mi><mi>n</mi><mi>T</mi></msubsup><msub><mi>Z</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">Z_n^TZ_m</annotation></semantics></math>。而logistic
+regression根本就不是二次规划问题，又如何用到kernel？</p>
+<p>其实，我们一直在求的东西是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的维度是和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>的维度一样，那么<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>是不是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>的线性组合呢？</p>
+<p>在SVM中，正是这样，还记得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>怎么算吗：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>α</mi><mi>n</mi></msub><msub><mi>y</mi><mi>n</mi></msub><msub><mi>X</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">
+W = \sum_ {n=1}^N \alpha_n y_nX_n
+</annotation></semantics></math></p>
+<p>同样的，在PLA，Logistic
+Regression中也是这样。假如我们想想<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的初始值为0,那么每次更新步骤不就是一个系数乘上一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>i</mi></msub><annotation encoding="application/x-tex">X_i</annotation></semantics></math>的线性组合吗？</p>
+<p>实际上，在L2的regularization中，最好的W都是可以被Z线性组合表示出来的。</p>
+<p>如何证明这件事情？</p>
+<p>我们将optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+写为<span class="math inline">$W^\*$</span>. 其中<span
+class="math inline">$W^\*$</span>可以表示为垂直X空间的与平行X空间（线性组合即为平行）的。</p>
+<p><span class="math inline">$W^\* = W_ {\Vert} + W_ {\perp}$</span></p>
+<p>我们可以证明的是，当<span
+class="math inline">$W^\*$</span>中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>W</mi><mo>⟂</mo></msup><annotation encoding="application/x-tex">W^{\perp}</annotation></semantics></math>为0.</p>
+<p>如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mo>⟂</mo></msub><mi>!</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">W_ {\perp}!=0</annotation></semantics></math>,则<span
+class="math inline">$W^{\*T}X = W_ {\Vert}^T X + 0$</span>。</p>
+<p>从另一方面来说： $W^{ * T}W^* = W_ {} ^T W_ {} + W_ {}^TW_ {} &gt;W_
+{} ^T W_ {} $</p>
+<p>这说明<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mo stretchy="false" form="postfix">‖</mo></msub><annotation encoding="application/x-tex">W_ {\Vert}</annotation></semantics></math>比<span
+class="math inline">$W^\*$</span>是更好的选择，与假设矛盾。</p>
+<p>所以，<span class="math inline">$W^{\*} = \sum_
+{n=1}^N\beta_nZ_n$</span>.</p>
+<p>因此，我们将W换成上式，那么就会出现了我们想要的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mi>n</mi></msub><msub><mi>Z</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">Z_nZ_m</annotation></semantics></math>.</p>
+<p>L2 regularization变成下面的样子：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>i</mi><msub><mi>n</mi><mi>W</mi></msub><mfrac><mi>λ</mi><mi>N</mi></mfrac><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>β</mi><mi>n</mi></msub><msub><mi>β</mi><mi>m</mi></msub><msubsup><mi>Z</mi><mi>n</mi><mi>T</mi></msubsup><msub><mi>Z</mi><mi>m</mi></msub><mo>+</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><msub><mi>y</mi><mi>n</mi></msub><munderover><mo>∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>β</mi><mi>m</mi></msub><msub><mi>Z</mi><mi>m</mi></msub><msub><mi>Z</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+min_ {W} \frac \lambda N \sum_ {n=1}^N\sum_ {m=1}^N \beta_n\beta_m Z_n^TZ_m + \frac 1 N \sum_ {n=1}^N \log \left(1 + \exp\left(-y_n \sum_ {m=1}^N \beta_m Z_m Z_n \right) \right)
+</annotation></semantics></math></p>
+<p>我们可以轻易将上式中的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Z</mi><mi>n</mi><mi>T</mi></msubsup><msub><mi>Z</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">Z_n^TZ_m</annotation></semantics></math>换成<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>n</mi></msub><mo>,</mo><msub><mi>x</mi><mi>m</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">k(x_n,x_m)</annotation></semantics></math>.从而实现在z空间上logistic
+regression的最优解。</p>
+<p>从另一方面来说，$ _ {n}^N_ {m}^N _n_m k(x_n,_m) = ^T K
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>,</mo><mi>可</mi><mi>以</mi><mi>将</mi><mi>它</mi><mi>看</mi><mi>成</mi><mi>一</mi><mi>种</mi><mi>特</mi><mi>殊</mi><mi>的</mi><mi>正</mi><mi>则</mi><mi>化</mi><mi>。</mi><mi>所</mi><mi>以</mi><mi>实</mi><mi>际</mi><mi>上</mi><mi>我</mi><mi>们</mi><mi>可</mi><mi>以</mi><mi>将</mi><mi>K</mi><mi>L</mi><mi>R</mi><mi>看</mi><mi>成</mi><mi>关</mi><mi>于</mi><mi>转</mi><mi>换</mi><mi>后</mi><mi>的</mi><mi>数</mi><mi>据</mi><mi>在</mi></mrow><annotation encoding="application/x-tex">,可以将它看成一种特殊的正则化。所以实际上我们可以将KLR看成关于转换后的数据在</annotation></semantics></math>$上的线性模型（原来是关于W的线性模型）。</p>
+<p>一般来说<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mi>e</mi><mi>t</mi><msub><mi>a</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">beta_n</annotation></semantics></math>都不为0,所以这个和SVM中的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>n</mi></msub><annotation encoding="application/x-tex">\alpha_n</annotation></semantics></math>不一样。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/regression/" rel="tag"># regression</a>
+              <a href="/tags/SVM/" rel="tag"># SVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/" rel="prev" title="信息论——Lossless Encoding">
+                  <i class="fa fa-angle-left"></i> 信息论——Lossless Encoding
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/" rel="next" title="Learning From Data——Neural Network">
+                  Learning From Data——Neural Network <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

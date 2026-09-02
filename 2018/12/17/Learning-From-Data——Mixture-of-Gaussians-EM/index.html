@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture of Gaussians）上的情况以及在因子分析上的用途。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Mixture of Gaussians &amp; EM">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture of Gaussians）上的情况以及在因子分析上的用途。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-12-17T04:32:12.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.674Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="mathematics">
+<meta property="article:tag" content="unsupervised learning">
+<meta property="article:tag" content="factor analysis">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/","path":"2018/12/17/Learning-From-Data——Mixture-of-Gaussians-EM/","title":"Learning From Data——Mixture of Gaussians & EM"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Mixture of Gaussians & EM | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#mixture-modes"><span class="nav-number">1.</span> <span class="nav-text">Mixture modes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#expectation-maximization"><span class="nav-number">2.</span> <span class="nav-text">Expectation Maximization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#proof-of-correctness"><span class="nav-number">2.1.</span> <span class="nav-text">Proof of Correctness</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#em-for-mixture-of-gaussians"><span class="nav-number">2.2.</span> <span class="nav-text">EM for Mixture of Gaussians</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#example"><span class="nav-number">2.3.</span> <span class="nav-text">Example</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#factor-analysis-terminology"><span class="nav-number">2.4.</span> <span class="nav-text">Factor Analysis Terminology</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#em-for-factor-analysis"><span class="nav-number">2.5.</span> <span class="nav-text">EM for factor analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#m-step"><span class="nav-number">2.5.1.</span> <span class="nav-text">M-step</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E6%B7%B7%E5%90%88%E9%AB%98%E6%96%AF%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">2.6.</span> <span class="nav-text">与混合高斯模型的对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8Epca%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">2.7.</span> <span class="nav-text">与PCA的关系</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/17/Learning-From-Data%E2%80%94%E2%80%94Mixture-of-Gaussians-EM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Mixture of Gaussians &amp; EM | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Mixture of Gaussians & EM
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-17 12:32:12" itemprop="dateCreated datePublished" datetime="2018-12-17T12:32:12+08:00">2018-12-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这一周的内容是关于EM算法的，同时介绍了EM算法在混合高斯模型（Mixture
+of Gaussians）上的情况以及在因子分析上的用途。 <span id="more"></span>
+首先介绍一下，什么是混合模型。</p>
+<h2 id="mixture-modes">Mixture modes</h2>
+<p>一个混合模型假设数据是通过下面的过程生成的： *
+样本<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∈</mo><mrow><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>k</mi></mrow></mrow><annotation encoding="application/x-tex">z^{(i)} \in {1,...,k}</annotation></semantics></math>并且<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∼</mo><mi>M</mi><mi>u</mi><mi>l</mi><mi>t</mi><mi>i</mi><mi>n</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>a</mi><mi>l</mi><mo stretchy="false" form="prefix">(</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z^{(i)}\sim Multinomial(\phi)</annotation></semantics></math>:<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>ϕ</mi><mi>j</mi></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> for all </mtext><mspace width="0.333em"></mspace></mrow><mi>j</mi></mrow><annotation encoding="application/x-tex">p(z^{(i)} = j) = \phi_j \text{ for all }j</annotation></semantics></math>
+*
+样本可以观测的量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">x^{(i)}</annotation></semantics></math>是符合某些分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(z^{(i)},x^{(i)})</annotation></semantics></math>:<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(z^{(i)},x^{(i)}) = p(z^{(i)})p(x^{(i)}\vert z^{(i)})</annotation></semantics></math></p>
+<p>例如：非监督学习的手写识别是一个10个伯努利分布的混合模型，财务收益估计采用两个高斯混合模型，正态模型和危机时间分布。</p>
+<p>而高斯混合模型为： <span class="math display">$$
+z^{(i)}\sim Multinomial(\phi)\\
+x^{(i)} \sim \mathcal{N}(\mu_j,\Sigma_j)
+$$</span></p>
+<p>现在我们面临的问题是如何学习得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϕ</mi><mi>j</mi></msub><mo>,</mo><msub><mi>μ</mi><mi>j</mi></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\phi_j,\mu_j,\Sigma_j</annotation></semantics></math>？</p>
+<p>这要分成两种情况来讨论： -
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">z^{(j)}</annotation></semantics></math>是已知的，那么这个问题变成了一个监督学习的问题。解决的办法我们之前也学到过，实际上就是<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/10/29/Learning-From-Data%E2%80%94%E2%80%94Generative-Learning-Algorithm/">generative
+learning
+algorithm</a>的一种，不过它实际上是二次判别分析的例子，比上面的博客的内容更稍微进了一步，可以看<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Covariance-Matrix-Derivation/">Covariance
+Matrix Derivation</a>了解详情。在这个情况下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϕ</mi><mi>j</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>m</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">{</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo><msub><mi>μ</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">{</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">{</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+\phi_j = \frac{1}{m} \sum_ {i=1}^m \mathbf{1}\{z^{(i)} = j\}, \mu_j = \frac{\sum_ {i=1}^m \mathbf{1}\{z^{(i)}=j\}x^{(i)} }{\sum_ {i=1}^m\mathbf{1}\{z^{(i)} = j\} }
+</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi mathvariant="normal">Σ</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">{</mo><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>μ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>μ</mi><mi>j</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="prefix">{</mo><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{equation*}
+\begin{aligned}
+\Sigma_j = \frac{\sum_ {i=1}^m \mathbf{1}\{y_i=j\}(x^{(i)} - \mu_ {j}) (x^{(i)} - \mu_ {j})^T}{\sum_ {i=1}^m \mathbf{1}\{y_i=j\} }
+\end{aligned}
+\end{equation*}
+</annotation></semantics></math></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">z^{(j)}</annotation></semantics></math>是未知的，这时候则是属于非监督学习的范畴。我们使用期望最大化(expectation
+mamximization),也就是EM算法。</li>
+</ul>
+<h2 id="expectation-maximization">Expectation Maximization</h2>
+<p>EM算法是一个迭代求解最大似然估计的算法。求解最大似然估计我们已经遇到多次，与其他不同的地方在于，它估计的模型依赖于潜在的变量(latent
+variables)，这些变量是无法观察的。</p>
+<p>首先，我们和往常一样，求数据的log-likelihood：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><mi>z</mi></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>z</mi><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+I(\theta) = \sum_ {i=1}^m\log p(x;\theta) = \sum_ {i=1}^m\log\sum_z p(x,z;\theta)
+</annotation></semantics></math></p>
+<p>我们先来看看EM算法的步骤，然后再证明它的正确性： &gt;Initialize θ</p>
+<blockquote>
+<p>Repeat untill convergence {</p>
+</blockquote>
+<blockquote>
+<p>(E - step ) For each i , set</p>
+</blockquote>
+<blockquote>
+<p>$Q_i(z^{(i)} ):= p(z^{(i)} |x^{(i)} ; θ) $ Posterior distribution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi></mrow><annotation encoding="application/x-tex">z|x</annotation></semantics></math>
+under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">θ</annotation></semantics></math></p>
+</blockquote>
+<blockquote>
+<p>(M - step ) Set</p>
+</blockquote>
+<blockquote>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mi>θ</mi></munder><munder><mo>∑</mo><mi>i</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\begin{equation} 
+\theta = \arg\max_ {\theta} \sum_i \sum_ {z^{(i)} }Q_i(z^{(i)}\log \frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})})
+\end{equation}</annotation></semantics></math></p>
+</blockquote>
+<blockquote>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>←</mo><annotation encoding="application/x-tex">\leftarrow</annotation></semantics></math>
+Update parameter θ }</p>
+</blockquote>
+<h3 id="proof-of-correctness">Proof of Correctness</h3>
+<p>我们将会证明(1)等价于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><msub><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>θ</mi></msub><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\arg\max_\theta I(\theta)</annotation></semantics></math>，也就是等式(1)是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(\theta)</annotation></semantics></math>的一个很紧下界。我们也将会证明这个算法最终会收敛。
+定义：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+J(Q,\theta) = \sum_j \sum_ {z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}
+</annotation></semantics></math> 第一步：
+我们要说明，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">J(Q,\theta)</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(\theta)</annotation></semantics></math>的一个下界，而且当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Q_i(z^{(i)}) = p(z^{(i)}\vert x^{(i)};\theta)</annotation></semantics></math>时，这个下界是tight
+bound. #### Jensen’s Inequality ####
+首先需要回顾一下Jensen不等式。如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>是一个convex函数，若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>为随机变量，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≥</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>X</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\mathbf{E}[f(X)] \ge f(\mathbf{E}[X])
+</annotation></semantics></math></p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM1.png" /></p>
+<p>注意： *
+如果f(x)为concave函数，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>X</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{E}[f(X)] \leq f(\mathbf{E}[X])</annotation></semantics></math>.
+*
+如果f(x)为线性函数，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑬</mi><mo stretchy="false" form="prefix">[</mo><mi>X</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{E}[f(X)] = f(\mathbf{E}[X])</annotation></semantics></math>.</p>
+<p>我们知道<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">log</mi><annotation encoding="application/x-tex">\log</annotation></semantics></math>是一个concave函数，实际上，我们可以将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">J(Q,\theta)</annotation></semantics></math>写为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><msub><mi mathvariant="double-struck">𝔼</mi><mi>Q</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>l</mi><mi>o</mi><mi>g</mi><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>l</mi><mi>e</mi><mi>q</mi><munder><mo>∑</mo><mi>j</mi></munder><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+J(Q,\theta) &amp;= \sum_j \sum_ {z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}\\
+&amp;= \sum_j \mathbb{E}_Q[log\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}] \\
+&amp;leq \sum_j \log \mathbb{E}[\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}]\\
+&amp;= \sum_j \log \sum_ {z^{(i)} }Q_i(z^{(i)})\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}\\
+&amp;= \sum_j\log \sum_ {z^{(i)} } p(x^{(i)},z^{(i)};\theta)\\
+&amp;= I(\theta)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>如何证明是一个tight bound?</p>
+<p>继续查看上面的Jensen不等式，想要这个不等式变得更紧一点，一个容易想到的策略是让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>变为一个常量。因此在这里，最简单的做法就是让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">log</mi><annotation encoding="application/x-tex">\log</annotation></semantics></math>后的内容与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>无</mi><mi>关</mi></mrow><annotation encoding="application/x-tex">z^{(i)}无关</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">
+\frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})} = C
+</annotation></semantics></math></p>
+<p>简单取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">C=1</annotation></semantics></math>，我们得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+Q_i(z^{(i)}) = p(x^{(i)},z^{(i)};\theta)
+</annotation></semantics></math></p>
+<p>但是，因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>是一个分布，因此我们必须要让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sum_ {z^{(i)} }Q_i(z^{(i)}) = 1</annotation></semantics></math>。所以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>的取值就比较容易求得了：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>;</mo><mi>θ</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+Q_i(z^{(i)}) &amp;= \frac{p(x^{(i)},z^{(i)};\theta)}{\sum_ {z^{(i)} }p(x^{(i)},z^{(i)};\theta)}\\
+&amp;= \frac{p(x^{(i)},z^{(i)};\theta)}{p(x^{(i)});\theta}\\
+&amp;= p(z^{(i)}\vert x^{(i)};\theta)
+\end{aligned}
+</annotation></semantics></math>
+因此，上面的推导同时也就证明了当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Q_i(z^{(i)}) = p(z^{(i)}\vert x^{(i)};\theta)</annotation></semantics></math>时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">J(Q,\theta)</annotation></semantics></math>是一个tight
+lower bound（取到了等号）。到这里，我们完成了E-step。</p>
+<p>第二步，证明收敛。
+EM算法会单调增加log-likelihood，也就是，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\theta^{(t)}</annotation></semantics></math>作为第ｔ次迭代的参数值，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+I(\theta^{(t)})\leq I(\theta^{(t+1)}),
+</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Q</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+Q_i^{(t)}(z^{(i)}) = p(z^{(i)}\vert x^{(i)};\theta^{(t)})
+</annotation></semantics></math></p>
+<p>这个证明和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>的取值息息相关。首先，从之前的推导，我们已经知道了：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mi>j</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+I(\theta ^{(t)}) = \sum_j \sum_ {z^{(i)} }Q_i(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i(z^{(i)})}
+</annotation></semantics></math></p>
+<p>观察M-step，既然<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\theta^{(t+1)}</annotation></semantics></math>是让上式取得最大值得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>，那么可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≥</mo><munder><mo>∑</mo><mi>j</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msubsup><mi>Q</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≥</mo><munder><mo>∑</mo><mi>j</mi></munder><munder><mo>∑</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><msubsup><mi>Q</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+I(\theta ^{(t+1)}) &amp;\ge \sum_j \sum_ {z^{(i)} }Q_i^{(t)}(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_i(z^{(i)})}\\
+&amp;\ge \sum_j \sum_ {z^{(i)} }Q_i^{(t)}(z^{(i)})\log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i(z^{(i)})}\\
+&amp;= I(\theta^{(t)})
+\end{aligned}
+</annotation></semantics></math></p>
+<p>第一步简单地由Jensen不等式得到（对于任何分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>都是成立的）。由此我们便证明了这个算法最终会收敛。</p>
+<h3 id="em-for-mixture-of-gaussians">EM for Mixture of Gaussians</h3>
+<p>现在我们来说明以下高斯混合模型下的EM算法。算法步骤如下： &gt;Repeat
+until convergence{</p>
+<blockquote>
+<p>(E - step ) For each i, j , set</p>
+</blockquote>
+<blockquote>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>w</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>:=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>ϕ</mi><mo>,</mo><mi>m</mi><mi>u</mi><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w^{(i)}_j:=p(z^{(i)} = j\vert x^{(i)};\phi,mu,\Sigma)</annotation></semantics></math></p>
+</blockquote>
+<blockquote>
+<p>(M - step ) Update parameters : assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϕ</mi><mi>j</mi></msub><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msub><mi>w</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\phi_j = \mathbb{E}[w_j]</annotation></semantics></math></p>
+</blockquote>
+<blockquote>
+<p><span class="math display">$$\phi_j = \frac 1 m \sum_ {i=1}^m
+w_j^{(i)};\\
+\mu_j = \frac{\sum_ {i=1}^m w_j^{(i)}x^{(i)} }{\sum_ {i=1}^mw_j^{(i)}
+};\\
+\Sigma_j = \frac{\sum_ {i=1}^mw_j^{(i)}(x^{(i)} - \mu_j)(x^{(i)} -
+\mu_j)^T}{\sum_ {i=1}^mw_j^{(i)} }
+$$</span> }</p>
+</blockquote>
+<p>下图是一个利用混合高斯模型EM算法的例子： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM2.png" /></p>
+<p>同时在这里我们可以看一下EM算法与Llyod’s k-means算法的比较： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM3.png" /></p>
+<p>可以看到，混合高斯模型可以看作是k-means聚类问题的一个“软”版本。 ##
+Factor Analysis ##</p>
+<h3 id="example">Example</h3>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM4.png" /></p>
+<p>Figure: Self-ratings on 32 Personality Traits</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM5.png" /></p>
+<p>Figure: Pairwise correlation plot of 32 variables from 240
+participants</p>
+<h3 id="factor-analysis-terminology">Factor Analysis Terminology</h3>
+<p>首先介绍几个因子分析中的术语。</p>
+<p><strong>observed randam variables</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">x \in \mathbb{R}^n</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mi>μ</mi><mo>+</mo><mi mathvariant="normal">Λ</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">
+x = \mu + Λz+\epsilon
+</annotation></semantics></math></p>
+<p><strong>factor</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">z \in \mathbb{R}^{k}</annotation></semantics></math>
+is the hidden (latent) construct that “causes” the observed
+variables.</p>
+<p><strong>factor loading</strong> $ Λ ^{nk}$: the degree to which
+variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>i</mi></msub><annotation encoding="application/x-tex">x_i</annotation></semantics></math>
+is “caused” by the factors.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>,</mo><mi>ϵ</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">\mu,\epsilon \in \mathbb{R}^n</annotation></semantics></math>
+are the mean and error vectors.</p>
+<p>这一些解释我认为用中文翻译的有点别扭，所以就写成了英文。</p>
+<p>下面是一个factor loading Λ的例子：</p>
+<table>
+<caption>Matrix of factor loading Λ for personality test data</caption>
+<thead>
+<tr>
+<th style="text-align: center;">variable</th>
+<th style="text-align: center;">factor1</th>
+<th style="text-align: center;">factor2</th>
+<th style="text-align: center;">factor3</th>
+<th style="text-align: center;">factor4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">distant</td>
+<td style="text-align: center;">0.59</td>
+<td style="text-align: center;">0.27</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">talkative</td>
+<td style="text-align: center;">-0.50</td>
+<td style="text-align: center;">-0.51</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0.27</td>
+</tr>
+<tr>
+<td style="text-align: center;">careless</td>
+<td style="text-align: center;">0.46</td>
+<td style="text-align: center;">-0.47</td>
+<td style="text-align: center;">0.11</td>
+<td style="text-align: center;">0.14</td>
+</tr>
+<tr>
+<td style="text-align: center;">hardworking</td>
+<td style="text-align: center;">-0.46</td>
+<td style="text-align: center;">0.33</td>
+<td style="text-align: center;">-0.14</td>
+<td style="text-align: center;">0.35</td>
+</tr>
+<tr>
+<td style="text-align: center;">kind</td>
+<td style="text-align: center;">-0.488</td>
+<td style="text-align: center;">0.222</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+</tr>
+</tbody>
+</table>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM6.png" /></p>
+<p>Figure: Visualize loading of the ﬁrst two factors</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/EM7.png" /></p>
+<p>Figure: Visualize loading of the ﬁrst two factors, rotated to align
+with axes</p>
+<p>实际上因子分析也是一个混合模型，这里有可观察的变量：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">x\in \mathbb R ^n</annotation></semantics></math>，以及潜在变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">z \in \mathbb{R}^k</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>&lt;</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(k &lt; n)</annotation></semantics></math>.</p>
+<p>因子分析模型定义了一个联合分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x,z)</annotation></semantics></math>:
+<span class="math display">$$
+z \sim  \mathcal N(0,I)\\
+\epsilon \sim  \mathcal N (0,\Psi)\\
+x = \mu + \wedge z + \epsilon
+$$</span>
+其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ψ</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\Psi \in \mathbb{R}^{n \times n}</annotation></semantics></math>
+是一个对角矩阵，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi><mo>,</mo><mi>μ</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">\epsilon,\mu \in \mathbb R ^n</annotation></semantics></math>,并且互相独立,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∧</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>n</mi><mo>×</mo><mi>k</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\wedge \in \mathbb R ^{n \times k}</annotation></semantics></math>。</p>
+<p>给定了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">x^{(1)},...,x^{(m)}</annotation></semantics></math>，如何得到参数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi></mrow><annotation encoding="application/x-tex">\mu,\wedge,\Psi</annotation></semantics></math>？</p>
+<h3 id="em-for-factor-analysis">EM for factor analysis</h3>
+<p>应该比较容易看出这个问题是可以用EM来解决的。下面写出迭代步骤： &gt;
+Initialize µ,Λ,Ψ</p>
+<blockquote>
+<p>Repeat untill convergence {</p>
+</blockquote>
+<blockquote>
+<p>(E-step) For each i , set
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+Q_i(z^{(i)}):= p(z^{(i)}\vert x^{(i)};\mu,\wedge,\Psi),
+</annotation></semantics></math></p>
+</blockquote>
+<blockquote>
+<p>z is a continuous variable</p>
+</blockquote>
+<blockquote>
+<p>(M-step) Set</p>
+</blockquote>
+<blockquote>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo>:=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi></mrow></munder><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><msub><mo>∫</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>d</mi><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\begin{equation} 
+\mu,\wedge,\Psi:= \arg\max_ {\mu,\wedge,\Psi} \sum_ {i=1}^m\int_ {z^{(i)} }Q_i(z^{(i)}) \log \frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)}
+\end{equation}
+</annotation></semantics></math></p>
+</blockquote>
+<p>首先，我们需要把<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(z^{(i)}\vert x^{(i)}),p(z^{(i)},x^{(i)})</annotation></semantics></math>写成模型参数的形式。</p>
+<p>我们的随机变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>z</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>x</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>∼</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>z</mi><mi>x</mi></mrow></msub><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix}z\\x\end{bmatrix} \sim  \mathcal N (\mu_ {zx},\Sigma)</annotation></semantics></math>，其中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>x</mi><mi>z</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>μ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo><mi mathvariant="normal">Σ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mo>∧</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>∧</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>∧</mi><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi mathvariant="normal">Ψ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mu_ {xz} = \begin{bmatrix}
+0\\
+\mu
+\end{bmatrix},\Sigma = \begin{bmatrix}
+I&amp;\wedge^T\\
+\wedge&amp;\wedge\wedge^T+\Psi
+\end{bmatrix}
+</annotation></semantics></math></p>
+<p>我们知道
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\mathbb{E}[z] = 0</annotation></semantics></math>,因为$
+z N(0,I)$。同时我们也可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>x</mi><mo stretchy="false" form="postfix">]</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>μ</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\mathbb{E}[x]&amp;=\mathbb{E}[\mu+\wedge z+\epsilon]\\
+&amp;=\mu+\wedge\mathbb E [z]+\mathbb{E}[\epsilon]\\
+&amp;=\mu
+\end{aligned}
+</annotation></semantics></math></p>
+<p>所以可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>x</mi><mi>z</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>μ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\mu_ {xz} = \begin{bmatrix}
+0\\
+\mu
+\end{bmatrix}
+</annotation></semantics></math></p>
+<p>如果想要得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>，需要比较长的推导。如果不在乎的过程的话可以直接跳过。
+####
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>’s
+derivation ####</p>
+<p>为了得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>，我们需要计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mrow><mi>z</mi><mi>z</mi></mrow></msub><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\Sigma_ {zz} = \mathbb{E}[(z − \mathbb{E}[z])(z − \mathbb{E}[z])^T]</annotation></semantics></math>(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>的左上角)，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mrow><mi>z</mi><mi>x</mi></mrow></msub><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>x</mi><mo stretchy="false" form="postfix">]</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\Sigma_ {zx} = \mathbb{E}[(z − \mathbb{E}[z])(x − \mathbb{E}[x])^T]</annotation></semantics></math>(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>的右上角)以及$
+= [(x − [x])(x − [x])^T] $(右下角)。</p>
+<p>首先，因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>∼</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z \sim  \mathcal N(0,I)</annotation></semantics></math>，我们可以轻易得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Σ</mi><mrow><mi>z</mi><mi>z</mi></mrow></msub><mo>=</mo><mi>C</mi><mi>o</mi><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">\Sigma_ {zz} = Cov(z) = I</annotation></semantics></math>。此外：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>x</mi><mo stretchy="false" form="postfix">]</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><msup><mi>z</mi><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><msup><mi>ϵ</mi><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mo>∧</mo><mi>T</mi></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+ \mathbb{E}[(z − \mathbb{E}[z])(x − \mathbb{E}[x])^T] &amp;= \mathbb{E}[z(\mu+\wedge z + \epsilon - \mu)^T]\\
+&amp;= \mathbb{E}[zz^T]\wedge^T +  \mathbb{E}[z\epsilon^T]\\
+&amp;=\wedge^T
+\end{aligned}
+</annotation></semantics></math> 在最后一步中，我们利用了$ [zz^T] =
+Cov(z)<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>，</mi><mi>因</mi><mi>为</mi><mi>z</mi><mi>是</mi><mi>z</mi><mi>e</mi><mi>r</mi><mi>o</mi><mo>−</mo><mi>m</mi><mi>e</mi><mi>a</mi><mi>n</mi><mi>，</mi><mi>以</mi><mi>及</mi></mrow><annotation encoding="application/x-tex">，因为z是zero-mean，以及</annotation></semantics></math>
+[z^T] = [z] [] = 0$，因为他们是独立的。最后:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>x</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>x</mi><mo stretchy="false" form="postfix">]</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>∧</mi><mi>z</mi><msup><mi>z</mi><mi>T</mi></msup><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi>ϵ</mi><msup><mi>z</mi><mi>T</mi></msup><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><msup><mo>∧</mo><mi>T</mi></msup><mi>z</mi><msup><mi>ϵ</mi><mi>T</mi></msup><mo>+</mo><mi>ϵ</mi><msup><mi>ϵ</mi><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>∧</mi><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>z</mi><msup><mi>z</mi><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>ϵ</mi><msup><mi>ϵ</mi><mi>T</mi></msup><mo stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>∧</mi><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi mathvariant="normal">Ψ</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\mathbb{E}[(x − \mathbb{E}[x])(x − \mathbb{E}[x])^T] &amp;= \mathbb{E}[(\mu+\wedge z + \epsilon - \mu)(\mu+\wedge z + \epsilon - \mu)^T]\\
+&amp;= \mathbb{E}[\wedge z z^T\wedge^T + \epsilon z^T \wedge^T + \wedge^T z \epsilon^T + \epsilon\epsilon^T]\\
+&amp;=\wedge \mathbb{E}[zz^T]\wedge^T + \mathbb{E}[\epsilon\epsilon^T]\\
+&amp;= \wedge\wedge^T+\Psi
+\end{aligned}
+</annotation></semantics></math></p>
+<p>最后我们就得到了：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mo>∧</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>∧</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>∧</mi><msup><mo>∧</mo><mi>T</mi></msup><mo>+</mo><mi mathvariant="normal">Ψ</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\Sigma = \begin{bmatrix}
+I&amp;\wedge^T\\
+\wedge&amp;\wedge\wedge^T+\Psi
+\end{bmatrix}
+</annotation></semantics></math> #### E-step ####
+E-step不难理解，因为后验分布：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∼</mo><mi mathvariant="script">𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">z^{(i)}\vert x^{(i)} \sim \mathcal N \left( \mu_ {z^{(i)}\vert x^{(i)} },\Sigma_ {z^{(i)}\vert x^{(i)} }\right)</annotation></semantics></math>，根据EM算法可以得到：
+<span class="math display">$$
+\mu_ {z^{(i)}\vert x^{(i)} } = \wedge^T(\wedge\wedge^T +
+\Psi)^{-1}(x^{(i)}-\mu)\\
+\Sigma_ {z^{(i)}\vert x^{(i)} } = I - \wedge^T(\wedge\wedge^T +
+\Psi)^{-1}\wedge\\
+Q_i(z^{(i)}) = \frac{1}{(2\pi)^{k/2}\vert \Sigma_ {z^{(i)}\vert x^{(i)}
+}\vert^{1/2} }\exp\left(-\frac{1}{2}(z^{(i)} - \mu_ {z^{(i)}\vert
+x^{(i)} })^T\Sigma^{-1}_ {z^{(i)}\vert x^{(i)} }(z^{(i)} - \mu_
+{z^{(i)}\vert x^{(i)} })\right)
+$$</span></p>
+<h4 id="m-step">M-step</h4>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi></mrow></munder><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><msub><mo>∫</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>d</mi><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+\begin{equation}
+ \arg\max_ {\mu,\wedge,\Psi} \sum_ {i=1}^m\int_ {z^{(i)} }Q_i(z^{(i)}) \log \frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)}
+\end{equation}
+</annotation></semantics></math></p>
+<p>我们可以知道： <span class="math display">$$
+\int_ {z^{(i)} }Q_i(z^{(i)}) \log
+\frac{p(x^{(i)},z^{(i)};\mu,\wedge,\Psi)}{Q_i(z^{(i)})}dz^{(i)} \\
+=\mathbb{E}_ {z\sim Q_i}[\log p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi) + \log
+p(z^{(i)})−\log Q_i(z^{(i)})]
+$$</span> 所以(3)也就等价于：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi></mrow></munder><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><msub><mi mathvariant="double-struck">𝔼</mi><mrow><mi>z</mi><mo>∼</mo><msub><mi>Q</mi><mi>i</mi></msub></mrow></msub><mo stretchy="false" form="prefix">[</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">|</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>;</mo><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>Q</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\begin{equation}
+\arg\max_ {\mu,\wedge,\Psi} \sum_ {i=1}^m\mathbb{E}_ {z\sim Q_i}[\log p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi) + \log p(z^{(i)})−\log Q_i(z^{(i)})]
+\end{equation}
+</annotation></semantics></math></p>
+<p>因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>+</mo><mi>ϵ</mi><mo>,</mo><mi>ϵ</mi><mo>∼</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">x =\mu + \wedge z + \epsilon,\epsilon \sim  \mathcal N (0,\Psi)</annotation></semantics></math>，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∼</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><mi>∧</mi><mi>z</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+x^{(i)}\vert z^{(i)} \sim \mathcal N (\mu+\wedge z,\Psi)
+</annotation></semantics></math> 即： <span class="math display">$$
+p(x^{(i)}|z^{(i)};\mu,\wedge,\Psi)\\
+=\frac{1}{(2\pi)^{n/2}\vert \Psi\vert^{1/2}
+}\exp\left(-\frac{1}{2}(x^{(i)} - \mu-\wedge z^{(i)})^T\Psi^{-1}(x^{(i)}
+- \mu-\wedge z^{(i)})\right)
+$$</span></p>
+<p>我们通过<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>,</mo><mi>∧</mi><mo>,</mo><mi mathvariant="normal">Ψ</mi></mrow><annotation encoding="application/x-tex">\mu,\wedge,\Psi</annotation></semantics></math>来最大化(4)。</p>
+<h3 id="与混合高斯模型的对比">与混合高斯模型的对比</h3>
+<ul>
+<li>混合高斯模型假设有足够的数据和相对较少的随机变量，也就是当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≈</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n\approx m</annotation></semantics></math>或者<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n &gt; m</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>是奇异矩阵。</li>
+<li>而因子分析在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n &gt; m</annotation></semantics></math>的时候通过允许模型误差来处理。</li>
+</ul>
+<h3 id="与pca的关系">与PCA的关系</h3>
+<ul>
+<li>他们都能找到低纬度潜在的子空间。</li>
+<li>PCA可以用来做数据压缩，或者去除冗余数据，它减少了可以观察的数据间的联系。</li>
+<li>因子分析适合来做数据勘探，来找到观测数据中的独立，共同因子。</li>
+<li>因子分析允许噪声具有任意的对角协方差矩阵，而PCA假设噪声是球形的。</li>
+</ul>
+<p>总之，这节课上的还是很懵逼的。</p>
+<p>参考资料： <a
+target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes8.pdf">EM
+algorithm</a>，<a
+target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes9.pdf">factor
+analysis</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+              <a href="/tags/unsupervised-learning/" rel="tag"># unsupervised learning</a>
+              <a href="/tags/factor-analysis/" rel="tag"># factor analysis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/12/16/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%80%EF%BC%89feature/" rel="prev" title="SLAM——视觉里程计（一）feature">
+                  <i class="fa fa-angle-left"></i> SLAM——视觉里程计（一）feature
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/12/20/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Unbiased-Estimation/" rel="next" title="数学——Unbiased Estimation">
+                  数学——Unbiased Estimation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

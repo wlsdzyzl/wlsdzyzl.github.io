@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——视觉里程计（三）PnP">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.678Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="pnp">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/","path":"2019/01/18/SLAM——视觉里程计（三）PnP/","title":"SLAM——视觉里程计（三）PnP"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——视觉里程计（三）PnP | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">直接线性变换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#p3p"><span class="nav-number">2.</span> <span class="nav-text">P3P</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bundle-adjustment"><span class="nav-number">3.</span> <span class="nav-text">Bundle Adjustment</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/18/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E4%B8%89%EF%BC%89PnP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——视觉里程计（三）PnP | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——视觉里程计（三）PnP
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-18 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-18T00:00:00+08:00">2019-01-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上篇文章的内容是关于对极几何约束的，它主要是用来解决2d-2d的情况，也就是我们只有两张不同角度的投影求空间点。现在假如我们已经知道了空间点的位置，接下来要的问题是3d-2d，这个时候我们可以用的方法是PnP来估计位姿。</p>
+<span id="more"></span>
+<p>因为PnP需要有3D点的位置，因此对于双目相机或者是RGB-D相机，我们可以一开始就使用PnP来求得位姿，而对于单目相机，必须需要使用对极约束得到第一组对点的空间估计，才能在后面使用PnP。这个叫做单目相机的初始化。</p>
+<p>PnP问题有很多解法，如直接线性变换，只需要3对点的P3P等等，还可以使用Bundle
+Adjustment。</p>
+<h3 id="直接线性变换"><a
+href="about:blank#%E7%9B%B4%E6%8E%A5%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"
+title="直接线性变换"></a>直接线性变换</h3>
+<p>现在假设一个空间点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>，它的齐次坐标为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo>,</mo><mi>Z</mi><mo>,</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">P=(X,Y,Z,1)^T</annotation></semantics></math>。而在图像中，它被投影到特征点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>,</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">x = (u,v,1)^T</annotation></semantics></math>，这时候相机的位姿<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>,</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">R,t</annotation></semantics></math>都是未知的，是我们需要估计的量。我们定义增广矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>R</mi><mo stretchy="false" form="prefix">|</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T = [R|t]</annotation></semantics></math>为一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">3\times 4</annotation></semantics></math>的矩阵，它包含了旋转与平移的信息，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>u</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>v</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>R</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>t</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>P</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>1</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>2</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>3</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>4</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>5</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>6</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>7</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>8</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>9</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>10</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>11</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>t</mi><mn>12</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>X</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>Y</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>Z</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+s\begin{pmatrix} u\\ v\\ 1 \end{pmatrix} = K \left(\begin{array}{c|c} R&amp;t \end{array}\right) P = \left(\begin{array}{ccc|c} t_1&amp;t_2&amp;t_3&amp;t_4\\ t_5&amp;t_6&amp;t_7&amp;t_8\\ t_9&amp;t_ {10}&amp;t_ {11}&amp;t_ {12} \end{array}\right) \begin{pmatrix} X\\ Y\\ Z\\ 1 \end{pmatrix}
+</annotation></semantics></math>
+在这里，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>为相机坐标下的Z值，也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msub><mi>t</mi><mn>9</mn></msub><mi>X</mi><mo>+</mo><msub><mi>t</mi><mn>10</mn></msub><mi>Y</mi><mo>+</mo><msub><mi>t</mi><mn>11</mn></msub><mi>Z</mi><mo>+</mo><msub><mi>t</mi><mn>12</mn></msub></mrow><annotation encoding="application/x-tex">s=t_9X+t_ {10}Y+t_ {11}Z+t_ {12}</annotation></semantics></math>。由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>是个常数，我们为了简化问题将它忽略掉了。展开上面的式子，消去s，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mfrac><mrow><msub><mi>t</mi><mn>1</mn></msub><mi>X</mi><mo>+</mo><msub><mi>t</mi><mn>2</mn></msub><mi>Y</mi><mo>+</mo><msub><mi>t</mi><mn>3</mn></msub><mi>Z</mi><mo>+</mo><msub><mi>t</mi><mn>4</mn></msub></mrow><mrow><msub><mi>t</mi><mn>9</mn></msub><mi>X</mi><mo>+</mo><msub><mi>t</mi><mn>10</mn></msub><mi>Y</mi><mo>+</mo><msub><mi>t</mi><mn>11</mn></msub><mi>Z</mi><mo>+</mo><msub><mi>t</mi><mn>12</mn></msub></mrow></mfrac><mo>,</mo><mi>v</mi><mo>=</mo><mfrac><mrow><msub><mi>t</mi><mn>5</mn></msub><mi>X</mi><mo>+</mo><msub><mi>t</mi><mn>9</mn></msub><mi>Y</mi><mo>+</mo><msub><mi>t</mi><mn>7</mn></msub><mi>Z</mi><mo>+</mo><msub><mi>t</mi><mn>8</mn></msub></mrow><mrow><msub><mi>t</mi><mn>9</mn></msub><mi>X</mi><mo>+</mo><msub><mi>t</mi><mn>10</mn></msub><mi>Y</mi><mo>+</mo><msub><mi>t</mi><mn>11</mn></msub><mi>Z</mi><mo>+</mo><msub><mi>t</mi><mn>12</mn></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+u = \frac{t_1X+t_2Y+t_3Z+t_4}{t_9X+t_ {10}Y+t_ {11}Z+t_ {12} }, v = \frac{t_5X+t_9Y+t_7Z+t_8}{t_9X+t_ {10}Y+t_ {11}Z+t_ {12} }
+</annotation></semantics></math>
+我们定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>的行向量分别为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒕</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒕</mi><mn>2</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒕</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{t}_1,\mathbf{t}_2,\mathbf{t}_3</annotation></semantics></math>，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒕</mi><mn>1</mn></msub><mi>P</mi><mo>=</mo><mi>u</mi><msub><mi mathvariant="bold-italic">𝒕</mi><mn>3</mn></msub><mi>P</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒕</mi><mn>2</mn></msub><mi>P</mi><mo>=</mo><mi>v</mi><msub><mi mathvariant="bold-italic">𝒕</mi><mn>3</mn></msub><mi>P</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{t}_1 P = u \mathbf{t}_3P, \mathbf{t}_2 P = v \mathbf{t}_3P
+</annotation></semantics></math>
+因此我们可以看到的是每对点提供了两个线性约束。假设一共有N个点，则我们可以列出下面的线性方程组：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>P</mi><mn>1</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><msub><mi>u</mi><mn>1</mn></msub><msubsup><mi>P</mi><mn>1</mn><mi>T</mi></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>P</mi><mn>1</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><msub><mi>v</mi><mn>1</mn></msub><msubsup><mi>P</mi><mn>1</mn><mi>T</mi></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>P</mi><mi>N</mi><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><msub><mi>u</mi><mi>N</mi></msub><msubsup><mi>P</mi><mi>N</mi><mi>T</mi></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>P</mi><mi>N</mi><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><msub><mi>v</mi><mi>N</mi></msub><msubsup><mi>P</mi><mi>N</mi><mi>T</mi></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi mathvariant="bold-italic">𝒕</mi><mn>1</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi mathvariant="bold-italic">𝒕</mi><mn>2</mn><mi>T</mi></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi mathvariant="bold-italic">𝒕</mi><mn>3</mn><mi>T</mi></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+\begin{pmatrix} P_1^T &amp;0&amp; -u_1P_1^T\\ 0&amp;P_1^T&amp;-v_1P_1^T\\ \vdots&amp;\vdots&amp;\vdots\\ P_N^T &amp;0&amp; -u_NP_N^T\\ 0&amp;P_N^T&amp;-v_NP_N^T \end{pmatrix} \begin{pmatrix} \mathbf{t}_1^T &amp; \mathbf{t}_2^T &amp; \mathbf{t}_3^T \end{pmatrix} = 0
+</annotation></semantics></math>
+由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒕</mi><annotation encoding="application/x-tex">\mathbf{t}</annotation></semantics></math>维度为12维，因此最少通过6对匹配点就可以解得这个方程。这种方法称为直接线性变换。当然，如果匹配点数过多，可以使用最小二乘，SVD等解超定方程。</p>
+<p>在这个求解中，我们直接将T矩阵看成12个未知数，而忽略他们的联系。因此求出的解不一定满足旋转矩阵的约束。因此对于求得的旋转矩阵R，我们需要对他进行一个最好的近似，可以用QR分解完成。</p>
+<h3 id="p3p"><a href="about:blank#P3P" title="P3P"></a>P3P</h3>
+<p>我们上面说<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒕</mi><annotation encoding="application/x-tex">\mathbf{t}</annotation></semantics></math>的维度为12，但是我们知道实际上旋转和平移各只有3个自由度，总共也就只有6个自由度。因此实际上使用的点对应该更少。而P3P就只需要3对点来估计位姿。不过值得注意的是P3P并不会直接得到位姿，而是得到了各个点在相机坐标系下的坐标。然后通过下一次要说的3D-3D来求位姿。为什么要这样？因为3D-3D下对位姿的估计是非常简单的。</p>
+<p>现在假设我们输入了3个3d点的世界坐标以及图像上的2d投影坐标，希望求的是它们在当前相机位姿下的相机坐标，从而求得位姿变换。如图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp.png" /></p>
+<p>另外一种做法是输入了点的在上一个相机位置的相机坐标，以及当前图像上的2D投影坐标，这时候求得的就是当前相机位姿相对于上一个相机位姿的位姿变换。二者本质是一样的。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp2.png" /></p>
+<p>P3P求解是从余弦定理开始的。观察最开始的图，我们可以得到： <span
+class="math display">$$
+OA^2 + OB^2 - 2\cdot OA \cdot OB \cdot\cos\langle a,b\rangle = AB^2\\
+OA^2 + OC^2 - 2\cdot OA \cdot OC \cdot \cos \langle a,c \rangle = AC^2\\
+OB^2 + OC^2 - 2\cdot OB \cdot OC \cdot \cos \langle b,c \rangle = BC^2
+$$</span>
+对上述式子两侧同时除以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><msup><mi>C</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">OC^2</annotation></semantics></math>，并且令：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mfrac><mrow><mi>O</mi><mi>B</mi></mrow><mrow><mi>O</mi><mi>C</mi></mrow></mfrac><mo>,</mo><mi>x</mi><mo>=</mo><mfrac><mrow><mi>O</mi><mi>A</mi></mrow><mrow><mi>O</mi><mi>C</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+y = \frac{OB}{OC},x = \frac{OA}{OC}
+</annotation></semantics></math> 则我们得到： <span
+class="math display">$$
+x^2 + y^2 - 2xy\cos\langle a,b \rangle = \frac{AB^2}{OC^2}\\ x^2 + 1 -
+2x\cos \langle a,c \rangle = \frac{AC^2}{OC^2}\\ y^2 + 1 - 2y \cos
+\langle b,c\rangle = \frac{BC^2}{OC^2}
+$$</span> 令：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mfrac><mrow><mi>A</mi><msup><mi>B</mi><mn>2</mn></msup></mrow><mrow><mi>O</mi><msup><mi>C</mi><mn>2</mn></msup></mrow></mfrac><mo>,</mo><mi>v</mi><mo>=</mo><mi>f</mi><mi>r</mi><mi>a</mi><mi>c</mi><mrow><mi>B</mi><msup><mi>C</mi><mn>2</mn></msup></mrow><mrow><mi>A</mi><msup><mi>B</mi><mn>2</mn></msup></mrow><mo>,</mo><mi>w</mi><mo>=</mo><mfrac><mrow><mi>A</mi><msup><mi>C</mi><mn>2</mn></msup></mrow><mrow><mi>A</mi><msup><mi>B</mi><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+u = \frac{AB^2}{OC^2},v = frac{BC^2}{AB^2}, w = \frac{AC^2}{AB^2}
+</annotation></semantics></math> 则我们可以得到： <span
+class="math display">$$
+x^2 + y^2 - 2xy\cos\langle a,b \rangle = u\\ x^2 + 1 - 2x\cos \langle
+a,c \rangle = vu\\ y^2 + 1 - 2y \cos \langle b,c\rangle = wu
+$$</span> 将第一个式子带入后面两个，得到： <span class="math display">$$
+(1 - w)x^2 - w y^2 - 2x\cos \langle a,c\rangle + 2wxy\cos\langle
+a,b\rangle + 1 = 0\\ (1 - v)y^2 - v x^2-2y\cos\langle b,c \rangle +
+2vxy\cos\langle a,b \rangle+1 = 0
+$$</span> 上面的式子中，我们知道的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>,</mo><mi>v</mi><mo>,</mo><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">⟨</mo><mi>a</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">⟩</mo><mo>,</mo><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">⟨</mo><mi>b</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">⟩</mo><mo>,</mo><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">⟨</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">⟩</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+w,v,\cos \langle a,c\rangle,\cos \langle b,c\rangle,\cos\langle a,b\rangle,
+</annotation></semantics></math>
+因为剩余的未知量只剩两个，因此我们可以求得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>,</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">x,y</annotation></semantics></math>。不过这个方程为二元二次方程，求解较为复杂，需要使用吴消元法。最后求出来的有四组解。为了得到正确的解，我们还需要一个额外的点来检验，选取重投影误差最小的点。</p>
+<p>现在知道了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>,</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">x,y</annotation></semantics></math>的值，我们可以进一步解方程，求得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>A</mi><mo>,</mo><mi>O</mi><mi>B</mi><mo>,</mo><mi>O</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">OA,OB,OC</annotation></semantics></math>的值。为了求得坐标，我们只需要将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>的坐标<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u,v,1)</annotation></semantics></math>归一化后得到向量，乘以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">OA</annotation></semantics></math>的长度即可。这个利用了经过原点的一条直线上的点在各个坐标轴的投影三角形相似的原理。</p>
+<h3 id="bundle-adjustment"><a href="about:blank#Bundle-Adjustment"
+title="Bundle Adjustment"></a>Bundle Adjustment</h3>
+<p>PnP问题同样也能使用万金油式的Bundle
+Adjustment（BA）来解决。为了使用Bundle
+Adjustment，我们需要把PnP问题构建成一个定义于李代数上得非线性最小二乘问题。之前说的方法，我们都是先求相机位姿再求得空间点，或者先求空间点，从而得到相机位姿。而在BA问题中，我们可以将它们都看成优化变量，放在一起优化。这是非常通用得求解方式，实际上BA在后端做全局优化的时候使用得更多。不过目前我们就讨论Bundle
+Adjustment如何被用来解决PnP问题。</p>
+<p>在PnP问题中，BA主要是一个最小化重投影误差（reprojection
+errpr）的过程。考虑n各三维空间点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>以及其投影<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>，我们希望计算的是相机的位姿<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>,</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">R,t</annotation></semantics></math>，它们的李代数表达为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ξ</mi><annotation encoding="application/x-tex">\xi</annotation></semantics></math>。假设某空间点坐标为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><msub><mi>Y</mi><mi>i</mi></msub><mo>,</mo><msub><mi>Z</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">P_i = [X_i,Y_i,Z_i]^T</annotation></semantics></math>，其像素坐标为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>u</mi><mi>i</mi></msub><mo>,</mo><msub><mi>v</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">p_i = [u_i,v_i]^T</annotation></semantics></math>。我们知道像素位置与空间点位置的关系如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>u</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>v</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>K</mi><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>ξ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>X</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>Y</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>Z</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+s_i\begin{bmatrix} u_i\\ v_i\\ 1 \end{bmatrix} = K \exp(\xi ^{\hat{} }) \begin{bmatrix} X_i\\ Y_i\\ Z_i\\ 1 \end{bmatrix}
+</annotation></semantics></math> 即:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub><msub><mi>p</mi><mi>i</mi></msub><mo>=</mo><mi>K</mi><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>ξ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="postfix">)</mo><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+s_ip_i = K\exp(\xi ^{\hat{} })P_i
+</annotation></semantics></math>
+当然，上述过程中包含了齐次坐标到非齐次坐标的转换。现实世界中，我们采集到的数据往往存在着噪声，因此我们要把误差求和，并使其最小化，也就是最理想的位姿为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>ξ</mi><mo>*</mo></msup><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi>ξ</mi></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo stretchy="true" form="prefix">‖</mo><msub><mi>p</mi><mi>i</mi></msub><mo>−</mo><mfrac><mn>1</mn><msub><mi>s</mi><mi>i</mi></msub></mfrac><mi>K</mi><mi mathvariant="normal">exp</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>ξ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="postfix">)</mo><msub><mi>P</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">‖</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+\xi ^* = \arg\min_ {\xi} \frac{1}{2}\sum_ {i=1}^n \left\Vert p_i - \frac 1 {s_i}K\exp(\xi^{\hat{} })P_i \right\Vert^2
+</annotation></semantics></math> 如果我们观察上式，$ {s_i}K(^{
+})P_i<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>可</mi><mi>以</mi><mi>说</mi><mi>是</mi></mrow><annotation encoding="application/x-tex">可以说是</annotation></semantics></math>P_i$的重投影，所以这个误差被称为重投影误差。如下图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/pnp3.png" /></p>
+<p>因为这个重投影误差要考虑很多的点，因此最后到每个相机的重投影误差可能都不会精确为0。使用齐次坐标的话，误差的维度是3维，但是最后一维我们设定为1，因此不应该考虑它的误差项。因此我们一般在优化时候使用非齐次坐标，因此误差项维二维。最小二乘法的优化问题我们之前讨论过了，可以使用高斯牛顿法。列文伯格——马夸尔特法等进行求解。不过，我们首先要求的是每个误差项关于优化变量的导数，求导数的过程其实也是线性化的过程：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mi mathvariant="normal">Δ</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">
+e(x + \Delta x) \approx e(x) + J\Delta X
+</annotation></semantics></math>
+假如<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>为误差项，它的维度为2维，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>为相机位姿（李代数）为6维，这时候的雅可比矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">2\times 6</annotation></semantics></math>的矩阵。现在我们来推导<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>的形式。下面的推导需要用到之前关于<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/09/SLAM%E2%80%94%E2%80%94%E6%9D%8E%E7%BE%A4%E5%92%8C%E6%9D%8E%E4%BB%A3%E6%95%B0/">李群李代数</a>的讲解。</p>
+<p>假如，我们假设相机坐标系下的坐标为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>’</mi></mrow><annotation encoding="application/x-tex">P’</annotation></semantics></math>，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>ξ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mo>′</mo></msup><mo>,</mo><msup><mi>Y</mi><mo>′</mo></msup><mo>,</mo><msup><mi>Z</mi><mo>′</mo></msup><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+P&#39; = (\exp(\xi^{\hat{} })P) = [X&#39;,Y&#39;,Z&#39;]^T
+</annotation></semantics></math> 则它的投影为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><msup><mi>u</mi><mo>′</mo></msup><mo>=</mo><mi>K</mi><msup><mi>P</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">
+su&#39; = KP&#39;
+</annotation></semantics></math> 展开得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>s</mi><msup><mi>u</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>s</mi><msup><mi>v</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>s</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>f</mi><mi>x</mi></msub></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>c</mi><mi>x</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>f</mi><mi>y</mi></msub></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>c</mi><mi>y</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>X</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>Y</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>Z</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\begin{bmatrix} su&#39;\\ sv&#39;\\ s \end{bmatrix} = \begin{bmatrix} f_x &amp; 0 &amp; c_x\\ 0 &amp; f_y &amp; c_y\\ 0&amp;0&amp;1 \end{bmatrix}\begin{bmatrix} X&#39;\\ Y&#39;\\ Z&#39;\\ \end{bmatrix}
+</annotation></semantics></math>
+消去<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>Z</mi><mi>’</mi></mrow><annotation encoding="application/x-tex">s = Z’</annotation></semantics></math>，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>u</mi><mo>′</mo></msup><mo>=</mo><msub><mi>f</mi><mi>x</mi></msub><mfrac><msup><mi>X</mi><mo>′</mo></msup><msup><mi>Z</mi><mo>′</mo></msup></mfrac><mo>+</mo><msub><mi>c</mi><mi>x</mi></msub><mo>,</mo><msup><mi>v</mi><mo>′</mo></msup><mo>=</mo><msub><mi>f</mi><mi>y</mi></msub><mfrac><msup><mi>Y</mi><mo>′</mo></msup><msup><mi>Z</mi><mo>′</mo></msup></mfrac><mo>+</mo><msub><mi>c</mi><mi>y</mi></msub><mo>,</mo><msup><mi>p</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msup><mi>u</mi><mo>′</mo></msup><mo>,</mo><msup><mi>v</mi><mo>′</mo></msup><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+u&#39; = f_x \frac{X&#39;}{Z&#39;} + c_x, v&#39; = f_y \frac{Y&#39;}{Z&#39;} + c_y, p&#39; = [u&#39;,v&#39;]^T
+</annotation></semantics></math>
+实际上上面的内容就是对于针孔相机模型的回顾。而这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>’</mi><mo>,</mo><mi>v</mi><mi>’</mi></mrow><annotation encoding="application/x-tex">u’,v’</annotation></semantics></math>正是重投影得到的，误差就是它和实际像素坐标的值，即<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>−</mo><mi>p</mi><mi>’</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">e(x) = (p - p’)</annotation></semantics></math>。接下来，我们来求<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>。这里我们使用左乘扰动模型。根据求导的链式法则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><mi>ξ</mi></mrow></mfrac><mo>=</mo><munder><mi mathvariant="normal">lim</mi><mrow><mi>δ</mi><mi>ξ</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>δ</mi><mi>ξ</mi><mo>⊕</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>e</mi><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>δ</mi><mi>ξ</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow></mfrac><mfrac><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow><mrow><mi>∂</mi><mi>ξ</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+\frac{\partial e}{\partial \xi} = \lim_ {\delta\xi \rightarrow 0} \frac{e(\delta \xi \oplus \xi) - e(\xi)}{\delta \xi} = \frac{\partial e}{\partial P&#39;}\frac{\partial P&#39;}{\partial \xi}
+</annotation></semantics></math>
+在这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>⊕</mi><annotation encoding="application/x-tex">\oplus</annotation></semantics></math>指的是对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ξ</mi><annotation encoding="application/x-tex">\xi</annotation></semantics></math>左乘扰动模型的操作。因为左乘扰动模型是在李群上进行的，在李代数上的形式会比单纯的相加更复杂一点。</p>
+<p>我们很容易得到的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><mi>P</mi><mi>’</mi></mrow></mfrac><annotation encoding="application/x-tex">\frac{\partial e}{\partial P’}</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow></mfrac><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>u</mi><mo>′</mo></msup></mrow><msubsup><mi>X</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>u</mi><mo>′</mo></msup></mrow><msubsup><mi>Y</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>u</mi><mo>′</mo></msup></mrow><msubsup><mi>Z</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>v</mi><mo>′</mo></msup></mrow><msubsup><mi>X</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>v</mi><mo>′</mo></msup></mrow><msubsup><mi>Y</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><mi>∂</mi><msup><mi>v</mi><mo>′</mo></msup></mrow><msubsup><mi>Z</mi><mi>i</mi><mo>′</mo></msubsup></mfrac></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\begin{equation} \frac{\partial e}{\partial P&#39;} = - \begin{bmatrix} \frac{\partial u&#39;}{X&#39;_i} &amp; \frac{\partial u&#39;}{Y&#39;_i} &amp; \frac{\partial u&#39;}{Z&#39;_i}\\ \frac{\partial v&#39;}{X&#39;_i} &amp; \frac{\partial v&#39;}{Y&#39;_i} &amp; \frac{\partial v&#39;}{Z&#39;_i} \end{bmatrix} \end{equation}
+</annotation></semantics></math> 而在之前的推导中，我们知道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><mi>∂</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>∂</mi><mi>ξ</mi></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mi mathvariant="normal">lim</mi><mrow><mi>δ</mi><mi>ξ</mi><mo>→</mo><mn>0</mn></mrow></munder><mfrac><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>δ</mi><msup><mi>ϕ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mi>P</mi><mo>+</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>δ</mi><mi>P</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mi>δ</mi><mi>ξ</mi></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mi>P</mi><mo>+</mo><mi>t</mi><msup><mo stretchy="false" form="postfix">)</mo><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≜</mo><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mi>P</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>⨀</mo></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>P</mi><mo>′</mo></msup><msup><mo stretchy="false" form="postfix">)</mo><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} \frac{\partial (TP)}{\partial \xi} &amp;= \lim_ {\delta \xi \rightarrow 0} \frac{\begin{bmatrix} \delta \phi^{\hat{} }(RP+t) + \delta P\\ 0 \end{bmatrix} }{\delta \xi}\\ &amp;= \begin{bmatrix} I&amp;-(RP+t)^{\hat{} }\\ 0&amp;0 \end{bmatrix}\\ &amp;\triangleq (TP)^{\bigodot}\\ &amp;=\begin{bmatrix} I&amp;-(P&#39;)^{\hat{} }\\ 0&amp;0 \end{bmatrix} \end{aligned}
+</annotation></semantics></math>
+而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>’</mi><mo>=</mo><mi>T</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P’ = TP</annotation></semantics></math>，如果只取前3维，从而我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow><mrow><mi>∂</mi><mi>ξ</mi></mrow></mfrac><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>I</mi><mo>,</mo><mi>−</mi><msup><msup><mi>P</mi><mo>′</mo></msup><mover><mrow></mrow><mo accent="true">̂</mo></mover></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\begin{equation} \frac{\partial P&#39;}{\partial \xi} = [I,-{P&#39;}^{\hat{} }] \end{equation}
+</annotation></semantics></math>
+将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1),(2)</annotation></semantics></math>相乘可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><mi>ξ</mi></mrow></mfrac><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><msub><mi>f</mi><mi>x</mi></msub><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>x</mi></msub><msup><mi>X</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>x</mi></msub><msup><mi>X</mi><mo>′</mo></msup><msup><mi>Y</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>f</mi><mi>x</mi></msub><mo>+</mo><mfrac><mrow><msub><mi>f</mi><mi>x</mi></msub><msup><mi>X</mi><mn>2</mn></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>x</mi></msub><msup><mi>Y</mi><mo>′</mo></msup></mrow><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mfrac><msub><mi>f</mi><mi>y</mi></msub><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>y</mi></msub><msup><mi>Y</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><msub><mi>f</mi><mi>y</mi></msub><mo>−</mo><mfrac><mrow><msub><mi>f</mi><mi>y</mi></msub><msup><mi>Y</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><msub><mi>f</mi><mi>y</mi></msub><msup><mi>X</mi><mo>′</mo></msup><msup><mi>Y</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mrow><msub><mi>f</mi><mi>y</mi></msub><msup><mi>X</mi><mo>′</mo></msup></mrow><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+\frac{\partial e}{\partial \xi} = - \begin{bmatrix} \frac{f_x}{Z&#39;} &amp; 0 &amp; -\frac{f_xX&#39;}{Z&#39;^2} &amp; -\frac{f_xX&#39;Y&#39;}{Z&#39;^2} &amp; f_x + \frac{f_xX^2}{Z&#39;^2} &amp; -\frac{f_xY&#39;}{Z&#39;}\\ 0 &amp; \frac{f_y}{Z&#39;} &amp; -\frac{f_yY&#39;}{Z&#39;^2} &amp;-f_y - \frac{f_yY&#39;}{Z&#39;^2} &amp; \frac{f_yX&#39;Y&#39;}{Z&#39;^2} &amp; \frac{f_yX&#39;}{Z&#39;} \end{bmatrix}
+</annotation></semantics></math>
+这个之前有负号，是因为我们对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>的定义是观测值减去预测值，而观测值是常数。如果对于se(3)的定义是旋转在前，平移在后，只要将前3列与后3列对调即可。由此我们得到了一阶雅可比矩阵。</p>
+<p>此外，除了对相机位姿的优化，就像我们最开始说的，我们可以对空间点的位置也进行优化。所以需要求的是误差关于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>的导数。这个导数相对来说会简单很多：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><mi>P</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow></mfrac><mfrac><mrow><mi>∂</mi><msup><mi>P</mi><mo>′</mo></msup></mrow><mrow><mi>∂</mi><mi>P</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+\frac{\partial e}{\partial P} = \frac{\partial e}{\partial P&#39;}\frac{\partial P&#39;}{\partial P}
+</annotation></semantics></math>
+第一项已经知道了。至于第二项，按照定义：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>’</mi><mo>=</mo><mi>R</mi><mi>P</mi><mo>+</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">P’ = RP+t</annotation></semantics></math>，因此这个导数为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>。因此：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>∂</mi><mi>e</mi></mrow><mrow><mi>∂</mi><mi>P</mi></mrow></mfrac><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><msub><mi>f</mi><mi>x</mi></msub><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>x</mi></msub><msup><mi>X</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mfrac><msub><mi>f</mi><mi>y</mi></msub><msup><mi>Z</mi><mo>′</mo></msup></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mfrac><mrow><msub><mi>f</mi><mi>y</mi></msub><msup><mi>Y</mi><mo>′</mo></msup></mrow><mrow><msup><mi>Z</mi><mo>′</mo></msup><msup><mi></mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">
+\frac{\partial e}{\partial P} =-\begin{bmatrix} \frac{f_x}{Z&#39;} &amp; 0 &amp; -\frac{f_xX&#39;}{Z&#39;^2}\\ 0 &amp; \frac{f_y}{Z&#39;} &amp; -\frac{f_yY&#39;}{Z&#39;^2} \end{bmatrix}R
+</annotation></semantics></math>
+这两个雅可比矩阵（分别是误差关于位姿的和关于空间点位置的）非常重要，是Bundle
+Adjustment的关键。</p>
+<p>我在思考的问题是，为什么一定要建出来一个中间变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>’</mi></mrow><annotation encoding="application/x-tex">P’</annotation></semantics></math>，如果直接对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>,</mo><mi>ξ</mi></mrow><annotation encoding="application/x-tex">P,\xi</annotation></semantics></math>求导，则得到的结果是用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ξ</mi><mo>,</mo><mi>P</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">\xi,P,K</annotation></semantics></math>表示的导数，理论上也能带我们走向极小值。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/pnp/" rel="tag"># pnp</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/17/ICP%E2%80%94%E2%80%94%E8%BF%AD%E4%BB%A3%E6%9C%80%E8%BF%91%E7%82%B9/" rel="prev" title="ICP——迭代最近点">
+                  <i class="fa fa-angle-left"></i> ICP——迭代最近点
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/20/SLAM%E2%80%94%E2%80%94%E8%A7%86%E8%A7%89%E9%87%8C%E7%A8%8B%E8%AE%A1%EF%BC%88%E5%9B%9B%EF%BC%89ICP/" rel="next" title="SLAM——视觉里程计（四）ICP">
+                  SLAM——视觉里程计（四）ICP <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

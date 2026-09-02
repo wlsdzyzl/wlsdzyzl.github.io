@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="上次介绍了香农无损编码定理以及一些不同类别的编码。这次介绍kraft不等式以及huffman编码，并且说明霍夫曼编码的最优性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——Kraft不等式以及变长编码定理">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="上次介绍了香农无损编码定理以及一些不同类别的编码。这次介绍kraft不等式以及huffman编码，并且说明霍夫曼编码的最优性。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-14T06:32:52.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.678Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta property="article:tag" content="lossless encoding">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/","path":"2018/11/14/信息论——Kraft不等式以及变长编码定理/","title":"信息论——Kraft不等式以及变长编码定理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——Kraft不等式以及变长编码定理 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#kraft%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Kraft不等式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E5%89%8D%E7%BC%80%E7%A0%81%E7%A0%81%E9%95%BF%E7%BA%A6%E6%9D%9F"><span class="nav-number">2.</span> <span class="nav-text">任意前缀码码长约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%89%8D%E7%BC%80%E7%A0%81%E5%AE%9A%E7%90%86%E9%A6%99%E5%86%9C%E7%AC%AC%E4%B8%80%E5%AE%9A%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">最优前缀码定理（香农第一定理）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%89%8D%E7%BC%80%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">分组前缀码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E6%95%88%E7%8E%87%E4%B8%8E%E4%BA%92%E4%BF%A1%E6%81%AF"><span class="nav-number">5.</span> <span class="nav-text">编码效率与互信息</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——Kraft不等式以及变长编码定理 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——Kraft不等式以及变长编码定理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-14 14:32:52" itemprop="dateCreated datePublished" datetime="2018-11-14T14:32:52+08:00">2018-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>上次介绍了香农无损编码定理以及一些不同类别的编码。这次介绍kraft不等式以及huffman编码，并且说明霍夫曼编码的最优性。
+<span id="more"></span></p>
+<p>Kraft不等式为前缀码约束条件。在前缀码中，显然不能使用所有的最短的码字，这样的话前缀码的条件就无法满足。就用二叉树来编码（二进制编码）的时候，如果一个节点被作为码字，则它的子树结点都无法作为码字。</p>
+<h2 id="kraft不等式">Kraft不等式</h2>
+<p>kraft不等式定义如下：</p>
+<p>任意D-进制码前缀码其码长<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mn>1</mn></msub><mo>,</mo><msub><mi>l</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>l</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">l_1,l_2,...,l_m</annotation></semantics></math>，满足
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mo>∑</mo><mi>i</mi></munder><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\sum_ {i} D^{-l_i} \leq 1
+</annotation></semantics></math></p>
+<p>反之，如果码长约束满足上述不等式，则必然可以构造出具有此码长的前缀码。</p>
+<p>Kraft不等式的证明是非常直接的：</p>
+<ul>
+<li>必要性：</li>
+</ul>
+<p>我们依然从D叉树来考虑这个问题。假如码字最长为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>l</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">l_ {max}</annotation></semantics></math>.当一个结点被选做码字的时候，假设这个结点的深度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>l</mi><mi>i</mi></msub><annotation encoding="application/x-tex">l_i</annotation></semantics></math>，也就是码长为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>l</mi><mi>i</mi></msub><annotation encoding="application/x-tex">l_i</annotation></semantics></math>.那么因为它的存在，它子树的结点都不能再次作为码字。因此我们就损失了D^{l_
+{max} - l_i}个叶子结点（注意，这里说的是叶子结点）。</p>
+<p>这棵树的所有叶子结点数目为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>D</mi><mrow><msub><mi>l</mi><mi>m</mi></msub><mi>a</mi><mi>x</mi></mrow></msup><annotation encoding="application/x-tex">D^{l_max}</annotation></semantics></math>.我们最多把所有的叶子结点都给剪掉。</p>
+<p>现在假设一共有m个码字，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><msup><mi>D</mi><mrow><msub><mi>l</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>−</mo><msub><mi>l</mi><mi>i</mi></msub></mrow></msup><mo>≤</mo><msup><mi>D</mi><msub><mi>l</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></msup></mrow><annotation encoding="application/x-tex">
+\sum_ {i=1}^m D^{l_ {max} - l_i} \leq D^{l_ {max} }
+</annotation></semantics></math></p>
+<p>两侧同时除以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>D</mi><msub><mi>l</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></msup><annotation encoding="application/x-tex">D^{l_ {max} }</annotation></semantics></math>,就得到了kraft不等式。</p>
+<ul>
+<li>充分性</li>
+</ul>
+<p>充分性更好证明。我们只要在树上就可以很容易构造出来这样的编码。</p>
+<p>Kraft不等式给出了即时码的充要条件，但是和最优码长无关。</p>
+<h2 id="任意前缀码码长约束">任意前缀码码长约束</h2>
+<p>对随机变量X进行D进制前缀码编码，得到的码长满足：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>≥</mo><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+L \ge H_D(X)
+</annotation></semantics></math></p>
+<p>等号当且仅当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup><mo>=</mo><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">D^{-l_i} = p_i</annotation></semantics></math>时候成立。这个L为平均码长。</p>
+<p>证明如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>L</mi><mo>−</mo><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mi>l</mi><mi>i</mi></msub><mo>−</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><msup><mi>D</mi><msub><mi>l</mi><mi>i</mi></msub></msup><mo>+</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><msub><mi>P</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><msub><mi>P</mi><mi>i</mi></msub><mo>−</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><msub><mi>P</mi><mi>i</mi></msub><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup></mfrac><mo>−</mo><mi>−</mi><mo>−</mo><mi>−</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+L - H_D(X) &amp;= \sum P_i l_i - \sum P_i \log_D \frac 1 {P_i}\\
+&amp;= \sum P_i \log_D D^{l_i} +\sum P_i \log_D P_i\\
+&amp;= \sum P_i \log_D P_i - \sum P_i \log _D D^{-l_i}\\
+&amp;= \sum P_i \log_D \frac{P_i}{D^{-l_i} } ----(1)\\
+\end{aligned}
+</annotation></semantics></math></p>
+<p>也许大家会觉得从（1）可以直接得到:D(PD^{-l})，然后由互信息大于0从而完成证明。但这样是不严谨的，因为我们无法保证<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sum D^{-l_i} = 1</annotation></semantics></math>.</p>
+<p>因此这里需要做一个归一化处理：
+令：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><mfrac><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup><mi mathvariant="normal">Δ</mi></mfrac><mi>，</mi><mi mathvariant="normal">Δ</mi><mo>=</mo><mo>∑</mo><msup><mi>D</mi><mrow><mi>−</mi><msub><mi>l</mi><mi>i</mi></msub></mrow></msup></mrow><annotation encoding="application/x-tex">r_i = \frac{D^{-l_i} }{\Delta}，\Delta = \sum D^{-l_i}</annotation></semantics></math>
+(这个地方真是不容易想到啊，很容易就不严谨了)</p>
+<p>则（1）可以写为： $$ \begin{aligned} P_i _D \ &amp;=P_i _D {}\
+&amp;=P_i _D - _D P_i\ &amp;=D(Pr) + 码长 码长 码长
+而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">‖</mo><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mn>1</mn><mi mathvariant="normal">Δ</mi></mfrac><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">D(P\Vert r) + \log \frac 1 \Delta \ge 0</annotation></semantics></math>（由对数性质，鉴别信息性质以及Kraft不等式决定）.</p>
+<p>所以，我们完成了对上述定理的证明。</p>
+<h2 id="最优前缀码定理香农第一定理">最优前缀码定理（香农第一定理）</h2>
+<p>该定理描述如下：</p>
+<p>对随机变量X进行D进制前缀编码，得到的最优码长满足下列不等式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msup><mi>L</mi><mo>*</mo></msup><mo>&lt;</mo><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+H_D(X) \leq L^* &lt; H_D(X)+1
+</annotation></semantics></math></p>
+<p>左侧是不用证明的，因为上个定理已经证明了。我们主要需要证明的是右侧。</p>
+<p>香农通过构造香农码来证明右侧：</p>
+<p>取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \log_D \frac 1{P_i} \rceil</annotation></semantics></math>为码字长度，这样的编码是满足kraft不等式的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><msup><mi>D</mi><mrow><mi>−</mi><mo stretchy="false" form="postfix">⌉</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac></mrow></msup><mo>≤</mo><mo>∑</mo><msup><mi>D</mi><mrow><mi>−</mi><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac></mrow></msup><mo>=</mo><mo>∑</mo><msub><mi>P</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\sum D^{-\rceil \log_D \frac 1 {P_i} } \leq \sum D^{-\log_D \frac 1 {P_i} } = \sum P_i = 1
+</annotation></semantics></math>
+因此我们可以根据这个码长来构造出相应的前缀码。</p>
+<p>我们知道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac><mo>≤</mo><msub><mi>l</mi><mi>i</mi></msub><mo>≤</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>D</mi></msub><mfrac><mn>1</mn><msub><mi>P</mi><mi>i</mi></msub></mfrac><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\log _D \frac 1 {P_i} \leq l_i \leq \log_D \frac 1 {P_i}+1
+</annotation></semantics></math></p>
+<p>如果对上述不等式的所有side求期望，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo>∑</mo><msub><mi>p</mi><mi>i</mi></msub><msub><mi>l</mi><mi>i</mi></msub><mo>≤</mo><msub><mi>H</mi><mi>D</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+H_D(X) \leq \sum p_il_i \leq H_D(X) + 1
+</annotation></semantics></math></p>
+<p>这就是香农码。它不一定是最优，因此我们就完成了香农第一定理的证明。</p>
+<h2 id="分组前缀码">分组前缀码</h2>
+<p>定长编码定理告诉我们，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>可以任意小，而变长编码告诉我们，我们付出的代价小于1。能不能让这个代价能保证比1更小呢？这就是分组编码。</p>
+<p>对于信源X进行分组前缀编码，得到的每消息符号数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>L</mi><mi>n</mi><mo>*</mo></msubsup><annotation encoding="application/x-tex">L_n^*</annotation></semantics></math>满足不等式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>X</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo>≤</mo><msubsup><mi>L</mi><mi>n</mi><mo>*</mo></msubsup><mo>≤</mo><mfrac><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>X</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo>+</mo><mfrac><mn>1</mn><mi>n</mi></mfrac></mrow><annotation encoding="application/x-tex">
+\frac{H(X_1,X_2,...,X_n)}{n} \leq L_n^* \leq \frac{H(X_1,X_2,...,X_n)}{n}  + \frac 1 n
+</annotation></semantics></math></p>
+<p>如果信源稳恒，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>L</mi><mi>n</mi><mo>*</mo></msubsup><mo>→</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L_n^* \rightarrow H(X)</annotation></semantics></math>.</p>
+<p>这要求我们对X进行分组，因此会有解码延迟，也需要缓冲区。但是通过这个，可以使得平均码长代价更小。天下没有免费的午餐。</p>
+<h2 id="编码效率与互信息">编码效率与互信息</h2>
+<p>最优前缀码的编码与信源的分布密切相关，但是我们不一定能准确知道信源的分布。如果信源分布估计出现偏差，则平均码长就会受到惩罚。</p>
+<p>Penalty分析：</p>
+<p>可以证明，对于服从p(x)信源X进行前缀编码，如果码字长度取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mn>1</mn><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">l(x) = \lceil \log \frac 1 {q(x)}\rceil</annotation></semantics></math>，则平均码长满足：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">‖</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>E</mi><mi>p</mi></msub><mi>l</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">‖</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+H(p) + D(p\Vert q) \leq E_ {p}l(X) &lt; H(p) + D(p\Vert q) +1
+</annotation></semantics></math></p>
+<p>受到的惩罚中，互信息出来了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+              <a href="/tags/lossless-encoding/" rel="tag"># lossless encoding</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/14/SLAM%E2%80%94%E2%80%94%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/" rel="prev" title="SLAM——非线性优化">
+                  <i class="fa fa-angle-left"></i> SLAM——非线性优化
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/14/Learning-From-Data%E2%80%94%E2%80%94Activation-Function/" rel="next" title="Learning From Data——Activation Function">
+                  Learning From Data——Activation Function <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

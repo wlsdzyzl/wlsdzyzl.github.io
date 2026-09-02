@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="实际上从上次介绍的东西，我们理论上已经知道了SLAM是怎么运作的了。从深度图和颜色图，估计相机位姿，通过相机位姿，以及深度图和颜色图，我们实际上就可以去拼接点云或者三维建模了。不过现实往往没有那么容易，如果这么简单SLAM也没什么好研究的了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SLAM——非线性优化">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/14/SLAM%E2%80%94%E2%80%94%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="实际上从上次介绍的东西，我们理论上已经知道了SLAM是怎么运作的了。从深度图和颜色图，估计相机位姿，通过相机位姿，以及深度图和颜色图，我们实际上就可以去拼接点云或者三维建模了。不过现实往往没有那么容易，如果这么简单SLAM也没什么好研究的了。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-14T06:29:22.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.678Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="SLAM">
+<meta property="article:tag" content="mathematics">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/14/SLAM%E2%80%94%E2%80%94%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/14/SLAM%E2%80%94%E2%80%94%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/","path":"2018/11/14/SLAM——非线性优化/","title":"SLAM——非线性优化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SLAM——非线性优化 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E4%BC%B0%E8%AE%A1%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">状态估计问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E5%90%8E%E9%AA%8C%E4%B8%8E%E6%9C%80%E5%A4%A7%E4%BC%BC%E7%84%B6"><span class="nav-number">1.1.</span> <span class="nav-text">最大后验与最大似然</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BA%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">引出最小二乘法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98"><span class="nav-number">3.</span> <span class="nav-text">非线性最小二乘</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E7%89%9B%E9%A1%BF%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">高斯牛顿法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E6%96%87%E4%BC%AF%E6%A0%BC-%E9%A9%AC%E5%A4%B8%E5%B0%94%E7%89%B9%E6%B3%95"><span class="nav-number">3.2.</span> <span class="nav-text">列文伯格-马夸尔特法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E4%BC%98%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">图优化</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/14/SLAM%E2%80%94%E2%80%94%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SLAM——非线性优化 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SLAM——非线性优化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-14 14:29:22" itemprop="dateCreated datePublished" datetime="2018-11-14T14:29:22+08:00">2018-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SLAM/" itemprop="url" rel="index"><span itemprop="name">SLAM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>实际上从上次介绍的东西，我们理论上已经知道了SLAM是怎么运作的了。从深度图和颜色图，估计相机位姿，通过相机位姿，以及深度图和颜色图，我们实际上就可以去拼接点云或者三维建模了。不过现实往往没有那么容易，如果这么简单SLAM也没什么好研究的了。
+<span id="more"></span>
+实际上，生活中处处充满了噪声。我们采集的数据也是一样。我们无法消除噪声。所以我们得到的运动方程还有观测方程，都不一定（实际上是一定不）是严格成立的，只能近似成立。为了使得状态估计在噪声中有不错的效果，我们必须得进行优化。现实中的优化问题往往是非线性问题，所以这次主要讲的内容是非线性优化。</p>
+<p>实际上机器学习以及信息论中很多地方多多少少涉及到了优化问题，因此看这篇文章到最后会有“很多原来是这个啊”的类似感慨。</p>
+<h2 id="状态估计问题">状态估计问题</h2>
+<h3 id="最大后验与最大似然">最大后验与最大似然</h3>
+<p>在前面几次内容中，我们知道了SLAM的数学模型如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>x</mi><mi>k</mi></msub><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>μ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>w</mi><mi>k</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">
+\left\{
+\begin{matrix}
+x_k = f(x_ {k-1},\mu_k) + w_k\\
+z_ {k,j} = h(y_j,x_k) + v_ {k,j}
+\end{matrix}
+\right .
+</annotation></semantics></math></p>
+<p>我们了解到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>是相机的位姿，可以使用变换矩阵或者李代数来表示，即<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>可以由<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>k</mi></msub><annotation encoding="application/x-tex">T_k</annotation></semantics></math>或者<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ξ</mi><mi>k</mi></msub><mover><mrow></mrow><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\exp(\xi_k\hat{})</annotation></semantics></math>来表示。我们暂且专注于观测方程。假设位姿为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>对路标<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>j</mi></msub><annotation encoding="application/x-tex">y_j</annotation></semantics></math>进行了一次观测，对应到图像的位置为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">z_ {k,j}</annotation></semantics></math>，则观测方程可以表示为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mi>K</mi><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mover><mrow></mrow><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><msub><mi>y</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+sz_ {k,j} = K \exp(\xi\hat{})y_j.
+</annotation></semantics></math></p>
+<p>上式中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>为相机内参，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>为物体与相机之间的距离。这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">z_ {k,j}, y_j</annotation></semantics></math>都用齐次坐标描述。</p>
+<p>现在，考虑高斯噪声：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>k</mi></msub><mover><mrow></mrow><mo accent="true">̃</mo></mover><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msub><mi>R</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mover><mrow></mrow><mo accent="true">̃</mo></mover><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msub><mi>Q</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">w_k \tilde{} N(0,R_k),v_ {k,j} \tilde{} N(0,Q_ {k,j}).</annotation></semantics></math></p>
+<p>在这些噪声的影响下，我们希望通过<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>来推断位姿<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>和地图<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>，这就构成了一个状态估计问题。在之前的研究中，多用滤波器（尤其是卡尔曼滤波器EKF）来求解这个问题。卡尔曼滤波器的特点是只关心当前时刻的状态估计<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>，而对之前的状态则不多考虑，也就是假设这一系列状态是符合马尔可夫链的。近些年来的研究多用的是非线性优化的方法，比卡尔曼滤波有更好的效果。</p>
+<p>首先从概率论角度看一下我们探讨的问题。非线性优化中把所有代估计的变量放在一个状态变量当中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">}</mo><mo>;</mo><mi>x</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>x</mi><mi>N</mi></msub><mo stretchy="false" form="postfix">}</mo><mo>;</mo><mi>y</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>y</mi><mi>M</mi></msub><mo stretchy="false" form="postfix">}</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\{x,y\};x = \{x_1,...,x_N\};y=\{y_1,...,y_M\}.
+</annotation></semantics></math>
+现在我们要求的是在当前的观测<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>和输入数据<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>的情况下，状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{x,y\}</annotation></semantics></math>的概率：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>z</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(x,y|z,u)</annotation></semantics></math>.这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>,</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">u,z</annotation></semantics></math>是其他输入的统称，如果输入图片是没有时间关系的，那么这个问题是Structure
+from Motion(SfM)问题。</p>
+<p>对于上面这个概率是非常熟悉了，我们已经多次遇到了。利用贝叶斯公式可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>z</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+P(x,y|z,u) = \frac{P(z,u|x,y)P(x,y)}{P(z,u)}
+</annotation></semantics></math></p>
+<p>贝叶斯左侧为后验概率，而右侧中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi>为</mi></mrow><annotation encoding="application/x-tex">P(x,y)为</annotation></semantics></math>先验，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(z,u|x,y)</annotation></semantics></math>为似然。直接求后验分布往往是困难的，而求一个状态最优估计，使得该状态下后验概率最大化(Maximizae
+a Posterior, MAP)是可行的： <span class="math display">$$
+{x^\*,y^\*}_ {MAP} = argmax_ {x,y}P(x,y|z,u) = argmax_
+{x,y}P(z,u|x,y)P(x,y)
+$$</span></p>
+<p>进一步，如果我们不在乎先验，得到的就是x,y的最大似然估计(Maximize
+Likelihood Estimation, MLE)： <span class="math display">$$
+{x^\*,y^\*}_ {MLE} = argmax P(z,u|x,y)
+$$</span></p>
+<p>后验的意思是在当前的观测数据下可能出现什么样的状态，而似然的意思是在这个的状态下，出现当前观测数据的概率，因此最大似然的直观意思就是什么样的状态下最可能产生现在的观测数据。最大后验是当前的观测数据下最可能出现什么样的状态。这两者并不是完全等价的。</p>
+<h2 id="引出最小二乘法">引出最小二乘法</h2>
+<p>如何求最大似然估计？在高斯分布的假设下，最大似然有比较简单的形式。对于某一次观测：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>v</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+z_ {k,j} = h(y_j,x_k)+v_ {k,j},
+</annotation></semantics></math>
+由于我们假设噪声<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mover><mi>N</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msub><mi>Q</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v_ {k,j} \tilde N(0,Q_ {k,j})</annotation></semantics></math>，所以观测数据的条件概率为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>k</mi></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msub><mi>Q</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+P(z_ {j,k}|x_k,y_j) = N(h(y_j,x_k),Q_ {k,j})
+</annotation></semantics></math></p>
+<p>它依然是一个高斯分布。为了计算是他最大化的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>k</mi></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">x_k,y_j</annotation></semantics></math>，我们往往使用最小化负对数的方式，也就是加<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">log</mi><annotation encoding="application/x-tex">\log</annotation></semantics></math>。
+高斯分布在负对数下有较好的数学形式，考虑高斯分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mover><mrow></mrow><mo accent="true">̃</mo></mover><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">x\tilde{}N(\mu,\Sigma)</annotation></semantics></math>，它的概率密度函数展开形式为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>π</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>N</mi></msup><mi>d</mi><mi>e</mi><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msqrt></mfrac><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msup><mi mathvariant="normal">Σ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(x) = \frac{1}{\sqrt{(2\pi)^N det(\Sigma)} }\exp\left(-\frac 1 2 (x - \mu)^T \Sigma^{-1}(x - \mu)\right).
+</annotation></semantics></math></p>
+<p>则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>π</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>N</mi></msup><mi>d</mi><mi>e</mi><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msup><mi mathvariant="normal">Σ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+-\log P(x) = \frac{1}{2}\log \left( (2\pi)^N det(\Sigma)\right) + \frac{1}{2}(x-\mu)^T\Sigma^{-1}(x-\mu).
+</annotation></semantics></math></p>
+<p>对原式求最大化也就是对上式求最小化。上式中第一项与x无关，可以忽略。带入SLAM的观测方程得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mi>a</mi><mi>r</mi><mi>g</mi><mi>m</mi><mi>i</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msubsup><mi>Q</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+x^* = argmin \left((z_ {k,j} - h(x_k,y_j))^T Q_ {k,j}^{-1}(z_ {k,j} - h(x_k,y_j)) \right).
+</annotation></semantics></math>
+我们发现上式等价与最小化噪声项的平方(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>范数意义下)。因此对于所有的运动和任意的观测，我们定义数据与估计值之间的误差为：
+<span class="math display">$$
+e_ {v,k} = x_k - f(x_ {k-1},u_k)\\
+e_ {y,j,k} = z_ {k,j} - h(x_k,y_j),
+$$</span> 该误差的平方和如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mi>k</mi></munder><msubsup><mi>e</mi><mrow><mi>v</mi><mo>,</mo><mi>k</mi></mrow><mi>T</mi></msubsup><msubsup><mi>R</mi><mi>k</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><msub><mi>e</mi><mrow><mi>v</mi><mo>,</mo><mi>k</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>k</mi></munder><munder><mo>∑</mo><mi>j</mi></munder><msubsup><mi>e</mi><mrow><mi>y</mi><mo>,</mo><mi>k</mi><mo>,</mo><mi>j</mi></mrow><mi>T</mi></msubsup><msubsup><mi>Q</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><msub><mi>e</mi><mrow><mi>y</mi><mo>,</mo><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
+J(x) = \sum_k e_ {v,k}^T R_k^{-1}e_ {v,k} + \sum_k \sum_j e_ {y,k,j}^T Q_ {k,j}^{-1}e_ {y,k,j}
+</annotation></semantics></math></p>
+<p>这样就得到了一个总体意义下的最小二乘问题。它的最优解等价于状态的最大似然估计。</p>
+<h2 id="非线性最小二乘">非线性最小二乘</h2>
+<p>对于简单的最小二乘问题，假设：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mi>x</mi></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\min_x \frac 1 2 \Vert f(x)\Vert_2^2.
+</annotation></semantics></math>
+如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>形式比较简单，我们可以通过导数为0得到最优解，也就是求极值。不过往往我们需要求解的这个问题函数形式并不简单。这时候要使用的就是迭代的方法一步步向着最优解走。也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mo>+</mo><mi>δ</mi><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">x_ {i+1} = x_ {i} + \delta x_i</annotation></semantics></math>。当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\Delta x_i</annotation></semantics></math>很小的时候迭代停止。这个过程中，比较难的地方在于如何确定这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\delta x_i</annotation></semantics></math>，使得优化问题有很多方法。
+### 一阶梯度法和二阶梯度法 ###
+求解增量解最直观的方式是将目标函数在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>附近进行泰勒展开：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>≈</mo><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>δ</mi><msup><mi>x</mi><mi>T</mi></msup><mi>H</mi><mi>δ</mi><mi>x</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\Vert f(x+\delta x)\Vert_2^2 \approx \Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x.
+</annotation></semantics></math></p>
+<p>上式中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\Vert f(x)\Vert_2^2</annotation></semantics></math>关于ｘ的导数(雅科比矩阵)，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>为二阶导数(海森矩阵)。我们可以选择保留一阶项或者二阶项，分别得到一阶和二阶梯度法。
+#### 一阶梯度法 ####
+保留一阶项，比较好理解，为了朝最低的点走，就是朝着导数的反方向，实际上这个走不能走得太多，一阶展开后最小值是无穷小的，不过走得太多泰勒展开是不成立的，因此一般需要一个学习率：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>x</mi><mo>=</mo><mi>−</mi><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\delta x = -J^T(x)
+</annotation></semantics></math> 实际上这就是梯度下降算法。 ####
+二阶梯度法 #### 对于二阶梯度法：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mi>a</mi><mi>r</mi><mi>g</mi><mi>m</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>δ</mi><msup><mi>x</mi><mi>T</mi></msup><mi>H</mi><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\delta x^* = argmin (\Vert f(x)\Vert_2^2 + J(x)\delta x+\frac 1 2 \delta x^T H \delta x)
+</annotation></semantics></math> 上式对$$求导，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mi>δ</mi><mi>x</mi><mo>=</mo><mi>−</mi><msup><mi>J</mi><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+H\delta x = -J^T
+</annotation></semantics></math></p>
+<p>这个方法称为牛顿法。实际上呢，它就是牛顿迭代法，可以看另外一种解释：<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/10/16/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Newton-Method/">Newton
+Method</a></p>
+<p>无论是一介导数还是二阶导数都是非常直观的，不过梯度下降因为策略是贪心，最后经常走出锯齿路线，使得迭代次数过多，而牛顿法对于海森矩阵的求解，在大规模的情况下是非常耗时的。我们希望能够避免<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>的求解，下面介绍两个SLAM中用的更多的方法。</p>
+<h3 id="高斯牛顿法">高斯牛顿法</h3>
+<p>我们想要最小化<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\Vert f(x + \delta x)\Vert_2^2</annotation></semantics></math>，一种策略是像上面一样，对他进行泰勒展开，另一种，我们可以先在内部进行泰勒展开：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">
+f(x+\delta x) \approx f(x) + J(x)\delta x 
+</annotation></semantics></math></p>
+<p>然后最小化<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\Vert f(x) + J(x)\delta x  \Vert_2^2</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mi>a</mi><mi>r</mi><mi>g</mi><mi>m</mi><mi>i</mi><msub><mi>n</mi><mrow><mi>δ</mi><mi>x</mi></mrow></msub><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">
+\delta x^* = argmin _ {\delta x} \frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2
+</annotation></semantics></math>
+由于泰勒展开，让上面的形式已经比较简单了，所以我们无需再次泰勒展开了。为了方便，我们将上面的形式写成：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="prefix">(</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mn>2</mn><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>+</mo><mi>δ</mi><msup><mi>x</mi><mi>T</mi></msup><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\frac 1 2 \Vert f(x) + J(x)\delta x \Vert_2^2 &amp;= \frac{1}{2}( f(x) + J(x)\delta x)^T ( f(x) + J(x)\delta x)\\
+&amp;= \frac{1}{2}\left(\Vert f(x) \Vert_2^2 +2f(x)^TJ(x)\delta x + \delta x^TJ^T(x)J(x)\delta x\right)
+\end{aligned}
+</annotation></semantics></math> 对上式求导令其为0：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">
+2J^T(x)f(x) + 2J^T(x)J(x)\delta x = 0
+</annotation></semantics></math> 得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>=</mo><mi>−</mi><msup><mi>J</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+J^T(x)J(x) \delta x = -J^T(x)f(x)
+</annotation></semantics></math>
+我们要求的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\delta x</annotation></semantics></math>，这是一个线性方程组，我们称为增量方程，或者高斯牛顿方程，也叫正规方程。将上式中左侧定义为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>,右侧定义为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mi>δ</mi><mi>x</mi><mo>=</mo><mi>g</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
+H\delta x = g,
+</annotation></semantics></math>
+因此，我们在利用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>J</mi><mi>T</mi></msup><mi>J</mi></mrow><annotation encoding="application/x-tex">J^TJ</annotation></semantics></math>作为海森矩阵的近似。原则上，我们的近似<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>矩阵是可逆且正定，但是实际中经常出现<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>J</mi><mi>T</mi></msup><mi>J</mi></mrow><annotation encoding="application/x-tex">J^TJ</annotation></semantics></math>为半正定矩阵，使用高斯牛顿法时候可能得到奇异矩阵或者病态的情况，此时稳定性较差，导致算法不一定会收敛。有时候得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\delta x</annotation></semantics></math>过大，导致结果不减反增。</p>
+<p>尽管高斯牛顿法有缺点，但是它是很多更先进算法(如线搜索方法，line
+search method)的基础。</p>
+<h3 id="列文伯格-马夸尔特法">列文伯格-马夸尔特法</h3>
+<p>列文伯格-马夸尔特法在一定程度上修正了这些问题，它比高斯牛顿更为健壮，不过它的收敛速度更慢，被称为阻尼牛顿法。</p>
+<p>高斯牛顿中的问题之所以会出现，一定程度上是因为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>过大的时候，偏离了泰勒近似，所以可以想到的是找一个信赖区间，在区间内我们认为结果可以接受，超过了区间我们认为可能会出问题。</p>
+<p>如何确定信赖区间的范围？一种办法是比较真实减小值和近似减小值的差距：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>δ</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\rho = \frac{f(x + \delta x) - f(x)}{J(x)\delta x}.
+</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>的分子是真实减少值，而分母是近似减少值。如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>比较大，意味这相差不多，可以继续增大范围，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>h</mi><mi>o</mi></mrow><annotation encoding="application/x-tex">rho</annotation></semantics></math>近似于１，表示近似一致，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>h</mi><mi>o</mi></mrow><annotation encoding="application/x-tex">rho</annotation></semantics></math>过小，则表示近似减少的太多了，需要缩小近似范围。</p>
+<p>因此我们可以想象这样一个过程：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mrow><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub></mrow></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub><msup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn></msup><mo>,</mo><mi>s</mi><mi>.</mi><mi>t</mi><mi>.</mi><mo stretchy="false" form="postfix">‖</mo><mi>D</mi><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub><msup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn></msup><mo>≤</mo><mi>μ</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\min_ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k)\delta x_k\Vert^2, s.t. \Vert  D \delta x_k\Vert^2 \leq \mu.
+</annotation></semantics></math></p>
+<p>这里<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>是信赖区域的半径。</p>
+<ul>
+<li>计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>:
+<ul>
+<li>如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>&gt;</mo><mfrac><mn>3</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">\rho &gt; \frac 3 4</annotation></semantics></math>，则：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mn>2</mn><mi>μ</mi></mrow><annotation encoding="application/x-tex">\mu = 2\mu</annotation></semantics></math>,</li>
+<li>如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>&lt;</mo><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">\rho &lt; \frac 1 4</annotation></semantics></math>，则：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mn>0.5</mn><mi>μ</mi></mrow><annotation encoding="application/x-tex">\mu = 0.5\mu</annotation></semantics></math>,
+如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>大于某个阈值表示是可以接受的，令<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>+</mo><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">x_ {k+1} = x_k + \delta x_k</annotation></semantics></math>.</li>
+</ul></li>
+</ul>
+<p>这里扩大的倍数等都是经验值，如果没有D，则表示范围是一个球，有了D可以是一个椭球，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>是一个非负对角阵，一般来说使用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>J</mi><mi>T</mi></msup><mi>J</mi></mrow><annotation encoding="application/x-tex">J^TJ</annotation></semantics></math>的对角元素平方根，使得在梯度小的维度上约束范围更大一些。</p>
+<p>实际上，这个操作就是正则化的一种，不过用到了优化过程中。利用拉格朗日乘子，我们可以将有约束的优化转化称为无约束的优化：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mrow><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub></mrow></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>J</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><msub><mi>x</mi><mi>k</mi></msub><msup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn></msup><mo>+</mo><mfrac><mi>λ</mi><mn>2</mn></mfrac><mo stretchy="false" form="postfix">‖</mo><mi>D</mi><mi>δ</mi><mi>x</mi><msup><mo stretchy="false" form="postfix">‖</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\min _ {\delta x_k} \frac 1 2 \Vert f(x_k)+J(x_k) \delta x_k\Vert^2 + \frac{\lambda}{2} \Vert D \delta x \Vert ^2.
+</annotation></semantics></math></p>
+<p>更大的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>（信赖范围），对应着更小的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>。对上式求导，得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo>+</mo><mi>λ</mi><msup><mi>D</mi><mi>T</mi></msup><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mi>δ</mi><mi>x</mi><mo>=</mo><mi>g</mi></mrow><annotation encoding="application/x-tex">
+(H + \lambda D^T D)\delta x = g
+</annotation></semantics></math></p>
+<p>如果取<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">D=I</annotation></semantics></math>，那么当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>较小的时候（信赖半径较大），采用的就是高斯牛顿方法，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>比较大（信赖半径较小），那么更像是在用普通的梯度下降方法。</p>
+<p>由此可以看到列文伯格-马夸尔特法在一定程度上可以减少奇异以及病态问题。</p>
+<p>这几种方法是最基本的优化方法。一般来说分为两类：line search与trust
+region，line search是确定方向找步长，如一二阶梯度法，高斯牛顿法，而trust
+region是确定范围，在范围内找到更合适的点，如列文伯格-马夸尔特法。</p>
+<p>在求解<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>J</mi><mi>T</mi></msup><mi>J</mi></mrow><annotation encoding="application/x-tex">J^TJ</annotation></semantics></math>的时候，由于SLAM中这个矩阵具有稀疏性，简化了计算，使得这种优化方法被广为采纳。此外，在优化时候初始值也很重要，否则这些优化算法往往陷入局部最小值。一般来说，我们会利用ICP,PnP等算法提供一个较好的初始值。</p>
+<h2 id="图优化">图优化</h2>
+<p>最后简单提一下图优化。图优化牵扯到了图论，把要优化的变量转化为点，而误差项转化为边。对于任何一个最小二乘问题我们都可以构建与之对应的一个图。</p>
+<p>看下图是SLAM中优化对应的图优化模型： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/g2o.jpg" /></p>
+<p>圆圈表示位姿，方框表示路标，而圆圈间的连线表示误差<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>k</mi></msub><annotation encoding="application/x-tex">w_k</annotation></semantics></math>，方框与圆圈之间的连线表示误差<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mrow><mi>k</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">v_ {k,j}</annotation></semantics></math>。</p>
+<p>为什么要用图优化，因为我们可以直观看到问题的结构，图论中很多理论可以用到了。比如先去掉孤立点，或者优先优化度数较大的顶点等等。</p>
+<p>最后，提两个从c++库：ceres与g2o。其中g2o是图优化库。</p>
+<p>关于图优化的更多，参考：<a
+target="_blank" rel="noopener" href="https://www.cnblogs.com/gaoxiang12/p/5244828.html">图优化</a>.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SLAM/" rel="tag"># SLAM</a>
+              <a href="/tags/mathematics/" rel="tag"># mathematics</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/14/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E2%80%94%E2%80%94Viewing/" rel="prev" title="图形学——Viewing">
+                  <i class="fa fa-angle-left"></i> 图形学——Viewing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/14/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Kraft%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8F%98%E9%95%BF%E7%BC%96%E7%A0%81%E5%AE%9A%E7%90%86/" rel="next" title="信息论——Kraft不等式以及变长编码定理">
+                  信息论——Kraft不等式以及变长编码定理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

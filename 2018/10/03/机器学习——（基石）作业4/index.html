@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="机器学习基石的最后一次作业，总共20道题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——（基石）作业4">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="机器学习基石的最后一次作业，总共20道题目。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-10-03T08:18:16.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.683Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/","path":"2018/10/03/机器学习——（基石）作业4/","title":"机器学习——（基石）作业4"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——（基石）作业4 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——（基石）作业4 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——（基石）作业4
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-10-03 16:18:16" itemprop="dateCreated datePublished" datetime="2018-10-03T16:18:16+08:00">2018-10-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>机器学习基石的最后一次作业，总共20道题目。 <span id="more"></span> <strong>1.
+Deterministic noise depends on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">ℋ</mi><annotation encoding="application/x-tex">\mathcal{H}</annotation></semantics></math>,
+as some models approximate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+better than others. Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="script">ℋ</mi><mo>′</mo></msup><mo>⊂</mo><mi mathvariant="script">ℋ</mi></mrow><annotation encoding="application/x-tex">\mathcal{H}&#39;\subset \mathcal{H}</annotation></semantics></math>
+and that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+is fixed. In general (but not necessarily in all cases), if we use
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="script">ℋ</mi><mo>′</mo></msup><annotation encoding="application/x-tex">\mathcal{H}&#39;</annotation></semantics></math>
+instead of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">ℋ</mi><annotation encoding="application/x-tex">\mathcal{H}</annotation></semantics></math>,
+how does deterministic noise behave?</strong></p>
+<ol type="a">
+<li><p>In general, deterministic noise will decrease.</p></li>
+<li><p>In general, deterministic noise will increase.</p></li>
+<li><p>In general, deterministic noise will be the same.</p></li>
+<li><p>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">vc</mtext></msub><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="script">ℋ</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>d</mi><mtext mathvariant="normal">vc</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="script">ℋ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d_ {\text{vc} }(\mathcal{H}&#39;) \le \frac{1}{2} d_ {\text{vc} }(\mathcal{H})</annotation></semantics></math>,
+deterministic noise will increase, else it will decrease.</p></li>
+<li><p>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">vc</mtext></msub><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="script">ℋ</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>d</mi><mtext mathvariant="normal">vc</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="script">ℋ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d_ {\text{vc} }(\mathcal{H}&#39;) \le \frac{1}{2} d_ {\text{vc} }(\mathcal{H})</annotation></semantics></math>,
+deterministic noise will decrease, else it will increase.</p></li>
+</ol>
+<p>deterministic
+noise出现的原因，是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>无法完美的模拟f.而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>H</mi><mo>′</mo></msup><annotation encoding="application/x-tex">H&#39;</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>的子集，也就是它的模型复杂度更低，一般来说更无法模拟目标函数，它的deterministic
+noise应该是上升的，选b。</p>
+<p><strong>2. Consider the following hypothesis set for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">\mathbf{x} \in \mathbb{R}^dx</annotation></semantics></math>
+defined by the constraint:</strong> <span class="math display">$$
+\mathcal{H}(d, d_0) = \{ h ~|~ h(\mathbf{x}) =
+\mathbf{w}^\mathrm{T}\mathbf{x}; w_i = 0 \hspace{1 mm} \mbox{for}
+\hspace{1mm} i \geq d_0 \},
+$$</span> <strong>which of the following statements is
+correct?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>⊂</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(10,3)⊂H(10,4)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>∪</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">H(10,3)∪H(10,4)=\{\}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>⊃</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(10,3)⊃H(10,4)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>∩</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">H(10,3)∩H(10,4)=\{\}</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>这个题目的约束不算难，也就是有一个额外的参数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>d</mi><mn>0</mn></msub><mo>≤</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d_0(d_0 \leq d)</annotation></semantics></math>,w下标比<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mn>0</mn></msub><annotation encoding="application/x-tex">d_0</annotation></semantics></math>大的固定为0.选项中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mn>0</mn></msub><annotation encoding="application/x-tex">d_0</annotation></semantics></math>只有3与4两个选项，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mn>0</mn></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">d_0 = 3</annotation></semantics></math>的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>是包含在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mn>0</mn></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">d_0=4</annotation></semantics></math>的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>中的，因为对于前者来说，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mn>3</mn></msub><annotation encoding="application/x-tex">w_3</annotation></semantics></math>的值也确定了，自由度为3，后者自由度为4，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mn>0</mn></msub><annotation encoding="application/x-tex">w_0</annotation></semantics></math>可以为0也可以为其他值.因此答案选a.</p>
+<p>For Questions 3-4, consider the augmented error
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mtext mathvariant="normal">aug</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><mi>λ</mi><mi>N</mi></mfrac><msup><mi mathvariant="bold-italic">𝒘</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒘</mi></mrow><annotation encoding="application/x-tex">E_ {\text{aug} }(\mathbf{w}) = E_ {\text{in} }(\mathbf{w}) + \frac{\lambda}{N} \mathbf{w}^T \mathbf{w}</annotation></semantics></math>
+with some
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda &gt; 0</annotation></semantics></math>.</p>
+<p><strong>3. If we want to minimize the augmented error
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mtext mathvariant="normal">aug</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {\text{aug} }(\mathbf{w})</annotation></semantics></math>
+by gradient descent with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+as learning rate, which of the following is a correct update
+rule?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⟵</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>η</mi><mi>λ</mi><mi>∇</mi><mi>E</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(t+1)⟵w(t)+ηλ\nabla E \in (w(t))</annotation></semantics></math>.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⟵</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>η</mi><mi>λ</mi><mi>∇</mi><mi>E</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(t+1)⟵w(t)-ηλ\nabla E \in (w(t))</annotation></semantics></math>.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⟵</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mn>2</mn><mi>η</mi><mi>λ</mi></mrow><mi>N</mi></mfrac><mo stretchy="false" form="postfix">)</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>η</mi><mi>∇</mi><mi>E</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(t+1)⟵(1− \frac {2\eta \lambda} {N})w(t)−η\nabla E \in (w(t))</annotation></semantics></math>.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⟵</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mn>2</mn><mi>η</mi><mi>λ</mi></mrow><mi>N</mi></mfrac><mo stretchy="false" form="postfix">)</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>η</mi><mi>∇</mi><mi>E</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(t+1)⟵(1+ \frac {2\eta \lambda} {N})w(t)−η\nabla E \in (w(t))</annotation></semantics></math>.</p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>这个题目也是比较简单的。梯度下降就是朝着梯度的反方向前进，因此只用求出来梯度就可以。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi></mrow><annotation encoding="application/x-tex">W^TW</annotation></semantics></math>的梯度很简单是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>W</mi></mrow><annotation encoding="application/x-tex">2W</annotation></semantics></math>，其他的与之前的一致，因此答案选c。</p>
+<p><strong>4. Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒘</mi><mtext mathvariant="normal">lin</mtext></msub><annotation encoding="application/x-tex">\mathbf{w}_ {\text{lin} }</annotation></semantics></math>
+be the optimal solution for the plain-vanilla linear regression and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒘</mi><mtext mathvariant="normal">reg</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{w}_ {\text{reg} }(\lambda)</annotation></semantics></math>
+be the optimal solution for minimizing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mtext mathvariant="normal">aug</mtext></msub><annotation encoding="application/x-tex">E_ {\text{aug} }</annotation></semantics></math>
+in Question 3, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub><annotation encoding="application/x-tex">E_ {\text{in} }</annotation></semantics></math>
+being the squared error for linear regression. Which of the following is
+correct?</strong></p>
+<ol type="a">
+<li><p>none of the other choices</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>r</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo>≤</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>l</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W_ {reg}(\lambda)|| \leq ||W_ {lin}||</annotation></semantics></math>
+for any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda &gt; 0</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>r</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo>≥</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>l</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W_ {reg}(\lambda)|| \geq ||W_ {lin}||</annotation></semantics></math>
+for any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda &gt; 0</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>r</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W_ {reg}(\lambda)||</annotation></semantics></math>
+is always a non-decreasing function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda \ge 0</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>r</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W_ {reg}(\lambda)||</annotation></semantics></math>
+is always a constant function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda \ge 0</annotation></semantics></math></p></li>
+</ol>
+<p>要明白这个题目，首先要知道什么是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>W</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W||</annotation></semantics></math>，这个意思是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>向量的范数，也就等于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>T</mi></msup><mi>W</mi></mrow><annotation encoding="application/x-tex">W^TW</annotation></semantics></math>.对于之前题目添加的regularization来说，限制实际上是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mi>W</mi></msup><mo>≤</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">W^W \leq C</annotation></semantics></math>.如何推导？
+最低点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><msub><mi>E</mi><mrow><mi>a</mi><mi>u</mi><mi>g</mi></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\nabla E_ {aug} = 0</annotation></semantics></math>，也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mi>−</mi><mfrac><mrow><mn>2</mn><mi>λ</mi></mrow><mi>N</mi></mfrac><mi>W</mi></mrow><annotation encoding="application/x-tex">\nabla E_ {in} = - \frac {2\lambda} {N} W</annotation></semantics></math>,因此最低点<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\nabla E_ {in}</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的长度比值是一定的，也就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>向量的长度被确定到了一个值。而因为一直在朝约束条件下最低点走，因次<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\nabla E_ {in}</annotation></semantics></math>也是接近平缓的也就是值比较小，所以这意味着<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>最后是比较小的。</p>
+<p>从另一个角度来看，范数一定是大于零的，为了找到最低点当然是让范数尽量小，也就是正则化相当于给各个参数增加了惩罚，想让他们变得更小。</p>
+<p>因此这个题目的答案选择b.如果没有约束情况下得到的最好的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>也满足约束，也就是等于的情况，其他时候<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>l</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>W</mi><mrow><mi>r</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||W_ {lin}|| &gt; ||W_ {reg}||</annotation></semantics></math></p>
+<p><strong>5. You are given the data points:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-1,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>ρ</mi><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\rho,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1,0)</annotation></semantics></math>,$
+$, and a choice between two models:</strong></p>
+<ul>
+<li>constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">h_0(x)=b_0</annotation></semantics></math>
+and</li>
+<li>linear
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>a</mi><mn>1</mn></msub><mi>x</mi><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">h_1(x)=a_1x+b_1</annotation></semantics></math></li>
+</ul>
+<p>For which value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>
+would the two models be tied using leave-one-out cross-validation with
+the squared error measure?</p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><msqrt><mn>3</mn></msqrt><mo>+</mo><mn>4</mn></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\sqrt {3}+4}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><msqrt><mn>3</mn></msqrt><mo>−</mo><mn>1</mn></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\sqrt{3} - 1}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mn>9</mn><mo>+</mo><mn>4</mn><msqrt><mn>6</mn></msqrt></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{9+4 \sqrt{6} }</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mn>9</mn><mo>−</mo><msqrt><mn>6</mn></msqrt></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{9 - \sqrt{6} }</annotation></semantics></math></p></li>
+<li><p>none of the other choice</p></li>
+</ol>
+<p>使用Leave-One-Out
+Cross验证来得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><annotation encoding="application/x-tex">E_ {val}</annotation></semantics></math>。对于第一种情况，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">h(x)=b_0</annotation></semantics></math>是个常量。对于第二种情况是个直线。首先要计算出两种模型的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><annotation encoding="application/x-tex">E_ {val}</annotation></semantics></math>.</p>
+<p>第一种模型： *
+第一个为验证集：则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>b</mi><mn>0</mn></msub><mo>−</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>+</mo><msubsup><mi>b</mi><mn>0</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {in} = \frac 1 2 ((b_0-1)^2 + b_0^2)</annotation></semantics></math>,则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>最小的时候<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">b_0 = 0.5</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo>=</mo><mn>0.5</mn><mo>×</mo><mn>0.5</mn><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">err = 0.5 \times 0.5 = 0.25</annotation></semantics></math>.
+*
+第二个为验证集：则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><msubsup><mi>b</mi><mn>0</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">E_ {in} = b_0^2</annotation></semantics></math>,因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b_0 = 0</annotation></semantics></math>,err
+= 1. *
+第三个为验证集，情况与第一种情况一致，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">err =0.25</annotation></semantics></math>.</p>
+<p>因此这时候的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>0.25</mn><mo>+</mo><mn>0.25</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>3</mn><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">E_ {val} = (1+0.25+0.25)/3 = 0.5</annotation></semantics></math>.</p>
+<p>第二种模型： *
+第一个为验证集：则计算出来得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mi>p</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mo>,</mo><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mi>p</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">a_1 = \frac 1 {p-1},b_1 = \frac 1 {1-p}</annotation></semantics></math>,则预测值是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>2</mn><mrow><mn>1</mn><mo>−</mo><mi>p</mi></mrow></mfrac><annotation encoding="application/x-tex">\frac 2 {1-p}</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo>=</mo><mfrac><mn>4</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">err = \frac 4 {(1-p)^2}</annotation></semantics></math>.
+*
+第二个为验证集，得到的是一个常熟：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">h(x) = 0</annotation></semantics></math>.这种情况下<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">err = 1</annotation></semantics></math>.
+*
+第三个为验证集，则计算出来得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mi>p</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>,</mo><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>p</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">a_1 = \frac 1 {p+1},b_1 = \frac 1 {1+p}</annotation></semantics></math>,则预测值是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>p</mi></mrow></mfrac><annotation encoding="application/x-tex">\frac 2 {1+p}</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo>=</mo><mfrac><mn>4</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">err = \frac 4 {(1+p)^2}</annotation></semantics></math>.</p>
+<p>这时候的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mn>4</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mn>4</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></mfrac><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">E_ {val} =(1 + \frac 4 {(1-p)^2} + \frac 4 {(1+p)^2} )/3</annotation></semantics></math>.</p>
+<p>题目中说了，两个模型都适用到该样本集。那么上面两个应该是相等的。可以解出来：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mn>2</mn></msup><mo>=</mo><mn>9</mn><mo>±</mo><mn>4</mn><msqrt><mn>6</mn></msqrt></mrow><annotation encoding="application/x-tex">p^2 = 9±4\sqrt {6}</annotation></semantics></math>,而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>9</mn><mo>−</mo><mn>4</mn><msqrt><mn>6</mn></msqrt><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">9-4 \sqrt 6 &lt; 0</annotation></semantics></math>，因此正确答案是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>9</mn><mo>+</mo><mn>4</mn><msqrt><mn>6</mn></msqrt></mrow><annotation encoding="application/x-tex">9+ 4 \sqrt {6}</annotation></semantics></math>.答案选c。</p>
+<p>For Questions 6-7, suppose that for 5 weeks in a row, a letter
+arrives in the mail that predicts the outcome of the upcoming Monday
+night baseball game.</p>
+<p><strong>6. Assume there are no tie. You keenly watch each Monday and
+to your surprise, the prediction is correct each time. On the day after
+the fifth game, a letter arrives, stating that if you wish to see next
+week’s prediction, a payment of NTD
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1000</mn><annotation encoding="application/x-tex">1000</annotation></semantics></math>
+is required. Which of the following statement is true?</strong></p>
+<ol type="a">
+<li><p>There are 31 win-lose predictions for 5 games.</p></li>
+<li><p>If the sender wants to make sure that at least one person
+receives correct predictions on all 5 games from him, the sender should
+target to begin with at least 5 people.</p></li>
+<li><p>To make sure that at least one person receives correct
+predictions on all 5 games from the sender, after the first letter
+`predicts’ the outcome of the first game, the sender should target at
+least 16 people with the second letter.</p></li>
+<li><p>To make sure that at least one person receives correct
+predictions on all 5 games from him, at least 64 letters should be sent
+before the fifth game.</p></li>
+<li><p>none of the other choice</p></li>
+</ol>
+<p>这个题目讲的是一个小把戏。5场比赛，每场比赛只有正负两个情况。因此一共可能出现的情况有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>5</mn></msup><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">2^5=32</annotation></semantics></math>种。a错误。32种情况，当然要32个人，因此b错误。至少发出去的信有（32+16+8+4+2=62）封，d错误。而c，第一个结果出来后，会有一半的人收到错误的预测，因此第二封信只需要发给正确的那些人就好了，也就是16个人.</p>
+<p><strong>7. If the cost of printing and mailing out each letter is NTD
+10. If the sender sends the minimum number of letters out, how much
+money can be made for the above `fraud’ to succeed once? That is, one of
+the recipients does send him NTD 1000 to receive the prediction of the
+6-th game?</strong></p>
+<ol type="a">
+<li><p>NTD 340</p></li>
+<li><p>NTD 370</p></li>
+<li><p>NTD 400</p></li>
+<li><p>NTD 430</p></li>
+<li><p>NTD 460</p></li>
+</ol>
+<p>上面一道题目推断出来，至少要发送62封信才能保证有个人收到所有预测结果。而最后一个人收到的全部正确的预测后还要在加发一封，来骗钱。也就是63封，所以答案是NTD
+370，选b.</p>
+<p>For Questions 8-10, please read the following story first. In our
+credit card example, the bank starts with some vague idea of what
+constitutes a good credit risk. So, as customers
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>N</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1, \mathbf{x}_2,...,\mathbf{x}_N</annotation></semantics></math>
+arrive, the bank applies its vague idea to approve credit cards for some
+of these customers based on a formula
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x})</annotation></semantics></math>.
+Then, only those who get credit cards are monitored to see if they
+default or not.</p>
+<p><strong>8. For simplicity, suppose that the first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>10000</mn></mrow><annotation encoding="application/x-tex">N=10000</annotation></semantics></math>
+customers were given credit cards by the credit approval function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x})</annotation></semantics></math>.
+Now that the bank knows the behavior of these customers, it comes to you
+to improve their algorithm for approving credit. The bank gives you the
+data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>N</mi></msub><mo>,</mo><msub><mi>y</mi><mi>N</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{x}_1, y_1), ... , (\mathbf{x}_N, y_N)</annotation></semantics></math>.
+Before you look at the data, you do mathematical derivations and come up
+with a credit approval function. You now test it on the data and, to
+your delight, obtain perfect prediction.</strong></p>
+<p>What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>,
+the size of your hypothesis set?</p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>N</mi></msup><annotation encoding="application/x-tex">2^N</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>N</mi><mn>2</mn></msup><annotation encoding="application/x-tex">N^2</annotation></semantics></math></p></li>
+<li><p>We have no idea about it.</p></li>
+</ol>
+<p>利用数学推理想到了一个函数做出了很好的预测，因此这个vc
+dimension是无法计算的，但是因为没有经过数据的学习，这个H的大小应该是1，选择a.</p>
+<p><strong>9. With such an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>,
+what does the Hoeffding bound say about the probability that the true
+average error rate of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+is worse than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">1\%</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>10</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">N=10,000</annotation></semantics></math>?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>0.171</mn></mrow><annotation encoding="application/x-tex">\leq 0.171</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>0.221</mn></mrow><annotation encoding="application/x-tex">\leq 0.221</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>0.271</mn></mrow><annotation encoding="application/x-tex">\leq 0.271</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>0.321</mn></mrow><annotation encoding="application/x-tex">\leq 0.321</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>霍夫丁不等式的简单应用：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>ν</mi><mo>−</mo><mi>υ</mi><mo stretchy="false" form="prefix">|</mo><mo>&gt;</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><mn>2</mn><msup><mi>e</mi><mrow><mi>−</mi><mn>2</mn><msup><mi>ϵ</mi><mn>2</mn></msup><mi>N</mi></mrow></msup></mrow><annotation encoding="application/x-tex">P[\nu  - \upsilon|&gt; \epsilon ] \leq 2 e^{-2\epsilon ^2N}</annotation></semantics></math>。上述中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi><mo>=</mo><mn>0.01</mn><mo>,</mo><mi>N</mi><mo>=</mo><mn>10000</mn></mrow><annotation encoding="application/x-tex">\epsilon = 0.01,N = 10000</annotation></semantics></math>,得到答案为0.2706705664732，答案选c.</p>
+<p><strong>10. You assure the bank that you have a got a system
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+for approving credit cards for new customers, which is nearly
+error-free. Your confidence is given by your answer to the previous
+question. The bank is thrilled and uses your
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+to approve credit for new customers. To their dismay, more than half
+their credit cards are being defaulted on. Assume that the customers
+that were sent to the old credit approval function and the customers
+that were sent to your g are indeed i.i.d. from the same distribution,
+and the bank is lucky enough (so the “bad luck” that “the true error of
+gg is worse than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">1\%</annotation></semantics></math>’’
+does not happen). Which of the following claim is true?</strong></p>
+<ol type="a">
+<li><p>By applying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> NOR </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x}) \mbox{ NOR } g(\mathbf{x})</annotation></semantics></math>
+to approve credit for new customers, the performance of the overall
+credit approval system can be improved with guarantee provided by the
+previous problem.</p></li>
+<li><p>By applying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> NAND </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x}) \mbox{ NAND } g(\mathbf{x})</annotation></semantics></math>
+to approve credit for new customers, the performance of the overall
+credit approval system can be improved with guarantee provided by the
+previous problem.</p></li>
+<li><p>By applying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> OR </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x}) \mbox{ OR } g(\mathbf{x})</annotation></semantics></math>
+to approve credit for new customers, the performance of the overall
+credit approval system can be improved with guarantee provided by the
+previous problem.</p></li>
+<li><p>By applying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> AND </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(\mathbf{x}) \mbox{ AND } g(\mathbf{x})</annotation></semantics></math>
+to approve credit for new customers, the performance of the overall
+credit approval system can be improved with guarantee provided by the
+previous problem.</p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>这个题目中说到，利用之前的推断出来的g，本应该有很好的表现，但是却得到了很差的表现。为什么？我们要注意一个事：Sample
+Bias。虽然题目中说了，新的顾客和之前系统的顾客是来自于同一分布的，但是我们得到的test数据的分布并不是原先的顾客分布。test数据中，顾客的信息并不是随机得到的，而是先经过了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(x)</annotation></semantics></math>的筛选。上面的霍夫曼不等式的理论保证是在同一分布的前提下，因此首先要经过<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a(x)</annotation></semantics></math>的筛选，然后再用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x)</annotation></semantics></math>来判断。因此答案选d.</p>
+<p>For Questions 11-12, consider linear regression with virtual
+examples.</p>
+<p>**11. That is, we add
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+virtual examples
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo>,</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo>,</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mi>K</mi></msub><mo>,</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>K</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\tilde{\mathbf{x} }_1, \tilde{y}_1),(\tilde{\mathbf{x} }_2, \tilde{y}_2),\dots, (\tilde{\mathbf{x} }_K, \tilde{y}_K)</annotation></semantics></math>
+to the training data set, and solve$ _ { } (_ {n=1}^N (y_n - ^T <em>n)^2
++ </em> {k=1}^K (_k - ^T _k)^2)$.We will show that using some “special”
+virtual examples, which were claimed to be a possible way to combat
+overfitting in Lecture 9, is related to regularization, another possible
+way to combat overfitting discussed in Lecture 10. Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mi>…</mi><msub><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̃</mo></mover><mi>K</mi></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = [\tilde{\mathbf{x} }_1 \tilde{\mathbf{x} }_2 \ldots \tilde{\mathbf{x} }_K]^T</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo>,</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>K</mi></msub><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{y} } = [\tilde{y}_1, \tilde{y}_2, \ldots, \tilde{y}_K]^T</annotation></semantics></math>.
+What is the optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒘</mi><annotation encoding="application/x-tex">\mathbf{w}</annotation></semantics></math>
+to the optimization problem above, assuming that all the inversions
+exist?**</p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{X}^T\mathbf{X})^{-1}(\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} })</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒚</mi><mo>+</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{X}^T \mathbf{y}+\widetilde {\mathbf{X} }^T\widetilde{y})</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo>+</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{X}^T\mathbf{X} + \widetilde{\mathbf{X} }^T\widetilde{\mathbf{X} })^{-1}(\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} })</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo>+</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒚</mi><mo>+</mo><msup><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi>T</mi></msup><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{X}^T\mathbf{X} + \widetilde{\mathbf{X} }^T\widetilde{\mathbf{X} })^{-1}(\mathbf{X}^T \mathbf{y} +\widetilde {\mathbf{X} }^T\widetilde{\mathbf{y} } )</annotation></semantics></math></p></li>
+<li><p>none of the other choice</p></li>
+</ol>
+<p>这个题目说起来也容易。既然把虚拟数据也融合进去了，当然各部分都要计算，很容易排除其他答案,选择d。</p>
+<p><strong>12. For what $ and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><annotation encoding="application/x-tex">\tilde{\mathbf{y} }</annotation></semantics></math>
+will the solution of the linear regression problem above equal
+to</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒘</mi><mtext mathvariant="normal">reg</mtext></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow><mi mathvariant="bold-italic">𝒘</mi></msub><mfrac><mi>λ</mi><mi>N</mi></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒘</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo>+</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑿</mi><mi mathvariant="bold-italic">𝒘</mi><mo>−</mo><mi mathvariant="bold-italic">𝒚</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mi>?</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{w}_ {\text{reg} } = \mathrm{argmin}_ {\mathbf{w} } \frac{\lambda}{N} \|\mathbf{w}\|^2 + \frac{1}{N} \|\mathbf{X}\mathbf{w}-\mathbf{y}\|^2? 
+</annotation></semantics></math></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><mi>I</mi><mo>,</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = I, \tilde{\mathbf{y} } = 0</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><msqrt><mi>λ</mi></msqrt><mi>I</mi><mo>,</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = \sqrt {\lambda}I, \tilde{\mathbf{y} } = 0</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><mi>λ</mi><mi>I</mi><mo>,</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = \lambda I, \tilde{\mathbf{y} } = \mathbf{1}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><msqrt><mi>λ</mi></msqrt><mi mathvariant="bold-italic">𝑿</mi><mo>,</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = \sqrt{\lambda} \mathbf{X}, \tilde{\mathbf{y} } = \mathbf{y}</annotation></semantics></math></p></li>
+<li><p>none of the other choice</p></li>
+</ol>
+<p>这个问题乍一看，摸不着头脑。一个是矩阵中求逆操作，另一个是最小化一个函数（argmin(f(x))的定义之前已经说过）。但是换个办法的话，其实很容易解决，我们可以想象一下11题中需要最小化的函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>，则可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mrow><mi>v</mi><mi>i</mi><mi>r</mi></mrow></msub><mo>=</mo><mi>a</mi><mi>r</mi><mi>g</mi><mi>m</mi><mi>i</mi><msub><mi>n</mi><mi>w</mi></msub><mfrac><mn>1</mn><mrow><mi>N</mi><mo>+</mo><mi>K</mi></mrow></mfrac><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mi mathvariant="bold-italic">𝒘</mi><mo>−</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>+</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝑿</mi><mi mathvariant="bold-italic">𝒘</mi><mo>−</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+W_ {vir} = argmin_w \frac 1  {N+K} (||\tilde{\mathbf{X} }\mathbf{w} - \tilde{\mathbf{y} }||^2 +  ||\mathbf{X}\mathbf{w} - \mathbf{y}||^2).
+</annotation></semantics></math>
+最小化的话无论前面有没有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mi>N</mi></mfrac><annotation encoding="application/x-tex">\frac 1 N</annotation></semantics></math>或者其他常数都是无所谓的。
+想要让二者最后结果相等，使得去掉常数之后相等即可，则，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝑿</mi><mo accent="true">̃</mo></mover><mo>=</mo><msqrt><mi>λ</mi></msqrt><mi>I</mi><mo>,</mo><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̃</mo></mover><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{X} } = \sqrt {\lambda}I, \tilde{\mathbf{y} } = 0</annotation></semantics></math>.因此这道题目答案选b。</p>
+<p><strong>13. Consider regularized linear regression (also called ridge
+regression) for classification</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒘</mi><mtext mathvariant="normal">reg</mtext></msub><mo>=</mo><msub><mtext mathvariant="normal">argmin</mtext><mi mathvariant="bold-italic">𝒘</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>λ</mi><mi>N</mi></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒘</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo>+</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝑿</mi><mi mathvariant="bold-italic">𝒘</mi><mo>−</mo><mi mathvariant="bold-italic">𝒚</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{w}_ {\text{reg} } = \mbox{argmin}_ {\mathbf{w} } \left(\frac{\lambda}{N} \|\mathbf{w}\|^2 + \frac{1}{N} \|\mathbf{X}\mathbf{w}-\mathbf{y}\|^2\right) .
+</annotation></semantics></math> Run the algorithm on the following data
+set as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>:
+https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_train.dat</p>
+<p>and the following set for evaluating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>:
+https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw4_test.dat</p>
+<p>Because the data sets are for classification, please consider only
+the 0/1 error for all Questions below.</p>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">\lambda = 10</annotation></semantics></math>,
+which of the followings is the corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>?</p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.015,E_ {out} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.015</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.030,E_ {out} = 0.015</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.035</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.035,E_ {out} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.050</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.045</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.050,E_ {out} = 0.045</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.020</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.010</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.020,E_ {out} = 0.010</annotation></semantics></math></p></li>
+</ol>
+<p>这道题目是线性回归的一个改进。相对于之前的代码也只要做些许的改进就可以了。利用之前的第12题的结论，我们依然可以一步得到结果。
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sign</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> +<span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">visualize</span>(<span class="params">data,W=[]</span>):</span><br><span class="line">    nx = []</span><br><span class="line">    ny = []</span><br><span class="line">    ox = []</span><br><span class="line">    oy = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        <span class="keyword">if</span> data[i][-<span class="number">1</span>] == -<span class="number">1</span>:</span><br><span class="line">            nx.append(data[i][<span class="number">0</span>])</span><br><span class="line">            ny.append(data[i][<span class="number">1</span>])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ox.append(data[i][<span class="number">0</span>])</span><br><span class="line">            oy.append(data[i][<span class="number">1</span>])</span><br><span class="line">    plt.scatter(nx,ny,marker=<span class="string">&quot;x&quot;</span>,c=<span class="string">&quot;r&quot;</span>)</span><br><span class="line">    plt.scatter(ox,oy,marker=<span class="string">&quot;o&quot;</span>,c=<span class="string">&quot;g&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(W)!=<span class="number">0</span> :</span><br><span class="line">        <span class="built_in">print</span>(W)</span><br><span class="line">        x = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">50</span>)</span><br><span class="line">        y = -W[<span class="number">1</span>] / W[<span class="number">2</span>] * x - W[<span class="number">0</span>] / W[<span class="number">2</span>]</span><br><span class="line">        plt.plot(x, y, color=<span class="string">&quot;black&quot;</span>)</span><br><span class="line">    plt.show()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ridge_regression_one_step</span>(<span class="params">data,_<span class="keyword">lambda</span></span>):</span><br><span class="line">    X_matrix = []</span><br><span class="line">    Y_matrix = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        temp = [<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data[i])-<span class="number">1</span>):</span><br><span class="line">            temp.append(data[i][j])</span><br><span class="line"></span><br><span class="line">        X_matrix.append(temp)</span><br><span class="line">        Y_matrix.append([data[i][-<span class="number">1</span>]])</span><br><span class="line">    X = np.mat(X_matrix)</span><br><span class="line">    hatX = math.sqrt(_<span class="keyword">lambda</span>)*np.eye(<span class="built_in">len</span>(data[<span class="number">0</span>]))</span><br><span class="line">    <span class="comment">#print(hatX)</span></span><br><span class="line">    hatY = np.mat([ <span class="number">0</span> <span class="keyword">for</span> i <span class="keyword">in</span> data[<span class="number">0</span>]]).T</span><br><span class="line">    Y = np.mat(Y_matrix)</span><br><span class="line">    W = (X.T*X + hatX.T*hatX).I*(X.T*Y+hatX.T*hatY)</span><br><span class="line">    <span class="keyword">return</span> W.T.tolist()[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Ein</span>(<span class="params">data,W</span>):</span><br><span class="line">    err_num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        res = W[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="built_in">len</span>(W)):</span><br><span class="line">            res += W[j]*data[i][j-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> sign(res) != data[i][-<span class="number">1</span>]:</span><br><span class="line">            err_num+=<span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> err_num</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">readDataFrom</span>(<span class="params">path</span>):</span><br><span class="line">    separator = re.<span class="built_in">compile</span>(<span class="string">&#x27;\t|\b| |\n&#x27;</span>)</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(path,<span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        s = f.readline()[:-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">while</span> s:</span><br><span class="line">            temp = separator.split(s)</span><br><span class="line">            result.append([<span class="built_in">float</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> temp])</span><br><span class="line">            s = f.readline()[:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    err = <span class="number">0</span></span><br><span class="line">    data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">    <span class="comment">#print(data)</span></span><br><span class="line">    data_test =  readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">    W = ridge_regression_one_step(data,<span class="number">10</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Ein&quot;</span>,Ein(data,W)/<span class="built_in">len</span>(data))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Eout&quot;</span>,Ein(data_test,W)/<span class="built_in">len</span>(data_test))</span><br><span class="line">    visualize(data,W)</span><br></pre></td></tr></table></figure> 可以得到最后的运行结果如下： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ein 0.05</span><br><span class="line">Eout 0.045</span><br></pre></td></tr></table></figure>
+因此答案选择d.</p>
+<p><strong>14. Following the previous Question, among
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>10</mn></msub><mi>λ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>−</mi><mn>8</mn><mo>,</mo><mi>−</mi><mn>9</mn><mo>,</mo><mi>−</mi><mn>10</mn><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">\log_ {10} \lambda= \left\{2, 1, 0, -1, \ldots, -8, -9, -10 \right\}</annotation></semantics></math>.
+What is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+with the minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>?
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and its corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>
+then select the closest answer. Break the tie by selecting the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.040</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -2,E_ {in} = 0.030,E_ {out} = 0.040</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>4</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -4,E_ {in} = 0.015,E_ {out} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>6</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.040</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -6,E_ {in} = 0.030,E_ {out} = 0.040</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>8</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -8,E_ {in} = 0.015,E_ {out} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>10</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.040</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -10,E_ {in} = 0.030,E_ {out} = 0.040</annotation></semantics></math></p></li>
+</ol>
+<p>这个题目只需要对上面题目的执行函数做一些改动即可： <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    minEin = <span class="number">1</span></span><br><span class="line">    minEout = <span class="number">1</span></span><br><span class="line">    minEinI = -<span class="number">1</span></span><br><span class="line">    minEoutI = -<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(-<span class="number">10</span>,<span class="number">3</span>):</span><br><span class="line">        _<span class="keyword">lambda</span> = math.<span class="built_in">pow</span>(<span class="number">10</span>,i)</span><br><span class="line">        data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">        <span class="comment"># print(data)</span></span><br><span class="line">        data_test = readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">        W = ridge_regression_one_step(data, _<span class="keyword">lambda</span>)</span><br><span class="line">        ein = Ein(data, W) / <span class="built_in">len</span>(data)</span><br><span class="line">        eout = Ein(data_test, W) / <span class="built_in">len</span>(data_test)</span><br><span class="line">        <span class="built_in">print</span>(i,<span class="string">&quot;Ein:&quot;</span>, ein,<span class="string">&quot;Eout:&quot;</span>, eout)</span><br><span class="line">        <span class="keyword">if</span> ein&lt;=minEin:</span><br><span class="line">            minEin = ein</span><br><span class="line">            minEinI = i</span><br><span class="line">        <span class="keyword">if</span> eout &lt;= minEout:</span><br><span class="line">            minEout = eout</span><br><span class="line">            minEoutI = i</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;minEin:&quot;</span>,minEinI,<span class="string">&quot;minEout:&quot;</span>,minEoutI)</span><br></pre></td></tr></table></figure>
+得到结果： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-10</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-9</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-8</span> Ein: <span class="number">0.015</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">-7</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.015</span></span><br><span class="line"><span class="number">-6</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-5</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-4</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-3</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-2</span> Ein: <span class="number">0.03</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">-1</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.016</span></span><br><span class="line"><span class="number">0</span> Ein: <span class="number">0.035</span> Eout: <span class="number">0.02</span></span><br><span class="line"><span class="number">1</span> Ein: <span class="number">0.05</span> Eout: <span class="number">0.045</span></span><br><span class="line"><span class="number">2</span> Ein: <span class="number">0.24</span> Eout: <span class="number">0.261</span></span><br><span class="line">minEin: <span class="number">-8</span> minEout: <span class="number">-7</span></span><br></pre></td></tr></table></figure>
+可以看到Ein最小的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>8</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\lambda = 10^{-8}</annotation></semantics></math>(相等取最大的),因此答案选d.</p>
+<p><strong>15. Following the previous Question, among
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>10</mn></msub><mi>λ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>−</mi><mn>8</mn><mo>,</mo><mi>−</mi><mn>9</mn><mo>,</mo><mi>−</mi><mn>10</mn><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">\log_ {10} \lambda= \left\{2, 1, 0, -1, \ldots, -8, -9, -10 \right\}</annotation></semantics></math>.
+What is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+with the minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>?
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and its corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>
+then select the closest answer. Break the tie by selecting the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>1</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.015</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -1,E_ {in} = 0.015,E_ {out} = 0.015</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>3</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.015</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -3,E_ {in} = 0.015,E_ {out} = 0.015</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>5</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -5,E_ {in} = 0.015,E_ {out} = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>7</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.015</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -7,E_ {in} = 0.030,E_ {out} = 0.015</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>9</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.030</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -9,E_ {in} = 0.030,E_ {out} = 0.030</annotation></semantics></math></p></li>
+</ol>
+<p>答案在上个题目中已经得到了。答案选d.</p>
+<p><strong>16. Now split the given training examples in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>
+to the first 120 examples for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mtext mathvariant="normal">train</mtext></msub><annotation encoding="application/x-tex">\mathcal{D}_ {\text{train} }</annotation></semantics></math>
+and 80 for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mtext mathvariant="normal">val</mtext></msub><annotation encoding="application/x-tex">\mathcal{D}_ {\text{val} }</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="italic">𝐼𝑑𝑒𝑎𝑙𝑙𝑦, 𝑦𝑜𝑢 𝑠ℎ𝑜𝑢𝑙𝑑 𝑟𝑎𝑛𝑑𝑜𝑚𝑙𝑦 𝑑𝑜 𝑡ℎ𝑒 120/80 𝑠𝑝𝑙𝑖𝑡. 𝐵𝑒𝑐𝑎𝑢𝑠𝑒 𝑡ℎ𝑒 𝑔𝑖𝑣𝑒𝑛 𝑒𝑥𝑎𝑚𝑝𝑙𝑒𝑠 𝑎𝑟𝑒 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑟𝑎𝑛𝑑𝑜𝑚𝑙𝑦 𝑝𝑒𝑟𝑚𝑢𝑡𝑒𝑑, ℎ𝑜𝑤𝑒𝑣𝑒𝑟, 𝑤𝑒 𝑤𝑜𝑢𝑙𝑑 𝑢𝑠𝑒 𝑎 𝑓𝑖𝑥𝑒𝑑 𝑠𝑝𝑙𝑖𝑡 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑝𝑢𝑟𝑝𝑜𝑠𝑒 𝑜𝑓 𝑡ℎ𝑖𝑠 𝑝𝑟𝑜𝑏𝑙𝑒𝑚.</mtext><annotation encoding="application/x-tex">\textit{Ideally, you should randomly do the 120/80 split. Because the given examples are already randomly permuted, however, we would use a fixed split for the purpose of this problem.}</annotation></semantics></math></strong></p>
+<p><strong>Run the algorithm on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mtext mathvariant="normal">train</mtext></msub><annotation encoding="application/x-tex">\mathcal{D}_ {\text{train} }</annotation></semantics></math>
+to get
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><annotation encoding="application/x-tex">g^-_\lambda</annotation></semantics></math>,
+and validate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><annotation encoding="application/x-tex">g^-_\lambda</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="script">𝒟</mi><mtext mathvariant="normal">val</mtext></msub><annotation encoding="application/x-tex">\mathcal{D}_ {\text{val} }</annotation></semantics></math>.
+Among
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>10</mn></msub><mi>λ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>−</mi><mn>8</mn><mo>,</mo><mi>−</mi><mn>9</mn><mo>,</mo><mi>−</mi><mn>10</mn><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">\log_ {10} \lambda= \left\{2, 1, 0, -1, \ldots, -8, -9, -10 \right\}</annotation></semantics></math>.
+What is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+with the minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {train}(g^-_\lambda)</annotation></semantics></math>?
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and the corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {train}(g^-_\lambda)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {val}(g^-_\lambda)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g^-_\lambda)</annotation></semantics></math>
+then select the closet answer. Break the tie by selecting the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.000</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.050</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = 0,E_ {train}(g_ {\lambda}^-) = 0.000,E_ {val}(g_ {\lambda}^-) = 0.050,E_ {out}(g_ {\lambda}^-) = 0.025</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.010</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.050</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.035</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -2,E_ {train}(g_ {\lambda}^-) = 0.010,E_ {val}(g_ {\lambda}^-) = 0.050,E_ {out}(g_ {\lambda}^-) = 0.035</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>4</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.000</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.010</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -4,E_ {train}(g_ {\lambda}^-) = 0.000,E_ {val}(g_ {\lambda}^-) = 0.010,E_ {out}(g_ {\lambda}^-) = 0.025</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>6</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.010</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.010</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -6,E_ {train}(g_ {\lambda}^-) = 0.010,E_ {val}(g_ {\lambda}^-) = 0.010,E_ {out}(g_ {\lambda}^-) = 0.025</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>8</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.000</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.050</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -8,E_ {train}(g_ {\lambda}^-) = 0.000,E_ {val}(g_ {\lambda}^-) = 0.050,E_ {out}(g_ {\lambda}^-) = 0.025</annotation></semantics></math></p></li>
+</ol>
+<p>这道题目依然用之前的程序就可以完成，只需要修改主函数。这里使用到了验证集，需要添加的就是验证相关的代码。
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    minEtrain = <span class="number">1</span></span><br><span class="line">    minEval = <span class="number">1</span></span><br><span class="line">    minEout = <span class="number">1</span></span><br><span class="line">    minEvalI = -<span class="number">1</span></span><br><span class="line">    minEtrainI = -<span class="number">1</span></span><br><span class="line">    minEoutI = -<span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(-<span class="number">10</span>,<span class="number">3</span>):</span><br><span class="line">        _<span class="keyword">lambda</span> = math.<span class="built_in">pow</span>(<span class="number">10</span>,i)</span><br><span class="line">        data = readDataFrom(<span class="string">&quot;./train.dat&quot;</span>)</span><br><span class="line">        data_train = data[<span class="number">0</span>:<span class="number">120</span>]</span><br><span class="line">        data_val = data[<span class="number">120</span>:<span class="number">200</span>]</span><br><span class="line">        <span class="comment"># print(data)</span></span><br><span class="line">        data_test = readDataFrom(<span class="string">&quot;./test.dat&quot;</span>)</span><br><span class="line">        W = ridge_regression_one_step(data_train, _<span class="keyword">lambda</span>)</span><br><span class="line">        etrain = Ein(data_train, W) / <span class="built_in">len</span>(data_train)</span><br><span class="line">        <span class="built_in">eval</span> = Ein(data_val,W)/<span class="built_in">len</span>(data_val)</span><br><span class="line">        eout = Ein(data_test, W) / <span class="built_in">len</span>(data_test)</span><br><span class="line">        <span class="built_in">print</span>(i,<span class="string">&quot;Etrain:&quot;</span>, etrain,<span class="string">&quot;Eval:&quot;</span>,<span class="built_in">eval</span>,<span class="string">&quot;Eout:&quot;</span>, eout)</span><br><span class="line">        <span class="keyword">if</span> etrain&lt;=minEtrain:</span><br><span class="line">            minEtrain = etrain</span><br><span class="line">            minEtrainI = i</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">eval</span> &lt;= minEval:</span><br><span class="line">            minEval = <span class="built_in">eval</span></span><br><span class="line">            minEvalI = i</span><br><span class="line">        <span class="keyword">if</span> eout &lt;= minEout:</span><br><span class="line">            minEout = eout</span><br><span class="line">            minEoutI = i</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;minEtrain:&quot;</span>,minEtrainI,<span class="string">&quot;minEval:&quot;</span>,minEvalI,<span class="string">&quot;minEout&quot;</span>,minEoutI)</span><br></pre></td></tr></table></figure> 最后输出如下： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">-10</span> Etrain: <span class="number">0.008333333333333333</span> Eval: <span class="number">0.125</span> Eout: <span class="number">0.04</span></span><br><span class="line"><span class="number">-9</span> Etrain: <span class="number">0.0</span> Eval: <span class="number">0.1</span> Eout: <span class="number">0.038</span></span><br><span class="line"><span class="number">-8</span> Etrain: <span class="number">0.0</span> Eval: <span class="number">0.05</span> Eout: <span class="number">0.025</span></span><br><span class="line"><span class="number">-7</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-6</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-5</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-4</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-3</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-2</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.021</span></span><br><span class="line"><span class="number">-1</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.022</span></span><br><span class="line"><span class="number">0</span> Etrain: <span class="number">0.03333333333333333</span> Eval: <span class="number">0.0375</span> Eout: <span class="number">0.028</span></span><br><span class="line"><span class="number">1</span> Etrain: <span class="number">0.075</span> Eval: <span class="number">0.125</span> Eout: <span class="number">0.08</span></span><br><span class="line"><span class="number">2</span> Etrain: <span class="number">0.3416666666666667</span> Eval: <span class="number">0.4125</span> Eout: <span class="number">0.414</span></span><br><span class="line">minEtrain: <span class="number">-8</span> minEval: <span class="number">0</span> minEout <span class="number">-2</span></span><br></pre></td></tr></table></figure> 因此答案选择e.</p>
+<p><strong>17. Following the previous Question, among
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>10</mn></msub><mi>λ</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>−</mi><mn>8</mn><mo>,</mo><mi>−</mi><mn>9</mn><mo>,</mo><mi>−</mi><mn>10</mn><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">\log_ {10} \lambda= \left\{2, 1, 0, -1, \ldots, -8, -9, -10 \right\}</annotation></semantics></math>.What
+is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+with the minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {val}(g^-_\lambda)</annotation></semantics></math>?
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and the corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {train}(g^-_\lambda)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {val}(g^-_\lambda)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g^-_\lambda)</annotation></semantics></math>
+then select the closet answer. Break the tie by selecting the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.033</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.038</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = 0,E_ {train}(g_ {\lambda}^-) = 0.033,E_ {val}(g_ {\lambda}^-) = 0.038,E_ {out}(g_ {\lambda}^-) = 0.028</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>3</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.000</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.038</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -3,E_ {train}(g_ {\lambda}^-) = 0.000,E_ {val}(g_ {\lambda}^-) = 0.028,E_ {out}(g_ {\lambda}^-) = 0.038</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>6</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.066</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.038</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.038</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -6,E_ {train}(g_ {\lambda}^-) = 0.066,E_ {val}(g_ {\lambda}^-) = 0.038,E_ {out}(g_ {\lambda}^-) = 0.038</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>9</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.033</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -9,E_ {train}(g_ {\lambda}^-) = 0.033,E_ {val}(g_ {\lambda}^-) = 0.028,E_ {out}(g_ {\lambda}^-) = 0.028</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>10</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.066</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>v</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>g</mi><mi>λ</mi><mo>−</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.028</mn></mrow><annotation encoding="application/x-tex">log _10^{\lambda} = -10,E_ {train}(g_ {\lambda}^-) = 0.066,E_ {val}(g_ {\lambda}^-) = 0.028,E_ {out}(g_ {\lambda}^-) = 0.028</annotation></semantics></math></p></li>
+</ol>
+<p>答案在上面已经给出。答案选择a.</p>
+<p><strong>18. Run the algorithm with the optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+of the previous Question on the whole
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>
+to get
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mi>λ</mi></msub><annotation encoding="application/x-tex">g_\lambda</annotation></semantics></math>.
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g_\lambda)</annotation></semantics></math>
+then select the closet answer.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_ {\lambda}) = 0.015,E_ {out}(g_ {\lambda}) = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_ {\lambda}) = 0.025,E_ {out}(g_ {\lambda}) = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.035</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_ {\lambda}) = 0.035,E_ {out}(g_ {\lambda}) = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.045</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_ {\lambda}) = 0.045,E_ {out}(g_ {\lambda}) = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.055</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_ {\lambda}) = 0.055,E_ {out}(g_ {\lambda}) = 0.020</annotation></semantics></math></p></li>
+</ol>
+<p>根据17题选出来最佳的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda = 0</annotation></semantics></math>，因此在全数据集上再次进行学习，得到的结果在14题的分析中已经呈现，答案是c.</p>
+<p>可以看到的是利用验证，我们选出来了一个很贴近最佳<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>的答案了。</p>
+<p>For Questions 19-20, split the given training examples in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>
+to five folds, the first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>40</mn><annotation encoding="application/x-tex">40</annotation></semantics></math>
+being fold 1, the next
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>40</mn><annotation encoding="application/x-tex">40</annotation></semantics></math>
+being fold 2, and so on. Again, we take a fixed split because the given
+examples are already randomly permuted.</p>
+<p><strong>19. What is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">λ</annotation></semantics></math>
+with the minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><annotation encoding="application/x-tex">E_ {cv}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><annotation encoding="application/x-tex">E_ {cv}</annotation></semantics></math>
+comes from the five folds defined above? Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+and the corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><annotation encoding="application/x-tex">E_ {cv}</annotation></semantics></math>
+then select the closet answer. Break the tie by selecting the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = 0,E_ {cv} = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -2,E_ {cv} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>4</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -4,E_ {cv} = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>6</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -6,E_ {cv} = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msubsup><mi>g</mi><mn>10</mn><mi>λ</mi></msubsup><mo>=</mo><mi>−</mi><mn>8</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>c</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">log_ {10}^{\lambda} = -8,E_ {cv} = 0.030</annotation></semantics></math></p></li>
+</ol>
+<p>这个题目要做交叉验证。因此需要写一个新的交叉验证的函数cv。同时也要需要修改主函数。
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#添加的函数cv</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cv</span>(<span class="params">data,fold_count,_<span class="keyword">lambda</span></span>):</span><br><span class="line">    <span class="comment"># disorder data</span></span><br><span class="line">    ecv = <span class="number">0</span></span><br><span class="line">    each_c = <span class="built_in">len</span>(data)/fold_count</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(fold_count):</span><br><span class="line">        val = data[<span class="built_in">int</span>(i*each_c):<span class="built_in">int</span>((i+<span class="number">1</span>)*each_c)]</span><br><span class="line">        train = data[<span class="number">0</span>:<span class="built_in">int</span>(i*each_c)]</span><br><span class="line">        train.extend(data[<span class="built_in">int</span>((i+<span class="number">1</span>)*each_c):-<span class="number">1</span>])</span><br><span class="line">        W = ridge_regression_one_step(train,_<span class="keyword">lambda</span>)</span><br><span class="line">        ecv +=Ein(val,W)/<span class="built_in">len</span>(val)</span><br><span class="line">    <span class="keyword">return</span> ecv/fold_count</span><br></pre></td></tr></table></figure> 最后得到结果如下： <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-<span class="number">10</span> Ecv: <span class="number">0.05</span></span><br><span class="line">-<span class="number">9</span> Ecv: <span class="number">0.05</span></span><br><span class="line">-<span class="number">8</span> Ecv: <span class="number">0.03</span></span><br><span class="line">-<span class="number">7</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">6</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">5</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">4</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">3</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">2</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line">-<span class="number">1</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line"><span class="number">0</span> Ecv: <span class="number">0.034999999999999996</span></span><br><span class="line"><span class="number">1</span> Ecv: <span class="number">0.06</span></span><br><span class="line"><span class="number">2</span> Ecv: <span class="number">0.28500000000000003</span></span><br><span class="line">minEcv: -<span class="number">8</span></span><br></pre></td></tr></table></figure> 因此答案选择d.</p>
+<p><strong>20. Run the algorithm with the optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+of the previous problem on the whole
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>
+to get
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mi>λ</mi></msub><annotation encoding="application/x-tex">g_\lambda</annotation></semantics></math>.
+Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g_\lambda)</annotation></semantics></math>
+then select the closet answer.</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.005</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.010</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda) = 0.005,E_ {out}(g_\lambda) = 0.010</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.015</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda) = 0.015,E_ {out}(g_\lambda) = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.025</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda) = 0.025,E_ {out}(g_\lambda) = 0.020</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.035</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.030</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda) = 0.035,E_ {out}(g_\lambda) = 0.030</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.045</mn><mo>,</mo><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>g</mi><mi>λ</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.020</mn></mrow><annotation encoding="application/x-tex">E_ {in}(g_\lambda) = 0.045,E_ {out}(g_\lambda) = 0.020</annotation></semantics></math></p></li>
+</ol>
+<p>上面得到的最好的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>8</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\lambda = 10^{-8}</annotation></semantics></math>，全部数据去学习的话，得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>在14题目解析中也能看到,答案选b。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/10/03/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E6%80%BB%E7%BB%93/" rel="prev" title="机器学习——（基石）总结">
+                  <i class="fa fa-angle-left"></i> 机器学习——（基石）总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/10/09/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Lagrange-Multiplier/" rel="next" title="数学——Lagrange Multiplier">
+                  数学——Lagrange Multiplier <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

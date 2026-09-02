@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这次来介绍信道以及信道的容量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——信道及其容量">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这次来介绍信道以及信道的容量。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-27T06:17:16.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.679Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/","path":"2018/11/27/信息论——信道及其容量/","title":"信息论——信道及其容量"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——信道及其容量 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%9A%84%E5%BD%A2%E5%BC%8F%E4%BB%A5%E5%8F%8A%E6%97%B6%E9%97%B4%E5%8F%96%E5%80%BC%E6%9D%A5%E5%88%92%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">按照输入输出的形式以及时间取值来划分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E4%BF%A1%E9%81%93%E9%9A%8F%E6%9C%BA%E8%BF%87%E7%A8%8B%E7%9A%84%E7%89%B9%E7%82%B9%E5%88%86%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">按照信道随机过程的特点分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dmcdiscrete-memoryless-channel"><span class="nav-number"></span> <span class="nav-text">DMC(Discrete Memoryless
+Channel)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">离散无记忆信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%B7%E4%B9%B1%E6%89%93%E5%AD%97%E6%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">混乱打字机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bscbinary-symmetric-channel"><span class="nav-number">2.</span> <span class="nav-text">BSC(Binary Symmetric Channel)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ec%E5%88%A0%E9%99%A4%E4%BF%A1%E9%81%93"><span class="nav-number">3.</span> <span class="nav-text">EC(删除信道)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E5%AF%B9%E7%A7%B0%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">离散无记忆对称信道容量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E7%A6%BB%E6%95%A3%E6%97%A0%E8%AE%B0%E5%BF%86%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">一般离散无记忆信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kkt-condition"><span class="nav-number">1.</span> <span class="nav-text">kkt condition</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E7%94%A8%E4%BF%A1%E9%81%93"><span class="nav-number"></span> <span class="nav-text">并用信道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%92%8C%E4%BF%A1%E9%81%93"><span class="nav-number"></span> <span class="nav-text">和信道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">连续信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E6%97%A0%E8%AE%B0%E5%BF%86%E5%8A%A0%E6%80%A7%E5%99%AA%E5%A3%B0%E4%BF%A1%E9%81%93%E7%9A%84%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">连续无记忆加性噪声信道的容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E5%99%AA%E5%A3%B0"><span class="nav-number">1.</span> <span class="nav-text">高斯噪声</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E7%9A%84%E6%97%A0%E8%AE%B0%E5%BF%86%E5%8A%A0%E6%80%A7%E5%99%AA%E5%A3%B0%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">一般的无记忆加性噪声信道容量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B6%E8%81%94%E8%BF%9E%E7%BB%AD%E9%AB%98%E6%96%AF%E4%BF%A1%E9%81%93"><span class="nav-number"></span> <span class="nav-text">并联连续高斯信道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E4%BF%A1%E9%81%93%E5%AE%B9%E9%87%8F"><span class="nav-number"></span> <span class="nav-text">模拟信道容量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%AD%A3%E4%BA%A4%E5%88%86%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">信号的正交分解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vision%E6%8F%90%E5%8D%87%E5%AE%B9%E9%87%8F%E7%9A%84%E5%90%84%E7%A7%8D%E6%89%8B%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">Vision:提升容量的各种手段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vision%E4%BF%A1%E6%81%AF%E4%B8%8E%E7%83%AD%E5%8A%9B%E5%AD%A6%E7%9A%84%E8%81%94%E7%B3%BB"><span class="nav-number">3.</span> <span class="nav-text">Vision:信息与热力学的联系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#example"><span class="nav-number">4.</span> <span class="nav-text">Example</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E9%81%93%E7%BC%96%E7%A0%81%E7%9A%84%E9%94%99%E8%AF%AF%E6%A6%82%E7%8E%87"><span class="nav-number"></span> <span class="nav-text">信道编码的错误概率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E4%B8%BB%E4%B9%89%E5%BC%8F%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number"></span> <span class="nav-text">经验主义式的设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E7%A0%81"><span class="nav-number"></span> <span class="nav-text">重复码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E7%9A%84%E8%AF%81%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">可达性的证明</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/27/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E9%81%93%E5%8F%8A%E5%85%B6%E5%AE%B9%E9%87%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——信道及其容量 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——信道及其容量
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-27 14:17:16" itemprop="dateCreated datePublished" datetime="2018-11-27T14:17:16+08:00">2018-11-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这次来介绍信道以及信道的容量。 <span id="more"></span> ## 信道容量的定义以及性质
+## ### 通信是什么? ###
+物理实体A的作用引发了物理实体B的状态变化，如果A与B的变化存在一致性，我们称AB通信成功。从信息角度来看，也就是比特流端到端的无差错复制。
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/7RSY%7B%29157M%7EC%7BH0%298%403KF9V.png" />
+### 信道的分类 ###</p>
+<h4
+id="按照输入输出的形式以及时间取值来划分">按照输入输出的形式以及时间取值来划分</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">取值</th>
+<th style="text-align: center;">时间</th>
+<th style="text-align: center;">信道分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">离散</td>
+<td style="text-align: center;">离散</td>
+<td style="text-align: center;">离散信道，数字信道</td>
+</tr>
+<tr>
+<td style="text-align: center;">连续</td>
+<td style="text-align: center;">离散</td>
+<td style="text-align: center;">连续信道</td>
+</tr>
+<tr>
+<td style="text-align: center;">连续</td>
+<td style="text-align: center;">连续</td>
+<td style="text-align: center;">模拟信道</td>
+</tr>
+<tr>
+<td style="text-align: center;">离散</td>
+<td style="text-align: center;">连续</td>
+<td style="text-align: center;">——</td>
+</tr>
+</tbody>
+</table>
+<h4 id="按照信道随机过程的特点分类">按照信道随机过程的特点分类</h4>
+<p>离散信道可以表示为n阶转移概率矩阵
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><msub><mi>t</mi><mn>1</mn></msub><msub><mi>t</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>t</mi><mi>n</mi></msub></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mrow><msub><mi>t</mi><mn>1</mn></msub><msub><mi>t</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>t</mi><mi>n</mi></msub></mrow></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mrow><msub><mi>t</mi><mn>1</mn></msub><msub><mi>t</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>t</mi><mi>n</mi></msub></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">}</mo></mrow></mrow><annotation encoding="application/x-tex">
+Q_ {t_1t_2...t_n} = \left \{ q(y_ {t_1t_2...t_n} | x_ {t_1t_2...t_n}) \right\}
+</annotation></semantics></math> * 无记忆信道
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mrow><msub><mi>t</mi><mn>1</mn></msub><msub><mi>t</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>t</mi><mi>n</mi></msub></mrow></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mrow><msub><mi>t</mi><mn>1</mn></msub><msub><mi>t</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>t</mi><mi>n</mi></msub></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+ q(y_ {t_1t_2...t_n} | x_ {t_1t_2...t_n}) = \prod_ {i=1}^nq(y_i|x_i)
+</annotation></semantics></math></p>
+<p>无记忆信道不代表输出的符号不相关，这个和输入有关。 * 平稳信道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+q(y_i|x_i) = q(y|x)
+</annotation></semantics></math></p>
+<h3 id="dmcdiscrete-memoryless-channel">DMC(Discrete Memoryless
+Channel)</h3>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/9LI8H%7DB%281P%5B_KI%409%5BRCI7%242.png" />
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>;</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">|</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{align}
+I(X^n;Y^n) = H(Y^n) - H(Y^n|X^n)
+\end{align}
+</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>Y</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>+</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>Y</mi><mn>1</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>Y</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≤</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+H(Y^n)&amp;= H(Y_1) +H(Y_2|Y_1) +...+ H(Y_n|Y_1...Y_ {n-1})\\
+&amp;\leq \sum_ {i=1}^n H(Y_i)
+\end{aligned}
+</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">|</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mi mathvariant="double-struck">𝔼</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">|</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mi mathvariant="double-struck">𝔼</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mi mathvariant="double-struck">𝔼</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi mathvariant="double-struck">𝔼</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+H(Y^n|X^n)&amp;= -\mathbb{E}_ {XY}\log q(y^n|x^n) \\
+&amp;= -\mathbb{E}_ {XY}\log \prod_ {i=1}^nq(y_1|x_1)\\
+&amp;= - \mathbb{E}_ {XY}\sum_ {i=1}^n\log q(y_i|x_i)\\
+&amp;= -\sum_ {i=1}^n \mathbb{E}_ {XY}\log q(y_i|x_i)\\
+&amp;= \sum_ {i=1}^n H(Y_i|X_i)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>综上我们得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>;</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>;</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+I(X^n;Y^n) \leq \sum_ {i=1}^nI(X_i;Y_i)
+</annotation></semantics></math></p>
+<p>这让我们想到，对一个序列的输入输出互信息，我们可以试图通过处理单个时刻的输入，然后让等号取得，也就得到序列输入输出互信息的最大值。</p>
+<p>为了让上面的等号取得，实际是比较简单，也就是当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Y_i</annotation></semantics></math>之间互相独立。下面我们来研究如何让单字母互信息得到最大值。
+### 信道容量定义 ### 对于离散无记忆信道，信道容量为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C = \max_ {p(x)}I(X;Y) = \max_ {p(x)}I(p,Q)
+</annotation></semantics></math></p>
+<p>当一个信道确定时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>也就确定了，因此我们要做的就是调整输入字母的分布，让这个信道输入输出互信息得到最大，也就得到了信道的容量。之前介绍互信息的时候介绍了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>;</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(p;Q)</annotation></semantics></math>这种形式，就是为了方便信道的解释。</p>
+<h2 id="离散无记忆信道的容量">离散无记忆信道的容量</h2>
+<p>现在来看一看最简单的信道：离散无记忆信道的容量应如何计算。这一小节主要通过举几个例子，然后再得到普遍的结论。
+#### 无噪声二元信道 #### <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int1.png" /></p>
+<p>输入X，输出Y。由于传输误差错，所以每次传输都传递了1
+bit的无差错信息。所以直观来说信道容量为1 bit.</p>
+<p>利用信道容量的定义来计算，则： <span class="math display">$$
+C=\max I(X;Y) = \max(H(X) - H(X|Y)) = \max H(X) = 1\\
+p(X) = (0.5,0.5)
+$$</span>
+如果字符个数变成m个，则这个信道容量变为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">\log m</annotation></semantics></math>.
+#### 输出不重叠的噪声信道 #### <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int2.png" /></p>
+<p>观察上图，我们发现这个信道有下面几个特点： 1.
+信道存在噪声，输出不确定 2. 但是不确定性不影响正确估计输入 3.
+信道实际是无差错的 4. X到Y是一对多映射 <span class="math display">$$
+C = \max I(X;Y) = \max(H(X)-H(X|Y)) = \max(H(X))=1\\
+p(X) = (0.5,0.5)
+$$</span></p>
+<p>因此可以看到即时有噪声，我们依然可以得到无差错的信道传输。</p>
+<h4 id="混乱打字机">混乱打字机</h4>
+<p>混乱打字机把每个字母以0.5的概率映射为其自身或者下一个字母。 <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int5.png" /></p>
+<p>则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>C</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>26</mn><mo>−</mo><mn>1</mn><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>13</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+C &amp;= \max I(X;Y)\\
+&amp;= \max(H(Y) - H(Y|X))\\
+&amp;= \max(H(Y)-1)\\
+&amp;= \log 26 - 1 = \log 13
+\end{aligned}
+</annotation></semantics></math></p>
+<p>我们只是在互信息求得这个，但是我们不一定能找到一个实际的概率控制得到这个容量。而实际上，这个容量是可以达到的。</p>
+<p>我们要求输入端只能输入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>,</mo><mi>C</mi><mo>,</mo><mi>E</mi><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">A,C,E...</annotation></semantics></math>这些字母，从而退化成了一个输出不重叠噪声信道，这称为无重叠约化。通过这个方法，我们实现了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>13</mn></mrow><annotation encoding="application/x-tex">\log13</annotation></semantics></math>的容量。实际上香农告诉我们，任何一种混乱的信道，都可以看作是混乱打字机信道。</p>
+<h4 id="bscbinary-symmetric-channel">BSC(Binary Symmetric Channel)</h4>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png" /></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>C</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+C &amp;= \max_ {p(x)} I(X;Y)\\
+&amp;=\max( H(Y) - H(Y|X))\\
+&amp;=\max(H(Y) - H(p))\\
+&amp;=1-H(p)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>我们必须证明这个容量可以取到,也就是一个上确界，这样得到信道的容量才有意义。为了让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(Y)</annotation></semantics></math>最大，那么<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0.5</mn><mo>,</mo><mn>0.5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(Y)=(0.5,0.5)</annotation></semantics></math>,可以简单的发现这时候<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0.5</mn><mo>,</mo><mn>0.5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(X) = (0.5,0.5)</annotation></semantics></math>.也就是我们可以通过调制信源的输入概率分布得到这个最大的容量
+因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>B</mi><mi>S</mi><mi>C</mi></mrow></msub><mo>=</mo><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C_ {BSC} = 1 - H(p)</annotation></semantics></math></p>
+<h4 id="ec删除信道">EC(删除信道)</h4>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int4.png" />
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C = \max_ {p(x)}I(X;Y)
+</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≤</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+I(X;Y) &amp;= H(Y) - H(Y|X)\\
+&amp;=H(Y) - H(p)\\
+&amp;\leq \log 3 - H(p)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>这时候我们就遇到问题了，我们不能通过调制信源的输入概率分布使得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>,</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo>,</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(Y)=(\frac{1}{3},\frac{1}{3},\frac 1 3)</annotation></semantics></math>，因此上面得到的不是信道容量。因此重新计算这个容量,假设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>,</mo><mn>1</mn><mo>−</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(X) = (\pi,1-\pi)</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>p</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+I(X;Y) &amp;= H(Y) - H(p)\\
+&amp;= H((\pi(1-p),p,(1-\pi)(1-p)))\\
+&amp;= (1-p)H(\pi) + H(p) - H(p)\\
+&amp;= (1-p)H(\pi)
+\end{aligned}
+</annotation></semantics></math></p>
+<p>上式中用到了熵的可加性。这时候我们可以取到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">H(\pi)=1</annotation></semantics></math>，因此得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mn>1</mn><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">C = 1-p</annotation></semantics></math>.</p>
+<h3 id="离散无记忆对称信道容量">离散无记忆对称信道容量</h3>
+<p>实际上，上面的几个信道有很多都属于离散无记忆对称信道。他们的特点是概率转移矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>为对称矩阵，使得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(Y|X)</annotation></semantics></math>可以由信道性质确定，大大简化了我们要思考的问题。</p>
+<p>离散无记忆对称信道的定义：
+若信道的概率转移矩阵的行互为置换，列互为置换，则该信道对称，如果行互为置换，各列之和相等，则该信道弱对称。</p>
+<p>强对称：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>3</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>6</mn></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>6</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>3</mn></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>3</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>6</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\begin{bmatrix}
+\frac 1 2&amp;\frac 1 3&amp; \frac 1 6\\
+\frac 1 6&amp;\frac 1 2&amp;\frac 1 3\\
+\frac 1 3&amp;\frac 1 6&amp;\frac 1 2
+\end{bmatrix}
+</annotation></semantics></math></p>
+<p>弱对称：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>3</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>6</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>3</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>6</mn></mfrac></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\begin{bmatrix}
+\frac 1 3 &amp; \frac 1 6 &amp;\frac 1 2\\
+\frac 1 3 &amp; \frac 1 2 &amp; \frac 1 6
+\end{bmatrix}
+</annotation></semantics></math></p>
+<p>不管是强对称还是弱对称，他们都有一个好处，那就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(Y|X)</annotation></semantics></math>不会随着信源的概率分布而改变，是一个常数。</p>
+<p>弱对称信道Q的容量为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mi>Y</mi><mo stretchy="false" form="postfix">|</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mi>的</mi><mi>行</mi><mi>向</mi><mi>量</mi><mi>对</mi><mi>应</mi><mi>的</mi><mi>分</mi><mi>布</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C=\log \vert Y\vert - H(Q的行向量对应的分布)</annotation></semantics></math>,容量在输入为等概分布时候取得。</p>
+<p>而EC不是一个对称信道：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn><mo>−</mo><mi>p</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>p</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>p</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn><mo>−</mo><mi>p</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+Q = \begin{bmatrix}
+1-p &amp; p &amp; 0\\
+0 &amp; p &amp; 1-p 
+\end{bmatrix}
+</annotation></semantics></math></p>
+<h3 id="一般离散无记忆信道的容量">一般离散无记忆信道的容量</h3>
+<p>由于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(p,Q)</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>的上凸函数，因此求信道容量实际上可以表述为一个约束的极值问题：
+<span class="math display">$$
+\max _ {p} I(p,Q)\\
+s.t. \sum_ {x}p(x)=1;p(x)\ge 0
+$$</span></p>
+<h4 id="kkt-condition">kkt condition</h4>
+<p>设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>为定义在Ｎ维无穷凸集<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<span class="math inline">$S=\{x = \(x_1,x_2,...,x_N\):x_i \ge
+0,i=1,...,N\}$</span>上的可微上凸函数，设<span class="math inline">$x^\*
+= {x_1^\*,...,x_N^\*} \in
+S$</span>，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>在<span
+class="math inline">$x =
+x^\*$</span>达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>上的极大值的充要条件为：
+<span class="math display">$$
+\frac{\partial f(x)}{\partial x_n}\lvert_ {x = x^*} = 0,x_n^* &gt; 0\\
+\frac{\partial f(x)}{\partial x_n}\lvert_ {x = x^*} \leq 0,
+x_n^* = 0
+$$</span></p>
+<p>我们称<span class="math inline">$x^\*(x^\*=(x_1^\*,...,x_N^\*),x_n^\*
+&gt;
+0)$</span>为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>的内点，而<span
+class="math inline">$\exists x_n^\* = 0$</span>时，<span
+class="math inline">$x^\*$</span>为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>的边界点。</p>
+<p>用图像来看的话会更容易理解：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0794.PNG" /></p>
+<p>上图为：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mi>b</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>y</mi><mo>,</mo><mn>0</mn><mo>&lt;</mo><mi>x</mi><mo>&lt;</mo><mn>100</mn><mo>,</mo><mn>0</mn><mo>&lt;</mo><mi>y</mi><mo>&lt;</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">\min f(x,y)=ax^2-b\log y,0&lt; x &lt;100,0&lt; y &lt;100</annotation></semantics></math></p>
+<p>实际上的kkt条件比这个更严谨，可以参考：<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/12/07/数学%E2%80%94%E2%80%94KKT-condition/">kkt
+condition</a></p>
+<p>由于它是一个凸函数下的充要条件，因此只要我们找到了一个点符合KKT条件，我们就可以称他为全局极值。</p>
+<p>由KKT条件可以得到下面的关于信道容量的定理：</p>
+<p>对于信道矩阵为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>的离散无记忆信道，其输入分布<span
+class="math inline">$p^\*$</span>能使互信息<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(p,Q)</annotation></semantics></math>取得最大值的充要条件是：
+<span class="math display">$$
+I(X=x_k;Y) = C,p^*(x_k) &gt; 0\\
+I(X=x_k;Y) \leq C,p^*(x_k)=0\\
+k \in {1,2,...,K}
+$$</span>
+其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mi>k</mi></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>J</mi></msubsup><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">I(X=x_k;Y) = \sum_ {j=1}^J q(y_j|x_k) \log \frac{q(y_j|x_k)}{p(y_j)}</annotation></semantics></math>,表示的是信源字母<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>k</mi></msub><annotation encoding="application/x-tex">x_k</annotation></semantics></math>传送的平均互信息。</p>
+<p>当然我们拿到一个信道以后，不一定一定要通过这样的方法来求得信道容量，很多时候我们可以联系物理猜到最好的哪个情况。如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int6.png" /></p>
+<p>我们可以很容易看出来1是最差的情况，因为它可能映射到三种结果，而0,２一样好，因此我们猜测：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">p(x_1) = 0,p(x_2)=p(x_0)=0.5</annotation></semantics></math>，计算得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mn>0</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mn>2</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.75</mn><mo>,</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mn>1</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.0251</mn><mo>&lt;</mo><mn>0.75</mn></mrow><annotation encoding="application/x-tex">
+I(X=x_0;Y) = I(X=x_2;Y)=0.75, I(X=x_1;Y) = 0.0251&lt;0.75
+</annotation></semantics></math> 符合kkt条件，因此它的容量就是0.75. ##
+信道的组合 ##</p>
+<p>现在我们尝试将信道组合起来。 ### 级联的独立信道 ### <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0008it.jpg" /></p>
+<p>如上图，我们可以得到： *
+由数据处理定理可以得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>;</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(Y;Z) \ge I(X;Z)</annotation></semantics></math>
+* 随着串联信道数目的增多，整个信道容量趋近于0 *
+将级联信道的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math>乘起来，得到整个级联信道的Q，可求解级联信道的容量
+* Vision：从统计的角度来看，数据处理不会带来信息增益，反而会损失信息 ###
+输入并联信道 ###</p>
+<p>这个信道的特点是，输入相同的X，输出不同的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>Y</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">Y_1,Y_2,...,</annotation></semantics></math>构成随机矢量Y。也就是我们将输入X同时送到N个信道中，如图：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg" /></p>
+<ul>
+<li>输入并联信道的容量大于任何一个单独的信道，小于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max H(X)</annotation></semantics></math>.</li>
+<li>N个二元对称信道输入并联之后的信道容量，一般来说<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>越大，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mi>N</mi></msub><annotation encoding="application/x-tex">C_N</annotation></semantics></math>越大，越接近于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H(X)</annotation></semantics></math>。</li>
+<li>Vision:通信中的分集，就是典型的输入并联信道（我并不懂通信）</li>
+</ul>
+<h3 id="并用信道">并用信道</h3>
+<p>并用信道的图和并联信道非常像，不过它的输入不是相同的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>了，而是将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>费解成了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>X</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>X</mi><mi>N</mi></msub></mrow><annotation encoding="application/x-tex">X_1,X_2,...,X_N</annotation></semantics></math>。
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0009it.jpg" />
+*
+多输入，多输出。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>是由比侧独立的N个信道传输
+*
+并用信道的容量：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><msub><mi>C</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">C = \sum_ {n=1}^N C_n</annotation></semantics></math>
+* Vision:通信中的复用，就是典型的并用信道</p>
+<p>虽然并用信道的容量结论很简单，但是在实际中的操作没那么容易。我们不能简单的将信源随意划分，而是让这个划分符合各个信道容量的噪声特性，以达到最好的传输效果。</p>
+<h3 id="和信道">和信道</h3>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0011it.jpg" /></p>
+<p>和信道和并联信道并用信道不同的是，虽然它有多个信道，但是它并不是同时使用多个，而是每次只使用一个。
+*
+随机应用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>个信道中的一个，构成一个输入输出信道。
+*
+和信道的容量：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msubsup><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><msup><mn>2</mn><msub><mi>C</mi><mi>n</mi></msub></msup></mrow><annotation encoding="application/x-tex">C = \log \sum_ {n=1}^N 2^{C_n}</annotation></semantics></math>，信道的使用概率<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><msub><mi>C</mi><mi>n</mi></msub><mo>−</mo><mi>C</mi></mrow></msup></mrow><annotation encoding="application/x-tex">p_n(C) = 2^{C_n - C}</annotation></semantics></math>
+* Vision: 新型通信技术——机会通信
+要注意这个结论有点反直觉。我们可能会想，如果某个信道的容量大，一直使用它不就行了吗？但是这样并不会得到最大的信道容量。</p>
+<p>举个例子，如果一个信道的转移矩阵为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>:
+<span class="math display">$$
+Q = \begin{bmatrix}
+1 - \epsilon_1&amp;\epsilon_1&amp;0&amp;0\\
+\epsilon_1&amp;1 - \epsilon_1 &amp; 0 &amp; 0 \\
+0&amp;0&amp;\epsilon_2 &amp;1 - \epsilon_2\\
+0&amp;0&amp;1-\epsilon_2&amp;\epsilon_2
+end{bmatrix}
+$$</span></p>
+<p>那么这个信道的容量为多大？</p>
+<p>如果仔细观察，可以发现这个信道实际上是一个和信道。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it1.png" /></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><msub><mi>C</mi><mn>1</mn></msub></msup><mo>+</mo><msup><mn>2</mn><msub><mi>C</mi><mn>2</mn></msub></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C = \log(2^{C_1} + 2^{C_2})
+</annotation></semantics></math> 如果：
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>C</mi><mn>1</mn></msub><mo>=</mo><mn>1</mn><mo>;</mo><msub><mi>ϵ</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>,</mo><msub><mi>C</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\epsilon_1 = 0,C_1 = 1;\epsilon_2 = 0,C_2 = 0</annotation></semantics></math>;</p>
+<p>可以发现，这两个信道一个容量为0,另一个为1,而它们的和信道容量为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\log3&gt;1</annotation></semantics></math>。这是因为在选择使用哪个信道的时候，也包含了一定的信息。</p>
+<h2 id="连续信道的容量">连续信道的容量</h2>
+<p><strong>连续信道</strong>时间依旧离散，取值是连续的。这就引发了一个问题：连续随机变量互信息非负但是不一定有限，如果输入输出相等，则此时互信息是无穷的。
+这样，互信息最大值为信道容量的定义就失去了意义。 ### 容量费用函数 ###
+首先说明一下，连续信道输入连续，输出连续，而信道特性不能再用一个概率转移矩阵来表示，而是一个概率密度函数。所以我们用三元组<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>X</mi><mo>,</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{X,q(y|x),Y\}</annotation></semantics></math>来表示一个连续信道。</p>
+<p><strong>费用函数</strong>:
+设对于连续无记忆信道<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>X</mi><mo>,</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{X,q(y|x),Y\}</annotation></semantics></math>，有一个函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>.</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">b(.)</annotation></semantics></math>，对于每一个输入序列<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>x</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">X = x_1x_2...x_n</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b(x)&gt;0</annotation></semantics></math>。称<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>的费用。设随机矢量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><msub><mi>X</mi><mn>1</mn></msub><msub><mi>X</mi><mn>2</mn></msub><mi>.</mi><mi>.</mi><mi>.</mi><msub><mi>X</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">X = X_1X_2...X_n</annotation></semantics></math>的联合分布为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x)</annotation></semantics></math>，则平均费用为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≜</mo><munder><mo>∑</mo><mi>x</mi></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\mathbb{E}[b(X)] \triangleq \sum_ {x}p(x)b(x)
+</annotation></semantics></math></p>
+<p>在费用约束的前提下，求输入输出互信息的最大值，得到<strong>容量费用函数</strong>：
+设连续信道的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>维联合输入输出分别为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>,</mo><mi>Y</mi></mrow><annotation encoding="application/x-tex">X,Y</annotation></semantics></math>，则其容量－费用函数定义为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">lim</mi><mrow><mi>N</mi><mo>→</mo><mi>∞</mi></mrow></munder><mfrac><mn>1</mn><mi>N</mi></mfrac><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><mi>N</mi><mi>β</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+C(\beta) = \lim_ {N\rightarrow \infty} \frac{1}{N} \max_ {p(x)}\{I(X;Y):\mathbb{E}[b(X)]\leq N \beta \}
+</annotation></semantics></math></p>
+<h3 id="连续无记忆加性噪声信道的容量">连续无记忆加性噪声信道的容量</h3>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it3.png" /></p>
+<p>这里我们来看一个最简单的连续信道的容量费用函数。这个信道为加性噪声信道。也就输入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>加上某个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>。</p>
+<p>在这种情况下：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>P</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>P</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">q(y|x) = P_Z(y-x) = P_Z(z).</annotation></semantics></math></p>
+<p>我们希望求得的是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><msub><mi mathvariant="double-struck">𝔼</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>P</mi><mi>S</mi></msub></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><msub><mi mathvariant="double-struck">𝔼</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>P</mi><mi>S</mi></msub></mrow></munder><mo stretchy="false" form="prefix">[</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+C(P_S) = \max_ {p(x):\mathbb{E}_X[X^2] \leq P_S} I(X;Y) = \max_ {p(x):\mathbb{E}_X[X^2] \leq P_S} [h(Y) - h(Z)].
+</annotation></semantics></math>
+（这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="double-struck">𝔼</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\mathbb{E}_X[X^2]</annotation></semantics></math>实际上是物理意义上均值为0的X的功率，因此这个约束是功率的约束）
+之所以能得到上面的结论，因为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mo>∬</mo><mrow><mi>X</mi><mi>Y</mi></mrow></msub><msub><mi>P</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>x</mi><mi>d</mi><mi>y</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mo>∬</mo><mrow><mi>X</mi><mi>Z</mi></mrow></msub><msub><mi>P</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msub><mi>P</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msub><mi>P</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>x</mi><mi>d</mi><mi>z</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><msub><mo>∫</mo><mi>z</mi></msub><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>z</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+h(Y|X) &amp;= -\iint_ {XY}P_X(x)q(y|x) \log q(y|x) dxdy\\
+&amp;=-\iint_ {XZ}P_X(x)P_Z(z) \log P_Z(z) dxdz\\
+&amp;= -\int_z P(z) \log P(z)dz \\
+&amp;= h(Z)
+\end{aligned}
+</annotation></semantics></math>
+因此在这个情况下：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h(Y|X) = h(Z)</annotation></semantics></math></p>
+<h4 id="高斯噪声">高斯噪声</h4>
+<p>现在我们假设这个噪声为高斯噪声。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it2.png" /></p>
+<p>则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msup><mi>Y</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>+</mo><mi>Z</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msup><mi>Z</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><msub><mi>P</mi><mi>S</mi></msub><mo>+</mo><msub><mi>P</mi><mi>Z</mi></msub></mrow><annotation encoding="application/x-tex">
+\mathbb{E}[Y^2] = \mathbb{E}[(X+Z)^2] = \mathbb{E}[X^2]+\mathbb{E}[Z^2] = P_S+P_Z
+</annotation></semantics></math> 如果回顾<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/01/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E7%86%B5%E5%92%8C%E4%BA%92%E4%BF%A1%E6%81%AF/">连续随机变量的熵和互信息</a>，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msup><mi>x</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>P</mi><mi>S</mi></msub></mrow></munder><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo>+</mo><msub><mi>P</mi><mi>Z</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\max_ {p(x):\mathbb{E}[x^2]\leq P_S}h(Y) = \frac 1 2 \log 2\pi e(P_S+P_Z)
+</annotation></semantics></math>
+而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><msub><mi>P</mi><mi>Z</mi></msub></mrow><annotation encoding="application/x-tex">h(Z) = \frac 1 2 \log 2 \pi e P_Z</annotation></semantics></math>
+而这时候，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><mrow><msub><mi>P</mi><mi>S</mi></msub><mo>+</mo><msub><mi>P</mi><mi>Z</mi></msub></mrow><msub><mi>P</mi><mi>Z</mi></msub></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>P</mi><mi>Z</mi></msub></mfrac><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+C(P_S) &amp;= \max(h(Y) - h(Z)) = \frac 1 2 \log \frac{P_S+P_Z}{P_Z} \\
+&amp;=\frac 1 2 \log(1+\frac{P_S}{P_Z})
+\end{aligned}
+</annotation></semantics></math></p>
+<p>上式中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>P</mi><mi>Z</mi></msub></mfrac><annotation encoding="application/x-tex">\frac{P_S}{P_Z}</annotation></semantics></math>也就是常说的信噪比。可以看到，如果想要增加容量，我们可以想方设法提高信源功率，或者减少噪声。这是一个非常重要的公式，拓展到模拟信道的情况上，我们就可以得到著名的香农公式。</p>
+<p>实际上，对于高斯分布的输入，高斯噪声具有最大的破坏力。即，在同样的功率约束条件下，加性高斯噪声使得信道的容量最小。</p>
+<p>对于无记忆加性噪声信道，若输入信号<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>具有高斯分布，加性噪声的功率为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>N</mi></msub><annotation encoding="application/x-tex">P_N</annotation></semantics></math>，则当噪声具有高斯分布的时候，输入输出的互信息达到最小。</p>
+<p>这一点并不难理解，因为噪声带来的影响在最终是要被去除的，而高斯情况下熵最大，去除的越多，留下的越少，所以使得信道容量最小。</p>
+<h4 id="一般的无记忆加性噪声信道容量">一般的无记忆加性噪声信道容量</h4>
+<p>现在我们来看看一般的无记忆加性噪声的信道容量。</p>
+<p>首先，我们必须明确，如果噪声是任意分布的，我们无法获得信道容量的解析解，但是我们可以给出其上界和下界。</p>
+<ul>
+<li>下界：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><msup><mi>X</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">}</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>G</mi></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>G</mi></msub><mo>;</mo><msub><mi>Y</mi><mi>G</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>P</mi><mi>Z</mi></msub></mfrac><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+C(P_S) &amp;= \max_ {P(X)} \{I(X;Y):\mathbb{E}[X^2] = P_S\}\\
+\ge I(X_G;Y)\ge I(X_G;Y_G) = \frac 1 2 \log(1 + \frac{P_S}{P_Z})
+\end{aligned}
+</annotation></semantics></math></li>
+</ul>
+<p>因为上面我们已经得到了。高斯噪声的破坏力是最大的。</p>
+<ul>
+<li>上界： <span class="math display">$$
+\mathbb{E}[Z^2] = P_N,\mathbb{E}[X^2] = P_S,\mathbb{E}[Y^2] = P_S+P_N\\
+h(Y)\leq \frac{1}{2}\log [2\pi e (P_s +P_N)]\\
+C_(P_S) \leq h(Y) - h(Z) = \frac 1 2 \log[2\pi e \frac{P_S+P_N}{P_e}]\\
+$$</span> 上式中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>e</mi></msub><mo>≜</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>π</mi><mi>e</mi></mrow></mfrac><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+P_e \triangleq \frac 1 {2\pi e} \exp[2h(Z)]
+</annotation></semantics></math></li>
+</ul>
+<p>说实话，我并不知道这个定义是从何而来。而且<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>e</mi></msub><annotation encoding="application/x-tex">P_e</annotation></semantics></math>中还包含着<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h(Z)</annotation></semantics></math>，又怎么能说是个上界呢？</p>
+<h3 id="并联连续高斯信道">并联连续高斯信道</h3>
+<p>输入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>n</mi></msub><mo>,</mo><msub><mi>P</mi><msub><mi>S</mi><mi>n</mi></msub></msub></mrow><annotation encoding="application/x-tex">X_n,P_ {S_n}</annotation></semantics></math>，信道噪声<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mi>n</mi></msub><mo>,</mo><msub><mi>P</mi><msub><mi>N</mi><mi>n</mi></msub></msub></mrow><annotation encoding="application/x-tex">Z_n,P_ {N_n}</annotation></semantics></math>.</p>
+<p>在总功率限定的情况下，求信道容量-费用函数：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">sup</mi><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>P</mi><msub><mi>S</mi><mi>n</mi></msub></msub><mo>=</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+C(P_S) = \sup_ {P(X)}\{I(X;Y):\sum_ {n=1}^N P_ {S_n} = P_S\}
+</annotation></semantics></math>
+（这里的sup指的是Supremum，上确界）。</p>
+<p>现在我们面临一个优化问题：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>;</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub></msub><msub><mi>P</mi><msub><mi>N</mi><mi>i</mi></msub></msub></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\max I(X^n;Y^n) = \sum_i \frac{1}{2} \log (1+\frac{P_ {S_i} }{P_ {N_i} })
+</annotation></semantics></math> s.t.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub></msub><mo>=</mo><msub><mi>P</mi><mi>S</mi></msub><mo>,</mo><msub><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub></msub><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sum_ {i=1}^n P_ {S_i} = P_S,P_ {S_i} \ge 0</annotation></semantics></math></p>
+<p>这个优化问题解决如下： <span class="math display">$$
+\frac{\partial }{\partial P_ {S_i} } \left[\sum_ {i=1}^n \frac{1}{2}
+\log(1+\frac{P_ {S_i} }{P_ {N_i} })  - \lambda (\sum_ {i=1}^n P_ {S_i} -
+P_S)\right] = 0\\
+\frac{1}{2} \frac{P_ {N_i} }{P_ {S_i}+P_ {N_i} } \frac{1}{P_ {N_i} } -
+\lambda = 0, \text{for }1 \leq i \leq n\\
+P_ {S_i} + P_ {N_i} = \frac{1}{2\lambda_i}, \lambda =
+\frac{n}{2(P_S+P_N)}\\
+P_ {S_i} = \frac{P_S+P_N}{n} - P_ {N_i},
+$$</span></p>
+<p>要注意，这里我们将信道个数总数写成了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>N</mi></msub><annotation encoding="application/x-tex">P_N</annotation></semantics></math>表示的是噪声功率。</p>
+<p>有时候，我们发现，求得的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub></msub><annotation encoding="application/x-tex">P_ {S_i}</annotation></semantics></math>，也就是给该信道分配的功率是小于0的，这时候应该怎么办？
+#### 注水功率 #### 下面介绍一个很形象的概念，叫注水功率。如下图： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0013it.jpg" />
+可以看到的是，有的时候水是无法覆盖住某些地方的。这说明的是这个信道的噪声太大了，所以我们应该将其弃用。然后再重新计算这个功率的分配，直到没有负值。</p>
+<h2 id="模拟信道容量">模拟信道容量</h2>
+<p><strong>模拟信道</strong>在时间和取值上都是连续的信道。是自然界最自然的一种信道，如电磁波，光纤，电缆等传播。</p>
+<p>然而实际中模拟信道在数学上的研究是难以进行的。我们只研究最简单的一类模拟信道：AWGN信道。
+### AWGN信道 ### AWGN（Additive White Gaussian
+Noise）信道有下面几个特点： *
+带宽有限：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+*
+加性噪声：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(t) = x(t) + z(t)</annotation></semantics></math>
+*
+白色噪声：平稳遍历随机过程，功率谱密度均匀分布于整个频域，即功率谱密度（单位带宽噪声功率）为一常数
+* 高斯噪声：平稳遍历随机过程，瞬时值的概率密度函数服从高斯分布</p>
+<p>这个信道描述如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/it4.png" /></p>
+<p>输入信号：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">x(t)</annotation></semantics></math>
+*
+带宽有限：输入信号带宽限制在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mi>W</mi><mo>,</mo><mi>W</mi><mo stretchy="false" form="postfix">]</mo><mi>内</mi></mrow><annotation encoding="application/x-tex">[-W,W]内</annotation></semantics></math>
+* 时间有限：T</p>
+<p>输出信号：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(t)</annotation></semantics></math></p>
+噪声信号：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z(t)</annotation></semantics></math>
+* 加性白色高斯噪声 * 零均值 * 双边功率谱密度：$N(f) = \left {
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo><mi>f</mi><mo stretchy="false" form="postfix">|</mo><mo>≤</mo><mi>W</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">|</mo><mo>&gt;</mo><mi>w</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{matrix}
+\frac{N_0}{2} &amp; \vert f\vert \leq W\\
+0&amp;\vert \vert &gt; w
+\end{matrix}</annotation></semantics></math>
+<p>. $</p>
+<p>信道费用：输入信号的功率</p>
+<h4 id="信号的正交分解">信号的正交分解</h4>
+<ul>
+<li>由于信道频带受限，信号时长受限，所以仅需要<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>2</mn><mi>W</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">N = 2WT</annotation></semantics></math>个采样点就可以表示</li>
+<li>因此信道在时间上可以被离散化为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>W</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">2WT</annotation></semantics></math>个点，在每个点上取值连续</li>
+<li>这样变成了并联的连续信道
+实际上，上面的采样就是著名的<strong>奈奎斯特</strong>采样。</li>
+</ul>
+<p>之前我们说明了并联的连续信道的容量求法，但是前提是各个信道是独立的。现在我们必须要明白，经过采样的这<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>2</mn><mi>W</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">N = 2WT</annotation></semantics></math>个信道是否互相独立？</p>
+<p>答案是独立的。为了验证他们的独立性，我们只需要验证它们不相关即可，因为在高斯分布下，不相关就意味着独立。证明如下：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0014it.jpg" />
+(额，这里也不是很懂。对于信号处理和通信方面的知识已经忘的差不多了)</p>
+<p>对于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>个信道，两两独立，每个噪声功率为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac><annotation encoding="application/x-tex">\frac{N_0}{2}</annotation></semantics></math>.</p>
+<p>所以利用时域上采样定理将信号变成离散序列后，模拟信道可看成加性白色高斯噪声无记忆连续信道，相当于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>个高斯加性信道的并联信道。这时候我们可以用注水功率来分配这个功率。</p>
+<p>并联信道总容量费用函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>T</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mrow><mn>2</mn><mi>W</mi><mi>T</mi></mrow></msubsup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><msub><mi>S</mi><mi>n</mi></msub></msub><msub><mi>P</mi><msub><mi>N</mi><mi>n</mi></msub></msub></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C_T(P_S) = \frac{1}{2} \sum_ {n=1}^{2WT} \log (1+ \frac{P_ {S_n} }{P_ {N_n} })</annotation></semantics></math></p>
+<p>噪声约束：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><msub><mi>N</mi><mi>n</mi></msub></msub><mo>=</mo><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac><mo>→</mo><msub><mi>P</mi><mi>N</mi></msub><mo>=</mo><mi>N</mi><msub><mi>P</mi><msub><mi>N</mi><mi>n</mi></msub></msub><mo>=</mo><mn>2</mn><mi>W</mi><mi>T</mi><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac><mo>=</mo><mi>W</mi><mi>T</mi><msub><mi>N</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">P_ {N_n} = \frac{N_0}{2} \rightarrow P_N = NP_ {N_n} = 2WT\frac{N_0}{2} = WTN_0</annotation></semantics></math></p>
+<p>功率约束：（类似于注水功率分配）
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><msub><mi>S</mi><mi>n</mi></msub></msub><mo>=</mo><mfrac><mrow><msub><mi>P</mi><mi>S</mi></msub><mi>T</mi><mo>+</mo><msub><mi>P</mi><mi>N</mi></msub></mrow><mi>N</mi></mfrac><mo>−</mo><msub><mi>P</mi><msub><mi>N</mi><mi>n</mi></msub></msub><mo>=</mo><mfrac><mrow><msub><mi>P</mi><mi>S</mi></msub><mi>T</mi><mo>+</mo><mn>2</mn><mi>W</mi><mi>T</mi><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac></mrow><mrow><mn>2</mn><mi>W</mi><mi>T</mi></mrow></mfrac><mo>−</mo><mfrac><msub><mi>N</mi><mn>0</mn></msub><mn>2</mn></mfrac><mo>=</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><mrow><mn>2</mn><mi>W</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+P_ {S_n} = \frac{P_ST+P_N}{N} - P_ {N_n} = \frac{P_ST+2WT\frac{N_0}{2} }{2WT}-\frac{N_0}{2} = \frac{P_S}{2W}
+</annotation></semantics></math></p>
+<p>这时候，我们就得到了香农公式，AWGN信道的容量为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mi>W</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><mrow><msub><mi>N</mi><mn>0</mn></msub><mi>W</mi></mrow></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C = W \log (1+\frac{P_S}{N_0W})
+</annotation></semantics></math>
+上式中，各个量的单位为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>−</mo><mi>b</mi><mi>p</mi><mi>s</mi><mo>,</mo><mi>W</mi><mo>−</mo><mi>H</mi><mi>z</mi></mrow><annotation encoding="application/x-tex">C-bps,W-Hz</annotation></semantics></math>或者<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">s^{-1}</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>S</mi></msub><mo>−</mo><mi>W</mi><mi>a</mi><mi>t</mi><mi>t</mi><mo>,</mo><msub><mi>N</mi><mn>0</mn></msub><mo>−</mo><mi>W</mi><mi>a</mi><mi>t</mi><mi>t</mi><mi>/</mi><mi>H</mi><mi>z</mi></mrow><annotation encoding="application/x-tex">P_S-Watt,N_0-Watt/Hz</annotation></semantics></math></p>
+<h4 id="vision提升容量的各种手段">Vision:提升容量的各种手段</h4>
+<ul>
+<li><p>增加带宽
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">lim</mi><mrow><mi>W</mi><mo>→</mo><mi>∞</mi></mrow></munder><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">lim</mi><mrow><mi>W</mi><mo>→</mo><mi>∞</mi></mrow></munder><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>N</mi><mn>0</mn></msub></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><mrow><msub><mi>N</mi><mn>0</mn></msub><mi>W</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><msub><mi>N</mi><mn>0</mn></msub><mi>W</mi></mrow><msub><mi>P</mi><mi>S</mi></msub></mfrac></msup><mo>=</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>N</mi><mn>0</mn></msub></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>e</mi><mo>≈</mo><mn>1.44</mn><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>N</mi><mn>0</mn></msub></mfrac></mrow><annotation encoding="application/x-tex">
+\lim_ {W\rightarrow \infty}C(P_S) = \lim_ {W\rightarrow \infty} \frac{P_S}{N_0}\log\left(1+\frac{P_S}{N_0W}\right)^{\frac{N_0W}{P_S} } = \frac{P_S}{N_0} \log e \approx 1.44\frac{P_S}{N_0}
+</annotation></semantics></math></p></li>
+<li><p>增加带宽
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">lim</mi><mrow><msub><mi>P</mi><mi>S</mi></msub><mo>→</mo><mi>∞</mi></mrow></munder><mi>C</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>S</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mrow><mi mathvariant="normal">ln</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><mrow><msub><mi>N</mi><mn>0</mn></msub><mi>W</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\lim_ {P_S \rightarrow \infty} C(P_S) \approx \ln\left(\frac{P_S}{N_0W} \right)
+</annotation></semantics></math></p></li>
+</ul>
+<p>因此，对于同样容量的传输要求，可以采用两种方式：减少带宽，发送较大功率的信号，或者增加带宽，用较小功率的信号传输。</p>
+<p>可以看到的是，我们可以不断增加带宽来增加信道容量，不过这个性价比会越来越低，因为这是一个log函数。</p>
+<h4 id="vision信息与热力学的联系">Vision:信息与热力学的联系</h4>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0005it.jpg" /></p>
+<p>这里有一个有意思的信息论角度对阿波罗登月的证伪，大家图一个乐，里面有很多假设和实际不符。
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_0006it.jpg" />
+到目前为止，我们都只算出来了信道容量，没有讲过怎么编码能得到这些容量。接下来要做的就是说明，所有上面算出来的容量，都是可以实现的。
+## 信道编码 ##</p>
+<p>这里我们先回忆一下之前的混乱打字机。之前说过，世界上任何一个数字信道，都可以直接或者间接地看作是混乱打字机模型。</p>
+<p>对于信道<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>X</mi><mo>,</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{X,q(y|x),Y\}</annotation></semantics></math>的信道编码包含以下要素：
+*
+输入符号集合<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{1,2,...,2^{nR} \}</annotation></semantics></math>
+*
+编码函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mi>n</mi></msup><annotation encoding="application/x-tex">X^n</annotation></semantics></math>:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo><mo>→</mo><msup><mi>X</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">\{1,2,...,2^{nR} \}\rightarrow X^n</annotation></semantics></math>，该函数为每一个输入符号产生了相应的信道编码码字<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X^n(1),X^n(2),...,X^n(m)</annotation></semantics></math>，这些码字构成的集合称为“码本”。
+*
+解码函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mi>n</mi></msup><mo>→</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">Y^n \rightarrow \{1,2,...,2^{nR} \}</annotation></semantics></math>，该函数为一个确定性判决函数，将每一个可能的接受向量映射到一个输入符号。</p>
+<p>意思也就是，对于符号个数为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><annotation encoding="application/x-tex">2^{nR}</annotation></semantics></math>的符号集，我们把它映射到一个长度为n的序列上,分n次传输。
+### 信道编码的码率 ###</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(M,n)</annotation></semantics></math>码的码率Ｒ定义为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>M</mi></mrow><mi>n</mi></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+R = \frac{\log M}{n} ,
+</annotation></semantics></math>
+单位为比特/传输。这是信道码的每个码字母所能携带的最大的信息量。</p>
+<p>如何理解？对于输入集合如果取等概分布，则它的信息量为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>，这时候呢，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>次传输才能传达这么多的信息量，所以每个传输的量就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>M</mi></mrow><mi>n</mi></mfrac><mo>=</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">\frac{\log M}{n} = R</annotation></semantics></math>，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup></mrow><annotation encoding="application/x-tex">M = 2^{nR}</annotation></semantics></math>。称这样的码为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2^{nR},n)</annotation></semantics></math>码。</p>
+<h4 id="example">Example</h4>
+<p><strong>重复码</strong>，输入字母数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">M = 2</annotation></semantics></math>:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{0,1\}</annotation></semantics></math>，重复n次，这个码率为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">1/n</annotation></semantics></math>。</p>
+<p><strong>二进制奇偶校验码</strong>，输入字母数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>:</mo><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></mrow><annotation encoding="application/x-tex">M = 2^{n-1}:{x_1,x_2,...,x_ {n-1} }</annotation></semantics></math>，信道编码方案为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><msub><mi>x</mi><mtext mathvariant="normal">parity</mtext></msub></mrow><annotation encoding="application/x-tex">C = x_1,x_2,...,x_ {n-1}x_ {\text{parity} }</annotation></semantics></math>，其中<span
+class="math inline">$x_ {\textP{parity}
+}$</span>用于辨识码字中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>的个数为奇数还是偶数，这个码率为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mi>n</mi></mfrac><annotation encoding="application/x-tex">\frac{n-1}{n}</annotation></semantics></math>。</p>
+<h3 id="信道编码的错误概率">信道编码的错误概率</h3>
+<p>输入为符号<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>时的条件错误概率为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>λ</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>P</mi><mi>r</mi><mo stretchy="false" form="prefix">{</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mi>i</mi><mo stretchy="false" form="postfix">|</mo><msup><mi>X</mi><mi>n</mi></msup><mo>=</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><msup><mi>y</mi><mi>n</mi></msup></munder><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">|</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\lambda_i &amp;= Pr\{g(Y^n) \ne i \vert X^n = x^n(i)\}\\
+&amp;= \sum_ {y^n} q(y^n\vert x^n(i))I(g(y^n) \ne i)
+\end{aligned}
+</annotation></semantics></math>
+其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(\cdot)</annotation></semantics></math>为指示函数。</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(M,n)</annotation></semantics></math>码的最大错误概率为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>i</mi><mo>∈</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mi>M</mi></mrow></munder><msub><mi>λ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+\lambda^{(n)} = \max_ {i \in 1,2,...M} \lambda_i
+</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(M,n)</annotation></semantics></math>码的算术平均错误概率为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>P</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mi>M</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><msub><mi>λ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+P_e^{(n)} = \frac{1}{M} \sum_ {i=1}^M\lambda_i
+</annotation></semantics></math></p>
+<p>我们称一个码率<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>是可达的，若存在一个信道编码<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌈</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">⌉</mo><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lceil 2^{nR}\rceil,n )</annotation></semantics></math>，其最大差错概率在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">n\rightarrow \infty</annotation></semantics></math>时趋于0。可以看出来可达要求无差错，而且是渐进的。</p>
+<p>这时候我们得到信道容量的另外一个定义：一个信道的容量是该信道上所有可达码率的上确界，即<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mrow><mtext mathvariant="normal">sup </mtext><mspace width="0.333em"></mspace></mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">C = \text{sup }R</annotation></semantics></math>，这意味着<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>一定对应着一种信道编码方案。</p>
+<h3 id="经验主义式的设计">经验主义式的设计</h3>
+<p>在信道传输中如何减少差错？由香农公式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>T</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mi>T</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><mrow><msub><mi>N</mi><mn>0</mn></msub><mi>W</mi></mrow></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+C_T(\beta) = WT \log(1+\frac{P_S}{N_0W})
+</annotation></semantics></math> 可以得到，提高抗干扰能力的方法如下： 1.
+增加功率(提高信噪比) 2. 加大带宽(信号变化剧烈) 3. 延长时间(降低速率)</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mi>m</mi><mi>a</mi><msub><mi>x</mi><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>功</mi><mi>率</mi><mi>约</mi><mi>束</mi></mrow></msub><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">C = max_ {p(x),功率约束}\{I(X;Y)\}</annotation></semantics></math></p>
+<p>而降低重复速率，实际上就是重复，增加冗余。</p>
+<h3 id="重复码">重复码</h3>
+<p>最直观的纠错方法就是：重复，增加冗余。 * 编码１：将每个输入元重复三次
+* 纠正任一位上的错误 *
+设码字记为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mn>8</mn></msub><mo>,</mo><msub><mi>c</mi><mn>7</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>c</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(c_8,c_7,...,c_0)</annotation></semantics></math>
+* 由编码方法可知，信道无误时： <span class="math display">$$
+    c_8 = c_7 = c_6\\
+    c_5 = c_4 = c_3\\
+    c_2 = c_1 = c_0
+    $$</span> *
+解码时，若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>8</mn></msub><mo>=</mo><msub><mi>c</mi><mn>6</mn></msub><mo>≠</mo><msub><mi>c</mi><mn>7</mn></msub></mrow><annotation encoding="application/x-tex">c_8 = c_6 \ne c_7</annotation></semantics></math>，则判定<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>7</mn></msub><annotation encoding="application/x-tex">c_7</annotation></semantics></math>位出错，采用简单多数法进行判定
+* 依据是：连续出现两个错误的概率远远小于出现一个错误的概率
+如下图，如果我们将上述编码放进二进制对称信道，则想要得到无差错编码，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">n \rightarrow 0</annotation></semantics></math>，而码率也趋近于0，这不是一个好消息。</p>
+<p>但是，是否对于信息的无差错传输，就意味着码率为0呢？答案是否定的。</p>
+<p>现在我们考虑BSC信道，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mi>k</mi></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">W= \{1,2,...,2^k\}</annotation></semantics></math>,如图：
+<img src="" /></p>
+<p>我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>n</mi><mi>C</mi><mo>≥</mo><mi>n</mi><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>;</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo>,</mo><mover><mi>W</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>=</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">|</mo><mover><mi>W</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>≥</mo><mi>k</mi><mo>−</mo><mi>k</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+nC \ge nI(X;Y)\\
+\ge I(X^n;Y^n)\\
+\ge I(W,\hat W)\\
+=H(W) - H(W\vert \hat W)\\
+\ge k - k H(P_e)
+\end{aligned}
+</annotation></semantics></math>
+上式中最后一步是有Fano不等式得到的。</p>
+<p>则：<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≤</mo><mfrac><mrow><mi>n</mi><mi>C</mi></mrow><mrow><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">k \leq  \frac{nC}{1 - H(P_e)}</annotation></semantics></math></p>
+<p>而由于BSC信道的容量可以得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C = 1 - H(P)</annotation></semantics></math>，所以我们得到一个R的上界：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mfrac><mi>k</mi><mi>n</mi></mfrac><mo>≥</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+R = \frac{k}{n} \ge \frac{1 - H(P)}{1 - H(P_e)}
+</annotation></semantics></math></p>
+<p>通过变形，我们可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mn>1</mn><mo>−</mo><mfrac><mi>C</mi><mi>R</mi></mfrac><mo>→</mo><msub><mi>P</mi><mi>e</mi></msub><mo>≥</mo><msup><mi>H</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mi>C</mi><mi>R</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+H(P_e) \ge 1 - \frac C R \rightarrow P_e \ge H^{-1}\left(1 - \frac C R\right)
+</annotation></semantics></math></p>
+<p>这意味着，如果想要让<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>e</mi></msub><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P_e\leq 0</annotation></semantics></math>，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>≤</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">R \leq C</annotation></semantics></math>，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>&gt;</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">R &gt; C</annotation></semantics></math>，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H(P_e)&gt;0</annotation></semantics></math>，所以我们一定可以得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>e</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P_e&gt;0</annotation></semantics></math>，不可能进行可靠通信。</p>
+<p>那么无差错传输的情况下，码率最大能有多少？先给你看一个preview，很直白的内容，不过它被证明确实是正确的：</p>
+<p><img src="" /></p>
+<p>想象信道将信源映射到一个球体里，而对每个输入符号也对应一个球。而这个球的体积就意味着噪声带来的体积，而大球中能容纳多少小球，正是这个信道编码在无错的情况下可以映射的符号数M。因为这个球的维度是n维的，我么可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mfrac><msup><mrow><mo stretchy="true" form="prefix">[</mo><msqrt><mrow><msub><mi>P</mi><mi>S</mi></msub><mo>+</mo><msub><mi>P</mi><mi>N</mi></msub></mrow></msqrt><mo stretchy="true" form="postfix">]</mo></mrow><mi>n</mi></msup><msup><mrow><mo stretchy="true" form="prefix">[</mo><msqrt><msub><mi>P</mi><mi>N</mi></msub></msqrt><mo stretchy="true" form="postfix">]</mo></mrow><mi>n</mi></msup></mfrac><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>P</mi><mi>N</mi></msub></mfrac><msup><mo stretchy="false" form="postfix">)</mo><mfrac><mi>n</mi><mn>2</mn></mfrac></msup></mrow><annotation encoding="application/x-tex">
+M = \frac{\left[\sqrt{P_S +P_N}\right]^n}{\left[\sqrt{P_N}\right]^n} = (1 + \frac{P_S}{P_N})^{\frac n 2}
+</annotation></semantics></math></p>
+<p>由上式，可以计算得出：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><msub><mi>P</mi><mi>S</mi></msub><msub><mi>P</mi><mi>N</mi></msub></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R = \frac 1 2 \log (1 + \frac{P_S}{P_N})
+</annotation></semantics></math></p>
+<p>而这个值，正好与连续无记忆加性高斯噪声信道的容量一致。</p>
+<p>当然，这个只是preview，不是严格的证明过程。下面对这个证明进行稍微严谨地推导，说明大多数噪声信道都有这样地特性。</p>
+<p>为了证明这个东西，我们需要介绍一些别的定义。之前证明信源无失真压缩定理地时候，用到了典型序列，而这次我们在典型序列地基础上，重新介绍一个新的内容。
+### 证明香农第二定理 ### #### 联合典型序列 ####
+设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X^n,Y^n)</annotation></semantics></math>是长为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>的随机序列对，其概率分布满足
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo>,</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+p(x^n,y^n) = \prod_ {i=1}^n p(x_i,y_i)
+</annotation></semantics></math>
+若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X^n,Y^n)</annotation></semantics></math>满足以下条件，则称其为联合典型序列：
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mfrac><mn>1</mn><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">|</mo><mo>&lt;</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\lvert -\frac 1 n \log p(x^n) - H(X) \rvert &lt; \epsilon</annotation></semantics></math>
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mfrac><mn>1</mn><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">|</mo><mo>&lt;</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\lvert -\frac 1 n \log p(y^n) - H(Y) \rvert &lt; \epsilon</annotation></semantics></math>
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mfrac><mn>1</mn><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo>,</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">|</mo><mo>&lt;</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\lvert -\frac 1 n \log p(x^n,y^n) - H(X,Y)\rvert &lt; \epsilon</annotation></semantics></math>
+联合典型序列构成的集合为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>A</mi><mi>ϵ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">A_\epsilon^{(n)}</annotation></semantics></math>。</p>
+<p>联合典型序列与之前典型序列定义是有很大地相似性：<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/11/02/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94Lossless-Encoding/">信息论——Lossless-Encoding</a>.我们首先要看看联合典型序列的性质，才能用它来证明。
+#### 联合渐进等同分割定理（Joint AEP） ####
+设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X^n,Y^n)</annotation></semantics></math>是长度为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>的随机序列对，其分布满足：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo>,</mo><msup><mi>y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+p(x^n,y^n) = \prod_ {i=1}^n p(x_i,y_i)
+</annotation></semantics></math> 则以下性质成立： *
+当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">n \rightarrow \infty</annotation></semantics></math>时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msubsup><mi>A</mi><mi>ϵ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Pr((X^n,Y^n) \in A_\epsilon ^{(n)}) \rightarrow 1</annotation></semantics></math>
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo><msup><mn>2</mn><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>≤</mo><mo stretchy="false" form="postfix">|</mo><msubsup><mi>A</mi><mi>ϵ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">|</mo><mo>≤</mo><msup><mn>2</mn><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">(1 - \epsilon)2^{n(H(X,Y) - \epsilon)} \leq \vert A_\epsilon ^{(n)} \vert\leq 2^{n(H(X,Y)+\epsilon)}</annotation></semantics></math>
+* 设$(,)p(x<sup>n)p(y</sup>n)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>,</mo><mi>即</mi></mrow><annotation encoding="application/x-tex">,即</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>统</mi><mi>计</mi><mi>独</mi><mi>立</mi><mi>，</mi><mi>且</mi><mi>具</mi><mi>有</mi><mi>与</mi></mrow><annotation encoding="application/x-tex">统计独立，且具有与</annotation></semantics></math>p(x<sup>n,y</sup>n)$一致的边缘分布，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mover><msup><mi>X</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo>,</mo><mover><msup><mi>Y</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msubsup><mi>A</mi><mi>ϵ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><msup><mn>2</mn><mrow><mi>−</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>3</mn><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \leq 2^{-n(I(X,Y) - 3\epsilon)}
+</annotation></semantics></math>
+若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>足够大，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mover><msup><mi>X</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo>,</mo><mover><msup><mi>Y</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msubsup><mi>A</mi><mi>ϵ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo><msup><mn>2</mn><mrow><mi>−</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>3</mn><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+Pr\left((\tilde{X^n},\tilde{Y^n}) \in A_\epsilon ^{(n)}\right) \ge (1 - \epsilon)2^{-n(I(X,Y) + 3\epsilon)}
+</annotation></semantics></math></p>
+<p>前两点都比较好理解，第三点中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mover><msup><mi>X</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo>,</mo><mover><msup><mi>Y</mi><mi>n</mi></msup><mo accent="true">̃</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\tilde{X^n},\tilde{Y^n})</annotation></semantics></math>是由<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(X^n,Y^n)</annotation></semantics></math>的边缘分布依照<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msup><mi>Y</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">X^n,Y^n</annotation></semantics></math>独立形成的另一个联合分布，而这个分布属于典型序列的概率约等于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>−</mi><mi>n</mi><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{-nI(X,Y)}</annotation></semantics></math>。</p>
+<p>在这里我们证明以下第三条的前半部分： <span class="math display">$$
+\tilde{X^n},\tilde{Y^n}\text{ are independent. }\tilde{X^n}\sim
+P_X(x^n),\tilde{Y^n}\sim P_Y(y^n)\\
+\begin{aligned}
+Pr\{(\tilde{X^n},\tilde{Y^n}) \in A_\epsilon^{(n)} \} &amp;= \sum_
+{(\tilde{x^n},\tilde{y^n}) \in A_\epsilon^{(n)} } P(x^n)P(y^n)\\
+&amp;\leq 2^{b(H(X,Y) + \epsilon)}\cdot 2^{-n(H(X) - \epsilon)} \cdot
+2^{-n(H(Y) - \epsilon)}\\
+&amp;= 2^{-n(I(X,Y) - 3\epsilon)}
+\end{aligned}
+$$</span></p>
+<p>下图可以帮助我们更好地理解这些性质： <img src="" /> *
+联合分布中，大约有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(X)}</annotation></semantics></math>个典型X序列和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(Y)}</annotation></semantics></math>个典型Y序列
+*
+其组合共有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(X) + nH(Y)}</annotation></semantics></math>个，但是其中联合典型的只有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(X,Y)}</annotation></semantics></math>个
+*
+随机选择而出现联合典型序列的概率为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>−</mi><mi>n</mi><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{-nI(X,Y)}</annotation></semantics></math></p>
+<p>现在来看一下联合典型序列的另一个解释： *
+对于典型输入序列<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mi>n</mi></msup><annotation encoding="application/x-tex">x^n</annotation></semantics></math>，存在大约<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(Y|X)}</annotation></semantics></math>个可能的输出，且它们等概
+*
+所有可能的典型输出序列大约有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>n</mi><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">2^{nH(Y)}</annotation></semantics></math>个，这些序列被分成若干个不相交的子集
+*
+子集个数为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">2^{n(H(Y) - H(Y|X))} = 2^{nI(X;Y)}</annotation></semantics></math>，表示信道可以无错误传递的最大字母序列个数
+<img src="" /></p>
+<h4 id="可达性的证明">可达性的证明</h4>
+<p>可达性的证明也就是我们可以找到一个编码函数和解码函数，使得信道带到容量C，而且是无差错地传输。
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>:</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">]</mo><mo>→</mo><msup><mi>X</mi><mi>n</mi></msup><mo>∼</mo><msub><mi>P</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>→</mo><msup><mi>Y</mi><mi>n</mi></msup><mover><mi>W</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">
+W \in [1:2^{nR}] \rightarrow X^n \sim P_X(x) \rightarrow q(y|X)\rightarrow Y^n \hat W
+</annotation></semantics></math></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/27/Learning-From-Data%E2%80%94%E2%80%94Info-between-X-and-Y-SVD/" rel="prev" title="Learning From Data——Info between X and Y&#x2F;SVD">
+                  <i class="fa fa-angle-left"></i> Learning From Data——Info between X and Y/SVD
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/28/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94EVD%E4%B8%8ESVD/" rel="next" title="数学——EVD与SVD">
+                  数学——EVD与SVD <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

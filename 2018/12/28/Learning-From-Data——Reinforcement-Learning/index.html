@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这周数据学习的内容是关于强化学习（Reinforcement Learning）的。不过课上睡着了，而且由于信息论时间太赶一直没有空看这节课的内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Reinforcement Learning">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/12/28/Learning-From-Data%E2%80%94%E2%80%94Reinforcement-Learning/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这周数据学习的内容是关于强化学习（Reinforcement Learning）的。不过课上睡着了，而且由于信息论时间太赶一直没有空看这节课的内容。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-12-28T12:05:58.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.674Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="reinforcement learning">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/12/28/Learning-From-Data%E2%80%94%E2%80%94Reinforcement-Learning/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/12/28/Learning-From-Data%E2%80%94%E2%80%94Reinforcement-Learning/","path":"2018/12/28/Learning-From-Data——Reinforcement-Learning/","title":"Learning From Data——Reinforcement Learning"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Reinforcement Learning | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">什么是强化学习？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#policy-value-functions"><span class="nav-number">1.1.</span> <span class="nav-text">Policy &amp; Value functions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#optimal-value-and-policy"><span class="nav-number">1.2.</span> <span class="nav-text">Optimal value and policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81mdp%E4%B8%8B%E7%9A%84%E6%9C%80%E4%BD%B3%E7%9A%84value%E6%88%96%E8%80%85policy"><span class="nav-number">1.3.</span> <span class="nav-text">求解有限状态MDP下的最佳的value或者policy</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#value-iteration"><span class="nav-number">1.3.1.</span> <span class="nav-text">value iteration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#policy-iteration"><span class="nav-number">1.3.2.</span> <span class="nav-text">policy iteration</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#discussion"><span class="nav-number">1.4.</span> <span class="nav-text">Discussion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#learning-a-model-for-finite-state-mdp"><span class="nav-number">2.</span> <span class="nav-text">Learning a model for
+finite-state MDP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#estimate-model-from-experience"><span class="nav-number">2.1.</span> <span class="nav-text">Estimate model from
+experience</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#estimate-p_-sa"><span class="nav-number">2.1.1.</span> <span class="nav-text">Estimate
+PsaP_ {sa}</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#estimate-rs"><span class="nav-number">2.1.2.</span> <span class="nav-text">Estimate
+R(s)R(s)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#algorithm-mdp-model-learning"><span class="nav-number">2.2.</span> <span class="nav-text">Algorithm: MDP model learning</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#continuous-state-mdps"><span class="nav-number">3.</span> <span class="nav-text">Continuous state MDPs</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#value-function-approximation"><span class="nav-number">3.1.</span> <span class="nav-text">Value function approximation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#algorithm-fitted-value-iterationstochastic-model"><span class="nav-number">3.1.1.</span> <span class="nav-text">Algorithm:
+Fitted value iteration(Stochastic Model)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#computing-the-optimal-policy"><span class="nav-number">3.2.</span> <span class="nav-text">Computing the optimal policy</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/12/28/Learning-From-Data%E2%80%94%E2%80%94Reinforcement-Learning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Reinforcement Learning | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Reinforcement Learning
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-28 20:05:58" itemprop="dateCreated datePublished" datetime="2018-12-28T20:05:58+08:00">2018-12-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这周数据学习的内容是关于强化学习（Reinforcement
+Learning）的。不过课上睡着了，而且由于信息论时间太赶一直没有空看这节课的内容。
+<span id="more"></span>
+强化学习现在是非常流行的一个机器学习方法，当然它和其他的算法不一样，你用了这个就是这个，而强化学习更像是一种学习方式，也就是一直在线学习。AlphaGo赢了围棋冠军，OpenAI赢了Dota冠军，以及自动驾驶汽车飞机等都有它的身影。</p>
+<h2 id="什么是强化学习">什么是强化学习？</h2>
+<p>强化学习有点像是玩游戏的过程，实际上强化学习应用最多的地方也正是游戏。他属于无监督学习，但是又是根据奖励来决定下一个动作，怎么知道奖励？就是走到头。有点类似于有“长远的眼光”。这个长远的眼光可以说是经验，是通过一次次训练得到的，类似于你的人生可以来无数回，你会怎么做这件事。可能经过多次碰壁以后，我终于活成了一个成功人士。每次人生）训练周期）称为episode。</p>
+<p>首先要知道对于序列决策问题，我们很难找到明确的监督策略来决定结果的好坏。在强化学习中，学习的过程是通过代理完成的。强化学习定义了一个奖励函数（reward
+function）和environment，而代理（agent）要做的就是最大化累计的奖励。如下图：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf1.png" />
+### Markov Decision Process ###
+我们首先学习一下马尔可夫决策过程。一个马尔可夫决策过程可以看作是一个五元组：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo>,</mo><mi>A</mi><mo>,</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>P</mi><mrow><mi>s</mi><mi>n</mi></mrow></msub><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mi>γ</mi><mo>,</mo><mi>R</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(S,A,\{P_ {sn} \},\gamma,R)</annotation></semantics></math>，其中：
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>是一个状态集合（环境）
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>是一个动作集合
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math>是状态转移概率
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>×</mo><mi>A</mi><mo>→</mo><mi mathvariant="double-struck">ℝ</mi></mrow><annotation encoding="application/x-tex">S\times A \rightarrow \mathbb{R}</annotation></semantics></math>，是一个奖励函数
+*
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\gamma \in [0,1)</annotation></semantics></math>，为折扣因子（discount
+factor）</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf2.png" /></p>
+<p>这幅图中,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>S</mi><mn>1</mn></msub><mo>,</mo><msub><mi>S</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>;</mo><mi>A</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>;</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>5</mn><mo>,</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>2</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">S=\{S_0,S_1,S_2\};A=\{a_0,a_1\};R(s_1,a_0)=5,R(s_2,a_1) = -1</annotation></semantics></math>，而它的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math>如下表：</p>
+<table>
+<thead>
+<tr>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mn>0</mn></msub><annotation encoding="application/x-tex">S_0</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mn>1</mn></msub><annotation encoding="application/x-tex">S_1</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mn>2</mn></msub><annotation encoding="application/x-tex">S_2</annotation></semantics></math></th>
+<th style="text-align: center;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">S_0,a_0</annotation></semantics></math></td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0.5</td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">S_0,a_1</annotation></semantics></math></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">S_1,a_0</annotation></semantics></math></td>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.2</td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">S_1,a_1</annotation></semantics></math></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0.95</td>
+<td style="text-align: center;">0.05</td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>2</mn></msub><mo>,</mo><msub><mi>a</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">S_2,a_0</annotation></semantics></math></td>
+<td style="text-align: center;">0.4</td>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>2</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">S_2,a_1</annotation></semantics></math></td>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">0.4</td>
+</tr>
+</tbody>
+</table>
+<p>现在考虑一个状态序列<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>0</mn></msub><mo>,</mo><msub><mi>S</mi><mn>1</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">S_0,S_1,...</annotation></semantics></math>以及对应的采取的动作<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">a_0,a_1,...,</annotation></semantics></math></p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf3.png" /></p>
+<p>则这个序列的总共的奖励为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mi>γ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>2</mn></msub><mo>,</mo><msub><mi>a</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+R(s_0,a_0) + \gamma R(s_1,a_1)+\gamma^2 R(s_2,a_2)+...
+</annotation></semantics></math></p>
+<p>我们把问题想得简单一点，假设这个reward只和状态有关，则总的奖励为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mi>γ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+R(s_0)+\gamma R(s_1) + \gamma^2 R(s_2)+...
+</annotation></semantics></math>
+未来第<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>步的奖励会被打<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>γ</mi><mi>t</mi></msup><annotation encoding="application/x-tex">\gamma ^t</annotation></semantics></math>的折扣。这说明离当前这个状态越远权重越小，这意味着我们把下一步的奖励看得最重要，接下来是下下一步的奖励，依次减少。</p>
+<h3 id="policy-value-functions">Policy &amp; Value functions</h3>
+<p>强化学习的目标就是：选择action，使得总的奖励期望最大：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mi>γ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\mathbb{E}[R(s_0)+\gamma R(s_1) + \gamma^2 R(s_2)+...]
+</annotation></semantics></math></p>
+<ul>
+<li>一个策略（policy）是任意一个函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>→</mo><mi>A</mi></mrow><annotation encoding="application/x-tex">S \rightarrow A</annotation></semantics></math>.</li>
+<li>而该策略<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>对应的值函数（value
+function）为在从状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>开始，根据<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>来执行动作的条件下，总的奖励的期望值，也就是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mi>γ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo stretchy="false" form="postfix">|</mo><msub><mi>s</mi><mn>0</mn></msub><mo>=</mo><mi>s</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+V^\pi(s) = \mathbb{E}[R(s_0)+\gamma R(s_1) +\gamma^2 R(s_2) +...\vert s_0 = s,\pi]
+</annotation></semantics></math></li>
+</ul>
+<p>给定<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>，值函数（value
+function）满足Bellman等式：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V^\pi(s)=R(s)+\gamma\sum_ {s&#39; \in S}P_ {s\pi(s)}(s&#39;)V^\pi(s&#39;)
+</annotation></semantics></math></p>
+<p>所以，这实际上是一个递归的过程，本次状态的值函数，是由下一个可能的状态值决定的。而下一个可能的状态值又和你的策略相关。为了方便理解，我们再定义一个函数，为动作-值函数Q。它接受两个输入：当前的状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>和当前状态采取的动作<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+Q(s,a) = R(s)+\gamma\sum_ {s&#39; \in S}P_ {sa}(s&#39;)V^\pi(s&#39;)
+</annotation></semantics></math></p>
+<p>我们可以维护这一张关于Q值的表，这就是传说中的Q-learning。</p>
+<h3 id="optimal-value-and-policy">Optimal value and policy</h3>
+<p>我们定义最优的值函数为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">max</mi><mi>π</mi></munder><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><msup><mi>V</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V^* (s) = \max_ {\pi}V^\pi(s) = R(s)+\max_ {a \in A}\gamma\sum_ {s&#39; \in S}P_ {sa}(s&#39;)V^*(s&#39;)
+</annotation></semantics></math></p>
+<p>最优的策略<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>π</mi><mo>*</mo></msup><mo>:</mo><mi>S</mi><mo>→</mo><mi>A</mi></mrow><annotation encoding="application/x-tex">\pi^*:S\rightarrow A</annotation></semantics></math>为实现了最优值函数的策略：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>π</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><msup><mi>V</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\pi^*(s) = \arg\max_ {a \in A}\sum_ {s&#39;\in S}P_ {sa}(s&#39;)V^ *(s&#39;)
+</annotation></semantics></math></p>
+<p>对于每一个状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>以及每一个策略<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mo>*</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>V</mi><mrow><mi>π</mi><mo>*</mo></mrow></msup><mo>≥</mo><msup><mi>V</mi><mi>π</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V^*(s) = V^{\pi *} \ge V^\pi(s)
+</annotation></semantics></math></p>
+<p>可以看到的是Q-learning是在维护一张表，而我们这里提到的和Q-learning非常相似，不过policy选的是最佳的动作，可以说Q-learning是实现这个目标学习的一种方法。</p>
+<h3
+id="求解有限状态mdp下的最佳的value或者policy">求解有限状态MDP下的最佳的value或者policy</h3>
+<p>实际上，我们可以看到只要解决了value和policy中一个，我们就能得到最佳的结果，因为实际上最佳策略也就是实现了最佳值的策略而已。因此这个解决过程就有两个方法。前提是，状态集合是有限的。</p>
+<h4 id="value-iteration">value iteration</h4>
+<p>假设MDP有有限的状态集合和动作空间，则值迭代如下： &gt;1.For each
+state
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+, initialize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">V (s) := 0</annotation></semantics></math>
+&gt; &gt;2.Repeat until convergence { &gt; &gt;Update
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V (s) := R(s) + \max_ {a\in A} \gamma \sum_ {s&#39; \in S} P_ {sa} (s&#39;)V(s&#39;)</annotation></semantics></math>
+for every state s &gt; &gt;}</p>
+<p>在这里有两个办法来更新<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V(s)</annotation></semantics></math>：
+* 同步更新（Synchronous update）: &gt; Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V_0(s):= V(s)</annotation></semantics></math>
+for all states
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s \in S</annotation></semantics></math>
+&gt; &gt;For each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s \in S</annotation></semantics></math>:
+&gt;<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><msub><mi>V</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V(s):= R(s) + \max_ {a \in A} \gamma \sum_ {s&#39; \in S} P_ {sa}(s&#39;) V_0(s&#39;)</annotation></semantics></math>
+* 非同步更新（Asynchronous update）： &gt; For each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s \in S</annotation></semantics></math>:
+&gt;
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V(s):= R(s) + \max_ {a \in A} \gamma \sum_ {s&#39; \in S} P_ {sa}(s&#39;) V(s&#39;)</annotation></semantics></math></p>
+<h4 id="policy-iteration">policy iteration</h4>
+<blockquote>
+<p>1.Initialize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+randomly</p>
+<p>2.Repeat until convergence{</p>
+<ol type="a">
+<li><p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>:=</mo><msup><mi>V</mi><mi>π</mi></msup></mrow><annotation encoding="application/x-tex">V:=V^\pi</annotation></semantics></math></p></li>
+<li><p>For each state
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi(s):= \arg\max_ {a \in A}\sum_ {s&#39; \in S}P_ {sa} V(s&#39;)</annotation></semantics></math>
+}</p></li>
+</ol>
+</blockquote>
+<p>其中步骤a可以通过求解Bellman等式来完成（一个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mi>S</mi><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\vert S\vert</annotation></semantics></math>集合的线性方程组）。</p>
+<h3 id="discussion">Discussion</h3>
+<p>值迭代和策略迭代都可以最终收敛到最佳的<span
+class="math inline">$\pi^\*$</span>和<span
+class="math inline">$V^\*$</span>. *
+策略迭代对于小的MDP更加高效，可以更快速地收敛 *
+值迭代对于更大的状态空间来说更实用</p>
+<h2 id="learning-a-model-for-finite-state-mdp">Learning a model for
+finite-state MDP</h2>
+<p>如果奖励函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(s)</annotation></semantics></math>和转移概率<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math>是未知的。如何从数据中估计他们？
+### Experience from MDP ###
+给定政策<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>如下：</p>
+<table>
+<thead>
+<tr>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi(s)</annotation></semantics></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>0</mn></msub><annotation encoding="application/x-tex">s_0</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>1</mn></msub><annotation encoding="application/x-tex">s_1</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>1</mn></msub><annotation encoding="application/x-tex">a_1</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>2</mn></msub><annotation encoding="application/x-tex">s_2</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>在这个环境下重复地执行策略<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>:</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf4.png" /></p>
+<h3 id="estimate-model-from-experience">Estimate model from
+experience</h3>
+<h4 id="estimate-p_-sa">Estimate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math></h4>
+<p>对状态转移概率的最大似然估计为： <span class="math display">$$
+P_ {sa}(s') = P(s'|s,a)=\frac{\\#\{s \rightarrow a \rightarrow s'\}
+}{\\#\{s \rightarrow a \rightarrow \cdot\} }
+$$</span></p>
+<p>如果<span class="math inline">$\\#\{s \rightarrow a \rightarrow
+\cdot\}=0$</span>，那么设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="false" form="postfix">|</mo><mi>S</mi><mo stretchy="false" form="postfix">|</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P_ {sa}(s&#39;) = \frac{1}{\vert S\vert}</annotation></semantics></math>.</p>
+<h4 id="estimate-rs">Estimate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(s)</annotation></semantics></math></h4>
+<p>我们定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">R(s)^{(t)}</annotation></semantics></math>为第t次试验中状态s的瞬时奖励，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="double-struck">𝔼</mi><mo stretchy="false" form="prefix">[</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mfrac><mn>1</mn><mi>m</mi></mfrac><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+R(s) = \mathbb{E}[R(s)^{(t)}] = \frac{1}{m}\sum_ {t=1}^mR(s)^{(t)}
+</annotation></semantics></math></p>
+<h3 id="algorithm-mdp-model-learning">Algorithm: MDP model learning</h3>
+<blockquote>
+<p>1.Initialize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+randomly ,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">V (s) := 0</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math></p>
+<p>2.Repeat until convergence {</p>
+<p>a.Execute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+trails</p>
+<p>b.Update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+using the accumulated experience</p>
+<p>c.<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>:=</mo></mrow><annotation encoding="application/x-tex">V:=</annotation></semantics></math>ValueIteration<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo>,</mo><mi>R</mi><mo>,</mo><mi>V</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(P_ {sa},R,V)</annotation></semantics></math></p>
+<p>d.Update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+greedily with respect to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\pi(s)= \arg\max_ {a\in A}\sum_ {s&#39;\in S}P_ {sa}(s&#39;)V(s&#39;)
+</annotation></semantics></math></p>
+</blockquote>
+<p><strong>ValueIteration(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo>,</mo><mi>R</mi><mo>,</mo><msub><mi>V</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">P_ {sa},R,V_0</annotation></semantics></math>)</strong></p>
+<blockquote>
+<p>1.Initialize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><msub><mi>V</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">V = V_0</annotation></semantics></math></p>
+<p>2.Repeat until convergence{</p>
+<p>Update
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><mi>γ</mi><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V(s):=R(s)+\max_ {a\in A}\gamma\sum_ {s&#39;\in S}P_ {sa}(s&#39;)V(s&#39;)
+</annotation></semantics></math> for every state s</p>
+<p>}</p>
+</blockquote>
+<h2 id="continuous-state-mdps">Continuous state MDPs</h2>
+<p>最后我们提一下连续的MDP，一个MDP的状态集合可能是无穷大的： * A car’s
+state:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>θ</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>y</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>θ</mi><mo accent="true">̇</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x,y,\theta,\dot x,\dot y,\dot \theta)</annotation></semantics></math>
+* A helicopter’s
+state:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo>,</mo><mi>ϕ</mi><mo>,</mo><mi>θ</mi><mo>,</mo><mi>ψ</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>y</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>z</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>ϕ</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>θ</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>ψ</mi><mo accent="true">̇</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x,y,z,\phi,\theta,\psi,\dot x,\dot y,\dot z,\dot \phi,\dot \theta,\dot \psi)</annotation></semantics></math></p>
+<p>下面看一个有趣的例子：1D 倒立摆（Inverted
+Pendulum），目标是平衡车上的栏杆，如图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf5.png" /></p>
+<ul>
+<li>状态代表：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>θ</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̇</mo></mover><mo>,</mo><mover><mi>θ</mi><mo accent="true">̇</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x,\theta,\dot x, \dot\theta)</annotation></semantics></math></li>
+<li>动作：作用在车上的力<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math></li>
+<li>奖励：每次这个栏杆是直立的时候+1</li>
+</ul>
+<p>由于维度的“诅咒”，一般来说离散化只能在一维两维的情况下保持不错的效果。</p>
+<p>如何直接估计<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>而不用离散化？</p>
+<p>主要的想法： *
+获取MDP的模型或模拟器，可用于产生经验元组:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo>,</mo><msup><mi>s</mi><mo>′</mo></msup><mo>,</mo><mi>r</mi><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle s,a,s&#39;,r \rangle</annotation></semantics></math>
+*
+现在有来自状态空间S的样本<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">s^{(1)},...,s^{(m)}</annotation></semantics></math>，使用模型来估计他们的最佳期望奖励总和，也就是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>≈</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>≈</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+y^{(1)} \approx V(s^{(1)}),y^{(2)} \approx V(s^{(2)}),...
+</annotation></semantics></math> *
+使用监督学习从<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\left(s^{(1)},y^{(1)}\right),\left(s^{(2)},y^{(2)}\right),...</annotation></semantics></math>来近似<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>,让其作为一个状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>的函数，例如：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>θ</mi><mi>T</mi></msup><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V(s)=\theta^T\phi(s)
+</annotation></semantics></math> ### Obtaining a simulator ###
+模拟器是一个黑盒子，在给定状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>t</mi></msub><annotation encoding="application/x-tex">s_t</annotation></semantics></math>和动作<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mi>t</mi></msub><annotation encoding="application/x-tex">a_t</annotation></semantics></math>的情况下来产生下一个状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">s_ {t+1}</annotation></semantics></math>。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf6.png" /></p>
+<p>一般来说有下面几种策略： * 使用物理法则，也就是倒立摆的运动方程：
+<span class="math display">$$
+(M+m)\ddot{x}+b\dot{x} +ml\ddot \theta \cos(theta) - ml\dot \theta
+^2\sin(\theta) = F\\
+(l+ml^2)\ddot\theta+mgl\sin(\theta) = -ml\ddot x\cos(\theta)
+$$</span> * 使用现成的仿真软件 * 游戏模拟器 ### Obtaining a model ###
+在MDP中我们重复地执行动作，执行m次试验，每个试验进行了T次。 <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf7.png" /></p>
+<p>通过选择<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>θ</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\theta^*</annotation></semantics></math>来学习一个预测模型<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>h</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>s</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>a</mi><mi>t</mi></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">s_ {t+1}=h_\theta\left(\begin{bmatrix}s_t\\a_t\end{bmatrix}\right)</annotation></semantics></math>，而：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>θ</mi><mo>*</mo></msup><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mi>θ</mi></munder><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>m</mi></munderover><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>T</mi><mo>−</mo><mn>1</mn></mrow></munderover><msup><mrow><mo stretchy="true" form="prefix">‖</mo><msubsup><mi>s</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msub><mi>h</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>s</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>a</mi><mi>t</mi></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">‖</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+\theta^* = \arg\min_\theta\sum_ {i=0}^m\sum_ {t=0}^{T-1}\left\Vert
+s_ {t+1}^{(i)} - h_\theta \left(\begin{bmatrix}s_t\\a_t\end{bmatrix}\right)
+\right\Vert^2
+</annotation></semantics></math></p>
+<p>比较流行的预测模型有： *
+线性模型：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>θ</mi></msub><mo>=</mo><mi>A</mi><msub><mi>s</mi><mi>t</mi></msub><mo>+</mo><mi>B</mi><msub><mi>a</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">h_\theta = As_t+Ba_t</annotation></semantics></math>
+*
+带有特征映射的线性模型：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>θ</mi></msub><mo>=</mo><mi>A</mi><msub><mi>ϕ</mi><mi>s</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>B</mi><msub><mi>ϕ</mi><mi>a</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>a</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h_\theta = A\phi_s(s_t) + B\phi_a(a_t)</annotation></semantics></math>
+* 神经网络</p>
+<p>应用模型： - 决策模型（Deterministic
+Model）：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>h</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>s</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>a</mi><mi>t</mi></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">s_ {t+1} = h_\theta \left(\begin{bmatrix}s_t\\a_t\end{bmatrix}\right)</annotation></semantics></math>
+- 随机模型（Stochastic
+Model）：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>h</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>s</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>a</mi><mi>t</mi></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>ϵ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>ϵ</mi><mi>t</mi></msub><mo>∼</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">s_ {t+1} = h_\theta \left(\begin{bmatrix}s_t\\a_t\end{bmatrix}\right)+\epsilon _t,\epsilon_t\sim \mathcal N (0,\Sigma)</annotation></semantics></math></p>
+<h3 id="value-function-approximation">Value function approximation</h3>
+<p>如何直接近似<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>而不使用离散化？</p>
+<p>主要的想法： - 获得一个MDP的模型或者模拟器 *
+现在有来自状态空间S的样本<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">s^{(1)},...,s^{(m)}</annotation></semantics></math>，使用模型来估计他们的最佳期望奖励总和，也就是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>≈</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>≈</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+y^{(1)} \approx V(s^{(1)}),y^{(2)} \approx V(s^{(2)}),...
+</annotation></semantics></math> *
+使用监督学习从<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\left(s^{(1)},y^{(1)}\right),\left(s^{(2)},y^{(2)}\right),...</annotation></semantics></math>来近似<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>,让其作为一个状态<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>的函数，例如：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>θ</mi><mi>T</mi></msup><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V(s)=\theta^T\phi(s)
+</annotation></semantics></math></p>
+<p>对于有限状态的MDP中，值函数的更新如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><munder><mo>∑</mo><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+V(s) := R(s)+\gamma \max_ {a \in A}\sum_ {s&#39; \in S}P_ {sa}(s&#39;)V(s&#39;)
+</annotation></semantics></math></p>
+<p>而对于连续状态的值函数如下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><msub><mo>∫</mo><msup><mi>s</mi><mo>′</mo></msup></msub><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mi>d</mi><msup><mi>s</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>:=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><munder><mi mathvariant="normal">max</mi><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></munder><msub><mi mathvariant="double-struck">𝔼</mi><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∼</mo><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+V(s) &amp;:= R(s)+\gamma \max_ {a \in A}\int_ {s&#39;}P_ {sa}(s&#39;)V(s&#39;)ds&#39;\\
+&amp;:=R(s)+\gamma\max_ {a\in A}\mathbb{E}_ {s&#39;\sim P_ {sa} }[V(s&#39;)]
+\end{aligned}
+</annotation></semantics></math></p>
+<p>对于每个状态，我们使用有限的样本（来自<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">P_ {sa}</annotation></semantics></math>）计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">y^{(i)}</annotation></semantics></math>来估计<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><msub><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mrow><mi>a</mi><mo>∈</mo><mi>A</mi></mrow></msub><msub><mi mathvariant="double-struck">𝔼</mi><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∼</mo><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">R(s)+\gamma\max_ {a\in A}\mathbb{E}_ {s&#39;\sim P_ {sa} }[V(s&#39;)]</annotation></semantics></math>.</p>
+<h4 id="algorithm-fitted-value-iterationstochastic-model">Algorithm:
+Fitted value iteration(Stochastic Model)</h4>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rf8.png" /></p>
+<h3 id="computing-the-optimal-policy">Computing the optimal policy</h3>
+<p>在得到值函数的估计之后，对应的策略为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">max</mi><mi>a</mi></munder><msub><mi mathvariant="double-struck">𝔼</mi><mrow><msup><mi>s</mi><mo>′</mo></msup><mo>∼</mo><msub><mi>P</mi><mrow><mi>s</mi><mi>a</mi></mrow></msub></mrow></msub><mo stretchy="false" form="prefix">[</mo><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\pi (s) = \arg\max_ {a}\mathbb{E}_ {s&#39;\sim P_ {sa} }[V(s&#39;)]
+</annotation></semantics></math></p>
+<p>根据经验来估计最优策略： &gt; For each action
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>:
+&gt; 1. Sample
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>s</mi><mn>1</mn><mo>′</mo></msubsup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msubsup><mi>s</mi><mi>k</mi><mo>′</mo></msubsup><mo>∼</mo><msub><mi>P</mi><mrow><mi>s</mi><mo>,</mo><mi>a</mi></mrow></msub></mrow><annotation encoding="application/x-tex">s&#39;_1,...,s&#39;_k \sim P_ {s,a}</annotation></semantics></math>
+using a model &gt; 2. Compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mi>k</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></msubsup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>γ</mi><mi>V</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi>s</mi><mi>j</mi><mo>′</mo></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Q(a) = \frac 1 k \sum_ {j=1}^k R(s)+\gamma V(s&#39;_j)</annotation></semantics></math>,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><msub><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mi>a</mi></msub><mi>Q</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi(s) = \arg\max_aQ(a)</annotation></semantics></math></p>
+<p>除了线性回归，其他的学习算法也可以用来估计<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">V(s)</annotation></semantics></math>.</p>
+<p>参考： <a
+target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes12.pdf">Reinforcement
+Learning and Control</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/reinforcement-learning/" rel="tag"># reinforcement learning</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/12/20/%E6%95%B0%E5%AD%A6%E2%80%94%E2%80%94Unbiased-Estimation/" rel="prev" title="数学——Unbiased Estimation">
+                  <i class="fa fa-angle-left"></i> 数学——Unbiased Estimation
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/01/Learning-From-Data%E2%80%94%E2%80%94Introduction-of-Deep-Learning/" rel="next" title="Learning From Data——Introduction of Deep Learning">
+                  Learning From Data——Introduction of Deep Learning <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

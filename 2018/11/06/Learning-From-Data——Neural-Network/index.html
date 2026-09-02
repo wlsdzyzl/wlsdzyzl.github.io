@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这周上的数据学习，主要讲了一些神经网络相关的知识。神经网络是目前最流行的机器学习算法了，甚至由它诞生了一个新的学科：deep learning。因此一篇博客，只能浅浅介绍一些神经网络的基本内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning From Data——Neural Network">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="这周上的数据学习，主要讲了一些神经网络相关的知识。神经网络是目前最流行的机器学习算法了，甚至由它诞生了一个新的学科：deep learning。因此一篇博客，只能浅浅介绍一些神经网络的基本内容。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-11-06T05:54:51.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.674Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="LFD class">
+<meta property="article:tag" content="deep learning">
+<meta property="article:tag" content="neural network">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/","path":"2018/11/06/Learning-From-Data——Neural-Network/","title":"Learning From Data——Neural Network"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Learning From Data——Neural Network | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%ADforward-propagation"><span class="nav-number">1.</span> <span class="nav-text">前向传播（forward
+propagation）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cost-function"><span class="nav-number">2.</span> <span class="nav-text">cost function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E5%8C%96vectorize"><span class="nav-number">3.</span> <span class="nav-text">向量化（vectorize）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E5%90%91%E4%BC%A0%E6%92%ADback-propagation"><span class="nav-number">4.</span> <span class="nav-text">后向传播（back propagation）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%88%9D%E5%A7%8B%E5%8C%96parameter-initialization"><span class="nav-number">4.1.</span> <span class="nav-text">参数初始化（Parameter
+Initialization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6gradient"><span class="nav-number">4.2.</span> <span class="nav-text">梯度（gradient）</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Neural-Network/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Learning From Data——Neural Network | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Learning From Data——Neural Network
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-11-06 13:54:51" itemprop="dateCreated datePublished" datetime="2018-11-06T13:54:51+08:00">2018-11-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">数据学习课程</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这周上的数据学习，主要讲了一些神经网络相关的知识。神经网络是目前最流行的机器学习算法了，甚至由它诞生了一个新的学科：deep
+learning。因此一篇博客，只能浅浅介绍一些神经网络的基本内容。 <span id="more"></span>
+据说神经网络制造出来是为了模拟大脑。不过我认为离这个目标还差的远。但是呢，Neural
+Network确实做出来一些很牛逼的事情，让它成为现在AI中最受欢迎的技术。不过神经网络的概念倒是很早很早就提出了，之前没落是因为计算的性能跟不上。现在又东山再起了。</p>
+<p>即使没有接触过机器学习，也一定听过神经网络学习，以及见过类似下面的图：</p>
+<p><img
+src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Artificial_neural_network.svg/560px-Artificial_neural_network.svg.png" /></p>
+<p>实际上，这就是神经网络。神经网络的原理不复杂，但是如果嵌套层数比较多，就会需要非常大的计算量。</p>
+<p>对于每一个神经元，我们都可以把它看作之前的一个logistic
+regression。每一个神经元可以接受输入，然后提供输出，要么作为最终的输出，要么给别的神经元提供输入。</p>
+<h2 id="前向传播forward-propagation">前向传播（forward
+propagation）</h2>
+<p>这意味着，我们的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>参数将会变成一个”张量”（这么说也许不够准确，因为它不第一层可能有5个神经元，第2层可能有4个，也就是不是一个立方体）。在这里，我们用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math>来表示这个张量。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Theta^{(i)}</annotation></semantics></math>表示第i层的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>参数，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi mathvariant="normal">Θ</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\Theta^{(i)}_j</annotation></semantics></math>表示第i层，第j个theta向量，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>h</mi><mi>e</mi><mi>t</mi><msubsup><mi>a</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">Theta^{(i)}_ {j,k}</annotation></semantics></math>表示的就是某个具体的参数值了。</p>
+<p>我们使用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>a</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">a^{(i)}_j</annotation></semantics></math>按照上面的规则来表示第i层第j个神经元的输出。</p>
+<p>所以，就上面的这个图，我们可以很容易得出： <span
+class="math display">$$
+a_1^{(1)} = g(\Theta_ {1,0}^{(1)}x_0 + \Theta_ {1,1}^{(1)}x_1 + \Theta_
+{1,2}^{(2)}x_2+\Theta_ {1,3}^{(3)}x_3 )\\
+a_2^{(1)} = g(\Theta_ {2,0}^{(1)}x_0 + \Theta_ {2,1}^{(1)}x_1 + \Theta_
+{2,2}^{(2)}x_2+\Theta_ {2,3}^{(3)}x_3 )\\
+a_3^{(1)} = g(\Theta_ {3,0}^{(1)}x_0 + \Theta_ {3,1}^{(1)}x_1 + \Theta_
+{3,2}^{(2)}x_2+\Theta_ {3,3}^{(3)}x_3 )
+a_4^{(1)} = g(\Theta_ {4,0}^{(1)}x_0 + \Theta_ {4,1}^{(1)}x_1 + \Theta_
+{4,2}^{(2)}x_2+\Theta_ {4,3}^{(3)}x_3 )\\
+h_ {\Theta}(X) =\\
+\begin{bmatrix}
+g(\Theta_ {1,0}^{(2)}a_0^{(1)} + \Theta_ {1,1}^{(2)}a_1^{(1)} + \Theta_
+{1,2}^{(2)}a_2^{(1)} +\Theta_ {1,3}^{(2)}a_3^{(1)}+\Theta_
+{1,4}^{(2)}a_4^{(1)} )\\
+g(\Theta_ {2,0}^{(2)}a_0^{(1)} + \Theta_ {2,1}^{(2)}a_1^{(1)} + \Theta_
+{2,2}^{(2)}a_2^{(1)} +\Theta_ {2,3}^{(2)}a_3^{(1)}+\Theta_
+{2,4}^{(2)}a_4^{(1)} )
+\end{bmatrix}\\
+= [a_1^{(2)},a_2^{(2)} ]^T
+$$</span></p>
+<p>上面的神经网络输出有两项。</p>
+<p>上面的函数中，g为logistic函数，又叫sigmoid函数。当然这个函数不仅仅局限于sigmoid函数，也有relu函数，tanh函数：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>z</mi></mrow></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>m</mi><mi>o</mi><mi>i</mi><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mi>e</mi><mi>L</mi><mi>U</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><msup><mi>e</mi><mi>z</mi></msup><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>z</mi></mrow></msup></mrow><mrow><msup><mi>e</mi><mi>z</mi></msup><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>z</mi></mrow></msup></mrow></mfrac></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mi>a</mi><mi>n</mi><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{matrix}
+g(z) = \frac 1 {1+e^{-z} } &amp;(sigmoid)\\
+g(z) = \max(z,0) &amp;(ReLU)\\
+g(z) = \frac{e^z - e^{-z} }{e^z + e^{-z} }&amp; (tanh)
+\end{matrix}
+</annotation></semantics></math></p>
+<p>我们定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>a</mi><mi>j</mi><mn>1</mn></msubsup><annotation encoding="application/x-tex">a_ {j}^1</annotation></semantics></math>为原始输入。</p>
+<p>我们可以使用向量化来加速神经网络的计算过程。这个应该不算很稀奇的技术。对于每一层来说，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mi>h</mi><mi>e</mi><mi>t</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">theta</annotation></semantics></math>都是严格的矩阵的,而输入也是一个矩阵。所以每一层的向量化都不算困难。</p>
+<p>通过输入，计算出每一层的输出，然后将这层输出当作下一层的输入，最后得到最后的结果，这就是前向传播。前向传播实际上就是神经网络怎么计算出结果的过程。</p>
+<p>利用神经网络我们可以很容易地实现很复杂的非线性函数的边界，从而进行分类。吴恩达在视频中介绍了用神经网络对与，或非以及异或的实现。不过这些都是相对简单的，复杂的神经网络分析其来完全没有这么容易，这也是神经网络强大的一个原因。</p>
+<p>为了实现多个分类，我们可以将最后的输出定位k个，分别来判断是否为当前类。这个做法实际上one-Vs-all的做法。</p>
+<h2 id="cost-function">cost function</h2>
+<p>接下来我们来谈谈neural network的cost function。之前的logistic
+regression的cost function是通过计算极大似然估计得到的。而神经网络的cost
+funtion实际上呢也是一样的，不过它的h(x)不再是之前那么简单了，这里的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>变成了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math>。而且由于输出可能是多元的（多元分类），所以这个cost
+funtion实际上是各个类别的cost funtion的叠加：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>J</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mfrac><mn>1</mn><mi>m</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msubsup><mi>y</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>h</mi><mi mathvariant="normal">Θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><msub><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msubsup><mi>y</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>h</mi><mi mathvariant="normal">Θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><msub><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+J(\Theta) = -\frac{1}{m} \sum_ {i=1}^m \sum_ {k=1}^K y_i^{(k)} \log(h_ {\Theta}(X_i))_k + (1-y_i^{(k)}) \log (1 - (h_\Theta(X_i))_k)
+</annotation></semantics></math></p>
+<p>如果加上正则化的话，则正则化项为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>λ</mi><mrow><mn>2</mn><mi>m</mi></mrow></mfrac><msubsup><mo>∑</mo><mrow><mi>l</mi><mo>=</mo><mn>1</mn></mrow><mi>L</mi></msubsup><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>s</mi><mi>l</mi></msub></msubsup><msub><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow></msub><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\frac \lambda {2m} \sum_ {l=1}^{L}\sum_ {i=1}^{s_ {l} }\sum_ {j=1}{s_ {l-1} } (\Theta_ {i,j}^{(l)})^2</annotation></semantics></math></p>
+<p>需要注意的是这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>l</mi><mo>+</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">s_ {l+1}</annotation></semantics></math>,为何是这样？<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>l</mi></msub><annotation encoding="application/x-tex">s_l</annotation></semantics></math>表示了第l层有多少神经元（如果l=0则表示有多少个原始输入），也就表示了有多少个输入向量，而输入向量的长度则由前一个输入的个数决定，因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">s_ {l-1}</annotation></semantics></math>实际上输入向量的长度。所以呢，我们先从层数开始，然后到该层的每个神经元，最后再到每个参数的每个取值。
+（这里和吴恩达的课程的表述稍微有点区别，也就是我的输入是表示为第0层，也就是一共有L+1层，而吴恩达的课程中，共有L层，原来的0变成现在的第1层。不过这意味着，从1开始计数，由于第一层是没有theta参数的，所以第一层计算的实际是下一层的theta，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>l</mi></msub><annotation encoding="application/x-tex">s_l</annotation></semantics></math>是下一层的输入向量长度，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mrow><mi>l</mi><mo>+</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">s_ {l+1}</annotation></semantics></math>才是输入向量的个数，至于最后一层的theta由于已经在前一次计算过了，所以这里的regularization为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>λ</mi><mrow><mn>2</mn><mi>m</mi></mrow></mfrac><msubsup><mo>∑</mo><mrow><mi>l</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>L</mi><mo>−</mo><mn>1</mn></mrow></msubsup><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>s</mi><mi>l</mi></msub></msubsup><msub><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow></msub><msub><mi>s</mi><mrow><mi>l</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><mrow><mi>j</mi><mo>,</mo><mi>i</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\frac \lambda {2m} \sum_ {l=1}^{L-1}\sum_ {i=1}^{s_ {l} }\sum_ {j=1}{s_ {l+1} } (\Theta_ {j,i}^{(l)})^2</annotation></semantics></math>）.</p>
+<h2 id="向量化vectorize">向量化（vectorize）</h2>
+<p>首先，为了方便后面的说明，我们定义</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>z</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">z_ {j}^{(i)} = (\Theta_ {j}^{(i)})^Ta^{(i-1)}</annotation></semantics></math>.</p>
+<p>而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi>z</mi><mi>j</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a_ {j}^{(i)} = g(z_ {j}^{(i)})</annotation></semantics></math>.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msubsup><mi>a</mi><mn>0</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>a</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msubsup><mi>a</mi><msub><mi>s</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">a^{(i-1)} = [a_0^{(i-1)},a_1^{(i-1)},...,a_ {s_ {i-1} }^{(i-1)} ]</annotation></semantics></math></p>
+<p>希望大家还没有忘记这些符号以及下标的意义。</p>
+<p>如果一个符号，只有层数的上标，没有下标，则意味着它是一个向量(etc.<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>,</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">a^{(i)},z^{(i)}</annotation></semantics></math>)，或是一个矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Theta^{(i)}</annotation></semantics></math>.</p>
+<p>通过向量化，我们可以像下面一样通过线性代数库的并行优化，很快的计算出来<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">z^{(i)}</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
+z^{(i)} = \Theta^{(i)} a^{(i-1)}
+</annotation></semantics></math></p>
+<p>上式中：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi mathvariant="normal">Θ</mi><msub><mi>s</mi><mi>i</mi></msub><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>.</mi><mi>.</mi><mi>.</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+ \Theta^{(i)}  = \begin{bmatrix}
+ ...  (\Theta_ {1}^{(i)})^T ... \\
+ ...  (\Theta_ {2}^{(i)})^T ... \\
+ ...\\
+  ...  (\Theta_ {s_i}^{(i)})^T ... 
+ \end{bmatrix}
+</annotation></semantics></math></p>
+<p>从这里，我们也可以知道了，为什么g不用identify function（g(z) =
+z）.因为神经网络的提出，是为了进行非线性的分类和预测。而：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>.</mi><mi>.</mi><mi>.</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msub><mi>X</mi><mn>1</mn></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+z^{(i)} &amp;= \Theta^{(i)} a^{(i-1)}\\
+&amp;=\Theta^{(i)}  g(z^{(i-1)})\\
+&amp;=\Theta^{(i)}  z^{(i-1)}\\
+&amp;= \Theta^{(i)}  \Theta ^{(i-1)} z^{(i-2)}\\
+&amp;= \Theta^{(i)} \Theta^{(i-1)}...\Theta^{(1)} X_1
+\end{aligned}
+</annotation></semantics></math></p>
+<p>这意味着我们通过线性的函数来做神经网络是无法得到非线性的分类结果的。</p>
+<p>如果我们再对训练样本利用向量化，
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>A</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">
+Z^{(l)} = \Theta^{(l)} ( A^{(l-1)})^T
+</annotation></semantics></math>
+这时候呢，Z变成矩阵了(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>l</mi></msub><mo>×</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">s_ {l} \times m)</annotation></semantics></math>)，A也变成矩阵了（$
+m s_ {l-1} $）。而Z^{(l)}实际如下：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi><mi>.</mi><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mo stretchy="false" form="postfix">|</mo></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+Z^{(l)} =\begin{bmatrix}
+ \vert &amp; ... &amp; \vert\\
+z^{(l)[1 ]} &amp; ... &amp;z^{(l)[m ]}\\
+ \vert &amp; ... &amp; \vert
+\end{bmatrix}
+</annotation></semantics></math></p>
+<h2 id="后向传播back-propagation">后向传播（back propagation）</h2>
+<h3 id="参数初始化parameter-initialization">参数初始化（Parameter
+Initialization）</h3>
+<p>需要注意的是，神经网络中我们不能简单地将参数初始化为0.经过计算你就会明白，如果参数初始化为0,则计算出来的梯度就是一样的，无法进行梯度下降,无论怎么运行，最后得到的结果为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.5</mn><annotation encoding="application/x-tex">0.5</annotation></semantics></math>(sigmoid)。可以进行随机初始化，给每个参数一个很小的值<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0.1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0,0.1)</annotation></semantics></math>.</p>
+<p>在实际中，证明了有比随机初始化更好的方法来进行初始化：Xavier/He
+initialization.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mover><mrow></mrow><mo accent="true">̃</mo></mover><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msqrt><mfrac><mn>2</mn><mrow><msub><mi>s</mi><mi>l</mi></msub><mo>+</mo><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></mfrac></msqrt><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+\Theta ^{(l)} \tilde{} N\left(0,\sqrt{\frac {2}{s_l + s_ {l-1} } } \right)
+</annotation></semantics></math></p>
+<h3 id="梯度gradient">梯度（gradient）</h3>
+<p>后向传播实际上是建立在梯度下降的基础上的，所以最复杂的部分就是计算梯度了。</p>
+<p>假设，这个层数一共有L层，最后的输出是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>a</mi><mi>L</mi></msup><annotation encoding="application/x-tex">a^{L}</annotation></semantics></math>，因此cost
+funtion和L层的参数是直接相关的。所以首先计算的就是cost
+funtion对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\Theta^{(L)}</annotation></semantics></math>的梯度。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><mi>∂</mi><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mfrac><mi>∂</mi><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi mathvariant="normal">log</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>y</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>y</mi><mi mathvariant="normal">log</mi><msup><mi>y</mi><mo>′</mo></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mfrac><mi>∂</mi><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>y</mi><mfrac><mi>∂</mi><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo>−</mo><mi>y</mi><mfrac><mn>1</mn><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo>−</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo>−</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\frac{\partial L(\Theta)}{ \partial \Theta^{(L)} } &amp;= -\frac{\partial}{\partial \Theta^{(L)} } \left((1-y)\log (1 - y&#39;)  + y\log y&#39;\right)\\
+&amp;=-(1 - y)\frac{\partial}{\partial \Theta^{(L)} } \log (1 - g(\Theta^{(L)}a^{(L-1)}))  - y \frac{\partial}{\partial \Theta^{(L)} } \log g(\Theta^{(L)}a^{(L-1)})\\
+&amp;= (1-y)\frac{1}{1 - g(\Theta^{(L)}a^{(L-1)})} g&#39;(\Theta^{(L)}a^{(L-1)}))(a^{(L-1)})^T - y \frac {1}{g(\Theta^{(L)}a^{(L-1)} } g&#39;(\Theta^{(L)}a^{(L-1)}(a^{(L-1)})^T\\
+&amp;= (1-y)\sigma(\Theta^{(L)}a^{(L-1)})(a^{(L-1)})^T - y(1 - \sigma(\Theta^{(L)}a^{(L-1)})) (a^{(L-1)})^T\\
+&amp;= (1 - y)a^{(L)} (a^{(L-1)})^T - y (1 - a^{(L)})(a^{(L-1)})^T\\
+&amp;= (a^{(L)} - y)(a^{(L-1)})^T
+\end{aligned}
+</annotation></semantics></math></p>
+<p>上述推导过程中，g为sigmoid函数，因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>g</mi><mo>′</mo></msup><mo>=</mo><msup><mi>σ</mi><mo>′</mo></msup><mo>=</mo><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g&#39; = \sigma&#39; = \sigma(1 - \sigma)</annotation></semantics></math>.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">a^{(i)}</annotation></semantics></math>我们都是可以通过前向传播得到的。</p>
+<p>然后我们想要计算的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Theta{(L-1)},...,\Theta{(1)}</annotation></semantics></math>这些的梯度。但是它们是和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L(\Theta)</annotation></semantics></math>是没有直接的关系的。不过，在微积分中是有链式求导法则的：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><munder><mrow><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac></mrow><mo accent="true">⏟</mo></munder><mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><mi>y</mi></mrow></munder><munder><munder><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mo accent="true">⏟</mo></munder><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder><munder><munder><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mo accent="true">⏟</mo></munder><mrow><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow></munder><munder><munder><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mo accent="true">⏟</mo></munder><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></munder></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\frac{\partial L}{\partial \Theta^{(L-1)} } &amp;= \frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{\partial \Theta^{(L-1)} }\\
+ &amp;=\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{\Theta^{(L-1)} }\\
+&amp;=\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{\Theta^{(L-1)} }\\
+&amp;=\underbrace{\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } }_ {a^{(L)} - y}\underbrace{ \frac{z^{(L)} }{a^{(L-1)} } }_ {\Theta^{(L)} }\underbrace{\frac{a^{(L-1)} }{z^{(L-1)} } }_ {g&#39;(z^{(L-1)})}\underbrace{\frac{z^{(L-1)} }{\Theta^{(L-1)} } }_ {a^{(L-2)} }
+\end{aligned}
+</annotation></semantics></math></p>
+<p>这其中，一个个的导数都是可以计算出来的。因此我们就得到了最终的梯度：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mfrac><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mfrac><mo>=</mo><munder><munder><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mi>L</mi></msub><mo>×</mo><mn>1</mn></mrow></munder><munder><munder><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mi>l</mi></msub><mo>×</mo><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow></munder><munder><munder><mrow><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>×</mo><mn>1</mn></mrow></munder><munder><munder><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>×</mo><mn>1</mn></mrow></munder></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+\frac{\partial L}{a^{(L)} } \frac{a^{(L)} }{z^{(L)} } \frac{z^{(L)} }{a^{(L-1)} }\frac{a^{(L-1)} }{z^{(L-1)} }\frac{z^{(L-1)} }{\Theta^{(L-1)} } = \underbrace{(a^{(L)} - y)}_ {s_L\times1}\underbrace{\Theta^{(L)} }_ {s_l \times s_ {l-1} }\underbrace{g&#39;(z^{(L-1)})}_ {s_ {l-1} \times 1}\underbrace{a^{(L-2)} }_ {s_ {l-2} \times 1}
+\end{aligned}
+</annotation></semantics></math></p>
+<p>不过需要注意的是，上面得到的导数你会发现矩阵的维度可能不合适。因此这个形式必须要重新组织一下：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><munder><mfrac><mrow><mi>∂</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow></mfrac><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>×</mo><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow></munder><mo>=</mo><munder><munder><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>×</mo><msub><mi>s</mi><mi>l</mi></msub></mrow></munder><munder><munder><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mi>l</mi></msub><mo>×</mo><mn>1</mn></mrow></munder><mi>.</mi><mo>*</mo><munder><munder><mrow><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>×</mo><mn>1</mn></mrow></munder><munder><munder><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><mo accent="true">⏟</mo></munder><mrow><mn>1</mn><mo>×</mo><msub><mi>s</mi><mrow><mi>l</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow></munder></mrow><annotation encoding="application/x-tex">
+\underbrace{\frac{\partial L}{\partial \Theta^{(L-1)} } }_ {s_ {l-1} \times s_ {l-2} }=\underbrace{(\Theta^{(L)})^T }_ {s_ {l-1} \times s_ {l} }\underbrace{(a^{(L)}-y)}_ {s_l \times 1} .* \underbrace{g&#39;(z^{(L-1)})}_ {s_ {l-1}\times 1}\underbrace{(a^{(L-2)})^T}_ {1 \times s_ {l-2} }
+</annotation></semantics></math></p>
+<p>如果想要计算更前面的参数矩阵的导数，这个链式法则会越来越长。</p>
+<p>为了更好的计算各个层的梯度，我们新定义一个符号:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msub><mi>∇</mi><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><msup><mi>y</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\sigma^{(l)} = \nabla_ {z^{(l)} }L(y,y&#39;)
+</annotation></semantics></math></p>
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>=</mo><mi>L</mi></mrow><annotation encoding="application/x-tex">l = L</annotation></semantics></math></strong></li>
+</ul>
+<p>有时候我们可以直接计算出来<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><msup><mi>y</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_ {z^{(L)} }L(y,y&#39;)</annotation></semantics></math>(g为softmax函数)，有时候需要使用链式法则:</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><msup><mi>y</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>∇</mi><msup><mi>y</mi><mo>′</mo></msup></msub><mi>L</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>y</mi><mo>′</mo></msup><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi><mo>*</mo><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>L</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_ {z^{(L)} }L(y,y&#39;) = \nabla_ {y&#39;}L(y&#39;,y) .* g&#39;(z^{(L)})</annotation></semantics></math></p>
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>≠</mo><mi>L</mi></mrow><annotation encoding="application/x-tex">l \ne L</annotation></semantics></math></strong></li>
+</ul>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mi>l</mi></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow></msup><msup><mi>σ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi><mo>*</mo><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>z</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sigma^{l} = ((\Theta^{(l+1))^T}\sigma^{(l+1)}) .*g&#39;(z^{(l)})</annotation></semantics></math></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>∇</mi><msup><mi mathvariant="normal">Θ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></msub><mi>L</mi><mo>=</mo><msup><mi>σ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">\nabla _ {\Theta^{(l)} } L = \sigma^{(l)}(a^{(l-1)})^T</annotation></semantics></math></li>
+</ul>
+<p>通过验证你会发现实际上上面说的正是我们推导的内容。</p>
+<p>使用梯度下降,或者SGD（更加常用），最终求得合适的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math>.</p>
+<p>可以看到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\sigma^{(l)}</annotation></semantics></math>的计算，需要的是后向计算，所以这个叫后向传播。</p>
+<p>上面的推导过程都是以一个training
+example的，对于多个样本可以通过向量化以及矩阵化来加快实现。</p>
+<p>参考文献：</p>
+<p><a
+target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes-deep_learning.pdf">css229:deep
+learning</a></p>
+<p><a
+target="_blank" rel="noopener" href="http://cs229.stanford.edu/notes/cs229-notes-backprop.pdf">css229:back-prop</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/LFD-class/" rel="tag"># LFD class</a>
+              <a href="/tags/deep-learning/" rel="tag"># deep learning</a>
+              <a href="/tags/neural-network/" rel="tag"># neural network</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/11/06/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Kernel-Logistic-Regression/" rel="prev" title="机器学习——Kernel Logistic Regression">
+                  <i class="fa fa-angle-left"></i> 机器学习——Kernel Logistic Regression
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/11/06/Learning-From-Data%E2%80%94%E2%80%94Covariance-Matrix-Derivation/" rel="next" title="Learning From Data——Covariance Matrix Derivation">
+                  Learning From Data——Covariance Matrix Derivation <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

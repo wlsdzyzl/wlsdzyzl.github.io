@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="之前我们研究的问题，冗余度压缩编码以及信道编码（增加信息冗余度，以对抗信道中的传输错误），目的都是对信息进行可靠无差错的传输，信息熵没有变化，也就是是保熵的。之后的内容，我们不再保证信息传输是无差错的。 在实际中，很多情况下我们是没有必要把信息的所有内容都保留下来的。比如看视频的时候，有高清标清的选择，对应于不同的网络情况。同样的还有图片的有损压缩等等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息论——信息速率失真函数与熵压缩编码（一）">
+<meta property="og:url" content="http://wlsdzyzl.com/2019/01/08/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="之前我们研究的问题，冗余度压缩编码以及信道编码（增加信息冗余度，以对抗信道中的传输错误），目的都是对信息进行可靠无差错的传输，信息熵没有变化，也就是是保熵的。之后的内容，我们不再保证信息传输是无差错的。 在实际中，很多情况下我们是没有必要把信息的所有内容都保留下来的。比如看视频的时候，有高清标清的选择，对应于不同的网络情况。同样的还有图片的有损压缩等等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-01-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.679Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="information theory">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2019/01/08/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2019/01/08/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/","path":"2019/01/08/信息论——信息速率失真函数与熵压缩编码（一）/","title":"信息论——信息速率失真函数与熵压缩编码（一）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>信息论——信息速率失真函数与熵压缩编码（一） | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E9%87%8F%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">连续随机变量的量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%90%86%E8%AE%BA%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">率失真理论的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E5%9D%87%E5%A4%B1%E7%9C%9F"><span class="nav-number">2.1.</span> <span class="nav-text">平均失真</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">率失真函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%BC%96%E7%A0%81"><span class="nav-number">2.3.</span> <span class="nav-text">率失真编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%8C%BA%E5%9F%9F"><span class="nav-number">2.4.</span> <span class="nav-text">率失真区域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%AE%9A%E7%90%86%E9%A6%99%E5%86%9C%E7%AC%AC%E4%B8%89%E5%AE%9A%E7%90%86"><span class="nav-number">2.5.</span> <span class="nav-text">率失真定理（香农第三定理）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rid%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">3.</span> <span class="nav-text">R(I)(D)R^{(I)}(D)的性质</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%B0%83%E5%87%8F%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">单调减函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E5%9F%9F"><span class="nav-number">3.2.</span> <span class="nav-text">定义域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8B%E5%87%B8%E6%80%A7%E8%B4%A8"><span class="nav-number">3.3.</span> <span class="nav-text">下凸性质</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="nav-number">4.</span> <span class="nav-text">率失真函数的计算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%AF%E5%8A%AA%E5%88%A9%E4%BF%A1%E6%BA%90%E7%9A%84%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">伯努利信源的率失真函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E9%AB%98%E6%96%AF%E4%BF%A1%E6%BA%90%E7%9A%84%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">连续高斯信源的率失真函数</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2019/01/08/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="信息论——信息速率失真函数与熵压缩编码（一） | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息论——信息速率失真函数与熵压缩编码（一）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-01-08 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-08T00:00:00+08:00">2019-01-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BF%A1%E6%81%AF%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">信息论</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我们研究的问题，冗余度压缩编码以及信道编码（增加信息冗余度，以对抗信道中的传输错误），目的都是对信息进行可靠无差错的传输，信息熵没有变化，也就是是保熵的。之后的内容，我们不再保证信息传输是无差错的。<br />
+在实际中，很多情况下我们是没有必要把信息的所有内容都保留下来的。比如看视频的时候，有高清标清的选择，对应于不同的网络情况。同样的还有图片的有损压缩等等。</p>
+<span id="more"></span>
+<h3 id="连续随机变量的量化"><a
+href="about:blank#%E8%BF%9E%E7%BB%AD%E9%9A%8F%E6%9C%BA%E5%8F%98%E9%87%8F%E7%9A%84%E9%87%8F%E5%8C%96"
+title="连续随机变量的量化"></a>连续随机变量的量化</h3>
+<p>考察随机变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X \sim N(0,\sigma^2)</annotation></semantics></math>，如果对该随机变量进行无失真编码是不可能的，假如我们需要用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>比特来表示<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>。所以被表示的结果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>X</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat X</annotation></semantics></math>相对于原来的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>一定是有失真的。而这个失真如何度量呢？最简单的方法是采用平方误差度量最小化：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><msubsup><mo>∫</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mi>∞</mi></msubsup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>x</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+E(x - \hat X(x))^2 = \int_ {-\infty}^{\infty} (x - \hat X(x))^2 p(x)dx.
+</annotation></semantics></math>
+现在假设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R=1</annotation></semantics></math>，比较显然的是该符号应该代表X的正负。为了最小化误差，恢复值应该为其代表区域的条件平均：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msqrt><mfrac><mn>2</mn><mi>π</mi></mfrac></msqrt><mi>σ</mi></mtd><mtd columnalign="center" style="text-align: center"><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>1</mn><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>−</mi><msqrt><mfrac><mn>2</mn><mi>π</mi></mfrac></msqrt><mi>σ</mi></mtd><mtd columnalign="center" style="text-align: center"><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>0</mn><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&lt;</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+\hat X(x) = \left \{ \begin{matrix} \sqrt{\frac{2}{\pi} }\sigma &amp;\hat x = 1(x\ge 0)\\ -\sqrt{\frac{2}{\pi} }\sigma &amp; \hat x=0(x &lt; 0) \end{matrix} \right .
+</annotation></semantics></math> 这个值是如何求得的？<br />
+首先我们要理解上面话的意思，最小化误差，其实也就是X的期望。对于整个分布来说，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>的期望当然是0，现在我们只看左侧，希望能得到左侧的条件分布X的期望是多少。
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msubsup><mo>∫</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mn>0</mn></msubsup><mi>x</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>x</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msubsup><mo>∫</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mn>0</mn></msubsup><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup><mo>⋅</mo><mfrac><mn>1</mn><mrow><mi>σ</mi><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mrow></mfrac><mi>e</mi><mi>x</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mfrac><msup><mi>x</mi><mn>2</mn></msup><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mfrac><msup><mi>x</mi><mn>2</mn></msup><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mfrac><mrow><mn>2</mn><mi>σ</mi></mrow><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac><mi>e</mi><mi>x</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mfrac><msup><mi>x</mi><mn>2</mn></msup><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="false" form="postfix">)</mo><msubsup><mo stretchy="false" form="prefix">|</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mn>0</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>−</mi><mfrac><mrow><mn>2</mn><mi>σ</mi></mrow><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac><mo>=</mo><mi>−</mi><msqrt><mfrac><mn>2</mn><mi>π</mi></mfrac></msqrt><mi>σ</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} E(X) &amp;= \int_ {-\infty}^0 xf(x)dx\\ &amp;=\int_ {-\infty}^0 2\sigma^2\cdot\frac{1}{\sigma \sqrt{2\pi} }exp(-\frac{x^2}{2\sigma^2}) f(x) d\frac{x^2}{2\sigma^2}\\ &amp;= -\frac{2\sigma}{\sqrt{2\pi} } exp (-\frac{x^2}{2\sigma^2})|_ {-\infty}^{0}\\ &amp;=-\frac{2\sigma}{\sqrt{2\pi} } = -\sqrt{\frac{2}{\pi} }\sigma \end{aligned}
+</annotation></semantics></math>
+如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R &gt; 1</annotation></semantics></math>，又如何划分量化区间？如何选取这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>R</mi></msup><annotation encoding="application/x-tex">2^R</annotation></semantics></math>个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat X(x)</annotation></semantics></math>的取值？这个问题就没有上面那么简单了。</p>
+<p>针对随机变量的最优（最小失真）量化准则：</p>
+<ul>
+<li>如果给定了一组<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat X(x)</annotation></semantics></math>，那么将随机变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>映射到最近的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat X(x)</annotation></semantics></math>可以最小化量化失真。由这种映射形成的划分称为Voronoi（Dirichlet）划分。</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat X(x)</annotation></semantics></math>的选取可以最小化对应趋于中的条件预期失真。</li>
+</ul>
+<h3 id="率失真理论的基本概念"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%90%86%E8%AE%BA%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"
+title="率失真理论的基本概念"></a>率失真理论的基本概念</h3>
+<p>失真度量（失真函数）是这样一个映射：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>:</mo><mi>X</mi><mo>×</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo>→</mo><msup><mi>R</mi><mo>+</mo></msup></mrow><annotation encoding="application/x-tex">
+d:X \times \hat X \rightarrow R^{+}
+</annotation></semantics></math>
+它将源字母-恢复字母对映射到一个非负的实数，来代表失真多少。当原始字母集与映射的字母集是离散的，可以用一个矩阵来表示失真的大小，而在连续的情况下，这就是一个函数。失真函数永远都是非负的，因为我们没有办法说一个失真是负的。如果失真是有限的，则函数为有界函数。</p>
+<p>下面举两个失真度量的例子：</p>
+<ul>
+<li>离散对称信源，信道输入输出及失真函数为： <span
+class="math display">$$X = {x_1,...,x_k}\\ \hat X = { x_1 ,...,\ x_k}\\
+d(x_i,x_j) = \left \{\begin{matrix} 0 &amp; i=j\\ 1 &amp; i \ne j
+\end{matrix} \right.$$</span></li>
+</ul>
+<p>当恢复符号与发送符号对应时，失真不存在，不对应时，失真为1。这个失真被称为汉明失真。汉明距离在ORB特征匹配中是非常有用的。该失真矩阵为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>⋯</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>⋯</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"><mo>⋱</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>⋯</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+[d] = \begin{bmatrix} 0&amp;1&amp;\cdots&amp;1\\ 1&amp;0&amp;\cdots&amp;1\\ \vdots&amp;\vdots&amp;\ddots&amp;\vdots\\ 1&amp;1&amp;\cdots&amp;0 \end{bmatrix}
+</annotation></semantics></math> *
+连续信源，平方失真度量：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">d(x,\hat x) = (x - \hat x)^2</annotation></semantics></math><br />
+在语音编码中，常用的失真度量为：Itakura-Saito距离。而在图像处理中，目前还没有统一的失真度量，常用的还是平方失真度量。</p>
+<p>因此，失真度量的选择要与实际结合。</p>
+<h4 id="平均失真"><a
+href="about:blank#%E5%B9%B3%E5%9D%87%E5%A4%B1%E7%9C%9F"
+title="平均失真"></a>平均失真</h4>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_1331.PNG" /></p>
+<p>失真函数在输入输出联合空间中取统计平均为
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>≜</mo><munder><mo>∑</mo><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mover><mi>x</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub></mrow></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>x</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mover><mi>x</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≜</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+D \triangleq \sum_ {x_i,\hat x_j} p(x_i)q(\hat x_j | x_i)d(x_i,\hat x_j) \triangleq E[d(X,\hat X)]
+</annotation></semantics></math>
+在给定信源分布与转移概率分布时，上式为信道传输失真总体的平均度量。</p>
+<p>现在我们想做的事情如下图，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>经过信道之后，得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>X</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat X</annotation></semantics></math>，我们希望<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(X;\hat X)</annotation></semantics></math>尽可能小，以此来压缩比特的传输。当然，这个互信息是不能为0的，那一切就失去了意义。压缩下有个前提，就是对失真函数的约束。</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_1332.PNG" /></p>
+<h4 id="率失真函数"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"
+title="率失真函数"></a>率失真函数</h4>
+<p>针对信源<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>和失真度量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(x,\hat x)</annotation></semantics></math>，信息的率失真函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R^{(I)}(D)</annotation></semantics></math>定义为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">min</mi><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><munder><mo>∑</mo><mrow><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover></mrow></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>D</mi></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R^{(I)}(D) = \min_ {q(\hat x|x):\sum_ {x,\hat x} p(x)q(\hat x|x )d(x,\hat x) \leq D} I(X;\hat X)
+</annotation></semantics></math>
+这就是信息论意义下的率失真函数的定义，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>的上标<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(I)</annotation></semantics></math>标识了这一点。</p>
+<p>注：我们无法操作信源，能做的是最小化针对所有可能的条件分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">q(\hat x | x)</annotation></semantics></math>，并且使得联合分布满足要求的失真约束。这个函数求得的最小值，并不一定是可操作得到的，只是数学上的一个最小值。</p>
+<h4 id="率失真编码"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E7%BC%96%E7%A0%81"
+title="率失真编码"></a>率失真编码</h4>
+<p>率失真编码<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2^{nR},n)</annotation></semantics></math>包括一个编码函数
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>n</mi></msub><mo>:</mo><msup><mi>X</mi><mi>n</mi></msup><mo>→</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+f_n:X^n \rightarrow \{1,2,...,2^{nR} \}
+</annotation></semantics></math> 一个解码函数：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mi>n</mi></msub><mo>:</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo><mo>→</mo><msup><mi>X</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">
+g_n:\{1,2,...,2^{nR} \} \rightarrow X^n
+</annotation></semantics></math>
+以及一个与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2^{nR},n)</annotation></semantics></math>相关的失真：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>f</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>=</mo><munder><mo>∑</mo><msup><mi>x</mi><mi>n</mi></msup></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo>,</mo><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>f</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+E[d(X^n,g_n(f_n(X^n)))] = \sum_ {x^n} p(x^n)d(x^n,g_n(f_n(x^n)))
+</annotation></semantics></math> 注：</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g_n(1),g_n(2),…,g_n(2^{nR})</annotation></semantics></math>构成了一个码本，以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>X</mi><mo accent="true">̂</mo></mover><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><msup><mover><mi>X</mi><mo accent="true">̂</mo></mover><mi>n</mi></msup><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat X^n(1),…,\hat X^n(2^{nR})</annotation></semantics></math>表示</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>n</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><msubsup><mi>f</mi><mi>n</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f^{-1}_n(1),…,f^{-1}_n(2^{nR})</annotation></semantics></math>，也就是f的反函数为对应的量化区间。</p></li>
+</ul>
+<h4 id="率失真区域"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%8C%BA%E5%9F%9F"
+title="率失真区域"></a>率失真区域</h4>
+<p>如果存在一组率失真编码<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mi>R</mi></mrow></msup><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2^{nR},n)</annotation></semantics></math>，使得<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">lim</mi><mo>&#8289;</mo></mrow><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow></msub><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo>,</mo><msub><mi>g</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>f</mi><mi>n</mi></msub><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">\lim_ {n \rightarrow \infty} E[d(X^n,g_n(f_n(X^n)))] \leq D</annotation></semantics></math>，则称率失真对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(R,D)</annotation></semantics></math>是可达的。</p>
+<p>信源的率失真区域是对所有可行率失真对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(R,D)</annotation></semantics></math>的闭包。</p>
+<p>给定失真度量约束<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>，率失真函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>是速率<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>跑遍率失真区域获得的下确界。</p>
+<p>这个率失真函数是实际可以实现的。而香农告诉我们（香农第三定理），这两个率失真函数的值是相等的。</p>
+<h4 id="率失真定理香农第三定理"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%AE%9A%E7%90%86%EF%BC%88%E9%A6%99%E5%86%9C%E7%AC%AC%E4%B8%89%E5%AE%9A%E7%90%86%EF%BC%89"
+title="率失真定理（香农第三定理）"></a>率失真定理（香农第三定理）</h4>
+<p>给定具有独立同分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x)</annotation></semantics></math>的信源X和有界的失真度量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(x,\hat x)</annotation></semantics></math>，率失真函数等于信息的率失真函数，即：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">min</mi><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><munder><mo>∑</mo><mrow><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover></mrow></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>D</mi></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R(D) = R^{(I)}(D) = \min_ {q(\hat x|x):\sum_ {x,\hat x} p(x)q(\hat x|x )d(x,\hat x) \leq D} I(X;\hat X)
+</annotation></semantics></math>
+是在失真约束<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>下可以获得的最小信息传输速率。</p>
+<h3 id="rid的性质"><a
+href="about:blank#R-I-D-%E7%9A%84%E6%80%A7%E8%B4%A8"
+title="$R^{(I)}(D)$的性质"></a><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R^{(I)}(D)</annotation></semantics></math>的性质</h3>
+<p>直接思维中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>的形式：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_1333.PNG" /></p>
+<h4 id="单调减函数"><a
+href="about:blank#%E5%8D%95%E8%B0%83%E5%87%8F%E5%87%BD%E6%95%B0"
+title="单调减函数"></a>单调减函数</h4>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R^{(1)}(D)</annotation></semantics></math>是非增函数。这个不难理解，证明如下：</p>
+<p>如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>2</mn></msub><mo>≥</mo><msub><mi>D</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">D_2 \ge D_1</annotation></semantics></math>，则：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>1</mn></msub></mrow><mo>⊂</mo><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>2</mn></msub></mrow></mrow><annotation encoding="application/x-tex">
+{q(\hat x| x), E[d(x,\hat x)] \leq D_1} \subset {q(\hat x| x), E[d(x,\hat x)] \leq D_2}
+</annotation></semantics></math>
+由于在子集上取得的最小值不可能比全集更小，因此可以得到：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>h</mi><mi>a</mi><mi>t</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>≤</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>h</mi><mi>a</mi><mi>t</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+\min\{I(X;\hat X):E[d(x,hat x)] \leq D_2\} \leq \min\{I(X;\hat X):E[d(x,hat x)] \leq D_1\}
+</annotation></semantics></math>
+从而得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D_2) \leq R(D_1)</annotation></semantics></math>。</p>
+<h4 id="定义域"><a href="about:blank#%E5%AE%9A%E4%B9%89%E5%9F%9F"
+title="定义域"></a>定义域</h4>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R^{(I)}(D)</annotation></semantics></math>的定义域是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>,</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(D_ {min},\infty)</annotation></semantics></math>，且存在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">D_ {max}</annotation></semantics></math>，当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>≥</mo><msub><mi>D</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mrow><annotation encoding="application/x-tex">D \ge D_ {max}</annotation></semantics></math>时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R^{(I)}(D) = 0</annotation></semantics></math>。</p>
+<p>这个在直觉上也是很好理解的。平均失真D是非负实函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(x,\hat x)</annotation></semantics></math>的期望，下限为0，则允许失真D的下限也为0，对应于不允许失真的情况。</p>
+<p>当信源<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x)</annotation></semantics></math>给定时，失真取决于转移矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">q(\hat x|x)</annotation></semantics></math>的取值。因此<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>是有一个最小值的。</p>
+<p>如果允许失真大到一定值，错得太离谱，可以不用传输了，这时候就得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R^{(I)}(D)=0</annotation></semantics></math>。</p>
+<p>下面是一个关于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">D_ {min}</annotation></semantics></math>的例子：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_1334.PNG" /></p>
+<h4 id="下凸性质"><a
+href="about:blank#%E4%B8%8B%E5%87%B8%E6%80%A7%E8%B4%A8"
+title="下凸性质"></a>下凸性质</h4>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>的下凸函数。下面是一个简单的证明：</p>
+<p>由于输入分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(x)</annotation></semantics></math>已知，所以输入与输出的互信息仅与转移概率矩阵<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Q=q(\hat x|x)</annotation></semantics></math>决定，记为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(Q)</annotation></semantics></math>。设<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mn>1</mn></msub><annotation encoding="application/x-tex">Q_1</annotation></semantics></math>是达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D_1)</annotation></semantics></math>时的转移概率矩阵，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mn>2</mn></msub><annotation encoding="application/x-tex">Q_2</annotation></semantics></math>是达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D_2)</annotation></semantics></math>的转移概率矩阵。定义<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>是达到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>的转移概率矩阵，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><msub><mi>λ</mi><mn>1</mn></msub><msub><mi>D</mi><mn>1</mn></msub><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><msub><mi>D</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">D = \lambda_1D_1 + \lambda_2D_2</annotation></semantics></math>。</p>
+<p>注意到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Q</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(Q_1) = R(D_1)</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">E[d(x,\hat x)] \leq D_1</annotation></semantics></math>，同理得到：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Q</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(Q_2) = R(D_2)</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>D</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">E[d(x,\hat x)] \leq D_2</annotation></semantics></math>。</p>
+<p>在转移概率矩阵Q下，编码器的平均失真为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><msub><mo stretchy="false" form="prefix">|</mo><mi>Q</mi></msub><mo>=</mo><msub><mi>λ</mi><mn>1</mn></msub><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>Q</mi><mn>1</mn></msub></msub><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo><msub><mo stretchy="false" form="prefix">|</mo><msub><mi>Q</mi><mn>2</mn></msub></msub><mo>≤</mo><msub><mi>λ</mi><mn>1</mn></msub><msub><mi>D</mi><mn>1</mn></msub><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><msub><mi>D</mi><mn>2</mn></msub><mo>=</mo><mi>D</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+E[d(x,\hat x)]|_Q = \lambda_1 E[d(x,\hat x)]|_ {Q_1} + \lambda_2 E[d(x,\hat x)] |_ {Q_2} \leq \lambda_1 D_1 + \lambda_2 D_2 = D.
+</annotation></semantics></math>
+因此，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>在可行区域中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D) \leq I(Q)</annotation></semantics></math>。而互信息相对于转移概率矩阵Q是下凸函数，因此：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>λ</mi><mn>1</mn></msub><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Q</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>Q</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>λ</mi><mn>1</mn></msub><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>λ</mi><mn>2</mn></msub><mi>R</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R(D)\leq I(Q) \leq \lambda_1 I(Q_1) + \lambda_2 I(Q_2) = \lambda_1 R(D_1) + \lambda_2 R(D_2)
+</annotation></semantics></math>
+由上面的性质，我们可以大约得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>的图像：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/IMG_1336.PNG" /></p>
+<h3 id="率失真函数的计算"><a
+href="about:blank#%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E7%9A%84%E8%AE%A1%E7%AE%97"
+title="率失真函数的计算"></a>率失真函数的计算</h3>
+<h4 id="伯努利信源的率失真函数"><a
+href="about:blank#%E4%BC%AF%E5%8A%AA%E5%88%A9%E4%BF%A1%E6%BA%90%E7%9A%84%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"
+title="伯努利信源的率失真函数"></a>伯努利信源的率失真函数</h4>
+<p>下面是一个伯努利分布<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>∼</mo><mi>B</mi><mi>e</mi><mi>r</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X\sim Bern(p)</annotation></semantics></math>的信源的传输。<br />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/int3.png" /></p>
+<p>我们希望求的是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">min</mi><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><munder><mo>∑</mo><mrow><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover></mrow></munder><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>q</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>D</mi></mrow></munder><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+R(D) = \min_ {q(\hat x|x):\sum_ {x,\hat x} p(x)q(\hat x|x )d(x,\hat x) \leq D} I(X;\hat X)
+</annotation></semantics></math>
+但是我们并不用按照拉格朗日等那样一般的数学方法去求得这个最小值。我们可以缩放这个<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo>;</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(\hat X;X)</annotation></semantics></math>，最后再证明这个等号是可以取得的。
+<span class="math display">$$
+\begin{aligned} I(X;\hat X) &amp;= H(X) - H(X|\hat X)\\ &amp;= H(p) -
+H(X \oplus \hat X |\hat X )\\ &amp;\ge H(p) - H(X \oplus \hat X) \\
+&amp;= H(p) - H(P_e)\\ &amp; = H(p) - H(D) \end{aligned}\\ \text{where
+}D \leq \frac 1 2
+$$</span>
+我们可以构造这样的信道，最后得到这个等号是可以取到的。如下图：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distortion1.png" /></p>
+<p>在汉明失真度量下，伯努利信源的率失真函数为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>H</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn><mo>≤</mo><mi>D</mi><mo>≤</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>p</mi><mo>,</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">}</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn><mo>,</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>D</mi><mo>&gt;</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>p</mi><mo>,</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">}</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+R(D) = \left \{\begin{matrix} H(p) - H(D),&amp;0\leq D\leq \min\{p,1-p\}\\ 0, &amp; D&gt; \min\{p,1-p\} \end{matrix} \right.
+</annotation></semantics></math> 函数图像如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distortion2.png" /></p>
+<h4 id="连续高斯信源的率失真函数"><a
+href="about:blank#%E8%BF%9E%E7%BB%AD%E9%AB%98%E6%96%AF%E4%BF%A1%E6%BA%90%E7%9A%84%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0"
+title="连续高斯信源的率失真函数"></a>连续高斯信源的率失真函数</h4>
+<p>在均方失真度量下，高斯信源的率失真函数是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>D</mi></mfrac><mo>,</mo></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn><mo>≤</mo><mi>D</mi><mo>≤</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>p</mi><mo>,</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">}</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn><mo>,</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>D</mi><mo>&gt;</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>p</mi><mo>,</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">}</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+R(D) = \left \{\begin{matrix} \frac 1 2 \log \frac{\sigma^2}{D},&amp;0\leq D\leq \min\{p,1-p\}\\ 0, &amp; D&gt; \min\{p,1-p\} \end{matrix} \right.
+</annotation></semantics></math> 图像如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distortion4.png" /></p>
+<p>这个证明过程和上面的伯努利情况是相似的：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>;</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="prefix">|</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>−</mo><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn><mi>π</mi><mi>e</mi><mi>D</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>D</mi></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned} I(X;\hat X) &amp;= h(X) - h(X|\hat X)\\ &amp;= \frac{1}{2} \log 2\pi e \sigma^2 - h(X - \hat X|\hat X)\\ &amp; \ge \frac{1}{2} \log 2\pi e \sigma^2 - h(X - \hat X)\\ &amp; \ge \frac{1}{2} \log 2\pi e \sigma^2 -h(N(0,E(X - \hat X)^2))\\ &amp; \ge \frac{1}{2} \log 2\pi e \sigma^2 -\frac 1 2 \log 2 \pi e D\\ &amp;= \frac 1 2 \log \frac{\sigma^2}{D} \end{aligned}
+</annotation></semantics></math>
+为了取到这个等号，我们构造的反向信道如下：</p>
+<p><img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/rate_distortion3.png" /></p>
+<p>注：</p>
+<ul>
+<li>可以将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(D)</annotation></semantics></math>写成<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>σ</mi><mn>2</mn></msup><msup><mn>2</mn><mrow><mi>−</mi><mn>2</mn><mi>R</mi></mrow></msup></mrow><annotation encoding="application/x-tex">D(R) = \sigma^2 2^{-2R}</annotation></semantics></math></li>
+<li>每比特失真为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.25</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">0.25\sigma^2</annotation></semantics></math></li>
+<li>不等式关系：若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>X</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">X_1,X_2</annotation></semantics></math>独立，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><msub><mi>X</mi><mn>2</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>2</mn></msub><mo>;</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">I(X_1,X_2;Y) \ge I(X_1;Y)+I(X_2;Y)</annotation></semantics></math>(Why?)</li>
+</ul>
+<p>之前我们使用1bit量化标准高斯分布的连续随机变量时，量化误差为：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>π</mi><mo>−</mo><mn>2</mn></mrow><mi>π</mi></mfrac><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mn>0.363</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\frac{\pi - 2}{\pi}\sigma^2 = 0.363\sigma^2</annotation></semantics></math>，也就是我们直觉中的最小和理论还有一定的差距。</p>
+<p>恢复点：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msqrt><mfrac><mn>2</mn><mi>π</mi></mfrac></msqrt><mi>σ</mi></mtd><mtd columnalign="center" style="text-align: center"><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>1</mn><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>−</mi><msqrt><mfrac><mn>2</mn><mi>π</mi></mfrac></msqrt><mi>σ</mi></mtd><mtd columnalign="center" style="text-align: center"><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>0</mn><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&lt;</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+\hat X(x) = \left \{ \begin{matrix} \sqrt{\frac{2}{\pi} }\sigma &amp;\hat x = 1(x\ge 0)\\ -\sqrt{\frac{2}{\pi} }\sigma &amp; \hat x=0(x &lt; 0) \end{matrix} \right .
+</annotation></semantics></math> 平均失真为：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><msubsup><mo>∫</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mi>∞</mi></msubsup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mover><mi>X</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>d</mi><mi>x</mi><mo>=</mo><mfrac><mrow><mi>π</mi><mo>−</mo><mn>2</mn></mrow><mi>π</mi></mfrac><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">
+D = \int_ {-\infty}^{\infty}(x - \hat X(x))^2p(x)dx = \frac{\pi - 2}{\pi}\sigma^2
+</annotation></semantics></math>
+这是为什么呢？之后我们会证明，这个最优值要在考虑足够的分组长度的情况下才能实现。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/information-theory/" rel="tag"># information theory</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/01/02/Learning-From-Data%E2%80%94%E2%80%94DQN/" rel="prev" title="Learning From Data——DQN">
+                  <i class="fa fa-angle-left"></i> Learning From Data——DQN
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/01/09/%E4%BF%A1%E6%81%AF%E8%AE%BA%E2%80%94%E2%80%94%E4%BF%A1%E6%81%AF%E9%80%9F%E7%8E%87%E5%A4%B1%E7%9C%9F%E5%87%BD%E6%95%B0%E4%B8%8E%E7%86%B5%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="信息论——信息速率失真函数与熵压缩编码（二）">
+                  信息论——信息速率失真函数与熵压缩编码（二） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

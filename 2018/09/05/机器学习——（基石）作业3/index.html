@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wlsdzyzl.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="总共20道题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习——（基石）作业3">
+<meta property="og:url" content="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/index.html">
+<meta property="og:site_name" content="wlsdzyzl">
+<meta property="og:description" content="总共20道题目。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-05T13:33:40.000Z">
+<meta property="article:modified_time" content="2026-09-01T14:55:44.683Z">
+<meta property="article:author" content="wlsdzyzl">
+<meta property="article:tag" content="machine learning">
+<meta property="article:tag" content="homework">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/","path":"2018/09/05/机器学习——（基石）作业3/","title":"机器学习——（基石）作业3"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习——（基石）作业3 | wlsdzyzl</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">wlsdzyzl</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">無聊時的自娛自樂</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#p.s."><span class="nav-number">1.</span> <span class="nav-text">p.s.</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">wlsdzyzl</p>
+  <div class="site-description" itemprop="description">Everything is choice.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">92</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://wlsdzyzl.com/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94%EF%BC%88%E5%9F%BA%E7%9F%B3%EF%BC%89%E4%BD%9C%E4%B8%9A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="wlsdzyzl">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wlsdzyzl">
+      <meta itemprop="description" content="Everything is choice.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习——（基石）作业3 | wlsdzyzl">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习——（基石）作业3
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-09-05 21:33:40" itemprop="dateCreated datePublished" datetime="2018-09-05T21:33:40+08:00">2018-09-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-09-01 22:55:44" itemprop="dateModified" datetime="2026-09-01T22:55:44+08:00">2026-09-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>总共20道题目。</p>
+<span id="more"></span>
+<p><strong>1. Consider a noisy target <span class="math inline">$y =
+{\bf w}_f^T{\bf x} + \epsilon$</span>, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{x} \in \mathbb{R}^d</annotation></semantics></math>
+(with the added coordinate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x_0=1</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∈</mo><mi mathvariant="double-struck">ℝ</mi></mrow><annotation encoding="application/x-tex">y\in\mathbb{R}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒘</mi><mi>f</mi></msub><annotation encoding="application/x-tex">\mathbf{w}_f</annotation></semantics></math>
+is an unknown vector, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
+is a noise term with zero mean and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+variance. Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
+is independent of <span class="math inline">${\bf x}$</span> and of all
+other
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>’s.
+If linear regression is carried out using a training data set <span
+class="math inline">$\mathcal{D} = \{(\mathbf{x}_1, y_1), \ldots, ({\bf
+x}_N, y_N)\}$</span>, and outputs the parameter vector <span
+class="math inline">$\mathbf{w}_ {\rm lin}$</span>, it can be shown that
+the expected in-sample error <span class="math inline">$E_ {\rm
+in}$</span> with respect to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒟</mi><annotation encoding="application/x-tex">\mathcal{D}</annotation></semantics></math>
+is given by:</strong> <span class="math display">$$
+\mathbb{E}_ {\mathcal{D} }[E_ {\rm in}(\mathbf{w}_ {\rm lin})] =
+\sigma^2\left(1 - \frac{d + 1}{N}\right)
+$$</span> For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">\sigma = 0.1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">d = 8</annotation></semantics></math>,
+which among the following choices is the smallest number of examples
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+that will result in an expected <span class="math inline">$E_ {\rm
+in}$</span> greater than 0.008?</p>
+<ol type="a">
+<li><p>10</p></li>
+<li><p>25</p></li>
+<li><p>100</p></li>
+<li><p>500</p></li>
+<li><p>1000</p></li>
+</ol>
+<p>这道题目中，已经给出了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的期望值如何计算，只需要将<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mn>0.1</mn><mo>,</mo><mi>d</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">\sigma = 0.1,d = 8</annotation></semantics></math>带入上式即可，算出来的是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>45</mn></mrow><annotation encoding="application/x-tex">N = 45</annotation></semantics></math>的时候，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的期望值为0.008，而为了使得期望值变得更大，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>的值也要变得更大，因此上面选项中最小的大于45的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>是100，选c（Note:Greater意思是更大，而不是更好）.</p>
+<p><strong>2. Recall that we have introduced the hat matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">H</mi><mo>=</mo><mi mathvariant="normal">X</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="normal">X</mi><mi>T</mi></msup><mi mathvariant="normal">X</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="normal">X</mi><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">\mathrm{H} = \mathrm{X}(\mathrm{X}^T\mathrm{X})^{-1}\mathrm{X}^T</annotation></semantics></math>
+in class, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">X</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>N</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\mathrm{X} \in \mathbb{R}^{N\times (d+1)}</annotation></semantics></math>
+containing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+examples with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+features. Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">X</mi><mi>T</mi></msup><mi mathvariant="normal">X</mi></mrow><annotation encoding="application/x-tex">\mathrm{X}^T\mathrm{X}</annotation></semantics></math>
+is invertible and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&gt;</mo><mi>d</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N &gt; d+1</annotation></semantics></math>,
+which statement of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">H</mi><annotation encoding="application/x-tex">\mathrm{H}</annotation></semantics></math>
+is true?</strong></p>
+<ol type="a">
+<li><p>none of the other choices</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">H</mi><mn>1126</mn></msup><mo>=</mo><mi mathvariant="normal">H</mi></mrow><annotation encoding="application/x-tex">\mathrm{H}^{1126} = \mathrm{H}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(d+1)</annotation></semantics></math>
+eigenvalues of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">H</mi><annotation encoding="application/x-tex">\mathrm{H}</annotation></semantics></math>
+are bigger than 1.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N - (d+1)</annotation></semantics></math>
+eigenvalues of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">H</mi><annotation encoding="application/x-tex">\mathrm{H}</annotation></semantics></math>
+are 1</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">H</mi><annotation encoding="application/x-tex">\mathrm{H}</annotation></semantics></math>
+is always invertible</p></li>
+</ol>
+<p>从<a
+target="_blank" rel="noopener" href="https://wlsdzyzl.top/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94linear-regression/#more">linear
+regression</a>中，我们直到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>矩阵的作用是在<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>空间做<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>的投影，来得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>Y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">Y&#39;</annotation></semantics></math>，而投影一次与投影10次没什么太大区别，因此b是正确的。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>的自由度是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N - (d+1)</annotation></semantics></math>，而它的特征值应该是有(N
+-
+d+1)个不为0，而且特征值也不是一定的，只是与特征向量成比例，因此c，d是不对的。</p>
+<p><strong>3. Which of the following is an upper bound of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>w</mi><mi>T</mi></msup><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[[sign(w^Tx)≠y]]</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>+</mi><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y \in \{-1, +1\}</annotation></semantics></math>?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">err(W) = \frac 1 2 e ^{(-yW^TX)}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>≥</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">err(W) = [W^TX \geq y]</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>−</mo><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0,1 - yW^TX)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0, -yW^TX)</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>这个题目最直观的看法依然是画图，a-red,b-blue,c-yellow,d-green,<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[sign(W^TX) \neq y]</annotation></semantics></math>-black,按照上面的颜色画图如下：
+当y = 1 时： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/8%5B%24IX%25Y9N86%5DB%2856AA%243TEE.png" />
+当 y = -1时： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%7BAK_J8U02WEX%247%5BMUS3O1%24B.png" />
+从上面的图中我们可以很直观看到只有yellow线是符合的，因此这个题目答案为c.</p>
+<p><strong>4. Which of the following is a differentiable function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒘</mi><annotation encoding="application/x-tex">\mathbf{w}</annotation></semantics></math>
+everywhere?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">err(W) = \frac 1 2 e ^{(-yW^TX)}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>≥</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">err(W) = [W^TX \geq y]</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>−</mo><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0,1 - yW^TX)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0, -yW^TX)</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>differentiable function 意思是可微函数。所以很明显答案是a.</p>
+<p><strong>5. When using SGD on the following error functions and
+`ignoring’ some singular points that are not differentiable, which of
+the following error function results in PLA?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">err(W) = \frac 1 2 e ^{(-yW^TX)}</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">[</mo><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>≥</mo><mi>y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">err(W) = [W^TX \geq y]</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>−</mo><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0,1 - yW^TX)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>−</mi><mi>y</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W) = max(0, -yW^TX)</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+</ol>
+<p>PLA更新策略：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>W</mi><mi>n</mi></msub><mo>+</mo><mi>y</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">
+W_ {n+1} = W_ {n} + yX
+</annotation></semantics></math>
+使用SGD，也就是随机选择一个样本求<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">err(W)</annotation></semantics></math>的导数来更新。对于梯度下降中，对于下一步的做法是：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>W</mi><mi>n</mi></msub><mo>−</mo><mi>α</mi><mfrac><msub><mi>d</mi><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mi>W</mi></mrow></msub><msub><mi>d</mi><mi>W</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">
+W_ {n+1} = W_ {n} - \alpha \frac {d_ {err{W} } }{d_W} 
+</annotation></semantics></math>
+其中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>是学习率，这道题目中应该为1.</p>
+<p>因此主要是要求得导数。实际上，我们从上面的题目中可以轻易的看出，对于
+a,b一定是不正确的，而c，d的导数是一样的：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msub><mi>d</mi><mrow><mi>e</mi><mi>r</mi><mi>r</mi><mi>W</mi></mrow></msub><msub><mi>d</mi><mi>W</mi></msub></mfrac><mo>=</mo><mi>−</mi><mi>y</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">\frac {d_ {err{W} } }{d_W}  =  -yX</annotation></semantics></math>，因此就更新的步骤来说，它们两个都是合适的。</p>
+<p>但是我们不能都选上，要注意PLA算法做更新的时候是找到错误的点，如果点是正确的，我们则不应该更新。而c选项是PLA的Upper
+bound，从上面题目的图中也可以看到，如果<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>−</mi><mn>1</mn><mi>，</mi><msup><mi>W</mi><mi>T</mi></msup><mi>X</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">y = -1，W^TX \in [-1,1]</annotation></semantics></math>之间PLA是不会更新的，而c在这个时候依然会选择更新。所以这个题目的正确答案是d.</p>
+<p>For Questions 6-10, consider a function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>e</mi><mi>u</mi></msup><mo>+</mo><msup><mi>e</mi><mrow><mn>2</mn><mi>v</mi></mrow></msup><mo>+</mo><msup><mi>e</mi><mrow><mi>u</mi><mi>v</mi></mrow></msup><mo>+</mo><msup><mi>u</mi><mn>2</mn></msup><mo>−</mo><mn>2</mn><mi>u</mi><mi>v</mi><mo>+</mo><mn>2</mn><msup><mi>v</mi><mn>2</mn></msup><mo>−</mo><mn>3</mn><mi>u</mi><mo>−</mo><mn>2</mn><mi>v</mi></mrow><annotation encoding="application/x-tex">E(u,v) = e^u + e^{2v} + e^{uv} + u^2 - 2 u v + 2 v^2 - 3 u - 2 v</annotation></semantics></math>.</p>
+<p><strong>6. What is the gradient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla E(u, v)</annotation></semantics></math>
+around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)=(0, 0)</annotation></semantics></math>?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,-2)</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>3</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-3,1)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(3,-1)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-2,0)</annotation></semantics></math></p></li>
+</ol>
+<p>这道题目不算难。
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>e</mi><mi>u</mi></msup><mo>+</mo><mi>v</mi><msup><mi>e</mi><mrow><mi>u</mi><mi>v</mi></mrow></msup><mo>+</mo><mn>2</mn><mi>u</mi><mo>−</mo><mn>2</mn><mi>v</mi><mo>−</mo><mn>3</mn><mo>,</mo><mn>2</mn><msup><mi>e</mi><mrow><mn>2</mn><mi>v</mi></mrow></msup><mo>+</mo><mi>u</mi><msup><mi>e</mi><mrow><mi>u</mi><mi>v</mi></mrow></msup><mo>−</mo><mn>2</mn><mi>u</mi><mo>+</mo><mn>4</mn><mi>v</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla E(u,v) = (e^u+ve^{uv}+2u - 2v - 3, 2e^{2v}+ue^{uv}-2u +4v - 2)</annotation></semantics></math>，代入<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mi>，</mi><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0，0)</annotation></semantics></math>得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-2,0)</annotation></semantics></math>，答案为e.</p>
+<p><strong>7. In class, we have taught that the update rule of the
+gradient descent algorithm is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>v</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>t</mi></msub><mo>,</mo><msub><mi>v</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>η</mi><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>t</mi></msub><mo>,</mo><msub><mi>v</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u_ {t+1}, v_ {t+1}) = (u_t, v_t) - \eta \nabla E(u_t, v_t)</annotation></semantics></math>.
+Please start from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mn>0</mn></msub><mo>,</mo><msub><mi>v</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u_0, v_0) = (0, 0)</annotation></semantics></math>,
+and fix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">\eta=0.01</annotation></semantics></math>.
+What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mn>5</mn></msub><mo>,</mo><msub><mi>v</mi><mn>5</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E(u_ {5}, v_ {5})</annotation></semantics></math>
+after five updates?</strong></p>
+<ol type="a">
+<li><p>4.904</p></li>
+<li><p>3.277</p></li>
+<li><p>2.825</p></li>
+<li><p>2.361</p></li>
+<li><p>1.436</p></li>
+</ol>
+<p>这个题目虽然迭代次数不多，但是因为有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">exp</mi><annotation encoding="application/x-tex">\exp</annotation></semantics></math>函数计算，还是比较复杂的。因此我编写梯度下降的程序来计算这道题目。</p>
+<p>函数gradient_decent要传入4个参数：start开始值，get_gradicent
+一个计算梯度的函数，eta学习率，i_times为迭代次数。</p>
+<p>其他的函数包括计算梯度，更新W（update），以及计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>r</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">err</annotation></semantics></math>，程序代码如下：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_gradient</span>(<span class="params">para</span>):</span><br><span class="line">    <span class="keyword">return</span> [math.exp(para[<span class="number">0</span>])+para[<span class="number">1</span>]*math.exp(para[<span class="number">0</span>]*para[<span class="number">1</span>])+<span class="number">2</span>*para[<span class="number">0</span>]-<span class="number">2</span>*para[<span class="number">1</span>]-<span class="number">3</span>,<span class="number">2</span>*math.exp(<span class="number">2</span>*para[<span class="number">1</span>])+para[<span class="number">0</span>]*math.exp(para[<span class="number">0</span>]*para[<span class="number">1</span>] )- <span class="number">2</span>*para[<span class="number">0</span>]+<span class="number">4</span>*para[<span class="number">1</span>]-<span class="number">2</span>]</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gradient_decent</span>(<span class="params">start,get_gradient,eta,i_times</span>):</span><br><span class="line">    last = copy.deepcopy(start)</span><br><span class="line">    <span class="keyword">while</span>(i_times&gt;<span class="number">0</span>):</span><br><span class="line">        i_times-=<span class="number">1</span></span><br><span class="line">        update(last,get_gradient(last),eta)</span><br><span class="line">    <span class="keyword">return</span> last</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">last,gradient,eta</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span>  <span class="built_in">range</span>(<span class="built_in">len</span>(last)):</span><br><span class="line">        last[i] = last[i] - eta * gradient[i]</span><br><span class="line">    <span class="keyword">return</span> last</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">Ein</span>(<span class="params">para</span>):</span><br><span class="line">    u = para[<span class="number">0</span>]</span><br><span class="line">    v = para[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> math.exp(u)+math.exp(<span class="number">2</span>*v)+ math.exp(u*v)+math.<span class="built_in">pow</span>(u,<span class="number">2</span>)-<span class="number">2</span>*u*v+<span class="number">2</span>*math.<span class="built_in">pow</span>(v,<span class="number">2</span>)-<span class="number">3</span>*u - <span class="number">2</span>*v</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="built_in">print</span>(gradient_decent([<span class="number">0</span>,<span class="number">0</span>],get_gradient,<span class="number">0.01</span>,<span class="number">5</span>))</span><br><span class="line">    <span class="built_in">print</span>(Ein(gradient_decent([<span class="number">0</span>,<span class="number">0</span>],get_gradient,<span class="number">0.01</span>,<span class="number">5</span>)))</span><br></pre></td></tr></table></figure></p>
+<p>最后输出： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[0.09413996302028127, 0.0017891105951028273]</span><br><span class="line">2.8250003566832635</span><br></pre></td></tr></table></figure> 因此答案选c.</p>
+<p><strong>8. Continuing from Question 7. If we approximate the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>u</mi><mo>,</mo><mi>v</mi><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E(u + \Delta u, v + \Delta v)</annotation></semantics></math>
+by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>E</mi><mo accent="true">̂</mo></mover><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>u</mi><mo>,</mo><mi mathvariant="normal">Δ</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{E}_2(\Delta u, \Delta v)</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>E</mi><mo accent="true">̂</mo></mover><mn>2</mn></msub><annotation encoding="application/x-tex">\hat{E}_2</annotation></semantics></math>
+is the second-order Taylor’s expansion of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>
+around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u,v)</annotation></semantics></math>.
+Suppose $<em>2(u, v) = b</em> {uu} (u)^2 + b_ {vv} (v)^2 + b_ {uv}
+(u)(v) + b_u u + b_v v + b $, What are the values of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>b</mi><mrow><mi>u</mi><mi>u</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mrow><mi>v</mi><mi>v</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mrow><mi>u</mi><mi>v</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mi>u</mi></msub><mo>,</mo><msub><mi>b</mi><mi>v</mi></msub><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(b_ {uu}, b_ {vv}, b_ {uv}, b_u, b_v, b)</annotation></semantics></math>
+around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v) = (0, 0)</annotation></semantics></math>?</strong></p>
+<ol type="a">
+<li><p>none of the other choices</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>8</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(3,8,-1,-2,0,3)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>8</mn><mo>,</mo><mi>−</mi><mn>0.5</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(3,8,-0.5,-1,-2,0)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1.5</mn><mo>,</mo><mn>4</mn><mo>,</mo><mi>−</mi><mn>0.5</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1.5,4,-0.5,-1,-2,0)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1.5</mn><mo>,</mo><mn>4</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1.5,4,-1,-2,0,3)</annotation></semantics></math></p></li>
+</ol>
+<p>这个题目不算难，实际上是一个多维函数的二阶泰勒展开，而<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mrow><msub><mi></mi><mi>u</mi></msub><mi>u</mi></mrow></mrow><annotation encoding="application/x-tex">b{_uu}</annotation></semantics></math>则是对<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>求二阶偏导再除以<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>!</mi></mrow><annotation encoding="application/x-tex">2!</annotation></semantics></math>。只要一项项计算上面的值就可以了。
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mrow><mi>u</mi><mi>u</mi></mrow></msub><mo>=</mo><mn>3</mn><mo>,</mo><msub><mi>b</mi><mrow><mi>v</mi><mi>v</mi></mrow></msub><mo>=</mo><mn>8</mn><mo>,</mo><msub><mi>b</mi><mrow><mi>u</mi><mi>v</mi></mrow></msub><mo>=</mo><mi>−</mi><mn>1</mn><mo>,</mo><msub><mi>b</mi><mi>u</mi></msub><mo>=</mo><mi>−</mi><mn>2</mn><mo>,</mo><msub><mi>b</mi><mi>v</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">b_ {uu} = 3,b_ {vv} = 8,b_ {uv} = -1,b_ {u} = -2,b_ {v} = 0,b = 3</annotation></semantics></math>，二元泰勒展开因此答案是e.</p>
+<p><strong>9. Continue from Question 8 and denote the Hessian matrix to
+be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla^2 E(u, v)</annotation></semantics></math>,
+and assume that the Hessian matrix is positive definite. What is the
+optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>u</mi><mo>,</mo><mi mathvariant="normal">Δ</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\Delta u, \Delta v)</annotation></semantics></math>
+to minimize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>E</mi><mo accent="true">̂</mo></mover><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>u</mi><mo>,</mo><mi mathvariant="normal">Δ</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{E}_2(\Delta u, \Delta v)</annotation></semantics></math>?
+(The direction is called the Newton Direction.)</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">+(\nabla^2E(u,v))^{-1}\nabla E(u,v)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-(\nabla^2E(u,v))^{-1}\nabla E(u,v)</annotation></semantics></math></p></li>
+<li><p>none of the other choices</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">+\nabla ^2 E(u,v) \nabla E(u,v)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-\nabla ^2 E(u,v) \nabla E(u,v)</annotation></semantics></math></p></li>
+</ol>
+<p>其实这个题目我不是很清楚。这其中涉及到了海森矩阵以及牛顿方向。通过简单的了解，如果一个点的梯度为0向量，而且在该点的海森矩阵为正定矩阵，那么该点为极小值点。题目中说明了海森矩阵为正定矩阵，因此找这个极值点，如果不知道牛顿方向，我就会按照梯度下降的来。而查阅了牛顿方向之后，牛顿方向就是e选项。所以选择b.</p>
+<p>当然，这个题目实际上就是搜出来的答案，真正想要理解需要更加深入地去看线性代数。</p>
+<p><strong>10. Use the Newton direction (without ) for updating and
+start from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mn>0</mn></msub><mo>,</mo><msub><mi>v</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u_0, v_0) = (0, 0)</annotation></semantics></math>.
+What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mn>5</mn></msub><mo>,</mo><msub><mi>v</mi><mn>5</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E(u_ {5}, v_ {5})</annotation></semantics></math>
+after five updates?</strong></p>
+<ol type="a">
+<li><p>4.904</p></li>
+<li><p>3.277</p></li>
+<li><p>2.825</p></li>
+<li><p>2.361</p></li>
+<li><p>1.436</p></li>
+</ol>
+<p>这道题目，当然我还是想借助程序来完成，不过这次的程序相比之前会更麻烦一点。因为之前设置好了接口，也就是在梯度下降的时候传入求得梯度的函数，因此这里我们只需要写出计算
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>∇</mi><mn>2</mn></msup><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mi>∇</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla ^2 E(u,v) \nabla E(u,v)</annotation></semantics></math>的函数：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Newton_direction</span>(<span class="params">para</span>):</span><br><span class="line">    u = para[<span class="number">0</span>]</span><br><span class="line">    v = para[<span class="number">1</span>]</span><br><span class="line">    hs = [[math.exp(u)+math.<span class="built_in">pow</span>(v,<span class="number">2</span>)*math.exp(u*v)+<span class="number">2</span>,math.exp(u*v)+v*u*math.exp(u*v)-<span class="number">2</span>],</span><br><span class="line">          [math.exp(u*v)+v*u*math.exp(u*v)-<span class="number">2</span>,<span class="number">4</span>*math.exp(<span class="number">2</span>*v)+math.<span class="built_in">pow</span>(u,<span class="number">2</span>)*math.exp(u*v)+<span class="number">4</span>]]</span><br><span class="line">    m = mat(hs)</span><br><span class="line">    <span class="keyword">return</span> (m.I*mat([get_gradient([u,v])]).T).T.tolist()[<span class="number">0</span>]</span><br></pre></td></tr></table></figure> 最后在主函数中修改传入的学习率与求梯度的函数：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(Ein(gradient_decent([<span class="number">0</span>,<span class="number">0</span>],Newton_direction,<span class="number">1</span>,<span class="number">5</span>)))</span><br></pre></td></tr></table></figure> 得到结果：<code>2.360823345643139</code> 因此答案选d.</p>
+<p><strong>11. Consider six inputs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_1 = (1, 1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_2 = (1, -1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_3 = (-1, -1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>4</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_4 = (-1, 1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>5</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_5 = (0, 0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>6</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_6 = (1, 0)</annotation></semantics></math>.
+What is the biggest subset of those input vectors that can be shattered
+by the union of quadratic, linear, or constant hypotheses of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒙</mi><annotation encoding="application/x-tex">\mathbf{x}</annotation></semantics></math>?</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1,\mathbf{x}_2,\mathbf{x}_3</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>4</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>5</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>6</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1,\mathbf{x}_2,\mathbf{x}_3,\mathbf{x}_4,\mathbf{x}_5,\mathbf{x}_6</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>4</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1,\mathbf{x}_2,\mathbf{x}_3,\mathbf{x}_4</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1,\mathbf{x}_3</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>2</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>3</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>4</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mn>5</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{x}_1,\mathbf{x}_2,\mathbf{x}_3,\mathbf{x}_4,\mathbf{x}_5</annotation></semantics></math></p></li>
+</ol>
+<p>首先，我们可以看到特征量的个数是2（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d=2</annotation></semantics></math>），而由前面的推导可以知道，最高次为2次时候，它可以组成的新的特征值的个数为5，而它的vc
+dimension是小于等于6的.一种可行的办法是将x空间投影到z空间以后，用线性的办法来shatter这6个点，再返回看原来的x组合而成的特征是否能够满足这6个特征量。但是实际上这还是复杂的。也可以利用梯度下降，跑程序来对上述选项来进行排除。具体答案是多少还需要进一步进行排除。这个答案是b.可以shatter6个点.</p>
+<p><strong>12. Assume that a transformer peeks the data and decides the
+following transform
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold">𝚽</mi><annotation encoding="application/x-tex">\boldsymbol{\Phi}</annotation></semantics></math>
+“intelligently” from the data of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.
+The transform maps
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{x} \in \mathbb{R}^d</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒛</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>N</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{z} \in \mathbb{R}^N</annotation></semantics></math>,
+where</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold">𝚽</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo><msub><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msub><mo>=</mo><msub><mi>z</mi><mi>n</mi></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">[</mo><mi mathvariant="bold-italic">𝒙</mi><mo>=</mo><msub><mi mathvariant="bold-italic">𝒙</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+(\boldsymbol{\Phi}(\mathbf{x}))_n = z_n = \left[\left[ \mathbf{x} = \mathbf{x}_n \right]\right]
+</annotation></semantics></math> Consider a learning algorithm that
+performs PLA after the feature transform.Assume that all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒙</mi><mi>n</mi></msub><annotation encoding="application/x-tex">\mathbf{x}_n</annotation></semantics></math>
+are different,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>30</mn><annotation encoding="application/x-tex">30%</annotation></semantics></math>
+of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>n</mi></msub><annotation encoding="application/x-tex">y_n</annotation></semantics></math>’s
+are positive, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>+</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">sign(0)=+1</annotation></semantics></math>.
+Then, estimate the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>
+of the algorithm with a test set with all its input vectors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒙</mi><annotation encoding="application/x-tex">\mathbf{x}</annotation></semantics></math>
+different from those training
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒙</mi><mi>n</mi></msub><annotation encoding="application/x-tex">\mathbf{x}_n</annotation></semantics></math>’s
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>30</mn><annotation encoding="application/x-tex">30%</annotation></semantics></math>
+of its output labels
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+to be positive. Which of the following is not true?</p>
+<ol type="a">
+<li><p>PLA will halt after enough iterations.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>0.7</mn></mrow><annotation encoding="application/x-tex">E_ {out} = 0.7</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mn>0.7</mn></mrow><annotation encoding="application/x-tex">E_ {in} = 0.7</annotation></semantics></math></p></li>
+<li><p>All
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="bold-italic">𝒁</mi><mi>n</mi></msub><annotation encoding="application/x-tex">\mathbf{Z}_n</annotation></semantics></math>’s
+are orthogonal to each other.</p></li>
+<li><p>The transformed data set is always linearly separable in the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="script">𝒵</mi><annotation encoding="application/x-tex">\mathcal{Z}</annotation></semantics></math>
+space.</p></li>
+</ol>
+<p>要明白这个题目首先要读懂题意。
+题目中对原来的向量进行了特征转换，原来向量为d维，新的向量为N维，每一个样本对应的新的Z向量是
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">[</mo><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">]</mo><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">[ [[x_i = x_1]], [[x_i = x_2]],...,[[x_i = x_n]]]^T</annotation></semantics></math>,题目中已经告知，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>n</mi></msub><annotation encoding="application/x-tex">X_n</annotation></semantics></math>是各不相同的，因此我们可以直到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>向量会类似于：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup><mo>,</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">]</mo><mi>T</mi></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[1,0,...,0]^T,[0,1,...,0]^T,...,[0,0,...,1]</annotation></semantics></math>.在这样的样本上进行PLA算法。我们可以知道这种情况是最好的情况，是可以被shatter的，PLA一定会停止，而且他们是互相正交的。因此答案就在b，c中选择。而既然PLA会停止说明找到了最小的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>，此时<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>为0.因此答案选c.</p>
+<p>至于c为何是正确的，首先，因为测试集的样本与原来的训练集样本也没有一致的，因此他们得到的转换后的z向量为n维0向量.而题目中说明了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>+</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">sign(0)=+1</annotation></semantics></math>，因此它会将所有的测试样本都判别为positive，而实际上只有30%为positive，因此测试得到的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>为70%.</p>
+<p>For Questions 13-15, consider the target function:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mtext mathvariant="normal">sign</mtext><mo stretchy="false" form="prefix">(</mo><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo>−</mo><mn>0.6</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+f(x_1, x_2) = \mbox{sign}(x_1^2 + x_2^2 - 0.6)
+</annotation></semantics></math></p>
+<p><strong>13. Generate a training set of N = 1000N=1000 points on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">X=[−1,1]</annotation></semantics></math>
+with uniform probability of picking each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒙</mi><mo>∈</mo><mi mathvariant="script">𝒳</mi></mrow><annotation encoding="application/x-tex">\mathbf{x} \in \mathcal{X}</annotation></semantics></math>.
+Generate simulated noise by flipping the sign of the output in a random
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">10\%</annotation></semantics></math>
+subset of the generated training set.</strong></p>
+<p>Carry out Linear Regression without transformation, i.e., with
+feature vector:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+(1,x_1,x_2)
+</annotation></semantics></math></p>
+<p>to find the weight <span class="math inline">$\mathbf{w}_ {\rm
+lin}$</span>, and use <span class="math inline">$\mathbf{w}_ {\rm
+lin}$</span> directly for classification. What is the closest value to
+the classification
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mi>/</mi><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0/1)</annotation></semantics></math>
+in-sample error (<span class="math inline">$E_ {\rm in}$</span>)? Run
+the experiment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1000</mn><annotation encoding="application/x-tex">1000</annotation></semantics></math>
+times and take the average <span class="math inline">$E_ {\rm
+in}$</span> in order to reduce variation in your results.</p>
+<ol type="a">
+<li><p>0.1</p></li>
+<li><p>0.3</p></li>
+<li><p>0.5</p></li>
+<li><p>0.7</p></li>
+<li><p>0.9</p></li>
+</ol>
+<p>这次作业与之前不一样了，很早就遇到编程题目了，而且前面有几道题目虽然不是编程题目，我也依然是用程序计算出来的。</p>
+<p>这个题目想要用程序解答其实也不是非常难。在这里我使用的是一步求法，而不是梯度下降那样迭代。首先是要生成数据：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_data</span>():</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000</span>):</span><br><span class="line">        x1 = random.random()*<span class="number">2</span>-<span class="number">1</span></span><br><span class="line">        x2 = random.random()*<span class="number">2</span>-<span class="number">1</span></span><br><span class="line">        result.append([x1,x2,sign(<span class="built_in">pow</span>(x1,<span class="number">2</span>)+<span class="built_in">pow</span>(x2,<span class="number">2</span>)-<span class="number">0.6</span>)])</span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure></p>
+<p>为了检查做的数据是否正确，对生成的数据进行了可视化（因为输出长宽比例不同，所以这个圆看上去不是正圆）：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">visualize</span>(<span class="params">data,W=[]</span>):</span><br><span class="line">    nx = []</span><br><span class="line">    ny = []</span><br><span class="line">    ox = []</span><br><span class="line">    oy = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        <span class="keyword">if</span> data[i][-<span class="number">1</span>] == -<span class="number">1</span>:</span><br><span class="line">            nx.append(data[i][<span class="number">1</span>])</span><br><span class="line">            ny.append(data[i][<span class="number">2</span>])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ox.append(data[i][<span class="number">1</span>])</span><br><span class="line">            oy.append(data[i][<span class="number">2</span>])</span><br><span class="line">    plt.scatter(nx,ny,marker=<span class="string">&quot;x&quot;</span>,c=<span class="string">&quot;r&quot;</span>)</span><br><span class="line">    plt.scatter(ox,oy,marker=<span class="string">&quot;o&quot;</span>,c=<span class="string">&quot;g&quot;</span>)</span><br><span class="line">    theta = np.linspace(<span class="number">0</span>, <span class="number">2</span> * np.pi, <span class="number">800</span>)</span><br><span class="line">    x, y = np.cos(theta) * <span class="number">0.77459666924148</span>, np.sin(theta) * <span class="number">0.77459666924148</span><span class="comment"># sqrt 0.6</span></span><br><span class="line">    plt.plot(x, y, color=<span class="string">&#x27;blue&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(W)!=<span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(W)</span><br><span class="line">        x = np.linspace(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">50</span>)</span><br><span class="line">        y = -W[<span class="number">1</span>] / W[<span class="number">2</span>] * x - W[<span class="number">0</span>] / W[<span class="number">2</span>]</span><br><span class="line">        plt.plot(x, y, color=<span class="string">&quot;black&quot;</span>)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure> <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/RE%40%60F%29JRPQT_KE%7EFIVEC17K.png"
+alt="生成数据" /></p>
+<p>然后通过线性回归得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>X</mi><mi>T</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">W = (X^TX)^{-1}X^TY</annotation></semantics></math>:
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">linear_regression_one_step</span>(<span class="params">data</span>):</span><br><span class="line">    X_matrix = []</span><br><span class="line">    Y_matrix = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        temp = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data[i])-<span class="number">1</span>):</span><br><span class="line">            temp.append(data[i][j])</span><br><span class="line">        X_matrix.append(temp)</span><br><span class="line">        Y_matrix.append([data[i][-<span class="number">1</span>]])</span><br><span class="line">    X = np.mat(X_matrix)</span><br><span class="line">    Y = np.mat(Y_matrix)</span><br><span class="line"></span><br><span class="line">    W = (X.T*X).I*X.T*Y</span><br><span class="line">    <span class="keyword">return</span> W.T.tolist()[<span class="number">0</span>]</span><br></pre></td></tr></table></figure></p>
+<p>最后通过分类计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Ein</span>(<span class="params">data,W</span>):</span><br><span class="line">    err_num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        res = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(W)):</span><br><span class="line">            res += W[j]*data[i][j]</span><br><span class="line">        <span class="keyword">if</span> sign(res) != data[i][-<span class="number">1</span>]:</span><br><span class="line">            err_num+=<span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> err_num</span><br></pre></td></tr></table></figure></p>
+<p>运行1000次取输出为：<code>0.50614</code></p>
+<p>因此答案选c.其实我们也可以想象得到这个错误率是接近0.5的，可视化的结果如下：
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/_%7BA%60P%28N%255%7B4U8%25%25NQ%24H%408O9.png" /></p>
+<p>不管怎么画这条线，总会有接近一半的区域被分错.</p>
+<p><strong>14. Now, transform the training data into the following
+nonlinear feature
+vector:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>,</mo><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)</annotation></semantics></math>.Find
+the vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi mathvariant="bold-italic">𝒘</mi><mo accent="true">̃</mo></mover><annotation encoding="application/x-tex">\tilde{\mathbf{w} }</annotation></semantics></math>
+that corresponds to the solution of Linear Regression, and take it for
+classification. Which of the following hypotheses is closest to the one
+you find using Linear Regression on the transformed input? Closest here
+means agrees the most with your hypothesis (has the most probability of
+agreeing on a randomly selected point).</strong></p>
+<ol type="a">
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>−</mo><mn>1.5</mn><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>0.08</mn><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.13</mn><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.05</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>1.5</mn><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x_1,x_2) = sign(-1-1.5x_1+0.08x_2+0.13x_1x_2+0.05x_1^2+1.5x_2^2)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>−</mo><mn>1.5</mn><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>0.08</mn><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.13</mn><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.05</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>0.05</mn><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x_1,x_2) = sign(-1-1.5x_1+0.08x_2+0.13x_1x_2+0.05x_1^2+0.05x_2^2)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>−</mo><mn>0.05</mn><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>0.08</mn><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.13</mn><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>1.5</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>15</mn><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x_1,x_2) = sign(-1-0.05x_1+0.08x_2+0.13x_1x_2+1.5x_1^2+15x_2^2)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>−</mo><mn>0.05</mn><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>0.08</mn><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.13</mn><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>1.5</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>1.5</mn><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x_1,x_2) = sign(-1-0.05x_1+0.08x_2+0.13x_1x_2+1.5x_1^2+1.5x_2^2)</annotation></semantics></math></p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><mo>−</mo><mn>0.05</mn><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>0.08</mn><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>0.13</mn><msub><mi>x</mi><mn>1</mn></msub><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mn>15</mn><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mn>1.5</mn><msubsup><mi>x</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(x_1,x_2) = sign(-1-0.05x_1+0.08x_2+0.13x_1x_2+15x_1^2+1.5x_2^2)</annotation></semantics></math></p></li>
+</ol>
+<p>经过特征转换后进行线性回归，找到最相似的W向量。实际上，每次输出的向量不容易看出来他们的相似性，最好的办法就是从z空间转回去看实际的分类效果。
+为了完成这道题目，需要添加一些新的函数。首先是一个特征转换的函数：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">transform_data</span>(<span class="params">data</span>):</span><br><span class="line">    t_data = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        temp = [<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">        temp.append(data[i][<span class="number">1</span>])</span><br><span class="line">        temp.append(data[i][<span class="number">2</span>])</span><br><span class="line">        temp.append(data[i][<span class="number">1</span>]*data[i][<span class="number">2</span>])</span><br><span class="line">        temp.append(data[i][<span class="number">1</span>]*data[i][<span class="number">1</span>])</span><br><span class="line">        temp.append(data[i][<span class="number">2</span>]*data[i][<span class="number">2</span>])</span><br><span class="line">        temp.append(data[i][-<span class="number">1</span>])</span><br><span class="line">        t_data.append(temp)</span><br><span class="line">    <span class="keyword">return</span> t_data</span><br></pre></td></tr></table></figure>
+另外，我重新写了一个可视化的函数，来画出学习后分类的结果，并且与原始的界限做对比。实际上，如果不通过可视化，单单从W向量我们不是很容易能看出来他们之间的相似度，如：
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1.233493970901365</mn><mo>,</mo><mn>0.0289716107001069</mn><mo>,</mo><mi>−</mi><mn>0.04249028735529122</mn><mo>,</mo><mi>−</mi><mn>0.06563216707578017</mn><mo>,</mo><mn>1.8906604891218894</mn><mo>,</mo><mn>2.014485177474217</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+W = [-1.233493970901365, 0.0289716107001069, -0.04249028735529122, -0.06563216707578017, 1.8906604891218894, 2.014485177474217]
+</annotation></semantics></math> 得到的分类效果如下： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%24NF51V%5BFC0ELUWH8QXJ%7D%5BDE.png" /></p>
+<p>而其他几个选项按照a,b,c,d,e的顺序分别得到下面的分类效果： <img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/XZSCVFU97%28EH4V5%29X%5DDT%7E70.png" />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/V%28%7D%7BZ%5BQ2L%402145%5D%7D%5D9FW%7E_B.png" />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/R67TAG1%7BEXKD2%406Y_WS%28SZA.png" />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/%5BI13AGR586%24DR9%5BG3%5D038%40F.png" />
+<img
+src="https://evolution-video.oss-cn-beijing.aliyuncs.com/images/2HM1%5D84NO9J%29%7BUA%7DNI%7E2%5D90.png" /></p>
+<p>可以很明显的看出来，答案选择d.</p>
+<p><strong>15. Following Question 14, what is the closest value to the
+classification out-of-sample error <span class="math inline">$E_ {\rm
+out}$</span> of your hypothesis? Estimate it by generating a new set of
+1000 points and adding noise as before. Average over 1000 runs to reduce
+the variation in your results.</strong></p>
+<ol type="a">
+<li><p>0.1</p></li>
+<li><p>0.3</p></li>
+<li><p>0.5</p></li>
+<li><p>0.7</p></li>
+<li><p>0.9</p></li>
+</ol>
+<p>这道题目需要来测量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>，并且要加上噪声。其实还是很简单的，只需要做简单的改动，来计算<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>.</p>
+<p>既然是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>，那就需要每次都重新生成数据，这就是和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的区别，再加个转换，除此之外是一样的，因此可以复用<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>函数：
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Eout</span>(<span class="params">W</span>):</span><br><span class="line">    data = make_data()</span><br><span class="line">    t_data = transform_data(data)</span><br><span class="line">    <span class="keyword">return</span> Ein(t_data,W)</span><br></pre></td></tr></table></figure></p>
+<p>然后运行1000次就可以了，最后得到的错误率：<code>0.126856</code>,答案选a.</p>
+<p>For Questions 16-17, you will derive an algorithm for the multinomial
+(multiclass) logistic regression model. <strong>16. For a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>-class
+classification problem, we will denote the output space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">𝒴</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\mathcal{Y} = \{1, 2, \ldots, K\}</annotation></semantics></math>.
+The hypotheses considered by the model are indexed by a list of weight
+vectors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mn>1</mn></msub><mo>,</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>K</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{w}_1, \mathbf{w}_2, \ldots, \mathbf{w}_K)</annotation></semantics></math>,
+each weight vector of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">d+1</annotation></semantics></math>.
+Each list represents a hypothesis</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>y</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><msup><mi>e</mi><mrow><msubsup><mi>W</mi><mi>y</mi><mi>T</mi></msubsup><mi>X</mi></mrow></msup><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msup><mi>e</mi><mrow><msubsup><mi>W</mi><mi>k</mi><mi>T</mi></msubsup><mi>X</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+h_y( X) = \frac {e^{W_y^TX} } {\sum _ {k=1} ^{K} e^{W_k^TX} } 
+</annotation></semantics></math> that can be used to approximate the
+target distribution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒙</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(y|\mathbf{x})</annotation></semantics></math>P.
+The model then seeks for the maximum likelihood solution over all such
+hypotheses.(Note:<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒙</mi><annotation encoding="application/x-tex">\mathbf{x}</annotation></semantics></math>)</p>
+<p>For general
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>,
+derive an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mn>1</mn></msub><mo>,</mo><mi>⋯</mi><mo>,</mo><msub><mi mathvariant="bold-italic">𝒘</mi><mi>K</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {\text{in} }(\mathbf{w}_1, \cdots, \mathbf{w}_K)</annotation></semantics></math>
+like page 11 of Lecture 10 slides by minimizing the negative log
+likelihood. What is the resulting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub><annotation encoding="application/x-tex">E_ {\text{in} }</annotation></semantics></math>?</p>
+<ol type="a">
+<li><p> N _ {n = 1}^N ( _ {k=1} ^K (W_k^TX_n - W_ {y_n}^TX_n))</p></li>
+<li><p> N _ {n = 1}^N (_ {k=1} ^K W_k^TX_n - W_ {y_n}^TX_n)</p></li>
+<li><p> N _ {n = 1}^N ( (_ {k=1} ^K e<sup>{W_k</sup>TX_n}) - W_
+{y_n}^TX_n)</p></li>
+<li><p>none of the other choices</p></li>
+<li><p> N _ {n = 1}^N ( (_ {k=1} ^K e<sup>{W_k</sup>TX_n} - e^{W_
+{y_n}^TX_n}))</p></li>
+</ol>
+<p>这是一个很有意思的概率的定义，它保证了分到各个分类的概率和加起来为1，而之前的假设是不能保证这个问题的。</p>
+<p>对于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的处理，也是一致的。按照之前的想法来一步一步做。首先，计算出在该<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>的情况下，出现当前分类的概率，可以知道的是互相连乘，最后为了让他变成加法，以及最小化（而非最大化），需要加一个负号，忽略P(X=X_i)。</p>
+<p>可以得到下面的过程：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mi>n</mi></mrow><mi>N</mi></munderover><mfrac><msup><mi>e</mi><mrow><msubsup><mi>W</mi><msub><mi>y</mi><mi>n</mi></msub><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub></mrow></msup><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msup><mi>e</mi><mrow><msubsup><mi>W</mi><mi>k</mi><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+\prod_ {i=n}^{N} \frac {e^{W_ {y_n}^TX_ {n} } } {\sum _ {k=1} ^{K} e^{W_k^TX_n} } 
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo>&gt;</mo><mi>−</mi><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">ln</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>e</mi><mrow><msubsup><mi>W</mi><msub><mi>y</mi><mi>n</mi></msub><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">ln</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msup><mi>e</mi><mrow><msubsup><mi>W</mi><mi>k</mi><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex"> 
+=&gt; -\sum_ {n = 1}^N( \ln (e^{W_ {y_n}^TX_n}) - \ln (\sum _ {k = 1}^K e^{W_ {k}^TX_n}))
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo>&gt;</mo><munderover><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="normal">ln</mi><mo stretchy="false" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msup><mi>e</mi><mrow><msubsup><mi>W</mi><mi>k</mi><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub></mrow></msup><mo>−</mo><msubsup><mi>W</mi><msub><mi>y</mi><mi>n</mi></msub><mi>T</mi></msubsup><msub><mi>X</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+  =&gt;\sum _ {n = 1}^N \left ( \ln (\sum _ {k=1} ^K e^{W_k^TX_n} - W_ {y_n}^TX_n)\right)
+</annotation></semantics></math></p>
+<p>最后除以N，得到选项c.</p>
+<p><strong>17. For the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub><annotation encoding="application/x-tex">E_ {\text{in} }</annotation></semantics></math>
+derived above, its gradient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub></mrow><annotation encoding="application/x-tex">\nabla E_ {\text{in} }</annotation></semantics></math>
+can be represented by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>∂</mi><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub></mrow><mrow><mi>∂</mi><msub><mi mathvariant="bold-italic">𝒘</mi><mn>1</mn></msub></mrow></mfrac><mo>,</mo><mfrac><mrow><mi>∂</mi><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub></mrow><mrow><mi>∂</mi><msub><mi mathvariant="bold-italic">𝒘</mi><mn>2</mn></msub></mrow></mfrac><mo>,</mo><mi>⋯</mi><mo>,</mo><mfrac><mrow><mi>∂</mi><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub></mrow><mrow><mi>∂</mi><msub><mi mathvariant="bold-italic">𝒘</mi><mi>K</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\left(\frac{\partial E_ {\text{in} } }{\partial\mathbf{w}_1}, \frac{\partial E_ {\text{in} } }{\partial\mathbf{w}_2}, \cdots, \frac{\partial E_ {\text{in} } }{\partial\mathbf{w}_K}\right)</annotation></semantics></math>,
+write down
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mi>∂</mi><msub><mi>E</mi><mtext mathvariant="normal">in</mtext></msub></mrow><mrow><mi>∂</mi><msub><mi mathvariant="bold-italic">𝒘</mi><mi>i</mi></msub></mrow></mfrac><annotation encoding="application/x-tex">\frac{\partial E_ {\text{in} } }{\partial\mathbf{w}_i}</annotation></semantics></math>
+.</strong></p>
+<ol type="a">
+<li><p> N _ {n=1}^N (_ {i = 1} <sup>K(e</sup>{W_i^TX_n} -
+[[y_n=i]])X_n)</p></li>
+<li><p> N _ {n=1}^N ((h_i(x_n)-1)x_n)</p></li>
+<li><p>none of the other choices</p></li>
+<li><p> N _ {n=1}^N ((h_i(x_n) - [[y_n=i]])X_n)</p></li>
+<li><p> N _ {n=1}^N ( _(i = 1)<sup>K(e</sup>{W_i^TX_n}-1)X_n)</p></li>
+</ol>
+<p>这个题目就是对上面的题目的选择结果进行求导即可。虽然比较复杂，但是不算难。一步步算下来就成，正确答案是d.</p>
+<p>For Questions 18-20, you will play with logistic regression. Please
+use the following set for training:</p>
+<p>https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw3_train.dat</p>
+<p>and the following set for testing:</p>
+<p>https://www.csie.ntu.edu.tw/~htlin/mooc/datasets/mlfound_algo/hw3_test.dat</p>
+<p><strong>18. Implement the fixed learning rate gradient descent
+algorithm for logistic regression. Run the algorithm with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">\eta = 0.001</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">T = 2000</annotation></semantics></math>.
+What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g)</annotation></semantics></math>
+from your algorithm, evaluated using the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>/</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">0/1</annotation></semantics></math>
+error on the test set?</strong></p>
+<ol type="a">
+<li><p>0.475</p></li>
+<li><p>0.412</p></li>
+<li><p>0.322</p></li>
+<li><p>0.220</p></li>
+<li><p>0.103</p></li>
+</ol>
+<p><strong>19. Implement the fixed learning rate gradient descent
+algorithm for logistic regression. Run the algorithm with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">\eta = 0.01</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">T = 2000</annotation></semantics></math>.
+What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g)</annotation></semantics></math>
+from your algorithm, evaluated using the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>/</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">0/1</annotation></semantics></math>
+error on the test set?</strong></p>
+<ol type="a">
+<li><p>0.475</p></li>
+<li><p>0.412</p></li>
+<li><p>0.322</p></li>
+<li><p>0.220</p></li>
+<li><p>0.103</p></li>
+</ol>
+<p><strong>20. Implement the fixed learning rate stochastic gradient
+descent algorithm for logistic regression. Instead of randomly choosing
+nn in each iteration, please simply pick the example with the cyclic
+order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>N</mi><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">n = 1, 2, \ldots, N, 1, 2, \ldots</annotation></semantics></math>,Run
+the algorithm with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">\eta = 0.001</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">T = 2000</annotation></semantics></math>.
+What is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E_ {out}(g)</annotation></semantics></math>
+from your algorithm, evaluated using the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>/</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">0/1</annotation></semantics></math>
+error on the test set?</strong></p>
+<ol type="a">
+<li><p>0.475</p></li>
+<li><p>0.412</p></li>
+<li><p>0.322</p></li>
+<li><p>0.220</p></li>
+<li><p>0.103</p></li>
+</ol>
+<p>这3道题目，可以用一套方法做出来，可以引用第7题的程序中的梯度下降算法与13题程序中的对于<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">E_ {in}</annotation></semantics></math>的估计。当然，对于之前代码的还需要进行一丝修改。
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> gradient_decent_7 <span class="keyword">as</span> gd</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span>  numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> _linear_regression_13 <span class="keyword">as</span> lr</span><br><span class="line">now = <span class="number">0</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logistic</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>/(<span class="number">1</span>+math.exp(-x))</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_logistic_gradient</span>(<span class="params">lastW,data</span>):</span><br><span class="line">    W = np.mat([lastW]).T</span><br><span class="line">    X = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        temp = data[i][<span class="number">0</span>:-<span class="number">1</span>]</span><br><span class="line">        temp.append(<span class="number">1</span>)</span><br><span class="line">        X.append(np.mat([temp]).T)</span><br><span class="line">    gra = logistic(-data[<span class="number">0</span>][-<span class="number">1</span>]*(W.T*X[<span class="number">0</span>])[<span class="number">0</span>][<span class="number">0</span>])*(-data[<span class="number">0</span>][-<span class="number">1</span>]*X[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="built_in">len</span>(data)):</span><br><span class="line">        gra = gra + logistic(-data[i][-<span class="number">1</span>]*(W.T*X[i])[<span class="number">0</span>][<span class="number">0</span>])*(-data[i][-<span class="number">1</span>]*X[i])</span><br><span class="line">    <span class="comment">#print(gra)</span></span><br><span class="line">    <span class="keyword">return</span> ((<span class="number">1</span>/<span class="built_in">len</span>(data))*gra).T.tolist()[<span class="number">0</span>]</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">stochastic_gradient_init</span>():</span><br><span class="line">    <span class="keyword">global</span>  now</span><br><span class="line">    now = <span class="number">0</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">stochastic_gradient</span>(<span class="params">lastW,data</span>):</span><br><span class="line">    <span class="keyword">global</span> now</span><br><span class="line">    <span class="keyword">if</span> now == <span class="built_in">len</span>(data):</span><br><span class="line">        now = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    W = np.mat([lastW]).T</span><br><span class="line">    temp = data[now][<span class="number">0</span>:-<span class="number">1</span>]</span><br><span class="line">    temp.append(<span class="number">1</span>)</span><br><span class="line">    X = np.mat([temp]).T</span><br><span class="line">    gra = logistic(-data[now][-<span class="number">1</span>]*(W.T*X)[<span class="number">0</span>][<span class="number">0</span>])*(-data[now][-<span class="number">1</span>]*X)</span><br><span class="line">    now += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> gra.T.tolist()[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">readDataFrom</span>(<span class="params">filename</span>):</span><br><span class="line">    result = []</span><br><span class="line">    separator = re.<span class="built_in">compile</span>(<span class="string">&#x27;\t|\b| |\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename,<span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline()[<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">        <span class="comment">#print(line)</span></span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            temp = separator.split(line)</span><br><span class="line">            <span class="comment">#print(temp)</span></span><br><span class="line"></span><br><span class="line">            abc = [<span class="built_in">float</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> temp]</span><br><span class="line">            <span class="comment">#print(abc)</span></span><br><span class="line">            result.append(abc)</span><br><span class="line">            <span class="comment">#print(result)</span></span><br><span class="line">            line = f.readline()[<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+上面展示了5个函数，第一个logistic函数就是为了计算logistic函数的值，然后分别有两个计算梯度的函数，为了可以复用之前的代码，采用了一样的形式，不过值得注意的是多增加了一个data参数，这是之前没有的。为了实现题目中要求的顺序采取一个样本来做修正，使用了一个全局变量来记录当前的样本索引，同时有一个初始化函数，可以让样本索引归零。</p>
+<p>还有一个readDataFrom不用多说，根据资料的输入形式进行适当调整。</p>
+<p>最后在主函数中整合输出结果： <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    data = readDataFrom(<span class="string">&quot;./hw3_train.dat&quot;</span>)</span><br><span class="line">    start = [<span class="number">0</span> <span class="keyword">for</span> x <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(data[<span class="number">0</span>]))]</span><br><span class="line">    i_times = <span class="number">2000</span></span><br><span class="line">    stochastic_gradient_init()</span><br><span class="line">    W1 = gd.gradient_decent(start,get_logistic_gradient,<span class="number">0.001</span>,i_times,data)</span><br><span class="line">    W2 = gd.gradient_decent(start,get_logistic_gradient,<span class="number">0.01</span>,i_times,data)</span><br><span class="line">    W3 = gd.gradient_decent(start,stochastic_gradient,<span class="number">0.001</span>,i_times,data)</span><br><span class="line">    err1 = lr.Ein(data,W1)</span><br><span class="line">    err2 = lr.Ein(data,W2)</span><br><span class="line">    err3 = lr.Ein(data,W3)</span><br><span class="line">    out_data = readDataFrom(<span class="string">&quot;./hw3_test.dat&quot;</span>)</span><br><span class="line">    err_out1 = lr.Ein(out_data,W1)</span><br><span class="line">    err_out2 = lr.Ein(out_data,W2)</span><br><span class="line">    err_out3 = lr.Ein(out_data,W3)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Ein:&quot;</span>,err1,err1/<span class="built_in">len</span>(data),err2,err2/<span class="built_in">len</span>(data),err3,err3/<span class="built_in">len</span>(data))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Eout:&quot;</span>,err_out1,err_out1/<span class="built_in">len</span>(out_data),err_out2,err_out2/<span class="built_in">len</span>(out_data),err_out3,err_out3/<span class="built_in">len</span>(out_data))</span><br></pre></td></tr></table></figure>
+我将起始的W设定为0向量，不同的起始向量可能得到不同的性能。</p>
+<p>最后的结果，分别是3道题目的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mi>i</mi></msub><mi>n</mi></mrow><annotation encoding="application/x-tex">{E_in}</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mrow><mi>o</mi><mi>u</mi><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">E_ {out}</annotation></semantics></math>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ein: 430 0.43 204 0.204 427 0.427</span><br><span class="line">Eout: 1354 0.4513333333333333 678 0.226 1352 0.45066666666666666</span><br></pre></td></tr></table></figure>
+<p>因此我认为答案是a,d,a.
+可以看到学习率过低的话可能会使得下降速度过慢，而且随机梯度下降的性能有时候不见得比普通的梯度下降差，但是速度却大大提高。</p>
+<p>将迭代次数更新为10000，3个学习方法都取得了不错的效果，而步长大的性能反而不如之前，说明因为步长过大，它只能再最低点徘徊很难取得更低的位置，而步长小的依然没有达到极限：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ein: 236 0.236 206 0.206 235 0.235</span><br><span class="line">Eout: 779 0.25966666666666666 695 0.23166666666666666 776 0.25866666666666666</span><br></pre></td></tr></table></figure></p>
+<h2 id="p.s.">p.s.</h2>
+<p>1.python中的全局变量，list为引用，而赋值一个常数则会重新声明，为了避免歧义。因此想要改变全局变量的常数，需要添加关键词global。</p>
+<p>2.牛顿方向与海森矩阵。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/machine-learning/" rel="tag"># machine learning</a>
+              <a href="/tags/homework/" rel="tag"># homework</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/05/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Nonlinear-Transformation/" rel="prev" title="机器学习——Nonlinear Transformation">
+                  <i class="fa fa-angle-left"></i> 机器学习——Nonlinear Transformation
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/09/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Overfitting/" rel="next" title="机器学习——Overfitting">
+                  机器学习——Overfitting <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">wlsdzyzl</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
